@@ -9,11 +9,11 @@
 .admin-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgb(0 0 0 / 50%);
+  background: var(--overlay-black-50);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-modal);
   animation: admin-fadeIn 0.15s ease-out;
   overflow-y: auto; /* Allow scrolling within modal overlay if modal is tall */
 }
@@ -138,8 +138,8 @@
   align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-3);
-  background: rgb(239 68 68 / 10%);
-  border: 1px solid rgb(239 68 68 / 30%);
+  background: var(--overlay-red-10);
+  border: 1px solid var(--overlay-red-30);
   border-radius: var(--radius-md);
 }
 
@@ -217,8 +217,8 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3);
-  background: rgb(239 68 68 / 10%);
-  border: 1px solid rgb(239 68 68 / 30%);
+  background: var(--overlay-red-10);
+  border: 1px solid var(--overlay-red-30);
   border-radius: var(--radius-md);
   color: var(--color-destructive);
   font-size: var(--font-size-sm);
@@ -406,10 +406,24 @@
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
   line-height: 1.6;
+  list-style-type: disc;
 }
 
 .admin-modal__alert-list li {
-  margin-bottom: var(--space-0-5);
+  margin-bottom: var(--space-1);
+  padding-left: var(--space-1);
+}
+
+.admin-modal__alert-list li::marker {
+  color: var(--color-warning-dark);
+}
+
+/* Compact alert text (single line) */
+.admin-modal__alert-text {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
 }
 
 /* Info box */
@@ -550,12 +564,12 @@
 
 /* Dark mode adjustments */
 .dark .admin-modal__header--warning {
-  background: rgb(245 158 11 / 15%);
+  background: var(--overlay-amber-15);
 }
 
 .dark .admin-modal__alert--warning {
-  background: rgb(245 158 11 / 15%);
-  border-color: rgb(245 158 11 / 40%);
+  background: var(--overlay-amber-15);
+  border-color: var(--overlay-amber-40);
 }
 
 .dark .admin-modal__textarea {

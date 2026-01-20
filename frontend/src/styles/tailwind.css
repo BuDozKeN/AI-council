@@ -284,6 +284,14 @@
     --color-yellow-600: #ca8a04;
     --color-yellow-700: #a16207;
 
+    /* Cyan scale - for info/status badges */
+    --color-cyan-500: #06b6d4;
+    --color-cyan-600: #0891b2;
+
+    /* Pink scale - for accent badges */
+    --color-pink-500: #ec4899;
+    --color-pink-600: #db2777;
+
     /* Teal scale - for project types */
     --color-teal-50: #f0fdfa;
     --color-teal-100: #ccfbf1;
@@ -393,6 +401,35 @@
     --overlay-indigo-15: rgb(99 102 241 / 15%);
     --overlay-indigo-20: rgb(99 102 241 / 20%);
     --overlay-indigo-25: rgb(99 102 241 / 25%);
+    --overlay-indigo-30: rgb(99 102 241 / 30%);
+    --overlay-indigo-35: rgb(99 102 241 / 35%);
+    --overlay-amber-8: rgb(245 158 11 / 8%);
+    --overlay-amber-15: rgb(245 158 11 / 15%);
+    --overlay-amber-30: rgb(245 158 11 / 30%);
+    --overlay-amber-40: rgb(245 158 11 / 40%);
+    --overlay-yellow-15: rgb(252 211 77 / 15%);
+    --overlay-cyan-15: rgb(6 182 212 / 15%);
+    --overlay-pink-15: rgb(236 72 153 / 15%);
+    --overlay-emerald-8: rgb(16 185 129 / 8%);
+    --overlay-emerald-12: rgb(16 185 129 / 12%);
+    --overlay-emerald-15: rgb(16 185 129 / 15%);
+    --overlay-emerald-20: rgb(16 185 129 / 20%);
+    --overlay-emerald-25: rgb(16 185 129 / 25%);
+    --overlay-emerald-30: rgb(16 185 129 / 30%);
+    --overlay-emerald-35: rgb(16 185 129 / 35%);
+    --overlay-emerald-40: rgb(16 185 129 / 40%);
+    --overlay-red-8: rgb(239 68 68 / 8%);
+    --overlay-red-12: rgb(239 68 68 / 12%);
+    --overlay-red-25: rgb(239 68 68 / 25%);
+    --overlay-red-30: rgb(239 68 68 / 30%);
+    --overlay-red-35: rgb(239 68 68 / 35%);
+    --overlay-red-40: rgb(239 68 68 / 40%);
+    --overlay-blue-8: rgb(59 130 246 / 8%);
+    --overlay-blue-25: rgb(59 130 246 / 25%);
+    --overlay-blue-30: rgb(59 130 246 / 30%);
+    --overlay-purple-25: rgb(139 92 246 / 25%);
+    --overlay-green-25: rgb(34 197 94 / 25%);
+    --overlay-green-35: rgb(34 197 94 / 35%);
 
     /* Provider brand colors */
     --color-provider-openrouter: #6366f1;
@@ -689,6 +726,35 @@ html.dark,
   --overlay-indigo-15: rgb(99 102 241 / 20%);
   --overlay-indigo-20: rgb(99 102 241 / 25%);
   --overlay-indigo-25: rgb(99 102 241 / 30%);
+  --overlay-indigo-30: rgb(99 102 241 / 35%);
+  --overlay-indigo-35: rgb(99 102 241 / 40%);
+  --overlay-amber-8: rgb(245 158 11 / 12%);
+  --overlay-amber-15: rgb(245 158 11 / 20%);
+  --overlay-amber-30: rgb(245 158 11 / 35%);
+  --overlay-amber-40: rgb(245 158 11 / 45%);
+  --overlay-yellow-15: rgb(252 211 77 / 20%);
+  --overlay-cyan-15: rgb(6 182 212 / 20%);
+  --overlay-pink-15: rgb(236 72 153 / 20%);
+  --overlay-emerald-8: rgb(16 185 129 / 12%);
+  --overlay-emerald-12: rgb(16 185 129 / 16%);
+  --overlay-emerald-15: rgb(16 185 129 / 20%);
+  --overlay-emerald-20: rgb(16 185 129 / 25%);
+  --overlay-emerald-25: rgb(16 185 129 / 30%);
+  --overlay-emerald-30: rgb(16 185 129 / 35%);
+  --overlay-emerald-35: rgb(16 185 129 / 40%);
+  --overlay-emerald-40: rgb(16 185 129 / 45%);
+  --overlay-red-8: rgb(239 68 68 / 12%);
+  --overlay-red-12: rgb(239 68 68 / 16%);
+  --overlay-red-25: rgb(239 68 68 / 30%);
+  --overlay-red-30: rgb(239 68 68 / 35%);
+  --overlay-red-35: rgb(239 68 68 / 40%);
+  --overlay-red-40: rgb(239 68 68 / 45%);
+  --overlay-blue-8: rgb(59 130 246 / 12%);
+  --overlay-blue-25: rgb(59 130 246 / 30%);
+  --overlay-blue-30: rgb(59 130 246 / 35%);
+  --overlay-purple-25: rgb(139 92 246 / 30%);
+  --overlay-green-25: rgb(34 197 94 / 30%);
+  --overlay-green-35: rgb(34 197 94 / 40%);
 
   /* Skeleton loading - dark mode (subtle, not jarring) */
   --skeleton-base: #1e293b; /* slate-800 - dark base */

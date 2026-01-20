@@ -204,14 +204,14 @@
 }
 
 .success-message .success-title {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
   color: var(--color-text-primary);
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .success-message .success-detail {
-  margin: 0 0 20px;
+  margin: 0 0 var(--space-5);
   color: var(--color-text-secondary);
   font-size: 0.9rem;
   line-height: 1.5;

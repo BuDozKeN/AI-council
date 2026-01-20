@@ -27,17 +27,32 @@ const messages = stylelint.utils.ruleMessages(ruleName, {
 
 /**
  * Deprecated breakpoints that should not be reintroduced
- * Only allow: 641px (tablet), 1025px (desktop)
+ * Standard breakpoints:
+ * - Very small phones: max-width/width <= 360px (intentional, for tiny screens)
+ * - Small phones: max-width/width <= 400px (intentional, for small Androids)
+ * - Mobile: default (no query) or max-width/width <= 640px
+ * - Tablet: min-width: 641px (or width >= 641px)
+ * - Desktop: min-width: 1025px (or width >= 1025px)
+ *
+ * We warn about:
+ * - min-width with wrong values (use 641px or 1025px)
+ * - Non-standard breakpoints that aren't for small phones
  */
-const DEPRECATED_BREAKPOINTS = [
+const ALWAYS_DEPRECATED_BREAKPOINTS = [
   '768px',
   '480px',
-  '400px',
-  '360px',
   '600px',
   '800px',
-  '1024px', // Use 1025px instead
-  '640px', // Use 641px instead
+  // Note: 360px and 400px are intentionally allowed for small phone targeting
+];
+
+/**
+ * Breakpoints that are deprecated only in min-width context
+ * (max-width: 640px and max-width: 1024px are fine)
+ */
+const MIN_WIDTH_DEPRECATED = [
+  '640px', // Use 641px for min-width
+  '1024px', // Use 1025px for min-width
 ];
 
 /**
@@ -96,8 +111,11 @@ const ruleFunction = (primary, _secondaryOptions, _context) => {
     root.walkAtRules('media', (atRule) => {
       const params = atRule.params;
 
-      DEPRECATED_BREAKPOINTS.forEach((breakpoint) => {
-        if (params.includes(breakpoint)) {
+      // Always warn about these breakpoints
+      ALWAYS_DEPRECATED_BREAKPOINTS.forEach((breakpoint) => {
+        // Use word boundary regex to avoid matching "600px" in "1600px"
+        const breakpointRegex = new RegExp(`(?<![0-9])${breakpoint.replace('px', '')}px\\b`);
+        if (breakpointRegex.test(params)) {
           stylelint.utils.report({
             message: messages.deprecatedBreakpoint(breakpoint),
             node: atRule,
@@ -105,6 +123,38 @@ const ruleFunction = (primary, _secondaryOptions, _context) => {
             ruleName,
             severity: 'warning',
           });
+        }
+      });
+
+      // For 640px and 1024px, only warn if used in min-width context
+      MIN_WIDTH_DEPRECATED.forEach((breakpoint) => {
+        if (params.includes(breakpoint)) {
+          // Check if it's a min-width query (should use 641px/1025px instead)
+          // Patterns: "min-width: 640px", "width >= 640px", "width > 639px"
+          const isMinWidthPattern =
+            params.includes(`min-width: ${breakpoint}`) ||
+            params.includes(`min-width:${breakpoint}`) ||
+            params.includes(`width >= ${breakpoint}`) ||
+            params.includes(`width>= ${breakpoint}`) ||
+            params.includes(`width >=${breakpoint}`) ||
+            params.includes(`width>=${breakpoint}`) ||
+            // Also catch "(640px <= width)" syntax
+            params.includes(`${breakpoint} <= width`) ||
+            params.includes(`${breakpoint} <=width`) ||
+            params.includes(`${breakpoint}<=width`) ||
+            params.includes(`${breakpoint}<= width`);
+
+          // Only warn for min-width patterns, not max-width/width <=
+          if (isMinWidthPattern) {
+            const suggestedValue = breakpoint === '640px' ? '641px' : '1025px';
+            stylelint.utils.report({
+              message: messages.deprecatedBreakpoint(breakpoint) + ` Use ${suggestedValue} for min-width queries.`,
+              node: atRule,
+              result,
+              ruleName,
+              severity: 'warning',
+            });
+          }
         }
       });
     });
@@ -160,7 +210,11 @@ const ruleFunction = (primary, _secondaryOptions, _context) => {
             (root.source.input.file.includes('design-tokens.css') ||
               root.source.input.file.includes('tailwind.css'));
 
-          if (!isTokenFile) {
+          // Allow rgb(var(--color-*)) pattern - this is the correct way to apply
+          // opacity to CSS variable colors since CSS can't do var(--color) / 50%
+          const usesVariableColor = value.includes(`${fn}(var(--`);
+
+          if (!isTokenFile && !usesVariableColor) {
             stylelint.utils.report({
               message: messages.deprecatedColorFunction(fn),
               node: decl,

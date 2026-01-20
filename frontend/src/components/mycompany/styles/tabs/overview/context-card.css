@@ -330,7 +330,7 @@
   position: sticky;
   bottom: 20px;
   align-self: flex-end;
-  margin-top: -36px; /* Don't add extra space */
+  margin-top: calc(-1 * var(--space-9)); /* Don't add extra space */
   margin-right: var(--card-padding-xl); /* Align with copy button's right edge */
   width: 28px;
   height: 28px;

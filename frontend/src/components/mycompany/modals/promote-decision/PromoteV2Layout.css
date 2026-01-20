@@ -136,7 +136,7 @@
   border-color: var(--color-border-dark);
   background: var(--color-bg-secondary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+  box-shadow: 0 4px 12px var(--overlay-black-8);
 }
 
 /* Type-specific selected states */

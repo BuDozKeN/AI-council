@@ -67,7 +67,7 @@
 }
 
 .admin-stat-card--purple .admin-stat-icon {
-  background: rgb(139 92 246 / 15%);
+  background: var(--overlay-purple-15);
   color: var(--color-violet-500);
 }
 

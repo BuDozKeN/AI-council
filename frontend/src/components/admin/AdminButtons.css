@@ -21,8 +21,7 @@
 
 .admin-action-btn--primary {
   background: var(--color-primary);
-  /* stylelint-disable-next-line color-no-hex -- White text on primary button */
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .admin-action-btn--primary:hover:not(:disabled) {
@@ -42,32 +41,30 @@
 
 .admin-action-btn--danger {
   background: var(--color-destructive);
-  /* stylelint-disable-next-line color-no-hex -- White text on danger button */
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .admin-action-btn--danger:hover:not(:disabled) {
-  background: rgb(220 38 38);
+  background: var(--color-red-600);
 }
 
 .admin-action-btn--warning {
   background: var(--color-warning);
-  /* stylelint-disable-next-line color-no-hex -- Dark text on warning button for contrast */
-  color: #1f2937;
+  color: var(--color-text-primary);
+  font-weight: 600;
 }
 
 .admin-action-btn--warning:hover:not(:disabled) {
-  background: rgb(217 119 6);
+  background: var(--color-warning-dark);
 }
 
 .admin-action-btn--success {
   background: var(--color-success);
-  /* stylelint-disable-next-line color-no-hex -- White text on success button */
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .admin-action-btn--success:hover:not(:disabled) {
-  background: rgb(5 150 105);
+  background: var(--color-emerald-600);
 }
 
 .admin-action-btn:disabled {
@@ -110,7 +107,7 @@
 .admin-icon-btn--danger:hover {
   color: var(--color-destructive);
   border-color: var(--color-destructive);
-  background: rgb(239 68 68 / 10%);
+  background: var(--overlay-red-10);
 }
 
 .admin-icon-btn--warning {
@@ -153,8 +150,7 @@
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
   background: var(--color-primary);
-  /* stylelint-disable-next-line color-no-hex -- White text on primary button */
-  color: #fff;
+  color: var(--color-text-inverse);
   border: none;
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);

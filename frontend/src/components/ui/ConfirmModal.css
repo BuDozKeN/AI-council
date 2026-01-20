@@ -42,7 +42,7 @@
 }
 
 .confirm-modal-title {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
   font-size: var(--text-lg);
   font-weight: 600;
   color: var(--color-text-primary);

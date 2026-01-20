@@ -55,9 +55,9 @@
   background: var(--color-bg-primary);
 
   /* Extend to full width to cover scrolling content */
-  margin-left: -20px;
+  margin-left: calc(-1 * var(--space-5));
   padding-left: var(--space-5);
-  width: calc(100% + 40px);
+  width: calc(100% + var(--space-10));
 }
 
 /* ===========================================
@@ -70,7 +70,7 @@
   z-index: var(--z-raised, 10);
   display: flex;
   justify-content: flex-end;
-  margin-bottom: -36px; /* Pull content up behind button */
+  margin-bottom: calc(-1 * var(--space-9)); /* Pull content up behind button */
   padding-bottom: var(--space-2);
   pointer-events: none; /* Allow clicks through the wrapper */
 }
@@ -321,7 +321,7 @@
   display: flex;
   justify-content: flex-end;
   pointer-events: none;
-  margin-top: -40px; /* Don't add extra space */
+  margin-top: calc(-1 * var(--space-10)); /* Don't add extra space */
   z-index: var(--z-elevated);
 }
 

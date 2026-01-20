@@ -153,7 +153,7 @@
 }
 
 .pm-preview-section h4 {
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-1);
   font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-violet-700);

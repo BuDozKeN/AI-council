@@ -192,8 +192,8 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3);
-  background: rgb(239 68 68 / 10%);
-  border: 1px solid rgb(239 68 68 / 30%);
+  background: var(--overlay-red-10);
+  border: 1px solid var(--overlay-red-30);
   border-radius: var(--radius-md);
   color: var(--color-destructive);
   font-size: var(--font-size-sm);
@@ -333,7 +333,7 @@
   background: var(--color-bg-primary);
   background-image: radial-gradient(
     ellipse 80% 50% at 50% -20%,
-    rgb(99 102 241 / 10%),
+    var(--overlay-indigo-10),
     transparent
   );
 }

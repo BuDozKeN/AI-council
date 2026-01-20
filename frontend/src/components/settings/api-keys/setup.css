@@ -27,7 +27,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0 0 10px;
+  margin: 0 0 10px; /* 10px intentional - non-standard spacing */
 }
 
 .explainer-section h4 svg {
@@ -39,7 +39,7 @@
   font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
   line-height: 1.7;
-  margin: 0 0 10px;
+  margin: 0 0 10px; /* 10px intentional - non-standard spacing */
 }
 
 .explainer-section p:last-child {
@@ -109,7 +109,7 @@
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
 }
 
 .setup-step {
@@ -147,7 +147,7 @@
   font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
   line-height: 1.6;
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-1);
 }
 
 .step-content p:last-child {
