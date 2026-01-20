@@ -364,7 +364,7 @@
 }
 
 .stage-title {
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   color: var(--color-text-primary);
   font-size: var(--text-base);
   font-weight: 600;

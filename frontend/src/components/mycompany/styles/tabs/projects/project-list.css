@@ -429,10 +429,10 @@
   /* Project row: clean card-like appearance */
   .mc-project-row-compact {
     flex-wrap: wrap;
-    padding: 14px 16px;
+    padding: 14px var(--space-4);
     background: var(--color-bg-primary);
     border-radius: var(--radius-lg);
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-xs);
   }
@@ -465,7 +465,7 @@
     min-width: 0;
     flex-wrap: wrap;
     gap: 6px;
-    row-gap: 4px;
+    row-gap: var(--space-1);
   }
 
   .mc-project-name {

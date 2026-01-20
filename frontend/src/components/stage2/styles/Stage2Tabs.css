@@ -1,7 +1,7 @@
 .stage2 .tabs {
   display: flex;
   gap: var(--gap-sm);
-  margin-block: 12px 16px; /* Match Stage 1 pills margin-block-start */
+  margin-block: var(--space-3) var(--space-4); /* Match Stage 1 pills margin-block-start */
   flex-wrap: wrap;
 }
 

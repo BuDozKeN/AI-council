@@ -80,7 +80,7 @@
 .dark .admin-demo-badge {
   /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
   color: #fcd34d;
-  background: rgb(252 211 77 / 15%);
+  background: var(--overlay-yellow-15);
 }
 
 /* Small demo indicator for stats overview */
@@ -105,7 +105,7 @@
 .dark .admin-stats-demo-indicator {
   /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
   color: #fcd34d;
-  background: rgb(252 211 77 / 15%);
+  background: var(--overlay-yellow-15);
 }
 
 /* Inline DEMO badge for stat values */
@@ -113,7 +113,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 1px 4px;
+  padding: 1px var(--space-1);
   margin-left: var(--space-1-5);
   font-size: 8px;
   font-weight: 600;
@@ -131,7 +131,7 @@
 .dark .admin-demo-badge-inline {
   /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
   color: #fcd34d;
-  background: rgb(252 211 77 / 15%);
+  background: var(--overlay-yellow-15);
 }
 
 /* =============================================================================

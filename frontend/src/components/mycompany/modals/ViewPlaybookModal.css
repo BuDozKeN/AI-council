@@ -57,7 +57,7 @@
 }
 
 .mc-playbook-departments h4 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-secondary);
@@ -188,7 +188,7 @@
   gap: var(--gap-xs-plus);
   flex-wrap: wrap;
   padding: var(--space-1) var(--space-2);
-  margin: -4px -8px;
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2));
   border-radius: var(--radius-default);
   transition: background 0.15s ease;
 }

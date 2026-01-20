@@ -28,7 +28,7 @@
 }
 
 .plans-section h3 {
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-primary);
@@ -85,7 +85,7 @@
 }
 
 .plan-header h4 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
   font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-primary);
@@ -115,7 +115,7 @@
 .plan-features {
   list-style: none;
   padding: 0;
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   flex: 1; /* Push button to bottom by filling available space */
 }
 

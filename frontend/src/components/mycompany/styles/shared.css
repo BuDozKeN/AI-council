@@ -127,7 +127,7 @@
 }
 
 .mc-error p {
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   color: var(--color-red-800);
   font-weight: 500;
 }

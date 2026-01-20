@@ -276,8 +276,8 @@
   background: var(--color-bg-primary);
   border-color: var(--color-border);
   box-shadow:
-    0 20px 25px -5px rgb(0 0 0 / 30%),
-    0 8px 10px -6px rgb(0 0 0 / 20%);
+    0 20px 25px -5px var(--overlay-black-30),
+    0 8px 10px -6px var(--overlay-black-20);
 }
 
 .dark .help-panel-header {
@@ -290,7 +290,7 @@
 }
 
 .dark .help-link-icon {
-  background: rgb(74 144 226 / 15%);
+  background: var(--overlay-blue-15);
 }
 
 .dark .help-panel-footer {

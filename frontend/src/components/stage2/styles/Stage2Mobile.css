@@ -120,7 +120,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--gap-xs-plus);
-    margin-block: 10px 12px;
+    margin-block: 10px var(--space-3);
   }
 
   .stage2 .tab {

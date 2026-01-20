@@ -69,11 +69,11 @@
 @keyframes success-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgb(16 185 129 / 0%);
+    box-shadow: 0 0 0 0 transparent;
   }
 
   50% {
-    box-shadow: 0 0 12px 2px rgb(16 185 129 / 30%);
+    box-shadow: 0 0 12px 2px var(--overlay-emerald-30);
   }
 }
 
@@ -85,20 +85,20 @@
   --toast-bg: var(--color-bg-primary);
   --toast-border: var(--color-border-default);
   --toast-text: var(--color-text-primary);
-  --toast-success-bg: rgb(16 185 129 / 8%);
-  --toast-success-border: rgb(16 185 129 / 30%);
+  --toast-success-bg: var(--overlay-emerald-8);
+  --toast-success-border: var(--overlay-emerald-30);
   --toast-success-icon: var(--color-success);
-  --toast-error-bg: rgb(239 68 68 / 8%);
-  --toast-error-border: rgb(239 68 68 / 30%);
+  --toast-error-bg: var(--overlay-red-8);
+  --toast-error-border: var(--overlay-red-30);
   --toast-error-icon: var(--color-error);
 }
 
 .dark .toaster,
 [data-theme='dark'] .toaster {
-  --toast-success-bg: rgb(16 185 129 / 12%);
-  --toast-success-border: rgb(16 185 129 / 40%);
-  --toast-error-bg: rgb(239 68 68 / 12%);
-  --toast-error-border: rgb(239 68 68 / 40%);
+  --toast-success-bg: var(--overlay-emerald-12);
+  --toast-success-border: var(--overlay-emerald-40);
+  --toast-error-bg: var(--overlay-red-12);
+  --toast-error-border: var(--overlay-red-40);
 }
 
 /* =============================================================================
@@ -142,7 +142,7 @@
   color: var(--toast-success-icon) !important;
   width: 20px !important;
   height: 20px !important;
-  filter: drop-shadow(0 0 4px rgb(16 185 129 / 40%));
+  filter: drop-shadow(0 0 4px var(--overlay-emerald-40));
 }
 
 /* Success text styling */
@@ -186,13 +186,13 @@
    ============================================================================= */
 
 [data-sonner-toast][data-type='info'] {
-  background: rgb(59 130 246 / 8%) !important;
-  border: 1px solid rgb(59 130 246 / 30%) !important;
+  background: var(--overlay-blue-8) !important;
+  border: 1px solid var(--overlay-blue-30) !important;
 }
 
 [data-sonner-toast][data-type='warning'] {
-  background: rgb(245 158 11 / 8%) !important;
-  border: 1px solid rgb(245 158 11 / 30%) !important;
+  background: var(--overlay-amber-8) !important;
+  border: 1px solid var(--overlay-amber-30) !important;
 }
 
 /* =============================================================================
@@ -216,7 +216,7 @@
 [data-sonner-toast] [data-button]:hover {
   background: var(--color-primary-hover) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 2px 8px rgb(99 102 241 / 30%) !important;
+  box-shadow: 0 2px 8px var(--overlay-indigo-30) !important;
 }
 
 [data-sonner-toast] [data-button]:active {
