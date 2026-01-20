@@ -11,7 +11,9 @@ Disallow: /company/
 
 # Public pages - allow indexing
 Allow: /$
-Allow: /leaderboard
+
+# Leaderboard - temporarily hidden while adding content
+# Allow: /leaderboard
 
 # Future marketing pages (uncomment when created)
 # Allow: /features
@@ -25,6 +27,9 @@ Allow: /leaderboard
 
 # Sitemap location
 Sitemap: https://axcouncil.ai/sitemap.xml
+
+# AI Crawler Content (llms.txt) - curated content for AI models
+# See: https://axcouncil.ai/llms.txt
 
 # Crawl rate (optional - adjust based on server capacity)
 # Crawl-delay: 1

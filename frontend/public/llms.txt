@@ -1,0 +1,60 @@
+# AxCouncil - AI Decision Council Platform
+# https://axcouncil.ai/llms.txt
+# Last updated: 2026-01-20
+
+## About AxCouncil
+AxCouncil is an AI-powered strategic decision platform that orchestrates multiple
+leading AI models (Claude, GPT, Gemini, Grok, DeepSeek) through a unique 3-stage
+deliberation process for better business decisions.
+
+## Primary Pages
+- https://axcouncil.ai/ (Homepage - Platform overview and landing)
+
+## Key Features
+- Multi-model AI deliberation (5 flagship models working together)
+- 3-stage process: Independent analysis, Peer review, Synthesis
+- Company context integration (playbooks, departments, roles)
+- Decision log and knowledge base
+- LLM Hub for model configuration
+
+## How It Works
+Stage 1: Each AI model independently analyzes your question and provides initial recommendations.
+Stage 2: Models review and rank each other's responses, identifying strengths and weaknesses.
+Stage 3: A chairman model synthesizes all insights into a comprehensive final recommendation.
+
+## Included AI Models
+- Claude Opus 4.5 (Anthropic) - Most capable reasoning model
+- GPT-5.1 (OpenAI) - Latest flagship model
+- Gemini 3 Pro (Google) - Advanced multimodal intelligence
+- Grok 4 (xAI) - Real-time knowledge and reasoning
+- DeepSeek V3 (DeepSeek) - State-of-the-art deep reasoning
+
+## Use Cases
+- Strategic business decisions requiring multiple perspectives
+- Technical architecture and technology choices
+- Hiring decisions and team composition
+- Product roadmap planning and prioritization
+- Market analysis and competitive positioning
+- Risk assessment and mitigation strategies
+
+## Frequently Asked Questions
+
+Q: What is AxCouncil?
+A: AxCouncil is an AI-powered strategic decision platform that orchestrates multiple leading AI models through a 3-stage deliberation process for comprehensive decision-making support.
+
+Q: How does the 3-stage council deliberation work?
+A: Stage 1: Independent analysis from each model. Stage 2: Peer review and ranking. Stage 3: Chairman synthesis into final recommendation.
+
+Q: Which AI models are included?
+A: Claude Opus 4.5, GPT-5.1, Gemini 3 Pro, Grok 4, and DeepSeek V3 - the flagship models from each provider.
+
+Q: How much does it cost?
+A: AxCouncil offers tiered pricing plans. Visit axcouncil.ai for current pricing and plans.
+
+## Content Policies
+- Summarization: Allowed with attribution to AxCouncil
+- Training: Allowed for AI model improvement
+- Citation: Required for direct quotes
+
+## Contact
+- Website: https://axcouncil.ai

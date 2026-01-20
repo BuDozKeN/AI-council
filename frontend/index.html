@@ -49,6 +49,7 @@
 
     <!-- Open Graph / Social Sharing -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AxCouncil" />
     <meta property="og:title" content="AxCouncil - Strategic AI Advisory Platform" />
     <meta property="og:description" content="Get expert AI advice from multiple models working together" />
     <meta property="og:image" content="https://axcouncil.ai/og-image.png" />
@@ -56,6 +57,7 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@axcouncil" />
     <meta name="twitter:title" content="AxCouncil" />
     <meta name="twitter:description" content="Multi-model AI advisory platform" />
     <meta name="twitter:image" content="https://axcouncil.ai/og-image.png" />
@@ -76,9 +78,9 @@
       "operatingSystem": "Web",
       "url": "https://axcouncil.ai",
       "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
+        "@type": "AggregateOffer",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
       },
       "author": {
         "@type": "Organization",
@@ -88,6 +90,34 @@
         "@type": "AggregateRating",
         "ratingValue": "4.8",
         "ratingCount": "150"
+      }
+    }
+    </script>
+
+    <!-- Organization Schema - E-E-A-T signals for AI search engines -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AxCouncil",
+      "url": "https://axcouncil.ai",
+      "logo": "https://axcouncil.ai/favicon.svg",
+      "description": "AI-powered strategic decision platform that orchestrates multiple leading AI models through a 3-stage deliberation process.",
+      "foundingDate": "2024"
+    }
+    </script>
+
+    <!-- WebSite Schema - Enables sitelinks search box in Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "AxCouncil",
+      "url": "https://axcouncil.ai",
+      "description": "Multi-model AI advisory platform for strategic decision making",
+      "publisher": {
+        "@type": "Organization",
+        "name": "AxCouncil"
       }
     }
     </script>
