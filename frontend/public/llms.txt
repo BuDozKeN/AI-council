@@ -49,7 +49,7 @@ Q: Which AI models are included?
 A: Claude Opus 4.5, GPT-5.1, Gemini 3 Pro, Grok 4, and DeepSeek V3 - the flagship models from each provider.
 
 Q: How much does it cost?
-A: AxCouncil is free to use. Users provide their own OpenRouter API key for model access, with typical costs of $0.10-$1.00 per deliberation.
+A: AxCouncil offers tiered pricing plans. Visit axcouncil.ai for current pricing and plans.
 
 ## Content Policies
 - Summarization: Allowed with attribution to AxCouncil
