@@ -42,6 +42,45 @@
   border-bottom: none;
 }
 
+/* =============================================================================
+   TABLE SEPARATOR ROW (for deleted users section)
+   ============================================================================= */
+
+.admin-table .admin-table-separator,
+.admin-table .admin-table-separator:hover {
+  background: var(--color-bg-secondary);
+}
+
+.admin-table-separator td {
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-table-separator-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-warning);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-table-separator-content svg {
+  color: var(--color-warning);
+}
+
+/* Deleted user rows - subtle background */
+.admin-table .admin-deleted-row {
+  background: var(--overlay-amber-8);
+}
+
+.admin-table .admin-deleted-row:hover {
+  background: var(--overlay-amber-15);
+}
+
 /* Table cell styles */
 .admin-user-cell,
 .admin-company-cell,
@@ -97,6 +136,25 @@
 .admin-status-badge--suspended {
   background: var(--overlay-red-15);
   color: var(--color-destructive);
+}
+
+.admin-status-badge--deleted {
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+}
+
+/* Badge with reason indicator (shows eye icon) */
+.admin-status-badge--has-reason {
+  cursor: help;
+}
+
+.admin-status-badge--has-reason svg {
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.admin-status-badge--has-reason:hover svg {
+  opacity: 1;
 }
 
 /* Role badges */
@@ -333,12 +391,307 @@
 }
 
 /* =============================================================================
-   RESPONSIVE
+   RESPONSIVE - TABLET (hide less essential columns)
    ============================================================================= */
 
-@media (max-width: 641px) {
-  .admin-pagination {
-    flex-direction: column;
-    gap: var(--space-3);
+@media (max-width: 1025px) {
+  /* Ensure table is scrollable on tablet */
+  .admin-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
+
+  /* Hide Activity and Created columns on tablet - table is too wide */
+  .admin-table th:nth-child(4),
+  .admin-table td:nth-child(4),
+  .admin-table th:nth-child(5),
+  .admin-table td:nth-child(5) {
+    display: none;
+  }
+
+  /* Tighter cell padding on tablet */
+  .admin-table th,
+  .admin-table td {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* Constrain table cell widths on tablet */
+  .admin-table td {
+    max-width: 150px;
+  }
+
+  .admin-user-cell,
+  .admin-company-cell {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .admin-user-cell span,
+  .admin-company-cell span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* =============================================================================
+   RESPONSIVE - MOBILE CARD LAYOUT
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Flat list layout on mobile - no cards */
+  .admin-table-container {
+    overflow-x: visible;
+    padding: 0;
+  }
+
+  .admin-table {
+    display: block;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Compact list rows - 2 rows: name+badge+kebab on top, email below */
+  .admin-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-template-rows: auto auto;
+    gap: var(--space-1) var(--space-2);
+    align-items: center;
+    background: var(--color-bg-primary);
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: var(--space-2-5) var(--space-4);
+  }
+
+  .admin-table tbody tr:hover {
+    background: var(--color-bg-hover);
+  }
+
+  .admin-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  /* Reset all cells */
+  .admin-table td {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    border-bottom: none;
+  }
+
+  .admin-table td::before {
+    display: none;
+  }
+
+  /* Cell 1: Name - top left, prominent */
+  .admin-table td:first-child {
+    grid-column: 1;
+    grid-row: 1;
+    font-weight: 600;
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+  }
+
+  /* Cell 2: Email - bottom, full width, not truncated */
+  .admin-table td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .admin-table td:nth-child(2) .admin-user-cell,
+  .admin-table td:nth-child(2) .admin-company-cell {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+
+    /* Override tablet truncation - we have full width on mobile */
+    max-width: none;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .admin-table td:nth-child(2) .admin-user-cell span,
+  .admin-table td:nth-child(2) .admin-company-cell span {
+    max-width: none;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .admin-table td:nth-child(2) .admin-user-cell svg,
+  .admin-table td:nth-child(2) .admin-company-cell svg {
+    display: none;
+  }
+
+  /* Cell 3: Status Badge - top right, next to kebab */
+  .admin-table td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-end;
+  }
+
+  /* Hide cells 4, 5 on mobile - reduce clutter */
+  .admin-table td:nth-child(4),
+  .admin-table td:nth-child(5) {
+    display: none;
+  }
+
+  /* Hide IP column in Audit Logs on mobile */
+  .admin-audit-ip-col {
+    display: none;
+  }
+
+  /* Hide date column in Admin Roles on mobile */
+  .admin-roles-date-col {
+    display: none;
+  }
+
+  /* Actions cell (kebab) - top right, same row as badge */
+  .admin-table td:last-child {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: flex-end;
+  }
+
+  .admin-actions-cell {
+    justify-content: flex-end;
+  }
+
+  /* Pagination - simpler on mobile */
+  .admin-pagination {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .admin-pagination-info {
+    font-size: var(--font-size-xs);
+  }
+
+  .admin-pagination-buttons {
+    gap: var(--space-2);
+  }
+
+  .admin-pagination-btn {
+    min-height: 36px;
+    padding: var(--space-1-5) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Dark mode card adjustments */
+.dark .admin-table tbody tr {
+  background: var(--color-bg-secondary);
+}
+
+/* =============================================================================
+   SORTABLE TABLE HEADERS
+   ============================================================================= */
+
+.admin-sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.admin-sortable-header:hover {
+  background: var(--color-bg-hover);
+}
+
+.admin-sortable-header:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.admin-sortable-header-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.admin-sortable-header-label {
+  /* Inherit text styling from th */
+}
+
+.admin-sortable-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  transition: opacity 0.15s ease;
+}
+
+.admin-sortable-header:hover .admin-sortable-header-icon,
+.admin-sortable-header--active .admin-sortable-header-icon {
+  opacity: 1;
+}
+
+.admin-sortable-header--active .admin-sortable-header-icon {
+  color: var(--color-primary);
+}
+
+/* =============================================================================
+   KEYBOARD NAVIGATION & ACCESSIBILITY
+   ============================================================================= */
+
+/* Focus ring on table rows for keyboard navigation */
+.admin-table tbody tr {
+  outline: none;
+}
+
+.admin-table tbody tr:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  background: var(--color-bg-hover);
+}
+
+.admin-table tbody tr[data-selected='true'] {
+  background: var(--color-primary-subtle);
+}
+
+/* Skip link styles */
+.admin-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  padding: var(--space-2) var(--space-4);
+  z-index: var(--z-elevated);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.admin-skip-link:focus {
+  top: var(--space-2);
+  left: var(--space-2);
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

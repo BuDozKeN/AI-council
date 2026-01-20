@@ -163,6 +163,45 @@
 }
 
 /* =============================================================================
+   DELETE USER INFO BOX
+   ============================================================================= */
+
+.admin-delete-info {
+  padding: var(--space-3);
+  background: var(--overlay-amber-8);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+}
+
+.admin-delete-info-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-warning-dark);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.admin-delete-info-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  list-style-type: disc;
+}
+
+.admin-delete-info-list li {
+  margin-bottom: var(--space-1);
+}
+
+.admin-delete-info-list li:last-child {
+  margin-bottom: 0;
+}
+
+.admin-delete-info-list li::marker {
+  color: var(--color-warning);
+}
+
+/* =============================================================================
    MODAL USER INFO
    ============================================================================= */
 
