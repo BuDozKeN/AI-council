@@ -200,10 +200,11 @@ export default function Organization({
     try {
       const roleSlug = newRole.id || generateSlug(newRole.name);
       const roleName = newRole.name.trim();
+      const trimmedResponsibilities = newRole.description.trim();
       await api.createCompanyRole(companyId, deptId, {
         slug: roleSlug,
         name: roleName,
-        responsibilities: newRole.description.trim() || undefined,
+        ...(trimmedResponsibilities && { responsibilities: trimmedResponsibilities }),
       });
 
       // Refresh data

@@ -140,8 +140,8 @@ export function useCreateDepartment() {
     mutationFn: ({ companyId, data }: { companyId: string; data: CreateDepartmentInput }) =>
       api.createCompanyDepartment(companyId, {
         name: data.name,
-        slug: data.slug,
-        description: data.description,
+        ...(data.slug && { slug: data.slug }),
+        ...(data.description && { description: data.description }),
       }),
     onSuccess: (_, { companyId }) => {
       queryClient.invalidateQueries({ queryKey: companyKeys.departments(companyId) });
@@ -172,8 +172,8 @@ export function useCreateRole() {
     mutationFn: ({ companyId, data }: { companyId: string; data: CreateRoleInput }) =>
       api.createCompanyRole(companyId, data.departmentId, {
         name: data.name,
-        slug: data.slug,
-        responsibilities: data.responsibilities,
+        ...(data.slug && { slug: data.slug }),
+        ...(data.responsibilities && { responsibilities: data.responsibilities }),
       }),
     onSuccess: (_, { companyId }) => {
       queryClient.invalidateQueries({ queryKey: companyKeys.roles(companyId) });
