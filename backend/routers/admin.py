@@ -1560,6 +1560,7 @@ async def export_audit_logs(
     """
     user_id = user.get("id")
     user_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify admin access - only super_admin can export
     is_admin, role = await check_is_platform_admin(user_id)
@@ -2545,6 +2546,7 @@ async def list_impersonation_sessions(
     """
     admin_user_id = user.get("id")
     admin_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify super_admin access
     is_admin, role = await check_is_platform_admin(admin_user_id)
