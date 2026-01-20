@@ -220,25 +220,33 @@ QDRANT_COLLECTION_DOCUMENTS = "org_documents"
 EMBEDDING_MODEL = "openai/text-embedding-3-small"
 EMBEDDING_DIMENSIONS = 1536
 
-# Subscription tiers configuration (placeholder pricing - update as needed)
+# Subscription tiers configuration
+# Pricing is configurable via environment variables (values in cents)
 # These will be created in Stripe if they don't exist
+#
+# Environment variables:
+#   SUBSCRIPTION_FREE_QUERIES=5
+#   SUBSCRIPTION_PRO_PRICE=2900  (in cents, $29.00)
+#   SUBSCRIPTION_PRO_QUERIES=100
+#   SUBSCRIPTION_ENTERPRISE_PRICE=9900  (in cents, $99.00)
+#   SUBSCRIPTION_ENTERPRISE_QUERIES=-1  (-1 = unlimited)
 SUBSCRIPTION_TIERS = {
     "free": {
         "name": "Free",
         "price_monthly": 0,
-        "queries_per_month": 5,
+        "queries_per_month": int(os.environ.get("SUBSCRIPTION_FREE_QUERIES", "5")),
         "features": ["Basic council queries", "Standard response time"],
     },
     "pro": {
         "name": "Pro",
-        "price_monthly": 2900,  # $29.00 in cents
-        "queries_per_month": 100,
+        "price_monthly": int(os.environ.get("SUBSCRIPTION_PRO_PRICE", "2900")),
+        "queries_per_month": int(os.environ.get("SUBSCRIPTION_PRO_QUERIES", "100")),
         "features": ["100 council queries/month", "Priority response", "Knowledge curator"],
     },
     "enterprise": {
         "name": "Enterprise",
-        "price_monthly": 9900,  # $99.00 in cents
-        "queries_per_month": -1,  # Unlimited
+        "price_monthly": int(os.environ.get("SUBSCRIPTION_ENTERPRISE_PRICE", "9900")),
+        "queries_per_month": int(os.environ.get("SUBSCRIPTION_ENTERPRISE_QUERIES", "-1")),
         "features": ["Unlimited queries", "Priority support", "Custom departments", "API access"],
     },
 }

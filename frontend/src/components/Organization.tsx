@@ -169,10 +169,10 @@ export default function Organization({
 
     setSaving(true);
     try {
-      const deptId = newDept.id || generateSlug(newDept.name);
+      const deptSlug = newDept.id || generateSlug(newDept.name);
       const deptName = newDept.name.trim();
-      await api.createDepartment(companyId, {
-        id: deptId,
+      await api.createCompanyDepartment(companyId, {
+        slug: deptSlug,
         name: deptName,
       });
 
@@ -198,12 +198,13 @@ export default function Organization({
 
     setSaving(true);
     try {
-      const roleId = newRole.id || generateSlug(newRole.name);
+      const roleSlug = newRole.id || generateSlug(newRole.name);
       const roleName = newRole.name.trim();
-      await api.addRole(companyId, deptId, {
-        role_id: roleId,
-        role_name: roleName,
-        role_description: newRole.description.trim() || '',
+      const trimmedResponsibilities = newRole.description.trim();
+      await api.createCompanyRole(companyId, deptId, {
+        slug: roleSlug,
+        name: roleName,
+        ...(trimmedResponsibilities && { responsibilities: trimmedResponsibilities }),
       });
 
       // Refresh data
@@ -232,7 +233,7 @@ export default function Organization({
       if (editingDept.description !== undefined) {
         updates.description = editingDept.description;
       }
-      await api.updateDepartment(companyId, editingDept.id, updates);
+      await api.updateCompanyDepartment(companyId, editingDept.id, updates);
 
       await fetchOrganization();
       toast.success(t('organization.toast.deptUpdated', { name: editingDept.name }), {
@@ -256,11 +257,11 @@ export default function Organization({
 
     setSaving(true);
     try {
-      const updates: { name?: string; description?: string } = { name: editingRole.role.name };
+      const updates: { name?: string; responsibilities?: string } = { name: editingRole.role.name };
       if (editingRole.role.description !== undefined) {
-        updates.description = editingRole.role.description;
+        updates.responsibilities = editingRole.role.description;
       }
-      await api.updateRole(companyId, editingRole.deptId, editingRole.role.id, updates);
+      await api.updateCompanyRole(companyId, editingRole.deptId, editingRole.role.id, updates);
 
       await fetchOrganization();
       toast.success(t('organization.toast.roleUpdated', { name: editingRole.role.name }), {

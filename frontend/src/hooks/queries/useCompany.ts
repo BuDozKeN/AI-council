@@ -60,16 +60,16 @@ interface CompanyOverviewResponse {
 
 // Input types for mutations
 interface CreateDepartmentInput {
-  id?: string;
+  slug?: string;
   name: string;
   description?: string;
 }
 
 interface CreateRoleInput {
   departmentId: string;
-  role_id?: string;
-  role_name: string;
-  role_description?: string;
+  slug?: string;
+  name: string;
+  responsibilities?: string;
 }
 
 interface CreatePlaybookInput {
@@ -138,7 +138,11 @@ export function useCreateDepartment() {
 
   return useMutation({
     mutationFn: ({ companyId, data }: { companyId: string; data: CreateDepartmentInput }) =>
-      api.createDepartment(companyId, data),
+      api.createCompanyDepartment(companyId, {
+        name: data.name,
+        ...(data.slug && { slug: data.slug }),
+        ...(data.description && { description: data.description }),
+      }),
     onSuccess: (_, { companyId }) => {
       queryClient.invalidateQueries({ queryKey: companyKeys.departments(companyId) });
     },
@@ -165,18 +169,12 @@ export function useCreateRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ companyId, data }: { companyId: string; data: CreateRoleInput }) => {
-      const rolePayload: { role_id?: string; role_name: string; role_description?: string } = {
-        role_name: data.role_name,
-      };
-      if (data.role_id !== undefined) {
-        rolePayload.role_id = data.role_id;
-      }
-      if (data.role_description !== undefined) {
-        rolePayload.role_description = data.role_description;
-      }
-      return api.addRole(companyId, data.departmentId, rolePayload);
-    },
+    mutationFn: ({ companyId, data }: { companyId: string; data: CreateRoleInput }) =>
+      api.createCompanyRole(companyId, data.departmentId, {
+        name: data.name,
+        ...(data.slug && { slug: data.slug }),
+        ...(data.responsibilities && { responsibilities: data.responsibilities }),
+      }),
     onSuccess: (_, { companyId }) => {
       queryClient.invalidateQueries({ queryKey: companyKeys.roles(companyId) });
       queryClient.invalidateQueries({ queryKey: companyKeys.departments(companyId) });

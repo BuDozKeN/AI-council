@@ -814,7 +814,7 @@ async def generate_decision_summary_internal(
     """
     from ...openrouter import query_model, MOCK_LLM
     from ...personas import get_db_persona_with_fallback
-    from .utils_refactored import (
+    from .company_utils import (
         _fetch_decision_data,
         _fetch_prior_context,
         _generate_mock_summary,

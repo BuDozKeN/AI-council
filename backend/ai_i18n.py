@@ -11,10 +11,12 @@ Usage:
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Dict, Optional
 from functools import lru_cache
 
+logger = logging.getLogger(__name__)
 
 # Path to AI prompt translations
 AI_PROMPTS_DIR = Path(__file__).parent / 'ai_prompts'
@@ -47,7 +49,7 @@ def load_ai_prompts(locale: str) -> Dict[str, any]:
         with open(prompt_file, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception as e:
-        print(f"[ai_i18n] Error loading AI prompts for {locale}: {e}")
+        logger.warning(f"Error loading AI prompts for {locale}: {e}")
         if locale != DEFAULT_LOCALE:
             return load_ai_prompts(DEFAULT_LOCALE)
         return {}
@@ -89,7 +91,7 @@ def get_localized_prompt(
     prompt_config = prompts.get(prompt_key)
 
     if not prompt_config:
-        print(f"[ai_i18n] Warning: Prompt key '{prompt_key}' not found for locale '{locale}'")
+        logger.warning(f"Prompt key '{prompt_key}' not found for locale '{locale}'")
         # Try English fallback
         if locale != DEFAULT_LOCALE:
             prompts = load_ai_prompts(DEFAULT_LOCALE)
@@ -111,7 +113,7 @@ def get_localized_prompt(
         try:
             prompt_text = prompt_text.format(**context_vars)
         except (KeyError, ValueError) as e:
-            print(f"[ai_i18n] Warning: Failed to interpolate variables in prompt '{prompt_key}': {e}")
+            logger.warning(f"Failed to interpolate variables in prompt '{prompt_key}': {e}")
 
     return prompt_text
 
@@ -188,7 +190,7 @@ def translate_context_prompt(
     try:
         return template.format(**context_data)
     except (KeyError, ValueError) as e:
-        print(f"[ai_i18n] Warning: Failed to format context prompt for '{context_type}': {e}")
+        logger.warning(f"Failed to format context prompt for '{context_type}': {e}")
         return template
 
 

@@ -10,11 +10,14 @@ To integrate Resend:
 3. Uncomment the Resend implementation below
 """
 
+import logging
 import os
 from typing import Optional
 from datetime import datetime
 
 from ..security import log_app_event
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -166,15 +169,15 @@ async def send_email(
             subject=subject,
             html_preview=html[:200] if html else None,
         )
-        print(f"\n{'='*60}")
-        print(f"EMAIL PREVIEW (not sent - EMAIL_ENABLED=false)")
-        print(f"{'='*60}")
-        print(f"To: {to}")
-        print(f"From: {sender}")
-        print(f"Subject: {subject}")
-        print(f"{'='*60}")
-        print(text or "See HTML content")
-        print(f"{'='*60}\n")
+        logger.info(f"\n{'='*60}")
+        logger.info(f"EMAIL PREVIEW (not sent - EMAIL_ENABLED=false)")
+        logger.info(f"{'='*60}")
+        logger.info(f"To: {to}")
+        logger.info(f"From: {sender}")
+        logger.info(f"Subject: {subject}")
+        logger.info(f"{'='*60}")
+        logger.info(text or "See HTML content")
+        logger.info(f"{'='*60}\n")
 
         return {
             "success": True,
