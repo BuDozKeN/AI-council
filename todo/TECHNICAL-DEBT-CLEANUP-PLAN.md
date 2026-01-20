@@ -398,10 +398,10 @@ Use this checklist to track progress:
 - [x] Remove unused pip packages (apscheduler from both, email-validator from pyproject.toml)
 - [x] Sync requirements.txt with pyproject.toml (stripe >=14.0.0, added sentry-sdk, cryptography)
 
-### Phase 3 (Medium Risk)
-- [ ] Migrate deprecated API method callers
-- [ ] Move CORS URLs to environment
-- [ ] Move pricing to Stripe/config
+### Phase 3 (Medium Risk) - COMPLETED 2026-01-20
+- [x] Migrate deprecated API method callers (4 deprecated methods removed from api.ts, callers updated)
+- [x] Move CORS URLs to environment (CORS_ORIGINS env var, production URL removed from defaults)
+- [x] Move pricing to environment (SUBSCRIPTION_*_PRICE/QUERIES env vars in config.py)
 
 ### Phase 4 (Higher Risk)
 - [ ] Standardize variable naming
@@ -423,24 +423,24 @@ Use this checklist to track progress:
 | ~~Root utility scripts~~ | `main.py`, `check_context.py`, `create_project.py`, `fix_selects.py` | **DELETED** |
 
 ### Hardcoded Values Locations
-| Issue | File | Lines |
-|-------|------|-------|
-| CORS origins | `backend/main.py` | 265-277 |
-| Subscription pricing | `backend/config.py` | 234-240 |
-| Model pricing | `backend/routers/company/utils.py` | 241-249 |
-| Circuit breaker config | `backend/openrouter.py` | 271-273 |
-| Rate limits | `backend/routers/council.py` | various |
-| Timeouts | `backend/openrouter.py` | 198, 356 |
+| Issue | File | Status |
+|-------|------|--------|
+| ~~CORS origins~~ | `backend/main.py` | **ENV VAR (CORS_ORIGINS)** |
+| ~~Subscription pricing~~ | `backend/config.py` | **ENV VARS (SUBSCRIPTION_*)** |
+| Model pricing | `backend/routers/company/utils.py` | Pending (Phase 4) |
+| Circuit breaker config | `backend/openrouter.py` | Low priority |
+| Rate limits | `backend/routers/council.py` | Low priority |
+| Timeouts | `backend/openrouter.py` | Low priority |
 
-### Deprecated Code Locations
-| Issue | File | Lines |
-|-------|------|-------|
-| createDepartment wrapper | `frontend/src/api.ts` | 1072-1085 |
-| updateDepartment wrapper | `frontend/src/api.ts` | 1087-1100 |
-| addRole wrapper | `frontend/src/api.ts` | 1102-1115 |
-| updateRole wrapper | `frontend/src/api.ts` | 1117-1130 |
-| Callers in Organization | `frontend/src/components/Organization.tsx` | various |
-| Callers in useCompany | `frontend/src/hooks/queries/useCompany.ts` | various |
+### Deprecated Code Locations - **MIGRATED (Phase 3)**
+| Issue | File | Status |
+|-------|------|--------|
+| ~~createDepartment wrapper~~ | `frontend/src/api.ts` | **REMOVED** |
+| ~~updateDepartment wrapper~~ | `frontend/src/api.ts` | **REMOVED** |
+| ~~addRole wrapper~~ | `frontend/src/api.ts` | **REMOVED** |
+| ~~updateRole wrapper~~ | `frontend/src/api.ts` | **REMOVED** |
+| ~~Callers in Organization~~ | `frontend/src/components/Organization.tsx` | **MIGRATED** |
+| ~~Callers in useCompany~~ | `frontend/src/hooks/queries/useCompany.ts` | **MIGRATED** |
 
 ### Duplicate Files Locations - **RENAMED (Phase 2)**
 | Old Name | New Name | Status |
