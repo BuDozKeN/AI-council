@@ -360,6 +360,15 @@ async def list_users(
         # Calculate offset
         offset = (page - 1) * page_size
 
+        # Get soft-deleted user IDs to filter them out
+        # Soft-deleted users have a record in user_deletions with permanently_deleted_at IS NULL
+        deleted_users_result = supabase.table("user_deletions").select("user_id").is_(
+            "permanently_deleted_at", "null"
+        ).execute()
+        soft_deleted_user_ids = {
+            d["user_id"] for d in (deleted_users_result.data or [])
+        }
+
         # Query auth.users via admin API
         # Note: This requires service role key
         response = supabase.auth.admin.list_users()
@@ -381,9 +390,13 @@ async def list_users(
                 return value.isoformat()
             return str(value)
 
-        # Filter by search if provided
+        # Filter by search and exclude soft-deleted users
         users_list = []
         for u in all_users:
+            # Skip soft-deleted users - they should only appear in the "Deleted Users" section
+            if u.id in soft_deleted_user_ids:
+                continue
+
             user_data = {
                 "id": u.id,
                 "email": u.email or "",
@@ -409,7 +422,7 @@ async def list_users(
             user_id=user_id,
             total=total,
             page=page,
-            search=search
+            search=search,
         )
 
         return ListUsersResponse(
@@ -1904,11 +1917,15 @@ async def list_invitations(
 @limiter.limit("20/minute")
 async def cancel_invitation(
     request: Request,
-    invitation_id: str = Path(..., description="Invitation ID to cancel"),
+    invitation_id: str = Path(..., description="Invitation ID to cancel/delete"),
     user: dict = Depends(get_current_user),
 ):
     """
-    Cancel a pending invitation (admin only).
+    Delete a pending invitation (admin only).
+
+    This PERMANENTLY deletes the invitation record since invited users
+    who haven't accepted have no data to preserve. To re-invite them,
+    you would need to create a new invitation.
     """
     user_id = user.get("id")
     user_email = user.get("email")
@@ -1930,40 +1947,40 @@ async def cancel_invitation(
         if not inv_result or not inv_result.data:
             raise HTTPException(status_code=404, detail=t("errors.invitation_not_found", locale))
 
+        # Only allow deletion of pending invitations
         if inv_result.data["status"] != "pending":
             raise HTTPException(
                 status_code=400,
                 detail=t("errors.cannot_cancel_invitation", locale, status=inv_result.data['status'])
             )
 
-        # Update status to cancelled
-        supabase.table("platform_invitations").update({
-            "status": "cancelled",
-            "cancelled_at": datetime.utcnow().isoformat(),
-        }).eq("id", invitation_id).execute()
+        invitee_email = inv_result.data["email"]
+
+        # HARD DELETE the invitation - invited users have no data to preserve
+        supabase.table("platform_invitations").delete().eq("id", invitation_id).execute()
 
         # Log audit event
         client_ip = request.client.host if request.client else None
         await log_platform_audit(
-            action="cancel_invitation",
+            action="delete_invitation",
             action_category="user",
             actor_id=user_id,
             actor_email=user_email,
             actor_type="admin",
             resource_type="invitation",
             resource_id=invitation_id,
-            resource_name=inv_result.data["email"],
+            resource_name=invitee_email,
             ip_address=client_ip,
         )
 
         log_app_event(
-            "ADMIN: Cancelled invitation",
+            "ADMIN: Deleted invitation",
             user_id=user_id,
             invitation_id=invitation_id,
-            invitee_email=inv_result.data["email"],
+            invitee_email=invitee_email,
         )
 
-        return {"success": True, "message": "Invitation cancelled"}
+        return {"success": True, "message": "Invitation deleted"}
 
     except HTTPException:
         raise
