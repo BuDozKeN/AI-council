@@ -224,16 +224,11 @@ async def list_conversations(request: Request, limit: int = Query(50, ge=1, le=1
         search=search,
         company_id=company_id,
         include_archived=archived if archived is not None else False,
-        access_token=access_token
+        access_token=access_token,
+        department=department,
+        starred=starred
     )
-    # Filter by department and starred client-side if specified
-    # (storage function doesn't support these filters yet)
-    conversations = result.get("conversations", [])
-    if department:
-        conversations = [c for c in conversations if c.get("department") == department]
-    if starred is not None:
-        conversations = [c for c in conversations if c.get("is_starred") == starred]
-    return {"conversations": conversations, "has_more": result.get("has_more", False)}
+    return {"conversations": result.get("conversations", []), "has_more": result.get("has_more", False)}
 
 
 @router.post("")

@@ -277,7 +277,9 @@ def list_conversations(
     search: Optional[str] = None,
     include_archived: bool = False,
     sort_by: str = "date",
-    company_id: Optional[str] = None
+    company_id: Optional[str] = None,
+    department: Optional[str] = None,
+    starred: Optional[bool] = None
 ) -> Dict[str, Any]:
     """
     List conversations for a specific user with at least one message (metadata only).
@@ -291,6 +293,8 @@ def list_conversations(
         include_archived: Whether to include archived conversations (default False)
         sort_by: Sort order - "date" (most recent first) or "activity" (most messages first)
         company_id: Optional company ID to filter conversations by
+        department: Optional department slug to filter by
+        starred: Optional boolean to filter starred/unstarred conversations
 
     Returns:
         Dict with 'conversations' list and 'has_more' boolean for pagination
@@ -314,6 +318,14 @@ def list_conversations(
     if search:
         escaped_search = escape_sql_like_pattern(search)
         query = query.ilike('title', f'%{escaped_search}%')
+
+    # Filter by department if provided
+    if department:
+        query = query.eq('department', department)
+
+    # Filter by starred status if provided
+    if starred is not None:
+        query = query.eq('is_starred', starred)
 
     # Order: starred first (descending so True comes first), then by updated_at (recent first)
     # Note: For "activity" sort, we still need to re-sort non-starred by message count in Python
@@ -909,6 +921,34 @@ def get_projects_with_stats(
             .execute()
         dept_map = {d["id"]: d for d in (dept_result.data or [])}
 
+        # Batch fetch decision counts and first questions (avoids N+1 queries)
+        project_ids = [p["id"] for p in projects]
+        decision_count_map: Dict[str, int] = {}
+        first_question_map: Dict[str, Optional[str]] = {}
+
+        if project_ids:
+            try:
+                # Single query for all knowledge entries for these projects
+                # We fetch minimal fields and aggregate in Python
+                ke_result = client.table("knowledge_entries")\
+                    .select("project_id, question, created_at")\
+                    .in_("project_id", project_ids)\
+                    .eq("is_active", True)\
+                    .order("created_at", desc=False)\
+                    .execute()
+
+                # Build count map and first question map
+                for entry in (ke_result.data or []):
+                    pid = entry["project_id"]
+                    # Increment count
+                    decision_count_map[pid] = decision_count_map.get(pid, 0) + 1
+                    # Track first question (first entry per project due to ordering)
+                    if pid not in first_question_map:
+                        first_question_map[pid] = entry.get("question")
+            except Exception:
+                # Fall back to empty maps on error
+                pass
+
         # Enrich projects with decision counts and department names
         for project in projects:
             dept_ids = project.get("department_ids") or []
@@ -921,30 +961,9 @@ def get_projects_with_stats(
             # Set department_name to first one for backwards compat
             project["department_name"] = project["department_names"][0] if project["department_names"] else None
 
-            # Get decision count and first decision's user question (for "what was asked")
-            try:
-                count_result = client.table("knowledge_entries")\
-                    .select("id", count="exact")\
-                    .eq("project_id", project["id"])\
-                    .eq("is_active", True)\
-                    .execute()
-                project["decision_count"] = count_result.count or 0
-
-                # Get the first decision's question (the question that created this project)
-                first_decision = client.table("knowledge_entries")\
-                    .select("question")\
-                    .eq("project_id", project["id"])\
-                    .eq("is_active", True)\
-                    .order("created_at", desc=False)\
-                    .limit(1)\
-                    .execute()
-                if first_decision.data and len(first_decision.data) > 0:
-                    project["source_question"] = first_decision.data[0].get("question")
-                else:
-                    project["source_question"] = None
-            except Exception:
-                project["decision_count"] = 0
-                project["source_question"] = None
+            # Use pre-fetched counts and questions (no additional queries)
+            project["decision_count"] = decision_count_map.get(project["id"], 0)
+            project["source_question"] = first_question_map.get(project["id"])
 
         return projects
     except Exception:
