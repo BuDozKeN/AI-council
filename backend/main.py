@@ -256,20 +256,47 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS origins - load from environment or use localhost defaults for development
-# Production MUST set CORS_ORIGINS env var (comma-separated list)
-# Example: CORS_ORIGINS=https://app.example.com,https://staging.example.com
-_cors_env = os.environ.get("CORS_ORIGINS", "")
-if _cors_env:
-    CORS_ORIGINS = [origin.strip() for origin in _cors_env.split(",") if origin.strip()]
-else:
-    # Development defaults only - production should always set CORS_ORIGINS
-    CORS_ORIGINS = [
-        "http://localhost:5173",  # Vite default
-        "http://localhost:5174",  # Vite fallback ports
-        "http://localhost:5175",
-        "http://localhost:3000",  # Create React App default
-    ]
+# =============================================================================
+# SECURITY: CORS Configuration
+# =============================================================================
+# Environment-aware CORS origins to prevent localhost sprawl in production
+
+def _get_cors_origins() -> list:
+    """
+    Get CORS origins based on environment.
+
+    Priority:
+    1. CORS_ORIGINS env var (comma-separated list)
+    2. Environment-specific defaults (production vs development)
+    """
+    # Check for explicit override first
+    cors_env = os.environ.get("CORS_ORIGINS", "")
+    if cors_env:
+        return [origin.strip() for origin in cors_env.split(",") if origin.strip()]
+
+    # Environment-aware defaults
+    environment = os.environ.get("ENVIRONMENT", "development")
+
+    if environment == "production":
+        # Production: Only allow verified domains
+        return [
+            "https://axcouncil.com",
+            "https://www.axcouncil.com",
+            "https://app.axcouncil.com",
+            "https://ai-council-three.vercel.app",
+        ]
+    else:
+        # Development: Allow localhost on common dev ports
+        return [
+            "http://localhost:5173",  # Vite default
+            "http://localhost:5174",  # Vite fallback
+            "http://localhost:5175",  # Vite fallback
+            "http://localhost:3000",  # React default
+            "https://ai-council-three.vercel.app",  # Preview deployments
+        ]
+
+
+CORS_ORIGINS = _get_cors_origins()
 
 
 # =============================================================================
