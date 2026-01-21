@@ -37,6 +37,8 @@ dev = [
     "mypy>=1.11.0",
     "types-redis>=4.6.0",
     "types-Pillow>=10.2.0",
+    # Staging/testing utilities
+    "faker>=26.0.0",  # Test data generation for staging environment
 ]
 
 [build-system]

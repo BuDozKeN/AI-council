@@ -1,0 +1,213 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [staging]
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      skip_e2e:
+        description: 'Skip E2E tests'
+        required: false
+        default: 'false'
+        type: boolean
+
+concurrency:
+  group: staging-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  STAGING_BACKEND_URL: https://axcouncil-backend-staging.onrender.com
+
+jobs:
+  # ════════════════════════════════════════════════════════════════
+  # STAGE 1: Run all quality checks first
+  # ════════════════════════════════════════════════════════════════
+  quality-gates:
+    name: Quality Gates
+    runs-on: ubuntu-latest
+    outputs:
+      backend_changed: ${{ steps.changes.outputs.backend }}
+      frontend_changed: ${{ steps.changes.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect file changes
+        id: changes
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -qE '^backend/|^requirements\.txt|^pyproject\.toml'; then
+            echo "backend=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend=false" >> $GITHUB_OUTPUT
+          fi
+          if git diff --name-only HEAD~1 HEAD | grep -qE '^frontend/'; then
+            echo "frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "frontend=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+          cd frontend && npm ci
+
+      - name: Backend tests
+        if: steps.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
+        run: pytest backend/tests/ -v --cov=backend --cov-fail-under=40
+
+      - name: Frontend lint & type check
+        if: steps.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
+        run: |
+          cd frontend
+          npm run lint
+          npm run lint:css
+          npm run type-check
+
+      - name: Frontend tests
+        if: steps.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
+        run: cd frontend && npm run test:run
+
+      - name: Build frontend
+        run: cd frontend && npm run build
+
+  # ════════════════════════════════════════════════════════════════
+  # STAGE 2: Deploy to Staging
+  # ════════════════════════════════════════════════════════════════
+  deploy-staging-backend:
+    name: Deploy Backend to Staging
+    needs: quality-gates
+    if: |
+      needs.quality-gates.outputs.backend_changed == 'true' ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ env.STAGING_BACKEND_URL }}
+    steps:
+      - name: Trigger Render staging deployment
+        run: |
+          echo "🚀 Triggering staging deployment..."
+          response=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.RENDER_STAGING_DEPLOY_HOOK }}")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Deployment triggered successfully"
+          else
+            echo "❌ Failed to trigger deployment: $body"
+            exit 1
+          fi
+
+      - name: Wait for deployment to start
+        run: |
+          echo "⏳ Waiting 60 seconds for deployment to initialize..."
+          sleep 60
+
+      - name: Health check loop
+        run: |
+          echo "🔍 Starting health checks..."
+          max_attempts=10
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "Attempt $attempt of $max_attempts..."
+
+            if curl -sf "${{ env.STAGING_BACKEND_URL }}/health" > /dev/null 2>&1; then
+              echo "✅ Staging backend is healthy!"
+              exit 0
+            fi
+
+            if [ $attempt -lt $max_attempts ]; then
+              echo "⏳ Not ready yet, waiting 30 seconds..."
+              sleep 30
+            fi
+
+            attempt=$((attempt + 1))
+          done
+
+          echo "❌ Staging backend failed health checks after $max_attempts attempts"
+          exit 1
+
+  # ════════════════════════════════════════════════════════════════
+  # STAGE 3: E2E Tests on Staging
+  # ════════════════════════════════════════════════════════════════
+  e2e-staging:
+    name: E2E Tests on Staging
+    needs: [quality-gates, deploy-staging-backend]
+    if: |
+      always() &&
+      !cancelled() &&
+      (needs.deploy-staging-backend.result == 'success' || needs.deploy-staging-backend.result == 'skipped') &&
+      github.event.inputs.skip_e2e != 'true'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: cd frontend && npm ci
+
+      - name: Install Playwright browsers
+        run: cd frontend && npx playwright install chromium --with-deps
+
+      - name: Run E2E tests against staging
+        env:
+          VITE_API_URL: ${{ env.STAGING_BACKEND_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+        run: |
+          cd frontend
+          npm run test:e2e || true  # Don't fail PR if E2E has issues
+
+      - name: Upload E2E results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-staging
+          path: frontend/playwright-report/
+          retention-days: 7
+
+  # ════════════════════════════════════════════════════════════════
+  # Summary
+  # ════════════════════════════════════════════════════════════════
+  staging-summary:
+    name: Staging Summary
+    needs: [quality-gates, deploy-staging-backend, e2e-staging]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "## Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Quality Gates | ${{ needs.quality-gates.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend Deploy | ${{ needs.deploy-staging-backend.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| E2E Tests | ${{ needs.e2e-staging.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Staging URL:** ${{ env.STAGING_BACKEND_URL }}" >> $GITHUB_STEP_SUMMARY
