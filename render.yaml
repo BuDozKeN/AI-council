@@ -1,4 +1,7 @@
 services:
+  # ════════════════════════════════════════════════════════════════
+  # PRODUCTION Backend
+  # ════════════════════════════════════════════════════════════════
   - type: web
     name: axcouncil-backend
     env: python
@@ -22,3 +25,27 @@ services:
       # - SENTRY_DSN
       # - etc.
     autoDeploy: true
+
+  # ════════════════════════════════════════════════════════════════
+  # STAGING Backend
+  # ════════════════════════════════════════════════════════════════
+  - type: web
+    name: axcouncil-backend-staging
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install --upgrade pip && pip install -r requirements.txt && pip install -e ."
+    startCommand: "python -m backend.main"
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10"
+      - key: ENVIRONMENT
+        value: staging
+      # IMPORTANT: Set staging-specific secrets in Render dashboard:
+      # - STAGING_SUPABASE_URL (separate Supabase project!)
+      # - STAGING_SUPABASE_SERVICE_KEY
+      # - OPENROUTER_API_KEY (can share with production)
+      # - REDIS_URL (can share or use separate)
+      # - QDRANT_URL (can share or use separate)
+    autoDeploy: false  # Staging is deployed via GitHub Actions, not auto-deploy
