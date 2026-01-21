@@ -925,10 +925,11 @@ function UsersTab() {
     }
   };
 
-  // Handle cancel invitation with OPTIMISTIC UPDATE for instant UI feedback
+  // Handle delete invitation with OPTIMISTIC UPDATE for instant UI feedback
+  // Invitations are HARD deleted since invited users have no data to preserve
   const handleCancelInvitation = async (invitationId: string, email: string) => {
     if (!invitationId) {
-      toast.error('Failed to cancel invitation: No invitation selected');
+      toast.error('Failed to delete invitation: No invitation selected');
       return;
     }
 
@@ -938,25 +939,23 @@ function UsersTab() {
       total: number;
     }>(['admin', 'invitations', { search }]);
 
-    // OPTIMISTIC UPDATE: Immediately update status to 'cancelled'
+    // OPTIMISTIC UPDATE: Immediately REMOVE the invitation from the list
+    // (not just set status - the invitation is hard-deleted on the backend)
     queryClient.setQueryData<
       { invitations: AdminInvitation[]; total: number; page: number; page_size: number } | undefined
     >(['admin', 'invitations', { search }], (old) => {
       if (!old) return old;
       return {
         ...old,
-        invitations: old.invitations.map((inv) =>
-          inv.id === invitationId
-            ? { ...inv, status: 'cancelled' as const, cancelled_at: new Date().toISOString() }
-            : inv
-        ),
+        invitations: old.invitations.filter((inv) => inv.id !== invitationId),
+        total: Math.max(0, old.total - 1),
       };
     });
 
     // Close dialog immediately - user sees instant feedback
     setConfirmDialog({ open: false, invitationId: '', email: '' });
-    toast.success('Invitation cancelled', {
-      description: `The invitation for ${email} has been cancelled.`,
+    toast.success('Invitation deleted', {
+      description: `The invitation for ${email} has been deleted.`,
     });
 
     // Now do the actual API call in background
@@ -965,10 +964,10 @@ function UsersTab() {
       // Success - DO NOT refetch! Our optimistic update IS the source of truth.
     } catch (err) {
       // ROLLBACK on error
-      console.error('Failed to cancel invitation:', err);
+      console.error('Failed to delete invitation:', err);
       queryClient.setQueryData(['admin', 'invitations', { search }], previousInvitationsData);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      toast.error(`Failed to cancel invitation - changes reverted: ${errorMessage}`);
+      toast.error(`Failed to delete invitation - changes reverted: ${errorMessage}`);
     }
   };
 
@@ -1170,8 +1169,8 @@ function UsersTab() {
                     }, 0);
                   }}
                 >
-                  <X className="h-4 w-4" />
-                  {t('admin.users.cancelInvite', 'Cancel Invitation')}
+                  <Trash2 className="h-4 w-4" />
+                  {t('admin.users.deleteInvite', 'Delete Invitation')}
                 </DropdownMenuItem>
               </>
             ) : (
@@ -1651,7 +1650,7 @@ function UsersTab() {
         />
       )}
 
-      {/* Cancel Invitation Confirmation Dialog */}
+      {/* Delete Invitation Confirmation Dialog */}
       <ConfirmDialog
         open={confirmDialog.open}
         onOpenChange={(open) => {
@@ -1659,9 +1658,9 @@ function UsersTab() {
             setConfirmDialog({ open: false, invitationId: '', email: '' });
           }
         }}
-        title="Cancel Invitation"
-        description={`Are you sure you want to cancel the invitation for ${confirmDialog.email}? This action cannot be undone.`}
-        confirmLabel="Cancel Invitation"
+        title="Delete Invitation"
+        description={`Are you sure you want to delete the invitation for ${confirmDialog.email}? This will permanently remove it. To invite them again, you'll need to create a new invitation.`}
+        confirmLabel="Delete Invitation"
         cancelLabel="Keep Invitation"
         variant="danger"
         onConfirm={() => handleCancelInvitation(confirmDialog.invitationId, confirmDialog.email)}
