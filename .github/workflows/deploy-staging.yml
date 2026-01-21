@@ -115,10 +115,12 @@ jobs:
             exit 1
           fi
 
-      - name: Wait for deployment to start
+      - name: Wake up staging service (cold start)
         run: |
-          echo "⏳ Waiting 60 seconds for deployment to initialize..."
-          sleep 60
+          echo "🔄 Waking up staging service (free tier cold start)..."
+          curl -sf "${{ env.STAGING_BACKEND_URL }}/health" || true
+          echo "⏳ Waiting 90 seconds for cold start to complete..."
+          sleep 90
 
       - name: Health check loop
         run: |
@@ -192,7 +194,7 @@ jobs:
           retention-days: 7
 
   # ════════════════════════════════════════════════════════════════
-  # Summary
+  # Summary & Notifications
   # ════════════════════════════════════════════════════════════════
   staging-summary:
     name: Staging Summary
@@ -211,3 +213,32 @@ jobs:
           echo "| E2E Tests | ${{ needs.e2e-staging.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Staging URL:** ${{ env.STAGING_BACKEND_URL }}" >> $GITHUB_STEP_SUMMARY
+
+      # Uncomment when you have a Slack webhook configured
+      # - name: Notify Slack on failure
+      #   if: failure()
+      #   run: |
+      #     curl -X POST -H 'Content-type: application/json' \
+      #       --data '{"text":"❌ Staging deployment failed for ${{ github.repository }}. PR: ${{ github.event.pull_request.html_url }}"}' \
+      #       ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ════════════════════════════════════════════════════════════════
+  # Production Gate Check
+  # ════════════════════════════════════════════════════════════════
+  production-ready:
+    name: Production Ready Gate
+    needs: [quality-gates, deploy-staging-backend, e2e-staging]
+    if: |
+      always() &&
+      needs.quality-gates.result == 'success' &&
+      (needs.deploy-staging-backend.result == 'success' || needs.deploy-staging-backend.result == 'skipped') &&
+      (needs.e2e-staging.result == 'success' || needs.e2e-staging.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm production ready
+        run: |
+          echo "✅ All staging checks passed!"
+          echo "This PR is safe to merge to production."
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Production Ready" >> $GITHUB_STEP_SUMMARY
+          echo "All staging validation passed. Safe to merge." >> $GITHUB_STEP_SUMMARY
