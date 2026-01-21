@@ -10,6 +10,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "httpx>=0.27.0",
     "pydantic[email]>=2.9.0",
+    "email-validator>=2.0.0",  # Explicit for Pydantic EmailStr
     "supabase>=2.0.0",
     "gunicorn>=21.0.0",
     "pillow>=10.0.0",  # Image optimization for uploads
