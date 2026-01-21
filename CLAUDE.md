@@ -1437,6 +1437,15 @@ See `todo/LLM-COST-OPTIMIZATION-PLAN.md` for detailed optimization documentation
 
 ## Deployment
 
+### Production URLs
+
+| Service | URL |
+|---------|-----|
+| **Frontend (Vercel)** | https://ai-council-three.vercel.app |
+| **Backend (Render)** | https://axcouncil-backend.onrender.com |
+
+**IMPORTANT:** The correct Vercel URL is `ai-council-three.vercel.app` (with `-three`). Do NOT use `ai-council.vercel.app` - that is a different project and not ours.
+
 ### Vercel (Frontend)
 - Auto-deploys on push to `master`
 - Build command: `cd frontend && npm run build`
