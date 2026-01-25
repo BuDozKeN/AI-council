@@ -195,7 +195,7 @@
    MOBILE RESPONSIVE
    ============================================================================= */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* Compact toolbar on mobile - single row with search + filter */
   .admin-toolbar {
     flex-direction: row;

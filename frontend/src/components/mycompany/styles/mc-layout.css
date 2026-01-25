@@ -1,0 +1,60 @@
+/**
+ * MyCompany Layout Utilities
+ * Tab container constraints and scrollbar styling
+ */
+
+/* ============================================================================
+   TAB CONTAINER CONSTRAINTS
+   ============================================================================ */
+
+/* All tab containers should fill available space and constrain to parent height */
+.mc-content > .mc-projects,
+.mc-content > .mc-playbooks,
+.mc-content > .mc-decisions,
+.mc-content > .mc-team,
+.mc-content > .mc-members,
+.mc-content > .mc-activity,
+.mc-content > .mc-usage {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ScrollableContent list wrappers - fill remaining space */
+.mc-playbooks-list,
+.mc-decisions-list,
+.mc-team-list,
+.mc-members-list-wrapper,
+.mc-activity-list,
+.mc-projects-list,
+.mc-usage-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING
+   ============================================================================ */
+
+/* Custom scrollbar for content */
+.mc-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mc-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mc-content::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.mc-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-dark);
+}

@@ -61,7 +61,7 @@
 }
 
 /* Mobile: Stack buttons */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .confirm-dialog-footer {
     flex-direction: column-reverse;
   }

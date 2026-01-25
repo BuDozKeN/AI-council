@@ -238,13 +238,13 @@
   }
 }
 
-@media (max-width: 1025px) {
+@media (width <= 1024px) {
   .analytics-breakdown-grid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .analytics-stats-row {
     grid-template-columns: 1fr;
   }
@@ -435,7 +435,7 @@
    RESPONSIVE - Chart Cards
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .analytics-chart-body {
     padding: var(--space-3);
     min-height: 180px;

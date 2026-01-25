@@ -350,7 +350,7 @@
    MOBILE RESPONSIVE
    ============================================================================= */
 
-@media (max-width: 641px) {
+@media (width <= 640px) {
   .accept-invite-page {
     padding: var(--space-4);
     align-items: flex-start;

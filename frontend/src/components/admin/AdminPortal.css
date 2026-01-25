@@ -374,7 +374,7 @@
    which is the minimum usable width for admin tables.
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .admin-portal {
     flex-direction: column;
   }
