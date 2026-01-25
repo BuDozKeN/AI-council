@@ -88,9 +88,9 @@
     line-height: 1;
     margin-top: 2px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 44px;
+    overflow: visible; /* Allow full text display */
+    text-overflow: clip;
+    max-width: none; /* Remove constraint that truncates "Developer" */
   }
 
   .settings-panel {

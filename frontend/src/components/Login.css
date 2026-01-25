@@ -7,11 +7,14 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
   width: 100%;
   align-items: center;
   justify-content: center;
   background-color: var(--color-zinc-900);
-  overflow: hidden;
+  overflow: auto hidden; /* vertical auto, horizontal hidden - allows scroll on small screens */
+  -webkit-overflow-scrolling: touch;
+  padding: var(--space-4) 0; /* Prevent content touching edges */
 }
 
 .aurora-overlay {
@@ -128,6 +131,8 @@
 }
 
 /* Google Button - Primary CTA */
+
+/* Always use explicit dark text on white bg for visibility against aurora background */
 .google-button {
   display: flex;
   align-items: center;
@@ -135,19 +140,19 @@
   gap: var(--gap);
   width: 100%;
   padding: var(--space-3-5) var(--space-5);
-  background: var(--color-bg-primary);
-  border: none;
+  background: var(--white);
+  border: 1px solid var(--color-gray-200);
   border-radius: var(--radius-lg);
   font-size: var(--text-base);
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: var(--color-gray-800); /* Dark gray - WCAG AA compliant */
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-md);
 }
 
 .google-button:hover:not(:disabled) {
-  background: var(--color-bg-secondary);
+  background: var(--color-gray-100); /* Slightly darker on hover */
   box-shadow: var(--shadow-lg);
 }
 

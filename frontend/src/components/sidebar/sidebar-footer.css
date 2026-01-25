@@ -83,6 +83,7 @@
 /* Sign out - slightly muted to differentiate from primary actions */
 .footer-btn.sign-out-btn {
   color: var(--sidebar-text-muted);
+  min-width: max-content; /* Ensure "Sign out" text never truncates */
 }
 
 .footer-btn.sign-out-btn:hover {

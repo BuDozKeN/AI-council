@@ -60,9 +60,13 @@
   }
 
   /* Mobile: Keep visible with subtle background (Issue #10 fix) */
+
+  /* WCAG 2.1 AA: 44px minimum touch target (ISSUE-016) */
   .theme-toggle-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     background: var(--overlay-black-10);
     border: none;
     box-shadow: none;

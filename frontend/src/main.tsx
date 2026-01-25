@@ -194,7 +194,9 @@ createRoot(rootElement).render(
             </BusinessProvider>
           </AuthProvider>
         </ThemeProvider>
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+        {import.meta.env.DEV && (
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+        )}
       </PersistQueryClientProvider>
     </ErrorBoundary>
   </StrictMode>

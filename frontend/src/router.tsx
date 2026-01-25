@@ -53,6 +53,11 @@ export const router = createBrowserRouter([
       { path: 'company/:tab', element: null },
       { path: 'company/:tab/:itemId', element: null },
 
+      // MyCompany aliases - same as /company, handled by useRouteSync
+      { path: 'mycompany', element: null },
+      { path: 'mycompany/:tab', element: null },
+      { path: 'mycompany/:tab/:itemId', element: null },
+
       // Leaderboard
       { path: 'leaderboard', element: null },
 
