@@ -26,14 +26,14 @@
     justify-content: flex-end;
   }
 
-  /* Header section - centered in remaining space above OmniBar */
+  /* Header section - positioned higher to reduce empty space (ISSUE-020) */
   .landing-header {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 0;
+    justify-content: flex-start; /* Push content toward top */
+    padding-top: var(--space-8); /* Controlled spacing from top */
   }
 
   .landing-headline {

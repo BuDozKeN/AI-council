@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../AuthContext';
+import { usePageTitle } from '../../hooks/usePageTitle';
 import { AdaptiveModal } from '../ui/AdaptiveModal';
 import { ConfirmModal } from '../ui/ConfirmModal';
 import { Skeleton } from '../ui/Skeleton';
@@ -53,6 +54,9 @@ export default function Settings({
   const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
   const prevIsOpenRef = useRef(isOpen);
+
+  // Set page title for accessibility (ISSUE-040)
+  usePageTitle(isOpen ? 'Settings' : 'AxCouncil');
 
   // Sync to initialTab when modal opens
   // This is an intentional sync of external prop to local state - valid pattern

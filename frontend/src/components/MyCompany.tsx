@@ -3,6 +3,7 @@ import { api } from '../api';
 import { Skeleton } from './ui/Skeleton';
 import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
 import { usePullToRefresh, useSwipeGesture } from '../hooks';
+import { usePageTitle } from '../hooks/usePageTitle';
 import { hapticLight, hapticSuccess, hapticMedium } from '../lib/haptics';
 import { makeClickable } from '../utils/a11y';
 
@@ -111,6 +112,9 @@ export default function MyCompany({
   onConsumePromoteDecision = null,
   onOpenLLMHub,
 }: MyCompanyProps) {
+  // Set page title for accessibility (ISSUE-040)
+  usePageTitle(companyName ? `${companyName} - My Company` : 'My Company');
+
   // Core UI state
   const [activeTab, setActiveTab] = useState<MyCompanyTab>(initialTab);
   const [expandedDept, setExpandedDept] = useState<string | null>(null);
