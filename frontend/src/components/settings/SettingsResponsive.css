@@ -142,6 +142,16 @@
     margin-top: var(--space-0-5);
   }
 
+  /* Section header padding - improve visual separation on mobile (16px instead of 12px) */
+  .settings-section-header,
+  .section-header,
+  .card-header,
+  .panel-header {
+    padding-block: var(--space-4); /* 16px vertical padding */
+    margin-bottom: var(--space-3);
+  }
+
+
   /* Form groups - better spacing */
   .settings-panel .form-group {
     margin-bottom: var(--space-5);

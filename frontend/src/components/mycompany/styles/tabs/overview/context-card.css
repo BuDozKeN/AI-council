@@ -200,6 +200,11 @@
   .mc-mobile-toc {
     display: inline-flex;
   }
+
+  /* Section header padding - improve visual separation on mobile (16px instead of 12px) */
+  .mc-context-section-header {
+    padding-block: var(--space-4); /* 16px vertical padding */
+  }
 }
 
 /* Content area - flows naturally, parent scrolls */
