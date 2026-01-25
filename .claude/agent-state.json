@@ -14,7 +14,7 @@
     "release-readiness": {
       "lastRun": null,
       "frequency": "pre-deploy",
-      "agents": ["rls-auditor", "performance-profiler", "api-contract-checker", "mobile-tester", "enterprise-readiness"]
+      "agents": ["rls-auditor", "performance-profiler", "api-contract-checker", "mobile-tester", "mobile-ux-tester", "enterprise-readiness"]
     },
     "continuous-improvement": {
       "lastRun": null,

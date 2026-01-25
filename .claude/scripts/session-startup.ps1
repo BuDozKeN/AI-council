@@ -91,7 +91,7 @@ if ($UrgentCount -eq 0) {
 Write-Host ""
 
 # === AGENT TEAMS ===
-Write-Host "[AGENT TEAMS] 15 agents: 7 Opus / 3 Sonnet / 5 Haiku" -ForegroundColor White
+Write-Host "[AGENT TEAMS] 16 agents: 8 Opus / 3 Sonnet / 5 Haiku" -ForegroundColor White
 Write-Host "----------------------------------------------------------------" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Guardian Team (run in background during development)" -ForegroundColor Blue
@@ -102,7 +102,7 @@ Write-Host "   test-runner, build-validator, type-checker, css-enforcer [all Hai
 Write-Host ""
 Write-Host "Release Readiness Team (run before deploy)" -ForegroundColor Blue
 Write-Host "   rls-auditor [Opus], performance-profiler [Opus], api-contract-checker [Opus]"
-Write-Host "   mobile-tester [Sonnet], enterprise-readiness [Opus]"
+Write-Host "   mobile-tester [Sonnet], mobile-ux-tester [Opus], enterprise-readiness [Opus]"
 Write-Host ""
 Write-Host "Continuous Improvement Team (run weekly)" -ForegroundColor Blue
 Write-Host "   council-ops [Opus], web-researcher [Sonnet]"

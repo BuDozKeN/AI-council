@@ -86,6 +86,7 @@ Run specialized agents for complex tasks:
 | `security-guardian` | Security monitoring, vulnerability detection |
 | `css-enforcer` | CSS budget and convention enforcement |
 | `mobile-tester` | Mobile responsiveness testing |
+| `mobile-ux-tester` | Automated mobile UX testing via Chrome DevTools |
 | `council-ops` | LLM costs and pipeline health |
 | `enterprise-readiness` | $25M exit checklist tracking |
 | `web-researcher` | Search for latest security/tech updates |
