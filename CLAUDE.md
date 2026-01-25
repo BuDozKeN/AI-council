@@ -75,6 +75,7 @@ Detailed patterns are extracted to skills. Load when relevant:
 | `.claude/skills/radix-patterns.md` | Modals, dialogs, fixed-position elements |
 | `.claude/skills/react-patterns.md` | Hook bugs, state management |
 | `.claude/skills/supabase-rls.md` | Database, authorization, RLS |
+| `.claude/skills/exit-readiness.md` | $25M exit prep, enterprise features |
 
 ## Agents (Specialized Workers)
 
