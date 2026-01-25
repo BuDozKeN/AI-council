@@ -103,6 +103,8 @@ jobs:
         with:
           fail-on-severity: high
           deny-licenses: GPL-3.0, AGPL-3.0
+          # Ignore CVE-2026-0994 (protobuf) - no fix available yet
+          allow-ghsas: GHSA-7gcm-g887-7qv7
 
   # npm audit for frontend
   npm-audit:
