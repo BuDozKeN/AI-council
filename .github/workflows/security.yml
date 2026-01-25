@@ -154,11 +154,14 @@ jobs:
       - name: Run pip-audit
         run: |
           # Run audit and fail on high/critical vulnerabilities
-          pip-audit --desc on --format columns 2>&1 | tee audit-results.txt
+          # --ignore-vuln: Skip CVEs with no fix available yet
+          pip-audit --desc on --format columns \
+            --ignore-vuln CVE-2026-0994 \
+            2>&1 | tee audit-results.txt
           exit_code=${PIPESTATUS[0]}
 
           if [ $exit_code -ne 0 ]; then
             echo "::error::Vulnerabilities found in pip dependencies - review audit-results.txt"
             exit 1
           fi
-          echo "No vulnerabilities found"
+          echo "No vulnerabilities found (ignoring CVEs with no fix available)"
