@@ -256,6 +256,12 @@
     margin-bottom: var(--space-4);
   }
 
+  /* Activity rows - Min 52px touch target for accessibility */
+  .mc-activity-item {
+    min-height: 52px;
+    padding: var(--space-3) var(--space-4);
+  }
+
   .mc-source-icon-btn {
     width: 36px;
     height: 36px;

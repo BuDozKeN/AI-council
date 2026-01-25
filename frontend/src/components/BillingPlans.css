@@ -179,3 +179,39 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+
+/* ============================================================================
+   MOBILE STYLES - Touch targets
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .billing-plans {
+    grid-template-columns: 1fr;
+    padding: var(--space-4);
+    gap: var(--gap-md);
+  }
+
+  .plan-card {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  /* Feature list items - Min 44px touch target for accessibility */
+  .plan-features li {
+    min-height: 44px;
+    padding: var(--space-3) 0;
+    display: flex;
+    align-items: center;
+    font-size: var(--text-xs-plus);
+  }
+
+  .plan-features li::before {
+    margin-right: var(--space-2);
+    flex-shrink: 0;
+  }
+
+  .plan-btn {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-4);
+  }
+}

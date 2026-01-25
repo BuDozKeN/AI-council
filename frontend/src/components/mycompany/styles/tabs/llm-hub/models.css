@@ -154,3 +154,24 @@
   align-self: flex-end;
   margin-top: var(--space-3-5);
 }
+
+/* ============================================================================
+   MOBILE STYLES - Touch targets
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* Model rows - Min 48px touch target for accessibility */
+  .llm-model-row {
+    min-height: 48px;
+    padding: var(--space-3) 0;
+  }
+
+  .llm-model-row:first-child {
+    padding-top: var(--space-2);
+  }
+
+  .llm-model-role {
+    min-width: 100px;
+    max-width: 100px;
+  }
+}
