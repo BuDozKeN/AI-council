@@ -107,13 +107,13 @@
    RESPONSIVE
    ============================================================================= */
 
-@media (max-width: 1025px) {
+@media (width <= 1024px) {
   .admin-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Hide stats on mobile - redundant with Analytics tab */
   .admin-stats-grid {
     display: none;

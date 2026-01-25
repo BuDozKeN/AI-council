@@ -1,0 +1,273 @@
+/**
+ * MyCompany Elegant List
+ * Shared list design for Decisions, Team, Activity tabs
+ */
+
+/* ============================================================================
+   LIST CONTAINER
+   ============================================================================ */
+
+.mc-elegant-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-2xs);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-1);
+}
+
+/* ============================================================================
+   LIST ROW
+   ============================================================================ */
+
+.mc-elegant-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-default);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-elegant-row:hover {
+  background: var(--color-bg-hover);
+}
+
+.mc-elegant-row:active {
+  background: var(--color-bg-active);
+}
+
+/* ============================================================================
+   STATUS DOT
+   ============================================================================ */
+
+.mc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mc-status-dot.promoted {
+  background: var(--color-green-500);
+  box-shadow: 0 0 0 3px rgb(var(--color-green-500-rgb, 34, 197, 94), 0.15);
+}
+
+.mc-status-dot.draft {
+  background: var(--color-amber-400);
+  box-shadow: 0 0 0 3px var(--overlay-amber-15);
+}
+
+/* ============================================================================
+   CONTENT AREA
+   ============================================================================ */
+
+.mc-elegant-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  min-width: 0;
+}
+
+.mc-elegant-title {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mc-elegant-summary {
+  font-size: var(--text-xs-plus);
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ============================================================================
+   BADGES
+   ============================================================================ */
+
+.mc-elegant-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--gap-xs-plus);
+  margin-top: var(--space-0-5);
+}
+
+/* Type badges - compact chips */
+.mc-elegant-badge {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.mc-elegant-badge.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.mc-elegant-badge.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.mc-elegant-badge.policy {
+  background: var(--color-purple-100);
+  color: var(--color-violet-600);
+}
+
+/* Department badge - uses dynamic color from getDeptColor */
+.mc-elegant-dept {
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  padding: var(--space-0-5) var(--space-1-5);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.mc-elegant-dept-none {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   RIGHT SIDE (DATE + ACTIONS)
+   ============================================================================ */
+
+.mc-elegant-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  min-width: 180px;
+  position: relative;
+}
+
+/* Date - visible by default, fades on hover */
+.mc-elegant-date {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  transition: opacity 0.15s ease;
+}
+
+.mc-elegant-row:hover .mc-elegant-date {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Actions - hidden by default, appear on hover */
+.mc-elegant-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  flex-shrink: 0;
+  position: absolute;
+  right: 0;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  background: inherit;
+  padding-left: var(--space-2);
+}
+
+.mc-elegant-row:hover .mc-elegant-actions {
+  opacity: 1;
+  background: var(--color-bg-hover);
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
+.mc-elegant-list:empty::after {
+  content: 'No items';
+  display: block;
+  padding: var(--space-10);
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+}
+
+/* ============================================================================
+   ANIMATIONS
+   ============================================================================ */
+
+/* Deleting animation state */
+.mc-elegant-row.deleting {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Removing animation - smooth fade-out and collapse */
+.mc-elegant-row.removing {
+  animation: mc-row-remove 200ms ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes mc-row-remove {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    max-height: 80px;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(20px);
+    max-height: 0;
+    padding-block: 0;
+    margin-block: 0;
+  }
+}
+
+/* ============================================================================
+   DARK MODE
+   ============================================================================ */
+
+/* Note: Elegant list uses semantic tokens - no dark override needed */
+
+/* Badges - dark mode */
+.dark .mc-elegant-badge.sop,
+[data-theme='dark'] .mc-elegant-badge.sop {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-elegant-badge.framework,
+[data-theme='dark'] .mc-elegant-badge.framework {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-elegant-badge.policy,
+[data-theme='dark'] .mc-elegant-badge.policy {
+  background: var(--overlay-purple-15);
+  color: var(--color-violet-400);
+}
+
+/* Note: .mc-elegant-dept-none uses semantic tokens - no dark override needed */
+
+/* Note: Text button styles moved to mc-text-buttons.css */

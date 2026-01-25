@@ -8,7 +8,12 @@
  * - layouts.css     - Layout pattern documentation
  * - shell.css       - Overlay, panel, header, tabs, content area
  * - badges.css      - Type, department, scope, meta badges
- * - shared.css      - Loading states, forms, buttons
+ * - mc-layout.css   - Tab container constraints, scrollbars
+ * - mc-states.css   - Loading, error, empty states
+ * - mc-forms.css    - Form elements
+ * - mc-actions.css  - Action buttons
+ * - mc-list.css     - Elegant list design
+ * - mc-text-buttons.css - Text-style action buttons
  * - legacy.css      - AI synthesize, context headers (to be migrated)
  * - tabs/*.css      - Tab-specific styles
  * - mobile.css      - Mobile responsive overrides (must be last)
@@ -28,9 +33,14 @@
 /* Core layout and shell */
 @import url('./shell.css');
 
-/* Shared components */
+/* Shared components (split from shared.css for maintainability) */
 @import url('./badges.css');
-@import url('./shared.css');
+@import url('./mc-layout.css');
+@import url('./mc-states.css');
+@import url('./mc-forms.css');
+@import url('./mc-actions.css');
+@import url('./mc-list.css');
+@import url('./mc-text-buttons.css');
 
 /* Tab-specific styles */
 @import url('./tabs/overview/index.css');

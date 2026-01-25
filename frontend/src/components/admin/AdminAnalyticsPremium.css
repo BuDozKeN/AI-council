@@ -502,7 +502,7 @@
   }
 }
 
-@media (max-width: 1025px) {
+@media (width <= 1024px) {
   .analytics-tab--premium {
     padding: var(--space-4);
   }
@@ -520,7 +520,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .analytics-tab--premium {
     padding: var(--space-3);
   }

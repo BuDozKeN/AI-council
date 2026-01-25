@@ -373,7 +373,7 @@
   }
 }
 
-@media (max-width: 1025px) {
+@media (width <= 1024px) {
   .analytics-header {
     flex-direction: column;
     align-items: stretch;
@@ -388,7 +388,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .analytics-kpi-grid {
     grid-template-columns: 1fr;
   }
@@ -659,13 +659,13 @@
 }
 
 /* Mobile Responsive */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .analytics-model-grid {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .analytics-model-card {
     padding: var(--space-3);
   }
