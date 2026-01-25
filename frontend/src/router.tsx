@@ -1,5 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 /**
  * Router Configuration - SEO & URL Routing
+ *
+ * Router files legitimately export both the router and route constants.
  *
  * This router enables:
  * - Deep linking to specific views (settings, company, leaderboard)

@@ -149,7 +149,7 @@
    AUDIT LOG MOBILE LAYOUT
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Compact 2-line layout for audit logs:
      Line 1: Action (bold)
      Line 2: email • timestamp (inline) */

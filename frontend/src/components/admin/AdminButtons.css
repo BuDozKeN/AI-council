@@ -215,7 +215,7 @@
    TABLET RESPONSIVE
    ============================================================================= */
 
-@media (max-width: 1025px) {
+@media (width <= 1024px) {
   /* Hide "Show Deleted" button on tablet - advanced feature, saves space */
   .admin-show-deleted-btn {
     display: none;
@@ -226,7 +226,7 @@
    MOBILE RESPONSIVE - Touch Targets
    ============================================================================= */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* Action buttons in header - icon-only on mobile */
   .admin-tab-header .admin-action-btn {
     min-height: 44px;
