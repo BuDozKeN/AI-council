@@ -30,7 +30,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'echo \"=== AxCouncil Session Started ===\"; echo \"Date: $(date)\"; echo \"CSS Budget: 1300KB source, 700KB built\"; if [ -f todo/EXIT-READINESS-25M.md ]; then echo \"Exit readiness doc found\"; fi'"
+            "command": "bash -c 'echo \"\"; echo \"=== AxCouncil Session Started ===\"; echo \"CSS Budget: 1300KB source | 700KB built\"; echo \"\"; echo \"Quick Commands:\"; echo \"  /daily-health    - Morning health check\"; echo \"  /qa              - Pre-push quality check\"; echo \"  /security-watch  - Security monitoring\"; echo \"  /setup           - First-time setup\"; echo \"\"; echo \"Agents (ask me to use them):\"; echo \"  security-guardian, css-enforcer, mobile-tester\"; echo \"  council-ops, enterprise-readiness, web-researcher\"; echo \"\"; echo \"Skills auto-load when relevant (CSS, mobile, Radix, React, RLS, exit-readiness)\"; echo \"\"'"
           }
         ]
       }
