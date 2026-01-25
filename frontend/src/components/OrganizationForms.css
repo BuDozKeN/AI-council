@@ -1,0 +1,168 @@
+/**
+ * Organization Manager - Forms & Buttons Styles
+ * Extracted from Organization.css for CSS budget compliance.
+ */
+
+/* Add Form (inline) */
+.org-add-form {
+  background: var(--color-warning-light);
+  border: 1px solid var(--color-amber-200);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.org-add-form input {
+  width: 100%;
+  padding: var(--space-2) var(--space-2-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+  font-size: 0.875rem;
+}
+
+.org-add-form input:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.org-add-form-actions {
+  display: flex;
+  gap: var(--gap-sm);
+  justify-content: flex-end;
+}
+
+/* Form Groups */
+.org-form-group {
+  margin-bottom: var(--space-4);
+}
+
+.org-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.org-form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  margin-bottom: var(--space-1-5);
+}
+
+.org-form-group input,
+.org-form-group textarea {
+  width: 100%;
+  padding: var(--space-2-5) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.org-form-group input:focus,
+.org-form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.org-form-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+  margin-top: var(--space-1);
+}
+
+/* Buttons */
+.org-btn {
+  padding: var(--space-2-5) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-gray-700);
+}
+
+.org-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+}
+
+.org-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.org-btn.primary {
+  background: var(--color-indigo-500);
+  border-color: transparent;
+  color: var(--color-text-inverse);
+}
+
+.org-btn.primary:hover:not(:disabled) {
+  background: var(--color-indigo-600);
+}
+
+.org-btn.secondary {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
+}
+
+/* Role Prompt View */
+.org-prompt-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  margin-bottom: var(--space-3);
+}
+
+.org-prompt-path {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  background: var(--color-bg-hover);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.org-prompt-missing {
+  font-size: 0.75rem;
+  color: var(--color-warning);
+}
+
+.org-prompt-content {
+  background: var(--color-slate-800);
+  color: var(--color-border);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* Delete Confirmation */
+.org-delete-message {
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3);
+  line-height: 1.5;
+}
+
+.org-delete-warning {
+  font-size: 0.875rem;
+  color: var(--color-error);
+  background: var(--color-error-light);
+  padding: var(--space-2-5) var(--space-3);
+  border-radius: var(--radius-md);
+  margin: 0 0 var(--space-3);
+  border: 1px solid var(--color-error-border);
+}

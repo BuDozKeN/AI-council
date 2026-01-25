@@ -1,0 +1,106 @@
+/**
+ * SaveKnowledge - Tooltip Styles
+ *
+ * Detection reasoning tooltip for department/category fields.
+ * Split from SaveKnowledgeForm.css for CSS budget compliance.
+ */
+
+/* Field with tooltip wrapper */
+.field-with-tooltip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.field-with-tooltip select {
+  flex: 1;
+}
+
+/* Detection reasoning tooltip */
+.detection-tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
+.tooltip-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: all 0.15s ease;
+}
+
+.detection-tooltip:hover .tooltip-icon {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+.tooltip-text {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  max-width: 280px;
+  padding: var(--space-2-5) var(--space-3);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  white-space: normal;
+  text-align: left;
+  z-index: var(--z-dropdown);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: all 0.15s ease;
+}
+
+/* Arrow pointing down */
+.tooltip-text::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 100%;
+  right: 12px;
+  border: 6px solid transparent;
+  border-block-start-color: var(--color-border);
+}
+
+.tooltip-text::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 100%;
+  right: 13px;
+  border: 5px solid transparent;
+  border-block-start-color: var(--color-bg-primary);
+  z-index: var(--z-base);
+}
+
+.detection-tooltip:hover .tooltip-text {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.tooltip-text strong {
+  color: var(--color-accent);
+}
+
+.tooltip-changed {
+  color: var(--color-amber-500);
+  font-size: 0.75rem;
+}

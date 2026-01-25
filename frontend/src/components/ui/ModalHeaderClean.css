@@ -1,0 +1,99 @@
+/**
+ * Modal - Clean Header Styles (2025 Design)
+ * Extracted from Modal.css for CSS budget compliance.
+ *
+ * Contains:
+ * - Clean modal header layout
+ * - Type badge in header
+ * - Title display with pencil hover
+ * - Title input for editable headers
+ */
+
+/* ============================================================================
+   CLEAN MODAL HEADER (2025 Design)
+   ============================================================================ */
+
+.mc-modal-header-clean {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.mc-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Type badge in header */
+.mc-type-badge-header {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: var(--space-1) var(--space-2-5);
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+/* Title display with pencil hover */
+.mc-title-display {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mc-title-display.editable {
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2));
+  border-radius: var(--radius-default);
+  transition: background 0.15s ease;
+}
+
+.mc-title-display.editable:hover {
+  background: var(--color-bg-hover);
+}
+
+.mc-pencil-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.mc-title-display.editable:hover .mc-pencil-icon {
+  opacity: 1;
+}
+
+/* Title input for editable headers */
+.mc-title-input {
+  flex: 1;
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+}
+
+.mc-title-input:focus {
+  outline: none;
+  border-color: var(--color-orange-500);
+  box-shadow: var(--shadow-focus);
+}

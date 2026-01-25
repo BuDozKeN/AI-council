@@ -28,6 +28,8 @@ import './chat/ContextIndicator.css';
 import './chat/MessageList.css';
 import './chat/UserMessage.css';
 import './chat/FollowUpBar.css';
+import './chat/FollowUpBarPopover.css';
+import './chat/FollowUpBarDark.css';
 import './chat/input/index.css';
 import './ImageUpload.css';
 

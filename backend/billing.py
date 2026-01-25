@@ -524,6 +524,7 @@ def get_available_plans() -> List[Dict[str, Any]]:
             "queries_limit": config["queries_per_month"],
             "queries_display": "Unlimited" if config["queries_per_month"] == -1 else f"{config['queries_per_month']}/month",
             "features": config["features"],
-            "is_free": config["price_monthly"] == 0
+            "is_free": config["price_monthly"] == 0,
+            "contact_sales": config.get("contact_sales", False)
         })
     return plans

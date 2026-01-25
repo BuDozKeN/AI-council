@@ -12,6 +12,8 @@ import { ApiKeysSection } from './ApiKeysSection';
 import { DeveloperSection } from './DeveloperSection';
 import type { TeamRole } from './hooks/useTeam';
 import './SettingsLayout.css';
+import './SettingsCards.css';
+import './SettingsResponsive.css';
 
 // Lazy-load LLMHubTab (owner-only, rarely accessed)
 const LLMHubTab = lazy(() =>

@@ -1,0 +1,65 @@
+/**
+ * HelpButton Dark Mode Styles
+ * Extracted from HelpButton.css for CSS budget compliance.
+ */
+
+/* Dark mode adjustments - desktop only */
+.dark .help-button-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+  box-shadow: var(--shadow-sm);
+}
+
+.dark .help-button-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.dark .help-panel {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+  box-shadow:
+    0 20px 25px -5px var(--overlay-black-30),
+    0 8px 10px -6px var(--overlay-black-20);
+}
+
+.dark .help-panel-header {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .help-link:hover {
+  background: var(--color-bg-hover);
+}
+
+.dark .help-link-icon {
+  background: var(--overlay-blue-15);
+}
+
+.dark .help-panel-footer {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .help-language-section {
+  border-color: var(--color-border);
+}
+
+.dark .help-language-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .help-language-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.dark .help-language-btn.active {
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}

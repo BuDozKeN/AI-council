@@ -3,8 +3,11 @@
    Total: ~1,231 lines split across 5 focused files
    ============================================================================= */
 
-/* Base styles - stage container, model grid, cards, title, collapse + dark mode (541 lines) */
+/* Base styles - stage container, model grid, cards, title, collapse (451 lines) */
 @import url('./styles/Stage1Base.css');
+
+/* Dark mode overrides for Stage1 base styles (103 lines) */
+@import url('./styles/Stage1BaseDark.css');
 
 /* Summary pills - collapsed view showing provider groups (160 lines) */
 @import url('./styles/Stage1Summary.css');

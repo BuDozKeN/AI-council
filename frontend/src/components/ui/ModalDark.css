@@ -1,0 +1,144 @@
+/**
+ * Modal.css - Dark Mode Styles
+ *
+ * Dark theme overrides for MyCompany modal components.
+ * Split from Modal.css for CSS budget compliance.
+ */
+
+/* Modal body & scroll */
+.dark .mc-modal-scroll-top,
+[data-theme='dark'] .mc-modal-scroll-top {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-modal-scroll-top:hover,
+[data-theme='dark'] .mc-modal-scroll-top:hover {
+  color: var(--color-text-primary);
+  box-shadow: 0 4px 12px var(--overlay-black-30);
+}
+
+/* Modal hint */
+.dark .mc-modal-hint,
+[data-theme='dark'] .mc-modal-hint {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+}
+
+/* Clean modal header */
+.dark .mc-modal-header-clean,
+[data-theme='dark'] .mc-modal-header-clean {
+  border-block-end-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-title-display,
+[data-theme='dark'] .mc-title-display {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-title-display.editable:hover,
+[data-theme='dark'] .mc-title-display.editable:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-pencil-icon,
+[data-theme='dark'] .mc-pencil-icon {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-title-input,
+[data-theme='dark'] .mc-title-input {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-title-input:focus,
+[data-theme='dark'] .mc-title-input:focus {
+  border-color: var(--color-amber-400);
+}
+
+/* Form groups */
+.dark .mc-form-group label,
+[data-theme='dark'] .mc-form-group label {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-form-group input,
+.dark .mc-form-group textarea,
+.dark .mc-form-group select,
+[data-theme='dark'] .mc-form-group input,
+[data-theme='dark'] .mc-form-group textarea,
+[data-theme='dark'] .mc-form-group select {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-form-group input:focus,
+.dark .mc-form-group textarea:focus,
+.dark .mc-form-group select:focus,
+[data-theme='dark'] .mc-form-group input:focus,
+[data-theme='dark'] .mc-form-group textarea:focus,
+[data-theme='dark'] .mc-form-group select:focus {
+  border-color: var(--color-amber-400);
+}
+
+/* Select dropdown */
+.dark .mc-select,
+[data-theme='dark'] .mc-select {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
+.dark .mc-select:hover,
+[data-theme='dark'] .mc-select:hover {
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-select:focus,
+[data-theme='dark'] .mc-select:focus {
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
+}
+
+/* Edit textarea */
+.dark .mc-edit-textarea,
+[data-theme='dark'] .mc-edit-textarea {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea:focus,
+[data-theme='dark'] .mc-edit-textarea:focus {
+  border-color: var(--color-amber-400);
+}
+
+/* Edit split view */
+.dark .mc-edit-label,
+[data-theme='dark'] .mc-edit-label {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-preview .mc-context-content,
+[data-theme='dark'] .mc-edit-preview .mc-context-content {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+/* Modal close button */
+.dark .mc-modal-close-clean,
+[data-theme='dark'] .mc-modal-close-clean {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-modal-close-clean:hover,
+[data-theme='dark'] .mc-modal-close-clean:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}

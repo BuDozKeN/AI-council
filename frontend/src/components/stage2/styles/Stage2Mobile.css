@@ -1,3 +1,6 @@
+/* Small screens: See Stage2MobileSmall.css */
+@import url('./Stage2MobileSmall.css');
+
 /* =============================================================================
    TABLE SCROLL WRAPPER - Isolates table scrolling from page scroll
    ============================================================================= */
@@ -281,68 +284,5 @@
   .stage2 .error-badge {
     font-size: var(--text-2xs);
     padding: var(--space-1) var(--space-1-5);
-  }
-}
-
-/* Even smaller screens (iPhone SE) */
-@media (width <= 640px) {
-  .stage2 {
-    padding: var(--space-2-5);
-  }
-
-  /* Ultra compact title for tiny screens - scale icons, keep full text */
-  .stage2 .stage-title {
-    gap: var(--gap-xs);
-  }
-
-  /* Scale down the title icon */
-  .stage2-header .stage-title > svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  /* Collapse arrow smaller */
-  .stage2 .collapse-arrow {
-    font-size: var(--text-2xs);
-  }
-
-  /* Winner badge - compact with smaller icons */
-  .stage2-winner {
-    padding: var(--space-0-5) var(--space-1);
-    gap: var(--gap-2xs);
-    border-radius: var(--radius-md);
-  }
-
-  .stage2 .stage2-winner svg {
-    width: 10px;
-    height: 10px;
-  }
-
-  .stage2-winner .winner-model-icon {
-    width: 12px;
-    height: 12px;
-  }
-
-  .stage2 .tab {
-    padding: var(--space-1) var(--space-2);
-    font-size: var(--text-2xs);
-  }
-
-  .aggregate-item {
-    padding: var(--space-2-5) var(--space-3);
-    gap: var(--gap-sm-plus);
-  }
-
-  .rank-position {
-    font-size: var(--text-sm-plus);
-    min-width: 28px;
-  }
-
-  .rank-model {
-    font-size: var(--text-xs-plus);
-  }
-
-  .rank-score {
-    font-size: var(--text-xs-plus);
   }
 }

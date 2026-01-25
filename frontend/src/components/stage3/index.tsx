@@ -17,6 +17,8 @@ import type { UsageData } from '../../types/conversation';
 import './styles/Stage3Base.css';
 import './styles/Stage3Content.css';
 import './styles/Stage3Dropdowns.css';
+import './styles/Stage3DropdownsOptions.css';
+import './styles/Stage3DropdownsDark.css';
 import './styles/Stage3Loading.css';
 import './styles/Stage3Mobile.css';
 import './styles/Stage3SaveToolbar.css';

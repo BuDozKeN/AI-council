@@ -1,0 +1,121 @@
+/**
+ * Overview Tab - Context Stats Grid
+ * Extracted from context-card.css for CSS budget compliance.
+ */
+
+/* ============================================================================
+   STATS GRID
+   ============================================================================ */
+
+.mc-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap);
+  margin-bottom: var(--gap-lg);
+}
+
+.mc-stat-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  min-height: var(--space-16);
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-stat-card::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-indigo-500);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mc-stat-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.mc-stat-card:hover::before {
+  opacity: 1;
+}
+
+.mc-stat-icon {
+  color: var(--color-indigo-500);
+  margin-bottom: var(--space-1);
+}
+
+.mc-stat-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mc-stat-card.selected {
+  border-color: var(--color-blue-500);
+  background: var(--color-blue-50);
+}
+
+.mc-stat-card.selected::before {
+  opacity: 1;
+  background: var(--color-indigo-500);
+}
+
+.mc-stat-value {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-none);
+}
+
+/* Semantic stat value colors */
+.mc-stat-value.active {
+  color: var(--color-blue-700);
+}
+
+.mc-stat-value.completed {
+  color: var(--color-green-700);
+}
+
+.mc-stat-value.archived {
+  color: var(--color-text-tertiary);
+}
+
+.mc-stat-value.decisions {
+  color: var(--color-amber-700);
+}
+
+.mc-stat-value.total {
+  color: var(--color-emerald-600);
+}
+
+.mc-stat-value.sops {
+  color: var(--color-blue-700);
+}
+
+.mc-stat-value.frameworks {
+  color: var(--color-amber-700);
+}
+
+.mc-stat-value.policies {
+  color: var(--color-violet-700);
+}
+
+.mc-stat-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+}
+
+/* Clickable stat cards */
+.mc-stat-card.clickable {
+  cursor: pointer;
+}

@@ -1,0 +1,248 @@
+/**
+ * Stage1 Base - Model Card Styles
+ * Extracted from Stage1Base.css for CSS budget compliance.
+ */
+
+/* Model card styles */
+.stage1 .model-card {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-slate-200);
+  background: var(--color-bg-primary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.stage1 .model-card:hover {
+  border-color: var(--color-slate-300);
+  box-shadow: var(--shadow-sm);
+}
+
+.stage1 .model-card.streaming {
+  border-color: var(--color-indigo-500);
+  background: var(--color-bg-primary);
+  box-shadow:
+    0 0 0 1px rgb(var(--color-indigo-rgb), 0.2),
+    0 4px 12px rgb(var(--color-indigo-rgb), 0.1);
+}
+
+.stage1 .model-card.error {
+  border-color: var(--color-error);
+  background: var(--color-error-light);
+}
+
+.stage1 .model-card.expanded {
+  grid-column: 1 / -1;
+  border-color: var(--color-blue-500);
+  box-shadow: 0 4px 12px var(--stage1-shadow-color);
+  max-height: 500px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Model card header */
+.stage1 .model-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.stage1 .model-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm-plus);
+}
+
+/* LLM Icon with status badge */
+.stage1 .llm-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--model-color, var(--color-slate-300));
+  transition: all 0.2s ease;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.stage1 .llm-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.stage1 .llm-icon-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  color: var(--color-text-inverse);
+}
+
+/* Status badge - positioned bottom-right of the icon */
+.stage1 .llm-status-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg-primary);
+  z-index: var(--z-above);
+  box-shadow: var(--shadow-xs);
+}
+
+.stage1 .llm-status-badge.complete {
+  background: var(--color-success);
+  color: var(--color-text-inverse);
+  animation: badge-pop 0.3s ease-out;
+}
+
+@keyframes badge-pop {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.stage1 .llm-status-badge.streaming {
+  background: var(--color-primary);
+}
+
+.stage1 .llm-status-badge.stopped {
+  background: var(--color-text-muted);
+  color: var(--color-text-inverse);
+}
+
+.stage1 .llm-status-badge.error {
+  background: var(--color-error);
+  color: var(--color-text-inverse);
+}
+
+/* Streaming pulse animation */
+.stage1 .llm-status-ping {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-inverse);
+  animation: llm-ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes llm-ping {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  75%,
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.stage1 .model-card-name {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-slate-500);
+}
+
+/* Rank badge - shows council ranking position */
+.stage1 .model-card-rank {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Rank badges - just emoji, no backgrounds */
+.stage1 .model-card-rank.rank-1,
+.stage1 .model-card-rank.rank-2,
+.stage1 .model-card-rank.rank-3 {
+  font-size: var(--text-sm);
+}
+
+/* Non-medal ranks (#4, #5, etc.) - subtle text */
+.stage1 .model-card-rank:not(.rank-1, .rank-2, .rank-3) {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+}
+
+/* Status indicators */
+.stage1 .status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+}
+
+.stage1 .status-dot-ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-success);
+  opacity: 0.75;
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.stage1 .status-dot-core {
+  position: relative;
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Header right - copy + expand buttons */
+.stage1 .model-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+}
+
+/* Expand button */
+.stage1 .expand-btn {
+  padding: var(--space-1);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--color-slate-500);
+  transition: all 0.15s ease;
+}
+
+.stage1 .expand-btn:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
+}

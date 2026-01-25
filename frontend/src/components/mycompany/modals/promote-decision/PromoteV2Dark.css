@@ -1,0 +1,52 @@
+/**
+ * Promote Decision Modal V2 - Dark Mode Styles
+ * Extracted from PromoteV2Layout.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   DARK MODE - Department Select in Modal
+   ============================================================================= */
+
+.dark .mc-grid-area-dept-select .multi-dept-trigger,
+[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-grid-area-dept-select .multi-dept-trigger:hover:not(:disabled),
+[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger:hover:not(:disabled) {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-grid-area-dept-select .multi-dept-trigger[data-state='open'],
+[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger[data-state='open'] {
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
+}
+
+/* =============================================================================
+   DARK MODE - Project Select in Modal
+   ============================================================================= */
+
+.dark .mc-project-select-wrapper .project-select-trigger,
+[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-project-select-wrapper .project-select-trigger:hover:not([data-disabled]),
+[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger:hover:not([data-disabled]) {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-project-select-wrapper .project-select-trigger[data-state='open'],
+[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger[data-state='open'] {
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
+}

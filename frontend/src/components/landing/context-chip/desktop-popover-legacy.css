@@ -1,0 +1,232 @@
+/**
+ * desktop-popover-legacy.css - Legacy popover styles
+ * Extracted from desktop-popover.css for CSS budget compliance
+ */
+
+/* Company buttons and presets: See desktop-popover-companies.css */
+@import url('./desktop-popover-companies.css');
+
+/* Old popover styles - keep for backward compatibility */
+.context-popover {
+  width: 340px;
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sections */
+.context-section {
+  padding: var(--space-2-5) var(--space-3-5);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.context-section:last-of-type {
+  border-bottom: none;
+}
+
+.context-section-title {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+
+/* Smart Auto option */
+.context-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+  width: 100%;
+  padding: var(--space-3);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-option:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-dark);
+}
+
+.context-option.active {
+  background: var(--color-brand-primary-light);
+  border-color: var(--color-brand-primary);
+}
+
+.context-option-radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border-dark);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: var(--space-0-5);
+}
+
+.context-option.active .context-option-radio {
+  border-color: var(--color-brand-primary);
+}
+
+.context-option-radio-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--color-brand-primary);
+  border-radius: 50%;
+}
+
+.context-option-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.context-option-label {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-0-5);
+}
+
+.context-option-label svg {
+  color: var(--color-indigo-500);
+}
+
+.context-option-desc {
+  font-size: var(--text-xs-plus);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.context-option-current {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  margin: var(--space-1) 0 0;
+  font-style: italic;
+}
+
+/* Company buttons and presets: See desktop-popover-companies.css */
+
+/* Advanced section */
+.context-advanced {
+  padding: 0;
+}
+
+.context-advanced-details {
+  border: none;
+}
+
+.context-advanced-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs-plus);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  list-style: none;
+}
+
+.context-advanced-summary::-webkit-details-marker {
+  display: none;
+}
+
+.context-advanced-summary:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}
+
+.context-advanced-chevron {
+  transition: transform 0.2s ease;
+}
+
+[open] .context-advanced-chevron {
+  transform: rotate(180deg);
+}
+
+.context-advanced-content {
+  padding: 0 var(--space-4) 16px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+/* Field styling */
+.context-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs-plus);
+}
+
+.context-field-label {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.context-field-label svg {
+  color: var(--color-text-tertiary);
+}
+
+.context-field-select {
+  width: 100%;
+}
+
+.context-field-multi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+}
+
+.context-multi-select {
+  width: 100%;
+}
+
+/* Apply button */
+.context-apply-btn {
+  display: block;
+  width: calc(100% - 28px);
+  margin: var(--space-3) var(--space-3-5) var(--space-3-5);
+  padding: var(--space-2-5) var(--space-4);
+  background: var(--color-brand-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.context-apply-btn:hover {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (width <= 640px) {
+  .context-popover {
+    width: calc(100vw - 32px);
+    max-width: 640px;
+  }
+}

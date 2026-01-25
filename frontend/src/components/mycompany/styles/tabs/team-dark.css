@@ -1,0 +1,228 @@
+/**
+ * Team Tab - Dark Mode Styles
+ * Extracted from team.css for CSS budget compliance
+ */
+
+/* =============================================================================
+   DARK MODE - Team Tab
+   ============================================================================= */
+
+/* Department row */
+.dark .mc-dept-row:hover,
+[data-theme='dark'] .mc-dept-row:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-dept-row.expanded,
+[data-theme='dark'] .mc-dept-row.expanded {
+  background: var(--color-bg-tertiary);
+}
+
+/* Elegant meta */
+.dark .mc-elegant-meta,
+[data-theme='dark'] .mc-elegant-meta {
+  color: var(--color-text-tertiary);
+}
+
+/* Expand chevron */
+.dark .mc-expand-chevron,
+[data-theme='dark'] .mc-expand-chevron {
+  color: var(--color-text-tertiary);
+}
+
+/* Expanded content */
+.dark .mc-dept-expanded-content,
+[data-theme='dark'] .mc-dept-expanded-content {
+  background: var(--color-bg-tertiary);
+}
+
+/* Context button */
+.dark .mc-context-btn,
+[data-theme='dark'] .mc-context-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-context-btn:hover,
+[data-theme='dark'] .mc-context-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-context-size,
+[data-theme='dark'] .mc-context-size {
+  background: var(--color-bg-hover);
+  color: var(--color-text-tertiary);
+}
+
+/* Roles section */
+.dark .mc-roles-section,
+[data-theme='dark'] .mc-roles-section {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-roles-label,
+[data-theme='dark'] .mc-roles-label {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-role-row,
+[data-theme='dark'] .mc-role-row {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-role-row:hover,
+[data-theme='dark'] .mc-role-row:hover {
+  background: var(--color-bg-hover);
+}
+
+.dark .mc-role-row .mc-role-name,
+[data-theme='dark'] .mc-role-row .mc-role-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-role-row .mc-role-title,
+[data-theme='dark'] .mc-role-row .mc-role-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-no-roles,
+[data-theme='dark'] .mc-no-roles {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-text-btn.add,
+[data-theme='dark'] .mc-text-btn.add {
+  color: var(--color-brand-primary);
+}
+
+.dark .mc-text-btn.add:hover,
+[data-theme='dark'] .mc-text-btn.add:hover {
+  background: var(--overlay-indigo-10);
+}
+
+/* Members header */
+.dark .mc-members-header,
+[data-theme='dark'] .mc-members-header {
+  border-block-end-color: var(--color-border);
+}
+
+.dark .mc-members-count,
+[data-theme='dark'] .mc-members-count {
+  color: var(--color-text-secondary);
+}
+
+/* Add member form */
+.dark .mc-add-member-form,
+[data-theme='dark'] .mc-add-member-form {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-form-error,
+[data-theme='dark'] .mc-form-error {
+  color: var(--color-red-400);
+}
+
+.dark .mc-form-hint,
+[data-theme='dark'] .mc-form-hint {
+  color: var(--color-text-tertiary);
+}
+
+/* Member row */
+.dark .mc-member-row,
+[data-theme='dark'] .mc-member-row {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-member-row:hover,
+[data-theme='dark'] .mc-member-row:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-member-row.current,
+[data-theme='dark'] .mc-member-row.current {
+  background: var(--overlay-indigo-10);
+  border-color: var(--color-brand-primary);
+}
+
+.dark .mc-member-role,
+[data-theme='dark'] .mc-member-role {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-member-name,
+[data-theme='dark'] .mc-member-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-member-joined,
+[data-theme='dark'] .mc-member-joined {
+  color: var(--color-text-tertiary);
+}
+
+/* Icon buttons */
+.dark .mc-icon-btn,
+[data-theme='dark'] .mc-icon-btn {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-icon-btn:hover,
+[data-theme='dark'] .mc-icon-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-icon-btn.promote:hover,
+[data-theme='dark'] .mc-icon-btn.promote:hover {
+  color: var(--color-blue-400);
+  background: var(--overlay-blue-15);
+}
+
+.dark .mc-icon-btn.demote:hover,
+[data-theme='dark'] .mc-icon-btn.demote:hover {
+  color: var(--color-amber-400);
+  background: var(--overlay-amber-15);
+}
+
+.dark .mc-icon-btn.danger:hover,
+[data-theme='dark'] .mc-icon-btn.danger:hover {
+  color: var(--color-red-400);
+  background: var(--overlay-red-15);
+}
+
+/* Usage section */
+.dark .mc-usage-section,
+[data-theme='dark'] .mc-usage-section {
+  border-block-start-color: var(--color-border);
+}
+
+.dark .mc-usage-card,
+[data-theme='dark'] .mc-usage-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-usage-value,
+[data-theme='dark'] .mc-usage-value {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-usage-label,
+[data-theme='dark'] .mc-usage-label {
+  color: var(--color-text-tertiary);
+}
+
+/* Loading & error */
+.dark .mc-loading,
+[data-theme='dark'] .mc-loading {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-error,
+[data-theme='dark'] .mc-error {
+  background: var(--overlay-red-10);
+  color: var(--color-red-400);
+}

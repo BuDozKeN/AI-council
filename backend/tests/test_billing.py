@@ -79,10 +79,10 @@ class TestGetAvailablePlans:
         plans = get_available_plans()
         pro_plan = next(p for p in plans if p["id"] == "pro")
 
-        # Config has 2900 cents = $29
-        assert pro_plan["price"] == 29.0
+        # Config has 19900 cents = $199
+        assert pro_plan["price"] == 199.0
         assert pro_plan["is_free"] is False
-        assert "$29" in pro_plan["price_display"]
+        assert "$199" in pro_plan["price_display"]
 
     def test_enterprise_unlimited_display(self):
         """Should display unlimited for enterprise."""
@@ -96,7 +96,8 @@ class TestGetAvailablePlans:
         """Should include all required fields for each plan."""
         plans = get_available_plans()
         required_fields = ["id", "name", "price", "price_display",
-                          "queries_limit", "queries_display", "features", "is_free"]
+                          "queries_limit", "queries_display", "features", "is_free",
+                          "contact_sales"]
 
         for plan in plans:
             for field in required_fields:
@@ -108,6 +109,43 @@ class TestGetAvailablePlans:
         for plan in plans:
             assert isinstance(plan["features"], list)
             assert len(plan["features"]) > 0
+
+    def test_starter_tier_pricing(self):
+        """Should calculate starter tier price correctly."""
+        plans = get_available_plans()
+        starter_plan = next(p for p in plans if p["id"] == "starter")
+
+        # Config has 7900 cents = $79
+        assert starter_plan["price"] == 79.0
+        assert starter_plan["is_free"] is False
+        assert "$79" in starter_plan["price_display"]
+        assert starter_plan["queries_limit"] == 100
+
+    def test_business_tier_pricing(self):
+        """Should calculate business tier price correctly."""
+        plans = get_available_plans()
+        business_plan = next(p for p in plans if p["id"] == "business")
+
+        # Config has 49900 cents = $499
+        assert business_plan["price"] == 499.0
+        assert business_plan["is_free"] is False
+        assert "$499" in business_plan["price_display"]
+        assert business_plan["queries_limit"] == 750
+
+    def test_enterprise_contact_sales(self):
+        """Should flag enterprise tier as contact_sales."""
+        plans = get_available_plans()
+        enterprise = next(p for p in plans if p["id"] == "enterprise")
+
+        assert enterprise["contact_sales"] is True
+
+    def test_non_enterprise_not_contact_sales(self):
+        """Non-enterprise tiers should not have contact_sales flag."""
+        plans = get_available_plans()
+        non_enterprise = [p for p in plans if p["id"] != "enterprise"]
+
+        for plan in non_enterprise:
+            assert plan["contact_sales"] is False
 
 
 # =============================================================================
@@ -269,7 +307,7 @@ class TestGetUserSubscription:
             assert result["tier"] == "pro"
             assert result["status"] == "active"
             assert result["queries_used"] == 25
-            assert result["queries_limit"] == 100  # From SUBSCRIPTION_TIERS
+            assert result["queries_limit"] == 300  # From SUBSCRIPTION_TIERS
 
     def test_defaults_to_free_tier(self):
         """Should default to free tier for new users."""

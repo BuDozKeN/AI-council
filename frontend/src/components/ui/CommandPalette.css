@@ -5,6 +5,9 @@
  * No hardcoded values - all from design-tokens.css and tailwind.css
  */
 
+/* Dark mode, mobile, scrollbars: See CommandPaletteDark.css */
+@import url('./CommandPaletteDark.css');
+
 /* Overlay - full screen backdrop */
 .command-palette-overlay {
   position: fixed;
@@ -249,108 +252,4 @@
   font-size: var(--text-2xs);
   font-family: var(--font-sans);
   font-weight: var(--font-medium);
-}
-
-/* ============================================================================
-   DARK MODE
-   ============================================================================ */
-
-.dark .command-palette {
-  background: var(--color-bg-primary);
-  border-color: var(--color-border);
-}
-
-.dark .command-palette-header {
-  border-color: var(--color-border);
-}
-
-.dark .command-palette-item[data-selected='true'] {
-  background: var(--color-bg-hover);
-}
-
-.dark .command-palette-item-icon {
-  background: var(--overlay-white-10);
-}
-
-.dark .command-palette-item[data-selected='true'] .command-palette-item-icon {
-  background: var(--overlay-indigo-20);
-  color: var(--color-accent-iris);
-}
-
-.dark .command-palette-footer {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-}
-
-.dark .command-palette-kbd,
-.dark .command-palette-item-shortcut,
-.dark .command-palette-footer-hint kbd {
-  background: var(--overlay-white-10);
-  border-color: var(--color-border);
-}
-
-/* ============================================================================
-   MOBILE RESPONSIVE
-   ============================================================================ */
-
-@media (width <= 640px) {
-  .command-palette-overlay {
-    padding-top: 10vh;
-    align-items: flex-start;
-  }
-
-  .command-palette-container {
-    margin: 0 var(--space-3);
-    max-width: none;
-  }
-
-  .command-palette-list {
-    max-height: 50vh;
-  }
-
-  .command-palette-footer {
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .command-palette-footer-hint:last-child {
-    display: none; /* Hide "esc to close" on mobile */
-  }
-}
-
-/* ============================================================================
-   REDUCED MOTION
-   ============================================================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  .command-palette-overlay,
-  .command-palette-container {
-    animation: none;
-  }
-
-  .command-palette-item,
-  .command-palette-item-icon {
-    transition: none;
-  }
-}
-
-/* ============================================================================
-   SCROLLBAR STYLING
-   ============================================================================ */
-
-.command-palette-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.command-palette-list::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.command-palette-list::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: var(--radius-full);
-}
-
-.command-palette-list::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-dark);
 }

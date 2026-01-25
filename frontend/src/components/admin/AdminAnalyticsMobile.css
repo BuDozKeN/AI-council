@@ -1,0 +1,112 @@
+/**
+ * AdminAnalytics - Mobile Responsive Styles
+ * Extracted from AdminAnalytics.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 1200px) {
+  .analytics-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width <= 1024px) {
+  .analytics-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .analytics-header-actions {
+    justify-content: flex-start;
+  }
+
+  .analytics-chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 640px) {
+  .analytics-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-kpi-card {
+    padding: var(--space-3);
+  }
+
+  .analytics-kpi-trend {
+    position: static;
+    margin-top: var(--space-2);
+  }
+
+  .analytics-kpi-card {
+    flex-wrap: wrap;
+  }
+
+  .analytics-header-actions {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* Compact date selector on mobile - not full width */
+  .analytics-date-select {
+    width: auto;
+    min-width: 140px;
+    flex: 1;
+    max-width: 200px;
+  }
+
+  /* Hide export button on mobile - not useful */
+  .analytics-export-btn {
+    display: none;
+  }
+
+  .analytics-chart-placeholder-body {
+    min-height: 160px;
+    padding: var(--space-6) var(--space-3);
+  }
+}
+
+/* =============================================================================
+   MOBILE DECLUTTER - Hide non-essential elements
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Hide export/download button - not useful on mobile */
+  .analytics-export-btn {
+    display: none;
+  }
+
+  /* Hide "Coming Soon" revenue section - useless placeholder */
+  .analytics-coming-soon {
+    display: none;
+  }
+
+  /* Hide data refresh footer - not essential on mobile */
+  .analytics-footer-premium {
+    display: none;
+  }
+
+  /* Hide demo banner on mobile - save space */
+  .analytics-demo-banner {
+    display: none;
+  }
+
+  /* Compact header actions */
+  .analytics-header {
+    gap: var(--space-2);
+  }
+
+  .analytics-header-actions {
+    width: 100%;
+  }
+
+  .analytics-date-select {
+    flex: 1;
+    min-width: 0;
+  }
+}

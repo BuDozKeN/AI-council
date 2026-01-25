@@ -224,29 +224,51 @@ EMBEDDING_DIMENSIONS = 1536
 # Pricing is configurable via environment variables (values in cents)
 # These will be created in Stripe if they don't exist
 #
+# PRICING RATIONALE (Jan 2026):
+# - Average cost per council query: ~$0.53 (based on session_usage data)
+# - Target gross margin: 40-60%
+# - Pricing must cover LLM API costs + infrastructure + margin
+#
 # Environment variables:
 #   SUBSCRIPTION_FREE_QUERIES=5
-#   SUBSCRIPTION_PRO_PRICE=2900  (in cents, $29.00)
-#   SUBSCRIPTION_PRO_QUERIES=100
-#   SUBSCRIPTION_ENTERPRISE_PRICE=9900  (in cents, $99.00)
+#   SUBSCRIPTION_STARTER_PRICE=7900  (in cents, $79.00)
+#   SUBSCRIPTION_STARTER_QUERIES=100
+#   SUBSCRIPTION_PRO_PRICE=19900  (in cents, $199.00)
+#   SUBSCRIPTION_PRO_QUERIES=300
+#   SUBSCRIPTION_BUSINESS_PRICE=49900  (in cents, $499.00)
+#   SUBSCRIPTION_BUSINESS_QUERIES=750
+#   SUBSCRIPTION_ENTERPRISE_PRICE=0  (custom pricing, contact sales)
 #   SUBSCRIPTION_ENTERPRISE_QUERIES=-1  (-1 = unlimited)
 SUBSCRIPTION_TIERS = {
     "free": {
         "name": "Free",
         "price_monthly": 0,
         "queries_per_month": int(os.environ.get("SUBSCRIPTION_FREE_QUERIES", "5")),
-        "features": ["Basic council queries", "Standard response time"],
+        "features": ["5 council queries/month", "Standard response time", "Basic support"],
+    },
+    "starter": {
+        "name": "Starter",
+        "price_monthly": int(os.environ.get("SUBSCRIPTION_STARTER_PRICE", "7900")),
+        "queries_per_month": int(os.environ.get("SUBSCRIPTION_STARTER_QUERIES", "100")),
+        "features": ["100 council queries/month", "All 5 AI models", "Knowledge base", "Email support"],
     },
     "pro": {
         "name": "Pro",
-        "price_monthly": int(os.environ.get("SUBSCRIPTION_PRO_PRICE", "2900")),
-        "queries_per_month": int(os.environ.get("SUBSCRIPTION_PRO_QUERIES", "100")),
-        "features": ["100 council queries/month", "Priority response", "Knowledge curator"],
+        "price_monthly": int(os.environ.get("SUBSCRIPTION_PRO_PRICE", "19900")),
+        "queries_per_month": int(os.environ.get("SUBSCRIPTION_PRO_QUERIES", "300")),
+        "features": ["300 council queries/month", "Priority response", "API access", "Advanced analytics", "Priority support"],
+    },
+    "business": {
+        "name": "Business",
+        "price_monthly": int(os.environ.get("SUBSCRIPTION_BUSINESS_PRICE", "49900")),
+        "queries_per_month": int(os.environ.get("SUBSCRIPTION_BUSINESS_QUERIES", "750")),
+        "features": ["750 council queries/month", "Team collaboration", "Custom departments", "Audit logs", "Dedicated support"],
     },
     "enterprise": {
         "name": "Enterprise",
-        "price_monthly": int(os.environ.get("SUBSCRIPTION_ENTERPRISE_PRICE", "9900")),
+        "price_monthly": int(os.environ.get("SUBSCRIPTION_ENTERPRISE_PRICE", "0")),
         "queries_per_month": int(os.environ.get("SUBSCRIPTION_ENTERPRISE_QUERIES", "-1")),
-        "features": ["Unlimited queries", "Priority support", "Custom departments", "API access"],
+        "features": ["Unlimited queries", "SSO/SAML", "Custom SLA", "Dedicated account manager", "On-premise option"],
+        "contact_sales": True,
     },
 }

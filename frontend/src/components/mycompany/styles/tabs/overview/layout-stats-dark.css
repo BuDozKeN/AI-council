@@ -1,0 +1,171 @@
+/* Overview Tab - Dark Mode Styles */
+
+/* Extracted from layout-stats.css for CSS budget compliance */
+
+/* Context, Departments & Search: See layout-stats-dark-sections.css */
+@import url('./layout-stats-dark-sections.css');
+
+/* =============================================================================
+   DARK MODE - Overview Tab
+   ============================================================================= */
+
+/* Compact header bar */
+.dark .mc-overview-title,
+[data-theme='dark'] .mc-overview-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-meta-inline,
+[data-theme='dark'] .mc-meta-inline {
+  color: var(--color-text-tertiary);
+}
+
+/* Hero section */
+.dark .mc-overview-hero,
+[data-theme='dark'] .mc-overview-hero {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .mc-overview-hero::before,
+[data-theme='dark'] .mc-overview-hero::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-border) 20%,
+    var(--color-border-dark) 50%,
+    var(--color-border) 80%,
+    transparent 100%
+  );
+  opacity: 0.4;
+}
+
+.dark .mc-overview-title,
+[data-theme='dark'] .mc-overview-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-overview-description,
+[data-theme='dark'] .mc-overview-description {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-meta-label,
+[data-theme='dark'] .mc-meta-label {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-meta-value,
+[data-theme='dark'] .mc-meta-value {
+  color: var(--color-text-primary);
+}
+
+/* Empty context */
+.dark .mc-empty-context,
+[data-theme='dark'] .mc-empty-context {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-empty-context-icon,
+[data-theme='dark'] .mc-empty-context-icon {
+  color: var(--color-indigo-400);
+}
+
+.dark .mc-empty-context-title,
+[data-theme='dark'] .mc-empty-context-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-empty-context-hint,
+[data-theme='dark'] .mc-empty-context-hint {
+  color: var(--color-text-secondary);
+}
+
+/* Legacy class support */
+.dark .mc-empty-context .mc-empty-icon,
+[data-theme='dark'] .mc-empty-context .mc-empty-icon {
+  color: var(--color-indigo-300);
+}
+
+.dark .mc-empty-context .mc-empty-title,
+[data-theme='dark'] .mc-empty-context .mc-empty-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-empty-context .mc-empty-hint,
+[data-theme='dark'] .mc-empty-context .mc-empty-hint {
+  color: var(--color-text-secondary);
+}
+
+/* Stats grid */
+.dark .mc-stat-card,
+[data-theme='dark'] .mc-stat-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-stat-card:hover,
+[data-theme='dark'] .mc-stat-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: 0 4px 12px var(--overlay-black-30);
+}
+
+.dark .mc-stat-card.selected,
+[data-theme='dark'] .mc-stat-card.selected {
+  border-color: var(--color-blue-400);
+  background: var(--overlay-blue-10);
+}
+
+.dark .mc-stat-value,
+[data-theme='dark'] .mc-stat-value {
+  color: var(--color-text-primary);
+}
+
+/* Semantic stat value colors - dark mode (brighter) */
+.dark .mc-stat-value.active,
+[data-theme='dark'] .mc-stat-value.active {
+  color: var(--color-blue-400);
+}
+
+.dark .mc-stat-value.completed,
+[data-theme='dark'] .mc-stat-value.completed {
+  color: var(--color-green-500);
+}
+
+.dark .mc-stat-value.archived,
+[data-theme='dark'] .mc-stat-value.archived {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-stat-value.decisions,
+[data-theme='dark'] .mc-stat-value.decisions {
+  color: var(--color-amber-400);
+}
+
+.dark .mc-stat-value.total,
+[data-theme='dark'] .mc-stat-value.total {
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-stat-value.sops,
+[data-theme='dark'] .mc-stat-value.sops {
+  color: var(--color-blue-400);
+}
+
+.dark .mc-stat-value.frameworks,
+[data-theme='dark'] .mc-stat-value.frameworks {
+  color: var(--color-amber-400);
+}
+
+.dark .mc-stat-value.policies,
+[data-theme='dark'] .mc-stat-value.policies {
+  color: var(--color-violet-400);
+}
+
+.dark .mc-stat-label,
+[data-theme='dark'] .mc-stat-label {
+  color: var(--color-text-secondary);
+}

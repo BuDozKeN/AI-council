@@ -1,4 +1,6 @@
 /* ContextChip - Mobile bottom sheet styles */
+@import url('./mobile-sheet-dark.css');
+@import url('./mobile-sheet-multiselect.css');
 
 /* Extracted from ContextChip.css lines 637-1091 */
 
@@ -125,23 +127,7 @@
   }
 }
 
-/* Dark mode for portal tooltip */
-.dark .context-badge-tooltip-portal {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-}
-
-.dark .context-badge-tooltip-arrow::after {
-  border-block-end-color: var(--color-bg-secondary);
-}
-
-.dark .context-badge-tooltip-portal .context-badge-tooltip-item {
-  color: var(--color-text-primary);
-}
-
-.dark .context-badge-tooltip-portal .context-badge-tooltip-item:not(:last-child) {
-  border-color: var(--color-border);
-}
+/* Dark mode: See mobile-sheet-dark.css */
 
 /* Mobile select trigger (single select) */
 .context-select-mobile {
@@ -179,130 +165,7 @@
   font-weight: 500;
 }
 
-/* =============================================================================
-   MULTI-SELECT DROPDOWN (stays open, click outside to close)
-   ============================================================================= */
-
-.context-multiselect-trigger {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 48px;
-  padding: 0 14px;
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  font-size: var(--text-sm-plus);
-  color: var(--color-text-primary);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.context-multiselect-trigger:active {
-  transform: scale(0.99);
-}
-
-.context-multiselect-trigger.open {
-  border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 2px var(--overlay-indigo-10);
-}
-
-.context-multiselect-chevron {
-  margin-left: auto;
-  color: var(--color-text-tertiary);
-  transition: transform 0.2s ease;
-}
-
-.context-multiselect-chevron.rotated {
-  transform: rotate(180deg);
-}
-
-/* Dropdown list - absolute positioned to not affect layout */
-.context-multiselect-dropdown {
-  position: absolute;
-  inset-block-start: 100%;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  max-height: 200px;
-  overflow-y: auto;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  margin-top: var(--space-1);
-  z-index: var(--z-sticky);
-}
-
-.context-multiselect-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: var(--space-3) var(--space-3-5);
-  background: transparent;
-  border: none;
-  font-size: var(--text-sm-plus);
-  color: var(--color-text-primary);
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.1s ease;
-}
-
-.context-multiselect-item:not(:last-child) {
-  border-bottom: 1px solid var(--color-border-light);
-}
-
-.context-multiselect-item:active {
-  background: var(--color-bg-hover);
-}
-
-.context-multiselect-item.selected {
-  background: var(--overlay-indigo-10);
-}
-
-.context-multiselect-item.selected svg {
-  color: var(--color-brand-primary);
-}
-
-.context-multiselect-item-text {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Dark mode for multi-select */
-.dark .context-multiselect-trigger {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-.dark .context-multiselect-dropdown {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-}
-
-.dark .context-multiselect-item {
-  color: var(--color-text-primary);
-}
-
-.dark .context-multiselect-item:not(:last-child) {
-  border-color: var(--color-border);
-}
-
-.dark .context-multiselect-item:active {
-  background: var(--color-bg-hover);
-}
-
-.dark .context-multiselect-item.selected {
-  background: var(--overlay-indigo-15);
-}
-
-.dark .context-multiselect-item.selected svg {
-  color: var(--color-indigo-400);
-}
+/* Multi-select: See mobile-sheet-multiselect.css */
 
 /* Selected tags container */
 .context-selected-tags {
@@ -355,10 +218,6 @@
   margin-left: var(--space-2);
   border-left: 2px solid var(--color-border);
   padding-left: var(--space-3);
-}
-
-.dark .context-playbooks-expanded {
-  border-color: var(--color-border);
 }
 
 /* Legacy - can be removed if not used */
@@ -422,37 +281,4 @@
 .context-pb-item-mobile svg {
   flex-shrink: 0;
   color: var(--color-brand-primary);
-}
-
-/* Dark mode for new mobile styles */
-.dark .context-field-label-mobile {
-  color: var(--color-text-secondary);
-}
-
-.dark .context-select-mobile {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-.dark .context-tag {
-  background: var(--overlay-white-10);
-  color: var(--color-text-primary);
-}
-
-.dark .context-tag.role {
-  --tag-bg: var(--overlay-indigo-15);
-  --tag-text: var(--color-indigo-300);
-}
-
-.dark .context-pb-item-mobile {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-.dark .context-pb-item-mobile.selected {
-  background: var(--overlay-indigo-15);
-  border-color: var(--color-indigo-400);
-  color: var(--color-indigo-300);
 }

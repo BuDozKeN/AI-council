@@ -1,0 +1,181 @@
+/**
+ * Team Tab - Members Section
+ * Members list, add member form, icon buttons
+ * Extracted from team.css for CSS budget compliance.
+ */
+
+/* ============================================================================
+   MEMBERS TAB - Layout
+   ============================================================================ */
+
+.mc-members {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.mc-members-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.mc-members-count {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   ADD MEMBER FORM
+   ============================================================================ */
+
+.mc-add-member-form {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.mc-form-row {
+  display: flex;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.mc-form-row .mc-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.mc-form-row .mc-select {
+  width: 120px;
+}
+
+.mc-form-error {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+}
+
+.mc-form-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ============================================================================
+   MEMBERS LIST
+   ============================================================================ */
+
+.mc-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.mc-member-row {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  transition: all 0.15s ease;
+}
+
+.mc-member-row:hover {
+  border-color: var(--color-border-default);
+  background: var(--color-bg-hover);
+}
+
+.mc-member-row.current {
+  background: var(--color-bg-accent);
+  border-color: var(--color-primary);
+}
+
+.mc-member-role {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-secondary);
+}
+
+.mc-member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-2xs);
+}
+
+.mc-member-name {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.mc-member-role-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.mc-member-joined {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.mc-member-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+}
+
+/* ============================================================================
+   ICON BUTTONS
+   ============================================================================ */
+
+.mc-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-icon-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.mc-icon-btn.promote:hover {
+  color: var(--color-blue-500);
+  background: var(--overlay-blue-10);
+}
+
+.mc-icon-btn.demote:hover {
+  color: var(--color-amber-500);
+  background: var(--overlay-amber-10);
+}
+
+.mc-icon-btn.danger:hover {
+  color: var(--color-danger);
+  background: var(--overlay-red-10);
+}

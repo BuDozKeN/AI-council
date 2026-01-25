@@ -1,0 +1,119 @@
+/**
+ * Projects Tab - Legacy Styles
+ * Older project row styles and text button variants.
+ * Extracted from project-list.css for CSS budget compliance.
+ */
+
+/* ============================================================================
+   LEGACY PROJECT ROW STYLES
+   ============================================================================ */
+
+.mc-project-row {
+  cursor: pointer;
+}
+
+.mc-project-row:hover {
+  background: var(--color-bg-secondary);
+}
+
+/* Project status dot colors */
+.mc-status-dot.active {
+  background: var(--color-blue-500);
+}
+
+.mc-status-dot.completed {
+  background: var(--color-green-500);
+}
+
+.mc-status-dot.archived {
+  background: var(--color-text-tertiary);
+}
+
+/* Project status icon in badge */
+.mc-project-status-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.mc-project-status-icon.active {
+  color: var(--color-blue-700);
+}
+
+.mc-project-status-icon.completed {
+  color: var(--color-green-700);
+}
+
+.mc-project-status-icon.archived {
+  color: var(--color-text-secondary);
+}
+
+/* Department badge for project rows */
+.mc-project-dept-badge {
+  font-size: var(--text-xs);
+  padding: var(--space-0-5) var(--space-2);
+  background: var(--color-purple-100);
+  color: var(--color-violet-600);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Decisions count badge */
+.mc-project-decisions-badge {
+  font-size: var(--text-xs);
+  padding: var(--space-0-5) var(--space-2);
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Last accessed timestamp */
+.mc-project-last-accessed {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  margin-left: auto;
+  padding-right: var(--space-2);
+}
+
+/* ============================================================================
+   PROJECT TEXT BUTTON VARIANTS
+   ============================================================================ */
+
+.mc-text-btn.complete {
+  color: var(--color-green-500);
+}
+
+.mc-text-btn.complete:hover {
+  color: var(--color-green-600);
+  background: var(--color-green-100);
+}
+
+.mc-text-btn.reopen {
+  color: var(--color-blue-500);
+}
+
+.mc-text-btn.reopen:hover {
+  color: var(--color-blue-600);
+  background: var(--color-blue-100);
+}
+
+.mc-text-btn.archive {
+  color: var(--color-text-tertiary);
+}
+
+.mc-text-btn.archive:hover {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+}
+
+.mc-text-btn.restore {
+  color: var(--color-blue-500);
+}
+
+.mc-text-btn.restore:hover {
+  color: var(--color-blue-600);
+  background: var(--color-blue-100);
+}

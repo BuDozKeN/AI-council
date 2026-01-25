@@ -1,0 +1,97 @@
+/**
+ * Team Tab - Mobile Responsiveness
+ * Extracted from team.css for CSS budget compliance.
+ */
+
+@media (width <= 640px) {
+  /* NOTE: .mc-team-header mobile overrides are in mobile.css */
+
+  /* Department rows - touch friendly */
+  .mc-dept-row {
+    min-height: 52px;
+  }
+
+  /* Mobile tap feedback - Issue #49 fix */
+  .mc-dept-row:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.99);
+  }
+
+  .mc-role-row:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.99);
+  }
+
+  .mc-context-btn:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.98);
+  }
+
+  .mc-dept-indicator {
+    width: 3px;
+    height: 20px;
+  }
+
+  .mc-elegant-meta {
+    font-size: var(--text-xs);
+  }
+
+  /* Expanded content - full width */
+  .mc-dept-expanded-content {
+    padding: var(--space-2-5) var(--space-3) 14px;
+  }
+
+  .mc-context-btn {
+    padding: var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .mc-roles-section {
+    padding: var(--space-2-5);
+  }
+
+  /* Role row - wrap on mobile to prevent truncation */
+  .mc-role-row {
+    padding: var(--space-2-5) var(--space-3);
+    min-height: 44px;
+    flex-wrap: wrap;
+  }
+
+  .mc-role-row .mc-role-name {
+    flex: 1 1 100%;
+    font-size: var(--text-sm);
+  }
+
+  .mc-role-row .mc-role-title {
+    margin-left: 0;
+    margin-top: var(--space-1);
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+  }
+
+  /* Members form */
+  .mc-form-row {
+    flex-direction: column;
+  }
+
+  .mc-form-row .mc-input,
+  .mc-form-row .mc-select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .mc-member-row {
+    flex-wrap: wrap;
+    gap: var(--gap-sm);
+  }
+
+  .mc-member-joined {
+    flex-basis: 100%;
+    order: 3;
+    margin-left: 44px;
+  }
+
+  .mc-usage-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,107 @@
+/**
+ * ProjectSelect - Mobile Bottom Sheet Styles
+ * Extracted from ProjectSelect.css for CSS budget compliance.
+ *
+ * Contains:
+ * - Mobile list container in BottomSheet
+ * - Mobile items with larger touch targets
+ * - Radio indicator for single select
+ * - Mobile responsive improvements
+ */
+
+/* =============================================================================
+   MOBILE BOTTOM SHEET STYLES
+   ============================================================================= */
+
+/* Mobile list container in BottomSheet */
+.project-select-list-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  padding: 0;
+}
+
+/* Mobile item - larger touch targets */
+.project-select-item-mobile {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-plus);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--space-3-5) var(--space-4);
+  border: none;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.project-select-item-mobile:active {
+  background: var(--color-gray-200);
+  transform: scale(0.98);
+}
+
+.project-select-item-mobile.selected {
+  background: var(--color-indigo-50);
+  color: var(--color-indigo-700);
+}
+
+/* Create item mobile styling */
+.project-select-item-create-mobile {
+  color: var(--color-slate-500);
+}
+
+.project-select-item-create-mobile.selected {
+  background: var(--color-slate-50);
+  color: var(--color-slate-700);
+}
+
+/* Radio indicator for single select */
+.project-select-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--color-gray-300);
+  border-radius: 50%;
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.project-select-radio.checked {
+  background: var(--color-indigo-600);
+  border-color: var(--color-indigo-600);
+  color: var(--color-text-inverse);
+}
+
+/* Mobile icons */
+.project-select-icon-mobile {
+  color: var(--color-indigo-600);
+  flex-shrink: 0;
+}
+
+.project-select-create-icon-mobile {
+  color: var(--color-slate-400);
+  flex-shrink: 0;
+}
+
+/* Item label */
+.project-select-item-mobile .project-select-item-label {
+  font-size: var(--text-base);
+  font-weight: 500;
+  flex: 1;
+}
+
+/* Mobile trigger improvements */
+@media (width <= 640px) {
+  .project-select-trigger {
+    min-height: 48px;
+    padding: var(--space-2-5) var(--space-3-5);
+    font-size: var(--text-sm-plus);
+  }
+}

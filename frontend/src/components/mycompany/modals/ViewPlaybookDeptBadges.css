@@ -1,0 +1,134 @@
+/**
+ * ViewPlaybookModal - Department Badges
+ * Extracted from ViewPlaybookModal.css for CSS budget compliance.
+ *
+ * Contains:
+ * - Department badges view and edit modes
+ * - Department chips for inline editing
+ * - Pencil icon and done button
+ */
+
+/* ============================================================================
+   DEPARTMENT BADGES - View and Edit Modes
+   ============================================================================ */
+
+/* Department badges container in view mode */
+.mc-dept-badges-view {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--gap-xs-plus);
+}
+
+/* Inline department editing */
+.mc-dept-edit-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  flex-wrap: wrap;
+}
+
+.mc-dept-label {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  margin-right: var(--space-1);
+}
+
+/* Owner star indicator */
+.mc-owner-star {
+  font-weight: 700;
+  margin-left: var(--space-0-5);
+}
+
+/* ============================================================================
+   DEPARTMENT CHIPS - MINI SELECTION BUTTONS
+   ============================================================================ */
+
+/* Mini department chip for inline editing */
+.mc-dept-chip-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  padding: var(--space-1) var(--space-2-5);
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-dept-chip-mini:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.mc-dept-chip-mini.selected {
+  border-style: solid;
+  cursor: pointer;
+}
+
+.mc-dept-chip-mini:disabled {
+  cursor: default;
+  opacity: 0.9;
+}
+
+/* Clickable container for department badges */
+.mc-dept-badges-clickable {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  flex-wrap: wrap;
+  padding: var(--space-1) var(--space-2);
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-2));
+  border-radius: var(--radius-default);
+  transition: background 0.15s ease;
+}
+
+.mc-dept-badges-clickable[style*='pointer']:hover {
+  background: var(--color-bg-hover);
+}
+
+/* Small pencil icon for department editing hint */
+.mc-pencil-icon-small {
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-tertiary);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-dept-badges-clickable:hover .mc-pencil-icon-small {
+  opacity: 1;
+}
+
+/* Done button for department editing */
+.mc-dept-done-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: var(--color-green-100);
+  border: 1px solid var(--color-green-300);
+  border-radius: var(--radius-sm);
+  color: var(--color-green-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: var(--space-1);
+}
+
+.mc-dept-done-btn:hover {
+  background: var(--color-green-200);
+  border-color: var(--color-green-400);
+}
+
+.mc-dept-done-btn svg {
+  width: 14px;
+  height: 14px;
+}

@@ -1,0 +1,287 @@
+/**
+ * Project Modal - Dark Mode Styles
+ * Extracted from project-modal-layout.css for CSS budget compliance.
+ */
+
+/* Progress steps: See project-modal-dark-progress.css */
+@import url('./project-modal-dark-progress.css');
+
+/* ============================================================================
+   PROJECT MODAL - DARK MODE
+   ============================================================================ */
+
+/* Error banner */
+.dark .pm-error {
+  background: rgb(var(--color-red-500-rgb), 0.15);
+  border-color: var(--color-red-500);
+  color: var(--color-red-400);
+}
+
+/* Field labels */
+.dark .pm-field label {
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-optional {
+  color: var(--color-text-tertiary);
+}
+
+/* Text inputs */
+.dark .pm-field input[type='text'] {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .pm-field input[type='text']:hover {
+  border-color: var(--color-border-dark);
+}
+
+.dark .pm-field input[type='text']:focus {
+  border-color: var(--color-brand-primary);
+}
+
+.dark .pm-field input[type='text']::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .pm-field input[type='text']:disabled {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+}
+
+/* Textarea */
+.dark .pm-field textarea {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .pm-field textarea:hover {
+  border-color: var(--color-border-dark);
+}
+
+.dark .pm-field textarea:focus {
+  border-color: var(--color-brand-primary);
+}
+
+.dark .pm-field textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .pm-field textarea:disabled {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+}
+
+/* Hint text */
+.dark .pm-hint {
+  color: var(--color-text-tertiary);
+}
+
+.dark .pm-hint-ai {
+  color: var(--color-violet-400);
+}
+
+/* AI button */
+.dark .pm-ai-btn {
+  background: var(--color-purple-600);
+}
+
+/* AI loading */
+.dark .pm-ai-loading {
+  background: rgb(var(--color-purple-500-rgb), 0.2);
+  color: var(--color-violet-400);
+}
+
+/* AI Preview panel */
+.dark .pm-preview {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .pm-preview-header {
+  background: var(--color-bg-tertiary);
+  border-block-end-color: var(--color-border);
+  color: var(--color-violet-400);
+}
+
+.dark .pm-preview-close {
+  color: var(--color-text-tertiary);
+}
+
+.dark .pm-preview-close:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-preview-content.clickable:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .pm-no-context {
+  color: var(--color-text-tertiary);
+}
+
+.dark .pm-preview-section h4 {
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-preview-section p {
+  color: var(--color-text-secondary);
+}
+
+/* Actions footer */
+.dark .pm-actions {
+  border-block-start-color: var(--color-border);
+}
+
+/* Dark mode - actions border */
+.dark .pm-modal-body .pm-actions,
+[data-theme='dark'] .pm-modal-body .pm-actions {
+  border-block-start-color: var(--color-border);
+}
+
+/* Cancel button */
+.dark .pm-btn-cancel {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-btn-cancel:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+/* AI Intro banner */
+.dark .pm-ai-intro {
+  background: rgb(var(--color-purple-500-rgb), 0.15);
+  border-color: var(--color-violet-500);
+  color: var(--color-violet-400);
+}
+
+.dark .pm-ai-intro-icon {
+  color: var(--color-violet-400);
+}
+
+/* AI structuring indicator */
+.dark .pm-ai-structuring {
+  background: rgb(var(--color-purple-500-rgb), 0.15);
+  color: var(--color-violet-400);
+}
+
+/* AI Success banner */
+.dark .pm-ai-success {
+  background: rgb(var(--color-emerald-500-rgb), 0.15);
+  border-color: var(--color-emerald-500);
+  color: var(--color-emerald-400);
+}
+
+.dark .pm-ai-success-icon {
+  color: var(--color-emerald-400);
+}
+
+/* Back button */
+.dark .pm-btn-back {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-btn-back:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+/* Regenerate button */
+.dark .pm-btn-regen {
+  background: rgb(var(--color-purple-500-rgb), 0.15);
+  border-color: var(--color-violet-500);
+  color: var(--color-violet-400);
+}
+
+.dark .pm-btn-regen:hover:not(:disabled) {
+  background: rgb(var(--color-purple-500-rgb), 0.25);
+  border-color: var(--color-violet-400);
+}
+
+/* Department display */
+.dark .pm-departments-display {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .pm-dept-edit-btn {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-dept-edit-btn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+.dark .pm-departments-none {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+/* Skip AI button */
+.dark .pm-btn-skip {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-btn-skip:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+/* Manual mode badge */
+.dark .pm-manual-badge {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-manual-badge-icon {
+  color: var(--color-text-tertiary);
+}
+
+/* Context toggle */
+.dark .pm-context-toggle {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .pm-context-toggle:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+/* Field hint */
+.dark .pm-field-hint,
+.dark .pm-field-hint-inline {
+  color: var(--color-text-tertiary);
+}
+
+/* Success state */
+.dark .pm-success-icon-wrapper {
+  background: rgb(var(--color-emerald-500-rgb), 0.2);
+}
+
+.dark .pm-success-title {
+  color: var(--color-text-primary);
+}
+
+.dark .pm-success-message {
+  color: var(--color-text-secondary);
+}
+
+/* AI Progress Steps: See project-modal-dark-progress.css */

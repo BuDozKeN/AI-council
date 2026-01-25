@@ -1,0 +1,69 @@
+/**
+ * LLMPresetSelect - Mobile Styles
+ * Extracted from LLMPresetSelect.css for CSS budget compliance.
+ *
+ * Contains:
+ * - Larger touch targets
+ * - Card-style items in bottom sheet
+ * - LLM Hub link mobile styling
+ */
+
+/* =============================================================================
+   MOBILE ADJUSTMENTS
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Larger trigger for touch */
+  .llm-preset-trigger {
+    min-height: 44px;
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-sm-plus);
+  }
+
+  /* Card-style items in bottom sheet */
+  .llm-preset-list {
+    gap: var(--gap-xs-plus);
+    padding: var(--space-2);
+  }
+
+  .llm-preset-separator {
+    margin: var(--space-1) 0;
+  }
+
+  .llm-preset-item {
+    padding: var(--space-3-5) var(--space-4);
+    min-height: 56px;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-lg);
+  }
+
+  .llm-preset-item:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.98);
+  }
+
+  .llm-preset-item-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .llm-preset-item-name {
+    font-size: var(--text-sm-plus);
+  }
+
+  .llm-preset-item-desc {
+    font-size: var(--text-xs);
+    white-space: normal;
+  }
+
+  .llm-preset-item-check {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* LLM Hub link - subtle on mobile */
+  .llm-preset-item.llm-hub-link {
+    background: transparent;
+    min-height: 48px;
+  }
+}

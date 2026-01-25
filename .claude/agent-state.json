@@ -1,0 +1,44 @@
+{
+  "lastUpdated": "2026-01-25T12:00:00Z",
+  "teams": {
+    "guardian": {
+      "lastRun": null,
+      "frequency": "continuous",
+      "agents": ["security-guardian", "dependency-watcher"]
+    },
+    "quality-gate": {
+      "lastRun": null,
+      "frequency": "pre-push",
+      "agents": ["test-runner", "build-validator", "type-checker", "css-enforcer"]
+    },
+    "release-readiness": {
+      "lastRun": null,
+      "frequency": "pre-deploy",
+      "agents": ["rls-auditor", "performance-profiler", "api-contract-checker", "mobile-tester", "mobile-ux-tester", "enterprise-readiness"]
+    },
+    "continuous-improvement": {
+      "lastRun": null,
+      "frequency": "weekly",
+      "agents": ["council-ops", "web-researcher", "tech-debt-tracker", "coverage-improver"]
+    }
+  },
+  "checks": {
+    "daily-health": {
+      "lastRun": "2026-01-25T11:39:43.916Z",
+      "frequency": "daily"
+    },
+    "security-watch": {
+      "lastRun": null,
+      "frequency": "daily"
+    },
+    "qa": {
+      "lastRun": null,
+      "frequency": "pre-push"
+    },
+    "weekly-improvement": {
+      "lastRun": null,
+      "frequency": "weekly"
+    }
+  },
+  "agentRuns": {}
+}

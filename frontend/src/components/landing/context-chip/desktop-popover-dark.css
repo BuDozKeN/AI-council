@@ -2,6 +2,9 @@
 
 /* Extracted from ContextChip.css lines 1620-end */
 
+/* Chip styles: See desktop-popover-dark-chips.css */
+@import url('./desktop-popover-dark-chips.css');
+
 /* =============================================================================
    DARK MODE - Comprehensive ContextChip Styles
    ============================================================================= */
@@ -208,132 +211,4 @@
   background: var(--color-bg-hover);
   border-color: var(--color-brand-primary);
   color: var(--color-text-primary);
-}
-
-/* Strip chips - mobile */
-.dark .context-strip-chip {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .context-strip-chip.selected {
-  font-weight: 600;
-}
-
-.dark .context-strip-chip.company.selected {
-  --chip-bg: var(--overlay-blue-15);
-  --chip-border: var(--color-brand-primary);
-  --chip-text: var(--color-brand-primary);
-}
-
-.dark .context-strip-chip.role.selected {
-  --chip-bg: var(--overlay-indigo-15);
-  --chip-border: var(--color-indigo-400);
-  --chip-text: var(--color-indigo-300);
-}
-
-.dark .context-strip-chip.project.selected {
-  --chip-bg: var(--overlay-amber-15);
-  --chip-border: var(--color-amber-400);
-  --chip-text: var(--color-amber-300);
-}
-
-.dark .context-strip-chip.playbook.framework.selected {
-  --chip-bg: var(--overlay-purple-15);
-  --chip-border: var(--color-violet-400);
-  --chip-text: var(--color-violet-300);
-}
-
-.dark .context-strip-chip.playbook.sop.selected {
-  --chip-bg: var(--overlay-amber-15);
-  --chip-border: var(--color-amber-400);
-  --chip-text: var(--color-amber-300);
-}
-
-.dark .context-strip-chip.playbook.policy.selected {
-  --chip-bg: var(--overlay-blue-15);
-  --chip-border: var(--color-blue-400);
-  --chip-text: var(--color-blue-300);
-}
-
-.dark .context-strip-chip.more {
-  --chip-bg: transparent;
-  --chip-border: var(--color-border);
-  --chip-text: var(--color-text-tertiary);
-}
-
-.dark .context-strip-chip.more:hover {
-  --chip-border: var(--color-border-dark);
-  --chip-text: var(--color-text-secondary);
-}
-
-/* Department chips */
-.dark .context-dept-chip {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .context-dept-chip:hover {
-  background: var(--color-bg-hover);
-}
-
-/* Role chips */
-.dark .context-role-chip {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .context-role-chip:hover {
-  background: var(--color-bg-hover);
-}
-
-.dark .context-role-chip.selected {
-  background: var(--overlay-indigo-15);
-  border-color: var(--color-indigo-400);
-  color: var(--color-indigo-300);
-}
-
-/* Playbook chips */
-.dark .context-playbook-chip {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .context-playbook-chip:hover {
-  background: var(--color-bg-hover);
-}
-
-.dark .context-playbook-chip.selected {
-  background: var(--overlay-emerald-15);
-  border-color: var(--color-emerald-400);
-  color: var(--color-emerald-300);
-}
-
-/* Playbook type labels */
-.dark .context-playbook-type-label {
-  color: var(--color-text-tertiary);
-}
-
-/* Advanced section */
-.dark .context-advanced-summary {
-  color: var(--color-text-secondary);
-}
-
-.dark .context-advanced-summary:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-tertiary);
-}
-
-/* Section titles mobile */
-.dark .context-section-title-mobile {
-  color: var(--color-text-tertiary);
-}
-
-/* Context sections */
-.dark .context-section {
-  border-color: var(--color-border);
 }

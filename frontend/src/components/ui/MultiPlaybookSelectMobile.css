@@ -1,0 +1,102 @@
+/**
+ * MultiPlaybookSelect - Mobile Styles
+ * Extracted from MultiPlaybookSelect.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   MOBILE BOTTOM SHEET STYLES
+   ============================================================================= */
+
+/* Mobile list container in BottomSheet */
+.multi-playbook-list-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  padding: 0;
+}
+
+/* Mobile type group */
+.multi-playbook-group-mobile {
+  margin-bottom: var(--space-3);
+}
+
+.multi-playbook-group-mobile:last-child {
+  margin-bottom: 0;
+}
+
+.multi-playbook-group-header-mobile {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--space-2) var(--space-1) 10px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-500);
+  border-bottom: 1px solid var(--color-gray-100);
+  margin-bottom: var(--space-2);
+}
+
+.multi-playbook-group-header-mobile .multi-playbook-group-count {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+}
+
+/* Mobile item - larger touch targets */
+.multi-playbook-item-mobile {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-plus);
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.multi-playbook-item-mobile:active {
+  background: var(--color-gray-200);
+  transform: scale(0.98);
+}
+
+.multi-playbook-item-mobile.selected {
+  background: var(--color-indigo-50);
+}
+
+.multi-playbook-item-mobile .multi-playbook-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-md);
+}
+
+.multi-playbook-item-mobile .multi-playbook-item-label {
+  font-size: var(--text-base);
+  font-weight: 500;
+}
+
+/* Mobile trigger improvements */
+@media (width <= 640px) {
+  .multi-playbook-trigger {
+    min-height: 48px;
+    padding: var(--space-2-5) var(--space-3-5);
+    font-size: var(--text-sm-plus);
+  }
+
+  .multi-playbook-badge {
+    font-size: var(--text-xs-plus);
+    padding: var(--space-1) var(--space-2) 4px 10px;
+  }
+
+  .multi-playbook-badge-remove {
+    padding: var(--space-1);
+    min-width: 24px;
+    min-height: 24px;
+  }
+}

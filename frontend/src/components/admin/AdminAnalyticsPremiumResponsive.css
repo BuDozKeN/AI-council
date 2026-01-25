@@ -1,0 +1,131 @@
+/**
+ * AdminAnalyticsPremiumResponsive.css - Dark mode and responsive styles
+ * Extracted from AdminAnalyticsPremium.css for CSS budget compliance
+ */
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .analytics-hero-card {
+  background: var(--color-bg-secondary);
+}
+
+.dark .analytics-hero-card:hover {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 20%),
+    0 2px 4px -1px rgb(0 0 0 / 10%);
+}
+
+.dark .analytics-status-card {
+  background: var(--color-bg-secondary);
+}
+
+.dark .analytics-coming-soon-content {
+  background: var(--color-bg-secondary);
+}
+
+.dark .analytics-placeholder-card {
+  background: var(--color-bg-tertiary);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 1200px) {
+  .analytics-hero-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width <= 1024px) {
+  .analytics-tab--premium {
+    padding: var(--space-4);
+  }
+
+  .analytics-status-row {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-chart-row {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-placeholder-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 640px) {
+  .analytics-tab--premium {
+    padding: var(--space-3);
+  }
+
+  /* Hide export button on mobile - not useful */
+  .analytics-export-btn-premium {
+    display: none;
+  }
+
+  /* Compact date selector on mobile - not full width */
+  .analytics-date-select-premium {
+    width: auto;
+    min-width: 140px;
+    max-width: 200px;
+  }
+
+  .analytics-header-premium {
+    flex-flow: row wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding-bottom: var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .analytics-hero-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .analytics-hero-card {
+    padding: var(--space-4);
+  }
+
+  .analytics-hero-value {
+    font-size: 2rem;
+  }
+
+  .analytics-status-card {
+    padding: var(--space-4);
+  }
+
+  .analytics-status-legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .analytics-funnel-row {
+    grid-template-columns: 70px 1fr 36px;
+    gap: var(--space-2);
+  }
+
+  .analytics-chart-row .analytics-chart-body,
+  .analytics-chart-full .analytics-chart-body {
+    min-height: 240px;
+    padding: var(--space-3);
+  }
+
+  .analytics-coming-soon-trigger {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--font-size-sm);
+  }
+
+  .analytics-coming-soon-content {
+    padding: var(--space-4);
+  }
+
+  .analytics-placeholder-card {
+    padding: var(--space-6) var(--space-4);
+  }
+}

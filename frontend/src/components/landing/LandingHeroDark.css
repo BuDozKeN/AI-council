@@ -1,0 +1,90 @@
+/**
+ * LandingHero - Dark Mode Styles
+ * Extracted from LandingHero.css for CSS budget compliance.
+ */
+
+/* ===== DARK MODE ===== */
+.dark .landing-hero-aurora.aurora-container {
+  background-color: var(--color-bg-primary);
+}
+
+.dark .landing-hero-aurora .aurora-gradient {
+  opacity: 0.2;
+  filter: blur(80px);
+  background-image:
+    repeating-linear-gradient(
+      100deg,
+      transparent 0%,
+      transparent 7%,
+      var(--overlay-white-10) 10%,
+      transparent 12%,
+      transparent 16%
+    ),
+    repeating-linear-gradient(
+      100deg,
+      var(--color-blue-900) 10%,
+      var(--color-indigo-900) 15%,
+      var(--color-blue-800) 20%,
+      var(--color-purple-900) 25%,
+      var(--color-blue-900) 30%
+    );
+
+  /* Inherit animation properties from base aurora */
+  background-size:
+    300% 200%,
+    200% 100%;
+  background-position:
+    50% 50%,
+    50% 50%;
+  animation: aurora 60s linear infinite;
+}
+
+.dark .landing-headline {
+  color: var(--color-text-primary);
+}
+
+.dark .landing-logo-text {
+  background: linear-gradient(135deg, var(--color-accent-iris) 0%, var(--color-indigo-300) 100%);
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .stat-pill {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .stat-pill-highlight {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-indigo-500);
+}
+
+.dark .stat-number {
+  color: var(--color-indigo-400);
+}
+
+.dark .stat-pill-highlight .stat-number {
+  color: var(--color-indigo-300);
+}
+
+.dark .stat-label {
+  color: var(--color-text-tertiary);
+}
+
+.dark .stat-pill-highlight .stat-label {
+  color: var(--color-indigo-400);
+}
+
+.dark .stat-arrow {
+  color: var(--color-text-quaternary);
+}
+
+.dark .headline-emphasis {
+  background: linear-gradient(135deg, var(--color-indigo-400) 0%, var(--color-indigo-300) 100%);
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .keyboard-hint {
+  color: var(--color-text-quaternary);
+}

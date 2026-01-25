@@ -1,5 +1,8 @@
 /* AI Write Assist - Magic wand for form fields */
 
+/* Dark mode: See AIWriteAssistDark.css */
+@import url('./AIWriteAssistDark.css');
+
 /* Wrapper for input + button */
 .ai-assist-wrapper {
   position: relative;
@@ -251,82 +254,4 @@
     width: 100%;
     text-align: center;
   }
-}
-
-/* =============================================================================
-   DARK MODE
-   ============================================================================= */
-
-.dark .ai-assist-btn {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-gray-400);
-}
-
-.dark .ai-assist-btn:hover:not(:disabled) {
-  border-color: var(--color-indigo-400);
-  background: var(--overlay-indigo-15);
-  color: var(--color-indigo-400);
-  box-shadow: 0 2px 8px var(--overlay-indigo-20);
-}
-
-.dark .ai-assist-preview {
-  background: var(--color-bg-primary);
-  border-color: var(--color-indigo-400);
-}
-
-.dark .ai-assist-preview-header {
-  background: var(--overlay-indigo-15);
-  border-color: var(--color-border);
-}
-
-.dark .ai-assist-preview-title {
-  color: var(--color-indigo-400);
-}
-
-.dark .ai-assist-preview-title-suggestion {
-  background: var(--overlay-emerald-15);
-  border-color: var(--color-border);
-}
-
-.dark .ai-assist-preview-label {
-  color: var(--color-gray-500);
-}
-
-.dark .ai-assist-preview-title-text {
-  color: var(--color-emerald-400);
-}
-
-.dark .ai-assist-preview-content {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-primary);
-}
-
-.dark .ai-assist-preview-actions {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-}
-
-.dark .ai-assist-preview-btn.reject {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-gray-400);
-}
-
-.dark .ai-assist-preview-btn.reject:hover {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border-dark);
-}
-
-.dark .ai-assist-preview-btn.accept {
-  background: var(--color-indigo-600);
-}
-
-.dark .ai-assist-preview-btn.accept:hover {
-  background: var(--color-indigo-500);
-  box-shadow: 0 2px 8px var(--overlay-indigo-30);
-}
-
-.dark .ai-assist-btn[disabled][title]:hover::after {
-  background: var(--color-gray-700);
 }

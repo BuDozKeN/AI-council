@@ -1,0 +1,168 @@
+/**
+ * ViewDepartmentModal - Dark Mode Styles
+ * Extracted from ViewDepartmentModal.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+/* Department/Role metadata */
+.dark .mc-role-dept-badge,
+[data-theme='dark'] .mc-role-dept-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-role-title-badge,
+[data-theme='dark'] .mc-role-title-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-dept-description,
+[data-theme='dark'] .mc-dept-description {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-section h4,
+[data-theme='dark'] .mc-section h4 {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-markdown-raw,
+[data-theme='dark'] .mc-markdown-raw {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-role-desc-badge,
+[data-theme='dark'] .mc-role-desc-badge {
+  background: var(--overlay-purple-15);
+  color: var(--color-violet-400);
+}
+
+/* Department expanded view */
+.dark .mc-dept-expanded,
+[data-theme='dark'] .mc-dept-expanded {
+  border-block-start-color: var(--color-border);
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-view-context-btn,
+[data-theme='dark'] .mc-view-context-btn {
+  background: var(--overlay-blue-10);
+  border-color: var(--overlay-blue-20);
+  color: var(--color-sky-400);
+}
+
+.dark .mc-view-context-btn:hover,
+[data-theme='dark'] .mc-view-context-btn:hover {
+  background: var(--overlay-blue-20);
+  border-color: var(--color-blue-400);
+}
+
+.dark .mc-view-context-btn.has-content,
+[data-theme='dark'] .mc-view-context-btn.has-content {
+  background: var(--overlay-green-10);
+  border-color: var(--overlay-green-20);
+  color: var(--color-green-400);
+}
+
+.dark .mc-view-context-btn.has-content:hover,
+[data-theme='dark'] .mc-view-context-btn.has-content:hover {
+  background: var(--overlay-green-20);
+  border-color: var(--overlay-green-30, rgb(var(--color-green-500-rgb), 0.3));
+}
+
+.dark .mc-view-context-btn.no-content,
+[data-theme='dark'] .mc-view-context-btn.no-content {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-view-context-btn.no-content:hover,
+[data-theme='dark'] .mc-view-context-btn.no-content:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-roles-title,
+[data-theme='dark'] .mc-roles-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-role.clickable:hover,
+[data-theme='dark'] .mc-role.clickable:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-role-arrow,
+[data-theme='dark'] .mc-role-arrow {
+  color: var(--color-text-tertiary);
+}
+
+/* LLM Preset section */
+.dark .mc-preset-section,
+[data-theme='dark'] .mc-preset-section {
+  border-block-end-color: var(--color-border);
+}
+
+.dark .mc-preset-label-text,
+[data-theme='dark'] .mc-preset-label-text {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-preset-label-hint,
+[data-theme='dark'] .mc-preset-label-hint {
+  color: var(--color-text-tertiary);
+}
+
+/* View/Edit styles */
+.dark .mc-settings-section,
+[data-theme='dark'] .mc-settings-section {
+  border-block-end-color: var(--color-border);
+}
+
+.dark .mc-settings-title,
+[data-theme='dark'] .mc-settings-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-settings-desc,
+[data-theme='dark'] .mc-settings-desc {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-section-title,
+[data-theme='dark'] .mc-section-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full,
+[data-theme='dark'] .mc-edit-textarea-full {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full:focus,
+[data-theme='dark'] .mc-edit-textarea-full:focus {
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-edit-textarea-full::placeholder,
+[data-theme='dark'] .mc-edit-textarea-full::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-title-inline-edit,
+[data-theme='dark'] .mc-title-inline-edit {
+  color: var(--color-text-primary);
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}

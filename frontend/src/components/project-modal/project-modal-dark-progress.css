@@ -1,0 +1,25 @@
+/**
+ * Project Modal - Dark Mode Progress Steps
+ * Extracted from project-modal-dark.css for CSS budget compliance.
+ */
+
+/* AI Progress Steps */
+.dark .pm-ai-progress-step {
+  color: var(--color-text-muted);
+}
+
+.dark .pm-ai-progress-step.active {
+  color: var(--color-violet-400);
+}
+
+.dark .pm-ai-progress-step.completed {
+  color: var(--color-emerald-400);
+}
+
+.dark .pm-ai-progress-check {
+  color: var(--color-emerald-400);
+}
+
+.dark .pm-ai-progress-dot {
+  background: var(--color-slate-600);
+}

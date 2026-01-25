@@ -1,0 +1,211 @@
+/**
+ * AdminTableMobile.css - Responsive and mobile layout styles
+ * Extracted from AdminTable.css for CSS budget compliance
+ */
+
+/* =============================================================================
+   RESPONSIVE - TABLET (hide less essential columns)
+   ============================================================================= */
+
+@media (width <= 1024px) {
+  /* Ensure table is scrollable on tablet */
+  .admin-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide Activity and Created columns on tablet - table is too wide */
+  .admin-table th:nth-child(4),
+  .admin-table td:nth-child(4),
+  .admin-table th:nth-child(5),
+  .admin-table td:nth-child(5) {
+    display: none;
+  }
+
+  /* Tighter cell padding on tablet */
+  .admin-table th,
+  .admin-table td {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* Constrain table cell widths on tablet */
+  .admin-table td {
+    max-width: 150px;
+  }
+
+  .admin-user-cell,
+  .admin-company-cell {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .admin-user-cell span,
+  .admin-company-cell span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* =============================================================================
+   RESPONSIVE - MOBILE CARD LAYOUT
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Flat list layout on mobile - no cards */
+  .admin-table-container {
+    overflow-x: visible;
+    padding: 0;
+  }
+
+  .admin-table {
+    display: block;
+  }
+
+  .admin-table thead {
+    display: none;
+  }
+
+  .admin-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* Compact list rows - 2 rows: name+badge+kebab on top, email below */
+  .admin-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    grid-template-rows: auto auto;
+    gap: var(--space-1) var(--space-2);
+    align-items: center;
+    background: var(--color-bg-primary);
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: var(--space-2-5) var(--space-4);
+  }
+
+  .admin-table tbody tr:hover {
+    background: var(--color-bg-hover);
+  }
+
+  .admin-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  /* Reset all cells */
+  .admin-table td {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    border-bottom: none;
+  }
+
+  .admin-table td::before {
+    display: none;
+  }
+
+  /* Cell 1: Name - top left, prominent */
+  .admin-table td:first-child {
+    grid-column: 1;
+    grid-row: 1;
+    font-weight: 600;
+    font-size: var(--font-size-base);
+    color: var(--color-text-primary);
+  }
+
+  /* Cell 2: Email - bottom, full width, not truncated */
+  .admin-table td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .admin-table td:nth-child(2) .admin-user-cell,
+  .admin-table td:nth-child(2) .admin-company-cell {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+
+    /* Override tablet truncation - we have full width on mobile */
+    max-width: none;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .admin-table td:nth-child(2) .admin-user-cell span,
+  .admin-table td:nth-child(2) .admin-company-cell span {
+    max-width: none;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .admin-table td:nth-child(2) .admin-user-cell svg,
+  .admin-table td:nth-child(2) .admin-company-cell svg {
+    display: none;
+  }
+
+  /* Cell 3: Status Badge - top right, next to kebab */
+  .admin-table td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: flex-end;
+  }
+
+  /* Hide cells 4, 5 on mobile - reduce clutter */
+  .admin-table td:nth-child(4),
+  .admin-table td:nth-child(5) {
+    display: none;
+  }
+
+  /* Hide IP column in Audit Logs on mobile */
+  .admin-audit-ip-col {
+    display: none;
+  }
+
+  /* Hide date column in Admin Roles on mobile */
+  .admin-roles-date-col {
+    display: none;
+  }
+
+  /* Actions cell (kebab) - top right, same row as badge */
+  .admin-table td:last-child {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: flex-end;
+  }
+
+  .admin-actions-cell {
+    justify-content: flex-end;
+  }
+
+  /* Pagination - simpler on mobile */
+  .admin-pagination {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .admin-pagination-info {
+    font-size: var(--font-size-xs);
+  }
+
+  .admin-pagination-buttons {
+    gap: var(--space-2);
+  }
+
+  .admin-pagination-btn {
+    min-height: 36px;
+    padding: var(--space-1-5) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Dark mode card adjustments */
+.dark .admin-table tbody tr {
+  background: var(--color-bg-secondary);
+}

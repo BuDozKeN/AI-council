@@ -1,0 +1,21 @@
+/**
+ * TOC Mobile - Level Styles
+ * Extracted from toc-mobile.css for CSS budget compliance.
+ */
+
+/* H3 level - subtle indent */
+.stage3-mobile-outline-link.level-3 {
+  padding-left: var(--space-6);
+  font-size: var(--text-sm);
+}
+
+.stage3-mobile-outline-link.level-3 .stage3-mobile-link-indicator {
+  width: 2px;
+  background: var(--color-border);
+  opacity: 0.6;
+}
+
+.stage3-mobile-outline-link.level-3 .stage3-mobile-link-text {
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+}

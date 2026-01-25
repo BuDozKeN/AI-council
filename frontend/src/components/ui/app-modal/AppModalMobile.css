@@ -4,6 +4,9 @@
  * Mobile bottom sheet behavior, responsive adjustments, and touch-friendly form inputs.
  */
 
+/* Forms & MyCompany modal fixes: See AppModalMobileForms.css */
+@import url('./AppModalMobileForms.css');
+
 /* ===========================================
    Responsive adjustments (≤640px)
    =========================================== */
@@ -234,71 +237,6 @@
     min-height: 44px;
     padding: var(--space-3) var(--space-5);
   }
-
-  /* =========================================================================
-     MYCOMPANY MODAL STRUCTURE FIX
-     When modals use contentClassName="mc-modal-no-padding", they place
-     their own header/body/footer structure inside .app-modal-body.
-     We need to make that structure flex properly.
-     ========================================================================= */
-
-  /* Custom headers inside app-modal-body - don't shrink */
-  .app-modal-body > .mc-modal-header-clean {
-    flex-shrink: 0;
-    padding-top: var(--space-6); /* Account for drag handle */
-  }
-
-  /* Custom body inside app-modal-body - this is the scrollable area */
-  .app-modal-body > .mc-modal-body {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow: hidden auto;
-    -webkit-overflow-scrolling: touch;
-    padding: var(--space-4);
-  }
-
-  /* Footer inside app-modal-body - don't shrink, respect safe area */
-  .app-modal-body > .app-modal-footer-with-actions {
-    flex-shrink: 0;
-    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
-  }
-
-  /* FORMS: When a form is the direct child of app-modal-body */
-  .app-modal-body > form {
-    flex: 1 1 0;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  /* The layout container inside forms should fill and scroll */
-  .app-modal-body > form > .mc-promote-layout-v2 {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow: hidden auto;
-    -webkit-overflow-scrolling: touch;
-    padding: var(--space-4);
-  }
-
-  /* Form footers - both .app-modal-footer (from AppModal.Footer) */
-  .app-modal-body > form > .app-modal-footer {
-    flex-shrink: 0;
-    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
-  }
-
-  /* Decision content area - make scrollable */
-  .mc-decision-content {
-    flex: 1 1 0;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Promote modal sidebar - stack vertically on mobile */
-  .mc-promote-sidebar {
-    width: 100%;
-  }
 }
 
 /* Slide up animation for bottom sheet */
@@ -350,39 +288,5 @@
   .app-modal-xl .app-modal-header,
   .app-modal-full .app-modal-header {
     padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
-  }
-}
-
-/* ===========================================
-   MOBILE FORM INPUTS - Standardized for ALL modals
-   Prevents iOS zoom and ensures touch-friendly targets
-   =========================================== */
-
-@media (width <= 640px) {
-  /* Text inputs inside modals - prevent iOS zoom with 16px font */
-  .app-modal-body input[type='text'],
-  .app-modal-body input[type='email'],
-  .app-modal-body input[type='password'],
-  .app-modal-body input[type='search'],
-  .app-modal-body input[type='url'],
-  .app-modal-body input[type='number'],
-  .app-modal-body textarea {
-    font-size: var(--text-base); /* Prevents iOS auto-zoom on focus */
-    min-height: 44px; /* Touch-friendly target */
-  }
-
-  /* Textareas - reasonable minimum height */
-  .app-modal-body textarea {
-    min-height: 100px;
-  }
-
-  /* Buttons inside modal body - touch-friendly */
-  .app-modal-body button {
-    min-height: 44px;
-  }
-
-  /* Labels - slightly larger for readability */
-  .app-modal-body label {
-    font-size: var(--text-xs-plus);
   }
 }

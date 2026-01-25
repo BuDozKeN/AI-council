@@ -1,0 +1,110 @@
+/**
+ * ChatInput - Action Buttons
+ * Extracted from input-row.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   INPUT ACTION BUTTONS - Clean icon-only buttons
+   ============================================================================= */
+
+.input-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-2xs);
+  flex-shrink: 0;
+}
+
+/* Base action button style */
+.input-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.input-action-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.input-action-btn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.input-action-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.input-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Attach button */
+.input-action-btn.attach-btn:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+}
+
+/* Mode toggle button */
+.input-action-btn.mode-btn {
+  color: var(--color-text-tertiary);
+}
+
+.input-action-btn.mode-btn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+/* Council mode - highlighted */
+.input-action-btn.mode-btn.council {
+  color: var(--color-indigo-500);
+  background: var(--color-indigo-50);
+}
+
+.input-action-btn.mode-btn.council:hover:not(:disabled) {
+  background: var(--color-indigo-100);
+  color: var(--color-indigo-600);
+}
+
+/* Send button - prominent when active */
+.input-action-btn.send-btn {
+  background: var(--color-slate-200);
+  color: var(--color-slate-400);
+}
+
+.input-action-btn.send-btn.active {
+  background: var(--color-slate-900);
+  color: var(--color-text-inverse);
+}
+
+.input-action-btn.send-btn.active:hover {
+  background: var(--color-slate-700);
+}
+
+/* Stop button - red */
+.input-action-btn.stop-btn {
+  background: var(--color-error);
+  color: var(--color-text-inverse);
+}
+
+.input-action-btn.stop-btn:hover {
+  background: var(--color-error-dark);
+}
+
+.input-action-btn.stop-btn .stop-icon {
+  display: block;
+  width: 10px;
+  height: 10px;
+  background: var(--color-text-inverse);
+  border-radius: var(--radius-xs);
+}

@@ -1,5 +1,8 @@
 /* Image Upload Component Styles */
 
+/* Mobile & Dark mode: See ImageUploadMobile.css */
+@import url('./ImageUploadMobile.css');
+
 /* Hidden file input - visually hidden but accessible */
 .file-input-hidden {
   position: absolute;
@@ -263,101 +266,4 @@
 
 .user-message-images img:hover {
   transform: scale(1.02);
-}
-
-/* ==========================================
-   MOBILE RESPONSIVE STYLES
-   ========================================== */
-
-@media (width <= 640px) {
-  .image-previews {
-    padding: var(--space-2-5);
-    gap: var(--gap-xs-plus);
-  }
-
-  /* On mobile, always show remove button for touch accessibility */
-  .remove-image-btn {
-    opacity: 1;
-    width: 24px;
-    height: 24px;
-    min-width: 44px;
-    min-height: 44px;
-    inset-block-start: -4px;
-    right: -4px;
-  }
-
-  .user-message-images img {
-    max-width: 150px;
-    max-height: 120px;
-  }
-
-  /* Attach button touch target - keep subtle on mobile */
-  .attach-image-btn-inline {
-    width: 28px;
-    height: 28px;
-    bottom: 12px;
-    right: 12px;
-  }
-
-  .attach-image-btn-inline svg {
-    width: 16px;
-    height: 16px;
-  }
-}
-
-@media (width <= 640px) {
-  .image-previews {
-    padding: var(--space-2);
-    gap: var(--gap-xs-plus);
-  }
-
-  .user-message-images img {
-    max-width: 120px;
-    max-height: 100px;
-  }
-
-  .drag-overlay-content {
-    padding: var(--space-4) var(--space-5);
-    font-size: var(--text-base);
-  }
-}
-
-/* =============================================================================
-   DARK MODE
-   ============================================================================= */
-
-.dark .image-previews {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-}
-
-.dark .image-preview-item {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-}
-
-.dark .add-more-images-btn {
-  border-color: var(--color-border);
-  color: var(--color-text-tertiary);
-}
-
-.dark .add-more-images-btn:hover:not(:disabled) {
-  border-color: var(--color-brand-primary);
-  color: var(--color-brand-primary);
-  background: var(--overlay-blue-10);
-}
-
-.dark .drag-overlay-content {
-  background: var(--color-bg-secondary);
-  color: var(--color-brand-primary);
-}
-
-.dark .image-upload-error {
-  background: var(--overlay-red-15);
-  border-color: var(--color-red-500);
-  color: var(--color-red-400);
-}
-
-.dark .user-message-images img {
-  border-color: var(--color-border);
 }

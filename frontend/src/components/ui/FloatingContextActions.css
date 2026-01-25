@@ -6,6 +6,10 @@
  * the scrollable content preview area.
  */
 
+/* Mobile & Dark mode: See extracted files */
+@import url('./FloatingContextActionsMobile.css');
+@import url('./FloatingContextActionsDark.css');
+
 .floating-context-wrapper {
   position: relative;
   display: flex;
@@ -232,57 +236,6 @@
 }
 
 /* ===========================================
-   Mobile - larger touch targets
-   =========================================== */
-
-@media (width <= 640px) {
-  .floating-copy-btn {
-    width: 32px;
-    height: 32px;
-  }
-
-  .floating-copy-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  /* Sticky copy button on mobile - larger touch target */
-  .floating-copy-btn-sticky {
-    width: 36px;
-    height: 36px;
-  }
-
-  .floating-copy-btn-sticky svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .floating-scroll-top-btn {
-    bottom: 10px;
-    right: 10px;
-    width: 32px;
-    height: 32px;
-  }
-
-  .floating-scroll-top-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  /* Remove max-height on mobile - let flex layout determine height */
-  .floating-context-content {
-    max-height: none;
-    min-height: 0;
-  }
-
-  /* Ensure wrapper fills available space */
-  .floating-context-wrapper {
-    flex: 1;
-    min-height: 0;
-  }
-}
-
-/* ===========================================
    Variants for different contexts
    =========================================== */
 
@@ -334,67 +287,4 @@
 .floating-context-wrapper.compact .floating-context-content {
   min-height: 120px;
   max-height: 300px;
-}
-
-/* ===========================================
-   Dark Mode
-   =========================================== */
-
-.dark .floating-sticky-row,
-[data-theme='dark'] .floating-sticky-row {
-  background: inherit;
-}
-
-.dark .floating-copy-btn,
-[data-theme='dark'] .floating-copy-btn {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .floating-copy-btn:hover,
-[data-theme='dark'] .floating-copy-btn:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
-}
-
-.dark .floating-copy-btn.copied,
-[data-theme='dark'] .floating-copy-btn.copied {
-  color: var(--color-green-400);
-  border-color: var(--color-green-700);
-  background: var(--overlay-green-15);
-}
-
-/* Sticky copy button dark mode */
-.dark .floating-copy-btn-sticky,
-[data-theme='dark'] .floating-copy-btn-sticky {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .floating-copy-btn-sticky:hover,
-[data-theme='dark'] .floating-copy-btn-sticky:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
-}
-
-.dark .floating-copy-btn-sticky.copied,
-[data-theme='dark'] .floating-copy-btn-sticky.copied {
-  color: var(--color-green-400);
-  border-color: var(--color-green-700);
-  background: var(--overlay-green-15);
-}
-
-.dark .floating-scroll-top-btn,
-[data-theme='dark'] .floating-scroll-top-btn {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .floating-scroll-top-btn:hover,
-[data-theme='dark'] .floating-scroll-top-btn:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
 }

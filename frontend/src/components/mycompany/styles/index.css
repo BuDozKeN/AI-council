@@ -32,6 +32,8 @@
 
 /* Core layout and shell */
 @import url('./shell.css');
+@import url('./shell-header.css');
+@import url('./shell-tabs.css');
 
 /* Shared components (split from shared.css for maintainability) */
 @import url('./badges.css');
@@ -49,6 +51,7 @@
 @import url('./tabs/activity.css');
 @import url('./tabs/projects/index.css');
 @import url('./tabs/team.css');
+@import url('./tabs/team-dark.css');
 @import url('./tabs/usage.css');
 
 /* ============================================================================

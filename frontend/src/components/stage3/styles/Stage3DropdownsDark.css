@@ -1,0 +1,127 @@
+/**
+ * Stage3DropdownsDark.css - Dark mode styles for dropdown system
+ * Extracted from Stage3Dropdowns.css for CSS budget compliance
+ */
+
+/* ===========================================
+   DARK MODE - Unified dropdown system
+   Subdued colors that blend with dark UI
+   =========================================== */
+
+/* Dark mode for trigger pills (base class) */
+.dark .toolbar-pill,
+[data-theme='dark'] .toolbar-pill {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .toolbar-pill:hover:not(:disabled),
+[data-theme='dark'] .toolbar-pill:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+.dark .toolbar-dropdown-portal,
+[data-theme='dark'] .toolbar-dropdown-portal {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .toolbar-dropdown-header,
+[data-theme='dark'] .toolbar-dropdown-header {
+  background: var(--overlay-black-40);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-dropdown-option,
+[data-theme='dark'] .toolbar-dropdown-option {
+  color: var(--color-text-secondary);
+}
+
+.dark .toolbar-dropdown-option:hover,
+[data-theme='dark'] .toolbar-dropdown-option:hover {
+  background: var(--overlay-white-5);
+}
+
+.dark .toolbar-dropdown-option.selected,
+[data-theme='dark'] .toolbar-dropdown-option.selected {
+  background: var(--overlay-white-10);
+}
+
+.dark .toolbar-dropdown-option svg,
+[data-theme='dark'] .toolbar-dropdown-option svg {
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-dropdown-option.selected svg,
+[data-theme='dark'] .toolbar-dropdown-option.selected svg {
+  color: var(--color-text-secondary);
+}
+
+.dark .toolbar-dropdown-option-name,
+[data-theme='dark'] .toolbar-dropdown-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .toolbar-dropdown-option-desc,
+[data-theme='dark'] .toolbar-dropdown-option-desc {
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-dropdown-footer,
+[data-theme='dark'] .toolbar-dropdown-footer {
+  background: var(--overlay-black-40);
+  border-color: var(--color-border);
+}
+
+.dark .toolbar-dropdown-create-btn,
+[data-theme='dark'] .toolbar-dropdown-create-btn {
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-dropdown-create-btn:hover,
+[data-theme='dark'] .toolbar-dropdown-create-btn:hover {
+  background: var(--overlay-white-5);
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
+}
+
+/* Mobile dark mode */
+.dark .toolbar-option-mobile,
+[data-theme='dark'] .toolbar-option-mobile {
+  background: var(--overlay-white-5);
+  border-color: transparent;
+}
+
+.dark .toolbar-option-mobile.selected,
+[data-theme='dark'] .toolbar-option-mobile.selected {
+  background: var(--overlay-white-10);
+  border-color: var(--color-border);
+}
+
+.dark .toolbar-option-icon,
+[data-theme='dark'] .toolbar-option-icon {
+  background: var(--overlay-white-10);
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-option-name,
+[data-theme='dark'] .toolbar-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .toolbar-option-desc,
+[data-theme='dark'] .toolbar-option-desc {
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-create-btn-mobile,
+[data-theme='dark'] .toolbar-create-btn-mobile {
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}

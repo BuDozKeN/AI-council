@@ -5,6 +5,8 @@ import { BottomSheet } from '../ui/BottomSheet';
 import { FolderKanban, ChevronDown, Plus, FolderX } from 'lucide-react';
 import type { Project } from '../../types/business';
 import './styles/Stage3Dropdowns.css';
+import './styles/Stage3DropdownsOptions.css';
+import './styles/Stage3DropdownsDark.css';
 
 interface ProjectWithContext {
   id: string;

@@ -1,0 +1,62 @@
+/**
+ * Stage3 - Table Scroll Wrapper
+ * Isolates table scrolling from page scroll.
+ * Extracted from Stage3Mobile.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   TABLE SCROLL WRAPPER - Isolates table scrolling from page scroll
+   ============================================================================= */
+
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: var(--space-4) 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+
+  /* Prevent touch events from propagating to parent */
+  overscroll-behavior-x: contain;
+}
+
+.table-scroll-wrapper table {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Show scrollbar hint on mobile */
+@media (width <= 640px) {
+  .table-scroll-wrapper {
+    /* Subtle shadow to indicate scrollable content */
+    background:
+      linear-gradient(to right, var(--color-bg-primary) 30%, transparent),
+      linear-gradient(to right, transparent, var(--color-bg-primary) 70%) 100% 0,
+      linear-gradient(to right, var(--overlay-black-10), transparent),
+      linear-gradient(to right, transparent, var(--overlay-black-10)) 100% 0;
+    background-repeat: no-repeat;
+    background-size:
+      40px 100%,
+      40px 100%,
+      14px 100%,
+      14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .dark .table-scroll-wrapper {
+    background:
+      linear-gradient(to right, var(--color-bg-secondary) 30%, transparent),
+      linear-gradient(to right, transparent, var(--color-bg-secondary) 70%) 100% 0,
+      linear-gradient(to right, var(--overlay-white-5), transparent),
+      linear-gradient(to right, transparent, var(--overlay-white-5)) 100% 0;
+    background-repeat: no-repeat;
+    background-size:
+      40px 100%,
+      40px 100%,
+      14px 100%,
+      14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+}

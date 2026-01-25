@@ -5,6 +5,12 @@
  * Icon change indicates selected style - no additional indicators needed.
  */
 
+/* Dark mode: See ResponseStyleSelectorDark.css */
+@import url('./ResponseStyleSelectorDark.css');
+
+/* Mobile: See ResponseStyleSelectorMobile.css */
+@import url('./ResponseStyleSelectorMobile.css');
+
 /* =============================================================================
    TRIGGER BUTTON - Icon only, transparent background
    ============================================================================= */
@@ -249,149 +255,4 @@
   color: var(--color-text-secondary);
 }
 
-/* =============================================================================
-   MOBILE ADJUSTMENTS
-   ============================================================================= */
-
-@media (width <= 640px) {
-  /* Card-style items in bottom sheet */
-  .response-style-list {
-    gap: var(--gap-xs-plus);
-    padding: var(--space-2);
-  }
-
-  .response-style-separator {
-    margin: var(--space-1) 0;
-  }
-
-  .response-style-item {
-    padding: var(--space-3-5) var(--space-4);
-    min-height: 56px;
-    background: var(--color-bg-tertiary);
-    border-radius: var(--radius-lg);
-  }
-
-  .response-style-item:active {
-    background: var(--color-bg-hover);
-    transform: scale(0.98);
-  }
-
-  .response-style-item-icon {
-    width: 32px;
-    height: 32px;
-  }
-
-  .response-style-item-label {
-    font-size: var(--text-sm-plus);
-  }
-
-  .response-style-item-desc {
-    font-size: var(--text-xs);
-  }
-
-  .response-style-item-check {
-    width: 22px;
-    height: 22px;
-  }
-
-  /* LLM Hub link - subtle on mobile */
-  .response-style-item.llm-hub-link {
-    background: transparent;
-    min-height: 48px;
-  }
-}
-
-/* =============================================================================
-   DARK MODE
-   ============================================================================= */
-
-.dark .response-style-trigger:hover:not(.disabled) {
-  background: var(--color-bg-tertiary);
-}
-
-/* Icon colors - dark mode */
-.dark .response-style-trigger.preset-conservative .response-style-icon {
-  color: var(--color-blue-400);
-}
-
-.dark .response-style-trigger.preset-balanced .response-style-icon {
-  color: var(--color-amber-400);
-}
-
-.dark .response-style-trigger.preset-creative .response-style-icon {
-  color: var(--color-purple-400);
-}
-
-/* Popover - dark mode */
-.dark .response-style-popover {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  box-shadow:
-    0 8px 32px var(--overlay-black-40),
-    0 2px 8px var(--overlay-black-20);
-}
-
-.dark .response-style-separator {
-  background: var(--color-border);
-}
-
-.dark .response-style-item:hover {
-  background: var(--color-bg-hover);
-}
-
-.dark .response-style-item.selected {
-  background: var(--color-bg-hover);
-}
-
-.dark .response-style-item-icon {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-secondary);
-}
-
-.dark .response-style-item-label {
-  color: var(--color-text-primary);
-}
-
-.dark .response-style-item-desc {
-  color: var(--color-text-tertiary);
-}
-
-/* Item colors - dark mode */
-.dark .response-style-item.department-default .response-style-item-icon {
-  background: var(--overlay-white-10);
-  color: var(--color-slate-400);
-}
-
-.dark .response-style-item.preset-conservative .response-style-item-icon {
-  background: var(--overlay-blue-15);
-  color: var(--color-blue-400);
-}
-
-.dark .response-style-item.preset-balanced .response-style-item-icon {
-  background: var(--overlay-amber-15);
-  color: var(--color-amber-400);
-}
-
-.dark .response-style-item.preset-creative .response-style-item-icon {
-  background: var(--overlay-purple-15);
-  color: var(--color-purple-400);
-}
-
-.dark .response-style-item.llm-hub-link .response-style-item-label {
-  color: var(--color-text-tertiary);
-}
-
-/* Mobile dark mode */
-@media (width <= 640px) {
-  .dark .response-style-item {
-    background: var(--color-bg-tertiary);
-  }
-
-  .dark .response-style-item:active {
-    background: var(--color-bg-hover);
-  }
-
-  .dark .response-style-item.llm-hub-link {
-    background: transparent;
-  }
-}
+/* Mobile adjustments: See ResponseStyleSelectorMobile.css */
