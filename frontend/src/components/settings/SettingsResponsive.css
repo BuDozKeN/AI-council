@@ -1,0 +1,299 @@
+/**
+ * SettingsResponsive.css - Responsive and mobile styles
+ * Extracted from SettingsLayout.css for CSS budget compliance
+ */
+
+/* Responsive - Tablet */
+@media (width <= 640px) {
+  .settings-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .settings-content {
+    /* Keep horizontal layout with icon sidebar on left */
+    flex-direction: row;
+
+    /* Fixed height to prevent size changes between tabs */
+    height: 480px;
+    min-height: 480px;
+  }
+
+  .settings-sidebar {
+    /* Icon rail with touch-friendly spacing */
+    width: auto;
+    min-width: auto;
+    background: transparent;
+    border-right: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: var(--space-3) var(--space-2);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap-sm);
+    flex-shrink: 0;
+    align-self: stretch;
+  }
+
+  /* Mobile tabs - iOS tab bar style with icon + label stacked vertically */
+  .settings-sidebar .settings-tab {
+    /* WCAG 44px minimum touch target */
+    width: 52px;
+    min-height: 52px;
+    height: auto;
+    padding: var(--space-1) var(--space-1);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    border-radius: var(--radius-md);
+    transition: color 0.12s ease;
+    background: transparent;
+    color: var(--color-text-tertiary);
+    position: relative;
+  }
+
+  .settings-sidebar .settings-tab:hover {
+    color: var(--color-text-secondary);
+    background: transparent;
+  }
+
+  /* Active state */
+  .settings-sidebar .settings-tab.active {
+    background: transparent;
+    color: var(--color-brand-primary);
+  }
+
+  /* Active indicator - left edge */
+  .settings-tab.active::before {
+    content: '';
+    position: absolute;
+    left: -3px;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 14px;
+    background: var(--color-brand-primary);
+    border-radius: var(--radius-xs);
+  }
+
+  .settings-sidebar .settings-tab .tab-icon {
+    font-size: var(--text-base);
+  }
+
+  /* Show small labels below icons like iOS tab bar */
+  .settings-tab .tab-label {
+    display: block;
+    font-size: var(--text-2xs); /* 10px - smallest token size */
+    line-height: 1;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 44px;
+  }
+
+  .settings-panel {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--space-4) var(--space-5) 24px 16px; /* Top, Right, Bottom, Left - better breathing room */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Ensure touch scrolling works with Framer Motion drag */
+  }
+
+  /* Card titles are the HERO - larger than modal title */
+  .settings-panel .settings-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin-bottom: var(--space-4);
+    box-shadow: none;
+  }
+
+  .settings-panel .settings-card > div:first-child {
+    background: transparent;
+    border-bottom: none;
+    padding: 0 0 var(--space-2) 0;
+  }
+
+  .settings-panel .settings-card > div:last-child {
+    padding: 0;
+  }
+
+  /* Section dividers */
+  .settings-panel .settings-card + .settings-card {
+    border-top: 1px solid var(--color-border-light);
+    padding-top: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  /* Make content titles prominent - use double class for higher specificity */
+  .settings-content .settings-panel .settings-card h3,
+  .settings-content .settings-panel .settings-card [class*='CardTitle'] {
+    font-size: var(--text-sm-plus);
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .settings-content .settings-panel .settings-card [class*='CardDescription'] {
+    font-size: var(--text-xs);
+    color: var(--color-text-tertiary);
+    margin-top: var(--space-0-5);
+  }
+
+  /* Form groups - better spacing */
+  .settings-panel .form-group {
+    margin-bottom: var(--space-5);
+  }
+
+  .settings-panel .form-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .settings-panel .form-group label {
+    font-size: var(--text-xs);
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-2);
+    font-weight: 600;
+  }
+
+  /* Inputs - premium feel */
+  .settings-panel .form-group input,
+  .settings-panel .form-group textarea {
+    font-size: var(--text-base); /* Prevent iOS zoom */
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Inside BottomSheet: fill available space */
+  .bottom-sheet-body:has(.settings-content) {
+    /* Make body a flex container so settings-content can fill it */
+    display: flex;
+    flex-direction: column;
+
+    /* Disable scroll on outer container - inner .settings-panel handles scrolling */
+    overflow: hidden;
+  }
+
+  .bottom-sheet-body .settings-content {
+    /* Fill the body container */
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking for scroll to work */
+    max-height: 100%; /* Constrain to parent */
+    overflow: hidden;
+  }
+
+  .bottom-sheet-body .settings-sidebar {
+    /* Sidebar must stretch to fill content height in flexbox */
+    align-self: stretch;
+  }
+
+  .bottom-sheet-body .settings-panel {
+    /* Panel scrolls internally for long content */
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Override Framer Motion's pan-x to allow vertical touch scroll */
+    overscroll-behavior: contain; /* Prevent scroll chaining to parent */
+  }
+}
+
+/* Small phones (400px and below) */
+@media (width <= 400px) {
+  .settings-modal {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .settings-content {
+    /* Full height minus header, fixed to prevent tab-switch resize */
+    height: calc(100vh - 60px);
+    min-height: calc(100vh - 60px);
+  }
+
+  .settings-sidebar {
+    padding: var(--space-2) var(--space-1-5);
+    gap: var(--gap-sm-plus);
+  }
+
+  .settings-sidebar .settings-tab {
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
+  }
+
+  .settings-sidebar .settings-tab .tab-icon {
+    font-size: var(--text-sm);
+  }
+
+  .settings-tab.active::before {
+    height: 16px;
+  }
+
+  .settings-panel {
+    padding: var(--space-4) var(--space-4) 20px 14px;
+  }
+
+  .settings-section h3 {
+    font-size: var(--text-base);
+  }
+
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--gap-sm);
+  }
+
+  .setting-item input,
+  .setting-item select {
+    width: 100%;
+    font-size: var(--text-base); /* Prevent iOS zoom */
+  }
+}
+
+/* Very small phones (360px and below) */
+@media (width <= 360px) {
+  .settings-sidebar {
+    padding: var(--space-1-5) var(--space-1);
+    gap: var(--gap-sm);
+  }
+
+  .settings-sidebar .settings-tab {
+    width: 24px;
+    height: 24px;
+    min-height: 24px;
+  }
+
+  .settings-sidebar .settings-tab .tab-icon {
+    font-size: var(--text-xs-plus);
+  }
+
+  .settings-tab.active::before {
+    height: 14px;
+  }
+
+  .settings-panel {
+    padding: var(--space-3) var(--space-3) 16px 10px;
+  }
+
+  /* Tighter form spacing on very small screens */
+  .settings-panel .form-group {
+    margin-bottom: var(--space-4);
+  }
+
+  .settings-panel .form-group label {
+    font-size: var(--text-2xs);
+  }
+
+  .settings-panel .form-group input,
+  .settings-panel .form-group textarea {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm-plus); /* Slightly smaller but still readable */
+  }
+}

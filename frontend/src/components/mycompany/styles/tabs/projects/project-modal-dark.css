@@ -1,0 +1,140 @@
+/**
+ * DARK MODE - Project Modal Meta & Tabs
+ *
+ * Split from project-list-dark.css for CSS budget compliance.
+ */
+
+/* Project modal meta */
+.dark .mc-project-description,
+[data-theme='dark'] .mc-project-description {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-source-question,
+[data-theme='dark'] .mc-source-question {
+  background: var(--color-bg-tertiary);
+  border-inline-start-color: var(--color-blue-400);
+}
+
+.dark .mc-source-question-label,
+[data-theme='dark'] .mc-source-question-label {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-source-question-text,
+[data-theme='dark'] .mc-source-question-text {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-project-timestamps,
+[data-theme='dark'] .mc-project-timestamps {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-timestamp,
+[data-theme='dark'] .mc-timestamp {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-timestamp::before,
+[data-theme='dark'] .mc-timestamp::before {
+  color: var(--color-border);
+}
+
+/* Status badge */
+.dark .mc-status-badge,
+[data-theme='dark'] .mc-status-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+/* Source badge */
+.dark .mc-source-badge,
+[data-theme='dark'] .mc-source-badge {
+  background: var(--overlay-blue-10);
+  color: var(--color-sky-400);
+  border-color: var(--overlay-blue-20);
+}
+
+.dark .mc-source-badge.council,
+[data-theme='dark'] .mc-source-badge.council {
+  background: var(--overlay-purple-15);
+  color: var(--color-violet-400);
+  border-color: var(--overlay-purple-20);
+}
+
+.dark .mc-source-badge.import,
+[data-theme='dark'] .mc-source-badge.import {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+  border-color: var(--overlay-amber-20);
+}
+
+.dark .mc-meta-info,
+[data-theme='dark'] .mc-meta-info {
+  color: var(--color-text-secondary);
+}
+
+/* Source link */
+.dark .mc-source-link,
+[data-theme='dark'] .mc-source-link {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-source-link:hover,
+[data-theme='dark'] .mc-source-link:hover {
+  color: var(--color-indigo-400);
+  background: var(--overlay-indigo-10);
+}
+
+/* Project tabs */
+.dark .mc-project-tabs,
+[data-theme='dark'] .mc-project-tabs {
+  border-block-end-color: var(--color-border);
+}
+
+.dark .mc-project-tab,
+[data-theme='dark'] .mc-project-tab {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-project-tab:hover,
+[data-theme='dark'] .mc-project-tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-project-tab.active,
+[data-theme='dark'] .mc-project-tab.active {
+  color: var(--color-indigo-400);
+  border-block-end-color: var(--color-indigo-400);
+}
+
+.dark .mc-tab-badge,
+[data-theme='dark'] .mc-tab-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-project-tab.active .mc-tab-badge,
+[data-theme='dark'] .mc-project-tab.active .mc-tab-badge {
+  background: var(--overlay-indigo-15);
+  color: var(--color-indigo-400);
+}
+
+/* Empty decisions */
+.dark .mc-empty-decisions .mc-empty-title,
+[data-theme='dark'] .mc-empty-decisions .mc-empty-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-empty-decisions .mc-empty-hint,
+[data-theme='dark'] .mc-empty-decisions .mc-empty-hint {
+  color: var(--color-text-tertiary);
+}
+
+/* Decisions loading */
+.dark .mc-decisions-loading span,
+[data-theme='dark'] .mc-decisions-loading span {
+  color: var(--color-text-secondary);
+}

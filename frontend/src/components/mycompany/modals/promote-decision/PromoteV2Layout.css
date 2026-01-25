@@ -5,6 +5,9 @@
  * Designed for proper geometric alignment.
  */
 
+/* Dark mode: See PromoteV2Dark.css */
+@import url('./PromoteV2Dark.css');
+
 /* Full-width promote modal */
 .mc-promote-modal-full {
   max-width: 1024px;
@@ -264,27 +267,6 @@
   box-shadow: 0 0 0 3px var(--overlay-indigo-10);
 }
 
-/* Dark mode override for department select in modal */
-.dark .mc-grid-area-dept-select .multi-dept-trigger,
-[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-.dark .mc-grid-area-dept-select .multi-dept-trigger:hover:not(:disabled),
-[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger:hover:not(:disabled) {
-  background: var(--color-bg-primary);
-  border-color: var(--color-border-dark);
-}
-
-.dark .mc-grid-area-dept-select .multi-dept-trigger[data-state='open'],
-[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger[data-state='open'] {
-  background: var(--color-bg-primary);
-  border-color: var(--color-indigo-400);
-  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
-}
-
 /* Project select in modal - match department dropdown styling */
 .mc-project-select-wrapper .project-select-trigger {
   width: 100%;
@@ -306,25 +288,4 @@
   background: var(--color-bg-primary);
   border-color: var(--color-indigo-500);
   box-shadow: 0 0 0 3px var(--overlay-indigo-10);
-}
-
-/* Dark mode for project select in modal */
-.dark .mc-project-select-wrapper .project-select-trigger,
-[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-.dark .mc-project-select-wrapper .project-select-trigger:hover:not([data-disabled]),
-[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger:hover:not([data-disabled]) {
-  background: var(--color-bg-primary);
-  border-color: var(--color-border-dark);
-}
-
-.dark .mc-project-select-wrapper .project-select-trigger[data-state='open'],
-[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger[data-state='open'] {
-  background: var(--color-bg-primary);
-  border-color: var(--color-indigo-400);
-  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
 }

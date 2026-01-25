@@ -1,0 +1,119 @@
+/**
+ * Stage1 - Dark Mode Styles
+ *
+ * Split from Stage1Base.css for CSS budget compliance.
+ */
+
+/* Stage1 uses CSS variables from tailwind.css which are redefined in .dark context */
+
+.dark .stage.stage1 {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .stage1 .model-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .stage1 .model-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.dark .stage1 .model-card.streaming {
+  border-color: var(--stage1-border);
+  background: var(--overlay-indigo-10);
+  box-shadow: 0 0 0 1px var(--color-info-light);
+}
+
+.dark .stage1 .model-card.error {
+  border-color: var(--color-warning);
+  background: var(--color-warning-light);
+}
+
+.dark .stage1 .model-card.expanded {
+  border-color: var(--stage1-border);
+  box-shadow: 0 4px 12px var(--stage1-shadow-color);
+}
+
+.dark .stage1 .model-card-name {
+  color: var(--color-text-secondary);
+}
+
+/* Dark mode rank badges - no backgrounds needed, emojis are universal */
+
+.dark .stage1 .model-card-content {
+  color: var(--color-slate-600);
+}
+
+.dark .stage1 .model-card-preview {
+  color: var(--color-text-secondary);
+}
+
+.dark .stage1 .expand-btn {
+  color: var(--color-text-tertiary);
+}
+
+.dark .stage1 .expand-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .stage1 .model-card-footer {
+  border-block-start-color: var(--color-border);
+}
+
+/* Dark mode scrollbar */
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+}
+
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Dark mode code blocks - uses same standardized variables */
+.dark .stage1 .code-block-wrapper {
+  background: var(--color-code-bg);
+  border-color: var(--color-code-border);
+}
+
+.dark .stage1 .code-block-wrapper .code-language {
+  color: var(--color-slate-400);
+}
+
+.dark .stage1 .code-block-wrapper .copy-code-btn {
+  border-color: var(--color-code-border);
+  color: var(--color-slate-300);
+}
+
+.dark .stage1 .code-block-wrapper .copy-code-btn:hover {
+  background: var(--color-slate-700);
+  color: var(--color-slate-100);
+}
+
+.dark .stage1 .code-block-wrapper pre {
+  background: var(--color-code-bg);
+}
+
+.dark .stage1 .code-block-wrapper code {
+  color: var(--color-code-text);
+}
+
+.dark .stage1 .inline-code {
+  background: var(--overlay-shimmer);
+}
+
+/* Dark mode LLM icon */
+.dark .stage1 .llm-icon-wrapper {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .stage1 .llm-status-badge {
+  border-color: var(--color-bg-secondary);
+}

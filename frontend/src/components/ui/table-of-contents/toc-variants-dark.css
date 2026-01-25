@@ -1,0 +1,146 @@
+/**
+ * Table of Contents Variants - Dark Mode Styles
+ * Extracted from toc-variants.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   MANUAL DARK MODE OVERRIDES - Sticky & Inline Variants
+   ============================================================================= */
+
+/* Sticky Variant */
+.dark .toc-sticky-trigger,
+[data-theme='dark'] .toc-sticky-trigger {
+  background: var(--overlay-black-80);
+  border-color: var(--overlay-white-8);
+  color: var(--color-slate-400);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 var(--overlay-white-5);
+}
+
+.dark .toc-sticky-trigger:hover,
+[data-theme='dark'] .toc-sticky-trigger:hover {
+  color: var(--color-slate-300);
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 var(--overlay-white-8);
+}
+
+.dark .toc-sticky-progress,
+[data-theme='dark'] .toc-sticky-progress {
+  background: var(--color-slate-700);
+}
+
+.dark .toc-sticky-dropdown,
+[data-theme='dark'] .toc-sticky-dropdown {
+  background: var(--color-bg-primary);
+  border-color: var(--overlay-white-8);
+  box-shadow: var(--shadow-xl);
+}
+
+.dark .toc-sticky-header,
+[data-theme='dark'] .toc-sticky-header {
+  border-block-end-color: var(--overlay-white-5);
+}
+
+.dark .toc-sticky-title,
+[data-theme='dark'] .toc-sticky-title {
+  color: var(--color-slate-500);
+}
+
+.dark .toc-sticky-link:hover,
+[data-theme='dark'] .toc-sticky-link:hover {
+  background: var(--overlay-white-5);
+}
+
+.dark .toc-sticky-dot,
+[data-theme='dark'] .toc-sticky-dot {
+  background: var(--color-slate-600);
+}
+
+.dark .toc-sticky-text,
+[data-theme='dark'] .toc-sticky-text {
+  color: var(--color-slate-400);
+}
+
+.dark .toc-sticky-link:hover .toc-sticky-dot,
+[data-theme='dark'] .toc-sticky-link:hover .toc-sticky-dot {
+  background: var(--color-slate-500);
+}
+
+.dark .toc-sticky-link:hover .toc-sticky-text,
+[data-theme='dark'] .toc-sticky-link:hover .toc-sticky-text {
+  color: var(--color-slate-300);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.dark .toc-sticky-link.active,
+[data-theme='dark'] .toc-sticky-link.active {
+  background: var(--overlay-indigo-15);
+}
+
+.dark .toc-sticky-link.active .toc-sticky-dot,
+[data-theme='dark'] .toc-sticky-link.active .toc-sticky-dot {
+  background: var(--color-iris-400);
+  box-shadow: 0 0 0 2px var(--overlay-indigo-30, rgb(var(--color-indigo-rgb), 0.3));
+}
+
+.dark .toc-sticky-link.active .toc-sticky-text,
+[data-theme='dark'] .toc-sticky-link.active .toc-sticky-text {
+  color: var(--color-iris-400);
+}
+
+/* Inline Variant */
+.dark .toc-inline,
+[data-theme='dark'] .toc-inline {
+  background: var(--overlay-black-60);
+  border-color: var(--overlay-white-8);
+}
+
+.dark .toc-inline-header,
+[data-theme='dark'] .toc-inline-header {
+  border-block-end-color: var(--overlay-white-5);
+}
+
+.dark .toc-inline-title,
+[data-theme='dark'] .toc-inline-title {
+  color: var(--color-slate-500);
+}
+
+.dark .toc-inline-link:hover,
+[data-theme='dark'] .toc-inline-link:hover {
+  background: var(--overlay-white-5);
+}
+
+.dark .toc-inline-link:hover .toc-inline-text,
+[data-theme='dark'] .toc-inline-link:hover .toc-inline-text {
+  color: var(--color-slate-300);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.dark .toc-inline-dot,
+[data-theme='dark'] .toc-inline-dot {
+  background: var(--color-slate-600);
+}
+
+.dark .toc-inline-text,
+[data-theme='dark'] .toc-inline-text {
+  color: var(--color-slate-400);
+}
+
+.dark .toc-inline-link.active,
+[data-theme='dark'] .toc-inline-link.active {
+  background: var(--overlay-indigo-15);
+}
+
+.dark .toc-inline-link.active .toc-inline-dot,
+[data-theme='dark'] .toc-inline-link.active .toc-inline-dot {
+  background: var(--color-iris-400);
+}
+
+.dark .toc-inline-link.active .toc-inline-text,
+[data-theme='dark'] .toc-inline-link.active .toc-inline-text {
+  color: var(--color-iris-400);
+}

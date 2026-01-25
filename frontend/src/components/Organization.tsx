@@ -11,6 +11,7 @@ import { logger } from '../utils/logger';
 import { makeClickable } from '../utils/a11y';
 import type { Department, Business } from '../types/business';
 import './Organization.css';
+import './OrganizationDark.css';
 
 interface OrganizationProps {
   companyId: string;

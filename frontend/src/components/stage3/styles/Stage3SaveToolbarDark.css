@@ -1,0 +1,64 @@
+/**
+ * Stage3SaveToolbar - Dark Mode Styles
+ *
+ * Extracted from Stage3SaveToolbar.css for CSS budget compliance.
+ */
+
+.dark .stage3-actions {
+  border-block-start-color: var(--color-border);
+}
+
+.dark .save-options-group {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-dept-trigger {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .save-dept-trigger:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+/* Department trigger with selection in dark mode */
+.dark .save-dept-trigger.has-selection {
+  font-weight: 600;
+  border-left: 3px solid var(--color-emerald-500);
+  box-shadow: 0 1px 3px var(--overlay-black-30);
+  color: var(--color-text-primary);
+}
+
+.dark .save-divider {
+  background: var(--color-border);
+}
+
+.dark .save-type-pill {
+  color: var(--color-text-secondary);
+}
+
+.dark .save-status-group {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+  border-inline-start-color: var(--color-emerald-400);
+}
+
+.dark .save-status-text {
+  color: var(--color-text-primary);
+}
+
+.dark .save-status-text svg {
+  color: var(--color-emerald-400);
+}
+
+.dark .save-view-link {
+  color: var(--color-brand-primary);
+}
+
+.dark .save-view-link:hover {
+  color: var(--blue-300);
+}

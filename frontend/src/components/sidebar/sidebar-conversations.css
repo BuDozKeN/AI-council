@@ -1,3 +1,6 @@
+/* Action components: See sidebar-conversations-actions.css */
+@import url('./sidebar-conversations-actions.css');
+
 /* =============================================================================
    CONVERSATION LIST
    ============================================================================= */
@@ -269,130 +272,6 @@
 .conversation-item.focused {
   outline: 2px solid var(--sidebar-active-border);
   outline-offset: -2px;
-}
-
-/* =============================================================================
-   TITLE EDIT INPUT
-   ============================================================================= */
-
-.conversation-title-edit {
-  flex: 1;
-  min-width: 0;
-}
-
-.title-edit-input {
-  width: 100%;
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--sidebar-active-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-xs-plus);
-  font-weight: 500;
-  color: var(--sidebar-text-primary);
-  background: var(--overlay-white-10);
-  outline: none;
-  box-shadow: 0 0 0 3px rgb(var(--color-indigo-rgb), 0.15);
-}
-
-.title-edit-input:focus {
-  border-color: var(--sidebar-active-border);
-}
-
-/* =============================================================================
-   DELETE MODAL
-   ============================================================================= */
-
-.delete-modal-body {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-  margin: 0;
-}
-
-.delete-modal-cancel {
-  padding: var(--space-2-5) var(--space-5);
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border-dark);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.delete-modal-cancel:hover {
-  background: var(--color-bg-active);
-}
-
-.delete-modal-confirm {
-  padding: var(--space-2-5) var(--space-5);
-  background: var(--color-error);
-  border: none;
-  border-radius: var(--radius-md);
-  color: var(--color-text-inverse);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.delete-modal-confirm:hover {
-  background: var(--color-error-hover);
-}
-
-/* =============================================================================
-   EXPORT BUTTON
-   ============================================================================= */
-
-.export-btn {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  background: transparent;
-  border: 1px solid var(--sidebar-border);
-  border-radius: var(--radius-sm);
-  color: var(--sidebar-text-secondary);
-  font-size: var(--text-xs);
-  cursor: pointer;
-  opacity: 0;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.conversation-item:hover .export-btn {
-  opacity: 1;
-}
-
-.export-btn:hover {
-  background: var(--sidebar-hover-bg);
-  border-color: var(--sidebar-active-border);
-  color: var(--sidebar-text-primary);
-}
-
-/* =============================================================================
-   SHOW MORE BUTTON
-   ============================================================================= */
-
-.show-more-btn {
-  width: 100%;
-  padding: var(--space-2);
-  margin: var(--space-1) 0 8px;
-  background: transparent;
-  border: 1px dashed var(--sidebar-border);
-  border-radius: var(--radius-md);
-  color: var(--sidebar-text-secondary);
-  font-size: var(--text-xs);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.show-more-btn:hover {
-  background: var(--sidebar-hover-bg);
-  border-color: var(--sidebar-active-border);
-  color: var(--sidebar-text-primary);
 }
 
 /* Firefox scrollbar support (global) */

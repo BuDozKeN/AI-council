@@ -1,0 +1,109 @@
+/**
+ * Stage 3 Save Success - Post-save UI components
+ * Extracted from Stage3SaveToolbar.css for CSS budget compliance.
+ *
+ * Contains:
+ * - Save status group
+ * - Celebration animation
+ * - View link and access button
+ */
+
+/* ============================================================================
+   SAVE SUCCESS - Blue access button (replaces the green save button)
+   ============================================================================ */
+
+/*
+ * Saved status group - shows "Decision saved" + "View in project" link
+ * Premium styling - subtle emerald accent without garish background
+ */
+.save-status-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: var(--space-1-5) var(--space-3) 6px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-emerald-500);
+  border-radius: var(--radius-md);
+  animation: save-celebration 0.4s ease-out;
+}
+
+/* Celebration animation when save succeeds */
+@keyframes save-celebration {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.save-status-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  font-size: var(--text-xs-plus);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.save-status-text svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-emerald-500);
+}
+
+.save-view-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: var(--text-xs-plus);
+  font-weight: 500;
+  color: var(--color-blue-600);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.save-view-link:hover {
+  color: var(--color-blue-700);
+}
+
+.save-access-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-blue-600);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs-plus);
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px var(--overlay-blue-20);
+}
+
+.save-access-btn:hover {
+  background: var(--color-blue-700);
+  box-shadow: 0 4px 8px var(--overlay-blue-20);
+  transform: translateY(-1px);
+}
+
+.save-access-btn:active {
+  transform: translateY(0);
+}
+
+.save-access-btn svg {
+  width: 16px;
+  height: 16px;
+}

@@ -1,0 +1,115 @@
+/**
+ * Projects Tab - Timeline Answer & Copy Styles
+ * Extracted from timeline.css for CSS budget compliance.
+ */
+
+/* ============================================================================
+   TIMELINE ANSWER & COPY
+   ============================================================================ */
+
+.mc-timeline-answer {
+  position: relative;
+  margin-bottom: var(--space-3);
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.mc-timeline-answer-label {
+  display: block;
+  font-size: var(--text-xs); /* 12px - closest to 11px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+/* Sticky container for copy button */
+.mc-timeline-copy-container {
+  position: sticky;
+  inset-block-start: 0;
+  float: inline-end;
+  z-index: var(--z-elevated);
+  margin-left: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+/* Inside content preview */
+.mc-content-preview .mc-timeline-copy-container {
+  position: sticky;
+  inset-block-start: 0;
+  float: inline-end;
+  background: var(--color-bg-primary);
+  padding: var(--space-1);
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1)) var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+/* Inside timeline answer */
+.mc-timeline-answer .mc-timeline-copy-container {
+  position: sticky;
+  inset-block-start: 0;
+  float: inline-end;
+  background: var(--color-bg-secondary);
+  padding: var(--space-1);
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1)) var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+/* Timeline copy button */
+.mc-timeline-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-xs);
+}
+
+.mc-timeline-copy-btn:hover {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+}
+
+.mc-timeline-copy-btn svg,
+.mc-timeline-copy-btn .copy-icon,
+.mc-timeline-copy-btn .check-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.mc-timeline-copy-btn.copied {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+}
+
+/* Decision summary in expanded body - NEVER truncate */
+.mc-timeline-body .mc-timeline-summary {
+  margin-bottom: var(--space-4);
+  padding: 14px var(--space-4);
+  background: var(--color-amber-50);
+  border: 1px solid var(--color-amber-300);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm); /* 14px */
+  font-weight: 400;
+  color: var(--color-amber-800);
+  line-height: 1.7;
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+  white-space: normal;
+}

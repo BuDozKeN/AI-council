@@ -1,0 +1,33 @@
+/**
+ * MyCompany Mobile - Back Button Styles
+ * Extracted from navigation.css for CSS budget compliance.
+ */
+
+/* ============================================================================
+   MOBILE NAVIGATION - Back Button
+   ============================================================================ */
+
+/* Mobile back button - only visible on mobile */
+.mc-mobile-back-btn {
+  display: none; /* Hidden by default (desktop) */
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  border-radius: var(--radius-default);
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-mobile-back-btn:hover {
+  background: var(--overlay-white-10);
+}
+
+.mc-mobile-back-btn:active {
+  background: var(--overlay-white-15);
+  transform: scale(0.98);
+}

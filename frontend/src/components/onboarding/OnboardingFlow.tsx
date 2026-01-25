@@ -39,6 +39,7 @@ import { SoftGateModal } from './SoftGateModal';
 import { HardGateModal } from './HardGateModal';
 import { ClaudeIcon, ChatGPTIcon, GeminiIcon, GrokIcon, DeepSeekIcon } from '../icons/BrandIcons';
 import './OnboardingFlow.css';
+import './OnboardingCouncil.css';
 
 // Map provider to icon component
 const PROVIDER_ICONS: Record<string, React.ElementType> = {

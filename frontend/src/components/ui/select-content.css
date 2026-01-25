@@ -1,0 +1,79 @@
+/**
+ * Select Component - Content/Dropdown Panel
+ * Extracted from select.css for CSS budget compliance.
+ *
+ * Contains:
+ * - Dropdown panel styling
+ * - Open/close animations
+ * - Popper position adjustments
+ */
+
+/* ============================================================================
+   CONTENT - The dropdown panel
+   ============================================================================ */
+
+.select-content {
+  position: relative;
+  z-index: var(--z-modal-dropdown);
+  max-height: 300px;
+  min-width: 8rem;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-dropdown);
+
+  /* Ensure pointer events work correctly for dismiss */
+  pointer-events: auto;
+}
+
+/* Animation states */
+.select-content[data-state='open'] {
+  animation: select-fade-in 0.15s ease-out;
+}
+
+.select-content[data-state='closed'] {
+  animation: select-fade-out 0.1s ease-in;
+}
+
+@keyframes select-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes select-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Popper position adjustments */
+.select-content-popper[data-side='bottom'] {
+  transform: translateY(4px);
+}
+
+.select-content-popper[data-side='top'] {
+  transform: translateY(-4px);
+}
+
+.select-content-popper[data-side='left'] {
+  transform: translateX(-4px);
+}
+
+.select-content-popper[data-side='right'] {
+  transform: translateX(4px);
+}

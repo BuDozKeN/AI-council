@@ -1,0 +1,180 @@
+/**
+ * SaveKnowledge - Project Preview & Extracting Styles
+ *
+ * Styles for project creation preview form and loading states.
+ * Split from SaveKnowledgeForm.css for CSS budget compliance.
+ */
+
+/* Extracting/Loading state */
+.extracting-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-12) var(--space-5);
+  text-align: center;
+}
+
+/* extracting-spinner styles removed - now using unified <Spinner /> component */
+
+.extracting-message p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Extracting hint - higher specificity to override .extracting-message p */
+.extracting-message .extracting-hint {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+/* Project selector - disabled state while creating */
+.form-group select:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* Project preview/edit form */
+.project-preview-form {
+  margin-top: var(--space-3);
+  padding: var(--space-3-5);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+}
+
+.project-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.project-preview-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.project-preview-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.project-preview-field {
+  margin-bottom: var(--space-2-5);
+}
+
+.project-preview-field label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.project-preview-field input,
+.project-preview-field textarea {
+  width: 100%;
+  padding: var(--space-2) var(--space-2-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 0.85rem;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.project-preview-field input:focus,
+.project-preview-field textarea:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.project-preview-field textarea {
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.4;
+}
+
+.project-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gap-sm);
+  margin-top: var(--space-3);
+}
+
+.project-cancel-btn,
+.project-create-btn {
+  padding: var(--space-2) var(--space-3-5);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
+}
+
+.project-cancel-btn {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.project-cancel-btn:hover:not(:disabled) {
+  background: var(--overlay-white-5);
+  color: var(--color-text-primary);
+}
+
+.project-create-btn {
+  background: var(--color-accent);
+  border: none;
+  color: var(--color-text-inverse);
+}
+
+.project-create-btn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.project-cancel-btn:disabled,
+.project-create-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Project extracting loading state */
+.project-extracting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+/* project-extracting-spinner styles removed - now using unified <Spinner /> component */
+
+.project-extracting p {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.project-extracting-hint {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+/* Field hint text */
+.field-hint {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}

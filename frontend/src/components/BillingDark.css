@@ -1,0 +1,53 @@
+/**
+ * Billing - Dark Mode Styles
+ * Extracted from Billing.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .billing-modal {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+}
+
+.dark .billing-usage {
+  background: var(--color-bg-secondary);
+}
+
+.dark .usage-bar-container {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .plan-card {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .plan-card:hover {
+  border-color: var(--color-brand-primary);
+}
+
+.dark .plan-card.current {
+  background: var(--overlay-emerald-10);
+  border-color: var(--color-emerald-500);
+}
+
+.dark .plan-btn.current {
+  background: var(--overlay-emerald-15);
+  border-color: var(--color-emerald-500);
+  color: var(--color-emerald-400);
+}
+
+.dark .plan-features li::before {
+  color: var(--color-emerald-400);
+}
+
+.dark .price-free {
+  color: var(--color-emerald-400);
+}
+
+.dark .billing-footer {
+  background: var(--color-bg-secondary);
+}

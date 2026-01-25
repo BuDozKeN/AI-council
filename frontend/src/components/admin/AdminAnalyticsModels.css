@@ -1,0 +1,264 @@
+/**
+ * AdminAnalyticsModels.css - Model Performance Analytics
+ * Extracted from AdminAnalytics.css for CSS budget compliance
+ */
+
+/* =============================================================================
+   MODEL PERFORMANCE ANALYTICS
+   ============================================================================= */
+
+.analytics-sessions-badge {
+  margin-left: var(--space-3);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+}
+
+.analytics-model-loading {
+  padding: var(--space-6);
+}
+
+.analytics-model-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+.analytics-model-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl, 16px);
+  padding: var(--space-4);
+  transition: all 0.2s ease;
+}
+
+.analytics-model-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 5%),
+    0 2px 4px -1px rgb(0 0 0 / 3%);
+}
+
+.analytics-model-card--full {
+  grid-column: 1 / -1;
+}
+
+.analytics-model-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.analytics-model-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.analytics-leader-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-1) var(--space-2-5);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+}
+
+.analytics-leader-badge .analytics-model-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.analytics-model-chart {
+  min-height: 280px;
+}
+
+/* Model Stats Table */
+.analytics-model-table-wrapper {
+  overflow-x: auto;
+}
+
+.analytics-model-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.analytics-model-table th,
+.analytics-model-table td {
+  padding: var(--space-3);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.analytics-model-table th {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.analytics-model-table tbody tr:hover {
+  background: var(--color-bg-secondary);
+}
+
+.analytics-model-row--leader {
+  background: rgb(251 191 36 / 8%);
+}
+
+.analytics-model-row--leader:hover {
+  background: rgb(251 191 36 / 12%);
+}
+
+.analytics-model-rank {
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  width: 40px;
+  font-size: 0.8125rem;
+}
+
+.analytics-model-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.analytics-model-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  object-fit: contain;
+  border-radius: var(--radius-xs);
+}
+
+.analytics-winrate {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.analytics-winrate--high {
+  background: rgb(34 197 94 / 15%);
+  color: var(--color-success);
+}
+
+.analytics-winrate--medium {
+  background: rgb(59 130 246 / 15%);
+  color: var(--color-primary);
+}
+
+.analytics-winrate--low {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+/* Model Empty State */
+.analytics-model-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12);
+  text-align: center;
+  background: var(--color-bg-card);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-xl, 16px);
+}
+
+.analytics-model-empty svg {
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-4);
+}
+
+.analytics-model-empty h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.analytics-model-empty p {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  max-width: 300px;
+}
+
+/* Model Tooltip */
+.analytics-model-tooltip {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-lg);
+}
+
+.analytics-model-tooltip-header {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.analytics-model-tooltip-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.analytics-model-tooltip-stats strong {
+  color: var(--color-text-primary);
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE - Model Performance
+   ============================================================================= */
+
+@media (width <= 1024px) {
+  .analytics-model-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 640px) {
+  .analytics-model-card {
+    padding: var(--space-3);
+  }
+
+  .analytics-model-chart {
+    min-height: 220px;
+  }
+
+  .analytics-model-table {
+    font-size: 0.75rem;
+  }
+
+  .analytics-model-table th,
+  .analytics-model-table td {
+    padding: var(--space-2);
+  }
+
+  .analytics-sessions-badge {
+    display: none;
+  }
+}

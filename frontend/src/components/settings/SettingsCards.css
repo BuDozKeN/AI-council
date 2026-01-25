@@ -1,0 +1,176 @@
+/**
+ * SettingsCards.css - Card and form styles
+ * Extracted from SettingsLayout.css for CSS budget compliance
+ */
+
+/* =============================================================================
+   SETTINGS CARDS - Override shadcn Card styles for Settings context
+   ============================================================================= */
+
+/* Target Card components within settings-panel */
+.settings-panel .settings-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-6);
+  overflow: hidden;
+}
+
+/* Override shadcn CardHeader padding for Settings */
+.settings-panel .settings-card > div:first-child {
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Card title styling */
+.settings-panel .settings-card h3,
+.settings-panel .settings-card [class*='CardTitle'] {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Card description styling */
+.settings-panel .settings-card [class*='CardDescription'],
+.settings-panel .settings-card p:first-of-type {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-xs-plus);
+  color: var(--color-text-muted);
+}
+
+/* Override shadcn CardContent padding for proper form spacing */
+.settings-panel .settings-card > div:last-child {
+  padding: var(--space-6);
+}
+
+/* Legacy card styles (for any non-shadcn cards) */
+.card-header {
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.card-header h3 {
+  margin: 0 0 var(--space-1) 0;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.card-header p {
+  margin: 0;
+  font-size: var(--text-xs-plus);
+  color: var(--color-text-muted);
+}
+
+.card-body {
+  padding: var(--space-5);
+}
+
+/* =============================================================================
+   SETTINGS FORMS - Proper spacing and styling for form elements
+   ============================================================================= */
+
+.form-group {
+  margin-bottom: var(--space-5);
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-xs-plus);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.input-disabled {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.7;
+  border-color: var(--color-border-light); /* Subtle border instead of transparent */
+  pointer-events: none;
+  user-select: none;
+}
+
+.input-hint {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border-light);
+}
+
+/* NOTE: Use <Button variant="default|outline|ghost|destructive"> from ui/button.tsx
+   All button styles are defined in tailwind.css (.btn-variant-*) as single source of truth */
+
+.save-message {
+  font-size: var(--text-xs-plus);
+  font-weight: 500;
+}
+
+.save-message.success {
+  color: var(--color-success);
+}
+
+.save-message.error {
+  color: var(--color-error);
+}
+
+/* Error Banner */
+.error-banner {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-error-light);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-md);
+  color: var(--color-error-dark);
+  font-size: var(--text-xs-plus);
+  margin-bottom: var(--space-5);
+}

@@ -1,0 +1,85 @@
+/**
+ * Select Component - Mobile Responsive Styles
+ * Extracted from select.css for CSS budget compliance.
+ */
+
+/* ============================================================================
+   MOBILE - Touch-friendly sizes
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* Trigger - larger touch target
+     Using :where() to reduce specificity to 0, allowing component-specific
+     styles (like llm-hub.css) to easily override without needing high specificity.
+     The --llm-model variant explicitly opts out of these defaults. */
+  :where(.select-trigger:not(.select-trigger--llm-model)) {
+    min-height: 44px;
+    height: auto;
+    padding: var(--space-2-5) var(--space-3-5);
+    font-size: var(--text-base); /* Prevents iOS zoom */
+    border-radius: var(--radius-lg);
+  }
+
+  :where(.select-trigger:not(.select-trigger--llm-model)) .select-trigger-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Compact variant - still needs 44px touch target on mobile */
+  :where(.select-trigger--compact:not(.select-trigger--llm-model)) {
+    min-height: 44px;
+    height: 44px;
+    padding: 0 var(--space-3);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-md);
+  }
+
+  :where(.select-trigger--compact:not(.select-trigger--llm-model)) .select-trigger-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Content - better mobile sizing */
+  .select-content {
+    max-height: 50vh;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Viewport - more padding */
+  .select-viewport {
+    padding: var(--space-1-5);
+  }
+
+  /* Items - larger touch targets */
+  .select-item {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-3-5);
+    padding-right: var(--space-10);
+    font-size: var(--text-base);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Label - slightly larger */
+  .select-label {
+    padding: var(--space-2-5) var(--space-3-5);
+    font-size: var(--text-xs-plus);
+  }
+
+  /* Check indicator - larger */
+  .select-item-indicator {
+    right: 14px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .select-item-check {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Scroll buttons - larger */
+  .select-scroll-btn {
+    padding: var(--space-2) 0;
+  }
+}

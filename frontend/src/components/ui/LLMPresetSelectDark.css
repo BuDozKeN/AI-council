@@ -1,0 +1,82 @@
+/**
+ * LLMPresetSelect - Dark Mode Styles
+ *
+ * Extracted from LLMPresetSelect.css for CSS budget compliance.
+ */
+
+.dark .llm-preset-trigger {
+  border-color: currentcolor;
+}
+
+.dark .llm-preset-popover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow:
+    0 8px 32px var(--overlay-black-40),
+    0 2px 8px var(--overlay-black-20);
+}
+
+.dark .llm-preset-separator {
+  background: var(--color-border);
+}
+
+.dark .llm-preset-item:hover {
+  background: var(--color-bg-hover);
+}
+
+.dark .llm-preset-item.selected {
+  background: var(--color-bg-hover);
+}
+
+.dark .llm-preset-item-icon {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .llm-preset-item-name {
+  color: var(--color-text-primary);
+}
+
+.dark .llm-preset-item-desc {
+  color: var(--color-text-tertiary);
+}
+
+/* Preset colors - dark mode */
+.dark .llm-preset-item.preset-conservative .llm-preset-item-icon {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-400);
+}
+
+.dark .llm-preset-item.preset-balanced .llm-preset-item-icon {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+}
+
+.dark .llm-preset-item.preset-creative .llm-preset-item-icon {
+  background: var(--overlay-purple-15);
+  color: var(--color-purple-400);
+}
+
+/* LLM Hub link - dark mode */
+.dark .llm-preset-item.llm-hub-link .llm-preset-item-name {
+  color: var(--color-text-tertiary);
+}
+
+.dark .llm-preset-item.llm-hub-link:hover .llm-preset-item-name {
+  color: var(--color-indigo-400);
+}
+
+/* Mobile dark mode */
+@media (width <= 640px) {
+  .dark .llm-preset-item {
+    background: var(--color-bg-tertiary);
+  }
+
+  .dark .llm-preset-item:active {
+    background: var(--color-bg-hover);
+  }
+
+  .dark .llm-preset-item.llm-hub-link {
+    background: transparent;
+  }
+}

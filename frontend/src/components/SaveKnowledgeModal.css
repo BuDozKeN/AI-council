@@ -5,8 +5,14 @@
  * Split into focused modules for maintainability.
  */
 
-/* Form layout, fields, tooltips, and project preview */
+/* Form layout, fields, buttons, success messages */
 @import url('./save-knowledge/SaveKnowledgeForm.css');
+
+/* Tooltip styles for detection reasoning */
+@import url('./save-knowledge/SaveKnowledgeTooltip.css');
+
+/* Project preview/edit form and loading states */
+@import url('./save-knowledge/SaveKnowledgeProject.css');
 
 /* Responsive - Tablet and mobile adjustments */
 @import url('./save-knowledge/SaveKnowledgeResponsive.css');

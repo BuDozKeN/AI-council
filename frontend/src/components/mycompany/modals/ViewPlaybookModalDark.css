@@ -1,0 +1,124 @@
+/**
+ * ViewPlaybookModal - Dark Mode Styles
+ * Extracted from ViewPlaybookModal.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+/* Playbook meta row */
+.dark .mc-playbook-meta-row,
+[data-theme='dark'] .mc-playbook-meta-row {
+  border-block-end-color: var(--color-border);
+}
+
+/* Playbook tags & departments */
+.dark .mc-playbook-departments,
+[data-theme='dark'] .mc-playbook-departments {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-playbook-departments h4,
+[data-theme='dark'] .mc-playbook-departments h4 {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-dept-checkbox,
+[data-theme='dark'] .mc-dept-checkbox {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-dept-checkbox:hover,
+[data-theme='dark'] .mc-dept-checkbox:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-dept-checkbox.owner,
+[data-theme='dark'] .mc-dept-checkbox.owner {
+  background: var(--overlay-blue-15);
+  border-color: var(--overlay-blue-30, rgb(var(--color-blue-500-rgb), 0.3));
+}
+
+.dark .mc-owner-label,
+[data-theme='dark'] .mc-owner-label {
+  color: var(--color-text-tertiary);
+}
+
+/* Department label */
+.dark .mc-dept-label,
+[data-theme='dark'] .mc-dept-label {
+  color: var(--color-text-tertiary);
+}
+
+/* Department chips */
+.dark .mc-dept-chip-mini,
+[data-theme='dark'] .mc-dept-chip-mini {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-dept-chip-mini:hover:not(:disabled),
+[data-theme='dark'] .mc-dept-chip-mini:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-dept-badges-clickable[style*='pointer']:hover,
+[data-theme='dark'] .mc-dept-badges-clickable[style*='pointer']:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-pencil-icon-small,
+[data-theme='dark'] .mc-pencil-icon-small {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-dept-done-btn,
+[data-theme='dark'] .mc-dept-done-btn {
+  background: var(--overlay-green-15);
+  border-color: var(--overlay-green-30, rgb(var(--color-green-500-rgb), 0.3));
+  color: var(--color-green-400);
+}
+
+.dark .mc-dept-done-btn:hover,
+[data-theme='dark'] .mc-dept-done-btn:hover {
+  background: var(--overlay-green-20);
+  border-color: var(--overlay-green-40, rgb(var(--color-green-500-rgb), 0.4));
+}
+
+/* View/Edit styles */
+.dark .mc-section-title,
+[data-theme='dark'] .mc-section-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full,
+[data-theme='dark'] .mc-edit-textarea-full {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full:focus,
+[data-theme='dark'] .mc-edit-textarea-full:focus {
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-edit-textarea-full::placeholder,
+[data-theme='dark'] .mc-edit-textarea-full::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-title-inline-edit,
+[data-theme='dark'] .mc-title-inline-edit {
+  color: var(--color-text-primary);
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}

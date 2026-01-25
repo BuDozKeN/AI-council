@@ -9,6 +9,12 @@
  * - Mobile polish
  */
 
+/* Dark mode: See layout-dark.css */
+@import url('./layout-dark.css');
+
+/* Filter stacking: See layout-filters.css */
+@import url('./layout-filters.css');
+
 /* ============================================================================
    P0-4: SAFE AREA HANDLING
    For notched devices (iPhone X+, Android)
@@ -94,124 +100,6 @@
 
   .mc-stat-value {
     font-size: 1.25rem;
-  }
-}
-
-/* ============================================================================
-   P0-5: FILTER STACKING ON MOBILE
-   Prevent horizontal overflow
-   ============================================================================ */
-
-@media (width <= 640px) {
-  /* Filters row on mobile - compact single row */
-  .mc-projects-filters {
-    flex-flow: row nowrap;
-    align-items: center;
-    gap: var(--gap-xs-plus);
-    padding: var(--space-1) 0;
-  }
-
-  .mc-filters-left {
-    flex-flow: row nowrap;
-    gap: var(--gap-xs-plus);
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* Filter dropdowns shrink to content */
-  .mc-filters-left > * {
-    flex: 0 1 auto;
-    min-width: 0;
-    max-width: 50%;
-  }
-
-  /* Hide "New" button - FAB is used instead */
-  .mc-projects-filters .mc-btn-clean,
-  .mc-projects-filters > button {
-    display: none;
-  }
-
-  /* Tab headers - compact on mobile */
-  .mc-team-header,
-  .mc-playbooks-header,
-  .mc-decisions-header {
-    flex-flow: row nowrap;
-    gap: var(--gap-sm);
-    padding: var(--space-1) 0;
-  }
-
-  .mc-team-header > span:first-child,
-  .mc-playbooks-header > span:first-child,
-  .mc-decisions-header > span:first-child {
-    font-size: 0.75rem;
-  }
-
-  /* Playbooks filters - compact */
-  .mc-playbooks-header {
-    gap: var(--gap-xs-plus);
-  }
-
-  /* Hide header buttons on mobile - FAB is used instead */
-  .mc-team-header > button,
-  .mc-playbooks-header > button {
-    display: none;
-  }
-
-  /* Decisions filters - responsive row layout */
-  .mc-decisions-filters {
-    display: flex;
-    flex-flow: row nowrap;
-    gap: var(--gap-sm);
-    padding: var(--space-1) 0;
-    align-items: stretch;
-  }
-
-  /* Department filter - allow shrink but maintain usability */
-  .mc-decisions-filters .mc-dept-filter {
-    flex: 0 1 auto;
-    min-width: 0;
-    max-width: 45%;
-  }
-
-  /* Search input takes remaining space */
-  .mc-decisions-filters .mc-search-input-wrapper {
-    flex: 1 1 auto;
-    min-width: 0;
-    max-width: none;
-  }
-}
-
-/* Extra small mobile - more compact layouts (380px and below) */
-@media (width <= 640px) {
-  .mc-decisions-filters {
-    gap: var(--gap-xs-plus);
-  }
-
-  .mc-decisions-filters .mc-dept-filter {
-    max-width: 40%;
-  }
-
-  /* Slightly tighter content padding on very small screens */
-  .mc-content {
-    padding: var(--space-2) var(--space-3);
-    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
-  }
-
-  .mc-overview-hero {
-    padding: var(--space-3) var(--space-3-5);
-    gap: var(--gap-sm);
-  }
-
-  .mc-context-card {
-    padding: var(--space-3) var(--space-3-5);
-  }
-
-  /* Sticky toolbar - match smaller card padding for negative margins */
-  .mc-context-sticky-toolbar {
-    inset-block-start: 0;
-    margin-left: -14px;
-    padding-left: var(--space-3-5);
-    width: calc(100% + 28px);
   }
 }
 
@@ -332,48 +220,5 @@
   .mc-decision-row:active {
     background: var(--color-bg-hover);
     transform: scale(0.99);
-  }
-}
-
-/**
- * MyCompany Mobile Shell - Dark Mode Styles
- * Dark mode adjustments for mobile cards and UI
- */
-
-/* ============================================================================
-   DARK MODE ADJUSTMENTS FOR MOBILE CARDS
-   ============================================================================ */
-
-@media (width <= 640px) {
-  .dark .mc-project-row-compact,
-  .dark .mc-elegant-row,
-  .dark .mc-decision-row {
-    background: var(--color-bg-secondary);
-    border-color: var(--color-border);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .dark .mc-project-row-compact:active,
-  .dark .mc-elegant-row:active,
-  .dark .mc-decision-row:active {
-    background: var(--color-bg-tertiary);
-  }
-
-  /* Context card - dark mode on mobile */
-  .dark .mc-context-card {
-    background: var(--color-bg-secondary);
-    border-color: var(--color-border);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .dark .mc-context-sticky-toolbar {
-    background: var(--color-bg-secondary);
-  }
-
-  /* Hero section - dark mode on mobile */
-  .dark .mc-overview-hero {
-    background: var(--color-bg-secondary);
-    border-color: var(--color-border);
-    box-shadow: var(--shadow-lg);
   }
 }

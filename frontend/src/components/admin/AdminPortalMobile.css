@@ -1,0 +1,159 @@
+/**
+ * AdminPortal - Mobile Responsive & Dark Mode
+ *
+ * Mobile layout and dark mode overrides.
+ * Split from AdminPortal.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   Note: Using 768px instead of 641px because sidebar (260px) leaves insufficient
+   space for content at narrower widths. At 768px we have ~508px for content,
+   which is the minimum usable width for admin tables.
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .admin-portal {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    min-width: 100%;
+    border-right: none;
+    border-bottom: none; /* Remove border - cleaner look */
+    background: var(--color-bg-primary); /* Match main bg */
+  }
+
+  /* Mobile header - consistent padding */
+  .admin-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-primary);
+  }
+
+  .admin-sidebar-header .admin-back-link {
+    order: 1;
+  }
+
+  .admin-sidebar-header .admin-title {
+    display: none; /* Hide "Admin Portal" title on mobile - save space */
+  }
+
+  /* Mobile nav - horizontal with consistent padding */
+  .admin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-4); /* Match header padding */
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch;
+    background: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .admin-nav::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+
+  .admin-nav-item {
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--space-2) var(--space-3);
+    width: auto;
+    min-width: 56px;
+    min-height: 52px; /* Touch target */
+    border-radius: var(--radius-md);
+  }
+
+  .admin-nav-item span {
+    display: block;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .admin-nav-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Hide user info on mobile - declutter */
+  .admin-sidebar-footer {
+    display: none;
+  }
+
+  /* Main content - no card appearance on mobile */
+  .admin-main {
+    background: var(--color-bg-primary);
+  }
+
+  .admin-content {
+    padding: 0; /* Remove padding - content handles its own */
+  }
+
+  /* Remove card styling on mobile - flat layout */
+  .admin-tab-panel {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  /* Compact header on mobile - single row with title + action button */
+  .admin-tab-header {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+  }
+
+  .admin-section-title {
+    font-size: var(--font-size-base);
+    margin: 0;
+    flex: 1;
+  }
+
+  /* Hide description on mobile to save space */
+  .admin-section-desc {
+    display: none;
+  }
+
+  .admin-search-box {
+    width: 100%;
+  }
+
+  .admin-search-input {
+    width: 100%;
+    min-height: 44px; /* Touch target */
+  }
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .admin-portal {
+  background: var(--color-bg-primary);
+}
+
+.dark .admin-sidebar {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .admin-nav-item--active {
+  background: var(--overlay-white-10);
+}
+
+.dark .admin-tab-panel {
+  background: var(--color-bg-secondary);
+}
+
+.dark .admin-search-input {
+  background: var(--color-bg-tertiary);
+}

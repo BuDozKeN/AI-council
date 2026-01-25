@@ -2,6 +2,9 @@
 
 /* Extracted from llm-hub.css lines 795-end */
 
+/* Small screen overrides: See responsive-small.css */
+@import url('./responsive-small.css');
+
 /* ============================================================================
    Persona Textarea
    ============================================================================ */
@@ -255,84 +258,4 @@
   .llm-model-chain {
     flex-wrap: wrap;
   }
-}
-
-@media (width <= 640px) {
-  .llm-card-header {
-    padding: var(--space-3) var(--space-3-5);
-    gap: var(--gap-sm-plus);
-  }
-
-  .llm-card-icon {
-    width: 28px;
-    height: 28px;
-  }
-
-  .llm-card-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .llm-card-body {
-    padding: var(--space-3);
-  }
-
-  .llm-inner-card-header {
-    padding: var(--space-2-5) var(--space-3);
-    gap: var(--gap-sm-plus);
-    align-items: center;
-  }
-
-  .llm-inner-card-icon {
-    width: 20px;
-    height: 20px;
-  }
-
-  .llm-inner-card-icon svg {
-    width: 12px;
-    height: 12px;
-  }
-
-  .llm-inner-card-title {
-    font-size: var(--text-xs-plus);
-  }
-
-  .llm-inner-card-body {
-    padding: var(--space-2) var(--space-2-5) 10px;
-  }
-
-  .llm-stage-row {
-    padding: var(--space-2) 0;
-    gap: var(--gap-xs);
-  }
-
-  /* Compact for small screens */
-  .llm-mobile-slider-row,
-  .llm-mobile-length-row {
-    gap: var(--gap-xs);
-  }
-
-  .llm-mobile-slider-row .llm-stage-name,
-  .llm-mobile-length-label {
-    font-size: var(--text-xs);
-  }
-
-  .llm-mobile-slider-row .llm-badge {
-    font-size: var(--text-2xs);
-    padding: var(--space-0-5) var(--space-2);
-  }
-
-  .llm-mobile-length-row .llm-length-select {
-    height: 28px;
-    min-height: 28px;
-    font-size: var(--text-xs);
-    padding: 0 10px;
-  }
-
-  .llm-stage-row + .llm-stage-row {
-    margin-top: var(--space-1);
-    padding-top: var(--space-2);
-  }
-
-  /* 480px: Height already set at 768px via CSS vars, no width override needed */
 }

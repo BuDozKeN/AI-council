@@ -1,0 +1,106 @@
+/**
+ * Projects Tab - Timeline Summary Styles
+ * Extracted from timeline.css for CSS budget compliance.
+ */
+
+/* ============================================================================
+   GROUPED TIMELINE - Visual linking for related decisions
+   ============================================================================ */
+
+.mc-timeline-group {
+  margin-bottom: var(--space-4);
+}
+
+.mc-timeline-group.linked {
+  background: var(--color-sky-50);
+  border-left: 3px solid var(--color-blue-500);
+  border-radius: 0 8px 8px 0;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  margin-left: calc(-1 * var(--space-1));
+}
+
+/* Items in a linked group */
+.mc-timeline-item.in-group {
+  margin-bottom: var(--space-2);
+}
+
+.mc-timeline-item.in-group:last-child {
+  margin-bottom: 0;
+}
+
+/* Linked line between decisions in same conversation */
+.mc-timeline-line.linked {
+  background: var(--color-blue-500);
+  width: 2px;
+}
+
+/* ============================================================================
+   TIMELINE SUMMARY
+   ============================================================================ */
+
+.mc-timeline-summary {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3-5) var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.7;
+}
+
+/* Markdown inside summary */
+.mc-timeline-summary .markdown-viewer {
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.mc-timeline-summary .markdown-viewer p {
+  margin: 0 0 var(--space-2);
+}
+
+.mc-timeline-summary .markdown-viewer p:last-child {
+  margin-bottom: 0;
+}
+
+.mc-timeline-summary .markdown-viewer strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mc-timeline-summary .markdown-viewer ul,
+.mc-timeline-summary .markdown-viewer ol {
+  margin: var(--space-2) 0;
+  padding-left: var(--space-5);
+}
+
+.mc-timeline-summary .markdown-viewer li {
+  margin-bottom: var(--space-1);
+}
+
+.mc-timeline-summary-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-3-5) var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs-plus);
+  color: var(--color-text-secondary);
+}
+
+/* Legacy context summary */
+.mc-timeline-context {
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-3-5);
+  background: var(--color-bg-secondary);
+  border-left: 3px solid var(--color-blue-500);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}

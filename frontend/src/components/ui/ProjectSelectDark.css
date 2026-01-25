@@ -1,0 +1,77 @@
+/**
+ * ProjectSelect - Dark Mode Styles
+ *
+ * Extracted from ProjectSelect.css for CSS budget compliance.
+ */
+
+.dark .project-select-trigger {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-gray-400);
+}
+
+.dark .project-select-trigger.has-selection {
+  border-color: var(--color-indigo-400);
+  color: var(--color-indigo-300);
+}
+
+.dark .project-select-trigger:hover:not(.has-selection) {
+  border-color: var(--color-border-dark);
+  color: var(--color-gray-200);
+}
+
+.dark .project-select-trigger:focus {
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
+}
+
+.dark .project-select-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .project-select-item {
+  color: var(--color-gray-300);
+}
+
+.dark .project-select-item[data-highlighted] {
+  background: var(--overlay-indigo-15);
+}
+
+.dark .project-select-item[data-state='checked'] {
+  background: var(--overlay-indigo-15);
+  color: var(--color-indigo-300);
+}
+
+.dark .project-select-icon {
+  color: var(--color-indigo-400);
+}
+
+.dark .project-select-current-badge {
+  background: var(--overlay-indigo-20);
+  color: var(--color-indigo-300);
+}
+
+.dark .project-select-item-create[data-highlighted] {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .project-select-item-mobile {
+  background: var(--color-bg-tertiary);
+  color: var(--color-gray-300);
+}
+
+.dark .project-select-item-mobile.selected {
+  background: var(--overlay-indigo-15);
+  color: var(--color-indigo-300);
+}
+
+.dark .project-select-radio {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.dark .project-select-radio.checked {
+  background: var(--color-indigo-500);
+  border-color: var(--color-indigo-500);
+}

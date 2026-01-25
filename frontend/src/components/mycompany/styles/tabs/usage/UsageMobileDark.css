@@ -1,0 +1,64 @@
+/**
+ * Usage Tab - Mobile Dark Mode Styles
+ * Extracted from UsageMobile.css for CSS budget compliance.
+ */
+
+/* ============================================================================
+   DARK MODE - Mobile Cards
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .dark .mc-usage-section {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dark .mc-usage .mc-stat-card {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+  }
+
+  .dark .mc-usage-empty-banner {
+    background: var(--color-bg-tertiary);
+    border-color: var(--color-border);
+  }
+}
+
+/* ============================================================================
+   DARK MODE - Accent Colors
+   ============================================================================ */
+
+/* Accent stat card - emerald/green tones */
+.dark .mc-stat-card.accent .mc-stat-icon,
+.dark .mc-stat-card.accent .mc-stat-value {
+  color: var(--color-emerald-400);
+}
+
+/* Alert icon - amber tones */
+.dark .mc-usage-alert-icon {
+  color: var(--color-amber-400);
+}
+
+/* Budget progress bars - brighter in dark mode */
+.dark .mc-usage-budget-fill {
+  background: var(--color-blue-400);
+}
+
+.dark .mc-usage-budget-fill.warning {
+  background: var(--color-amber-400);
+}
+
+.dark .mc-usage-budget-fill.exceeded {
+  background: var(--color-red-400);
+}
+
+/* Budget warning text */
+.dark .mc-usage-budget-warning {
+  color: var(--color-amber-400);
+}
+
+/* Council roster status - emerald/green tones */
+.dark .mc-usage-roster-status {
+  color: var(--color-emerald-400);
+}

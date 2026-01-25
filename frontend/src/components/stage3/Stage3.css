@@ -18,8 +18,10 @@
 /* Save toolbar - department, type pills, save button (378 lines) */
 @import url('./styles/Stage3SaveToolbar.css');
 
-/* Dropdowns - unified system for project/playbook selection (593 lines) */
+/* Dropdowns - unified system for project/playbook selection */
 @import url('./styles/Stage3Dropdowns.css');
+@import url('./styles/Stage3DropdownsOptions.css');
+@import url('./styles/Stage3DropdownsDark.css');
 
 /* Mobile responsive - all mobile overrides (495 lines) */
 @import url('./styles/Stage3Mobile.css');

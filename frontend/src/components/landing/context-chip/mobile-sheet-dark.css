@@ -1,0 +1,92 @@
+/**
+ * ContextChip Mobile Sheet - Dark Mode Styles
+ * Extracted from mobile-sheet.css for CSS budget compliance.
+ */
+
+/* Dark mode for portal tooltip */
+.dark .context-badge-tooltip-portal {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .context-badge-tooltip-arrow::after {
+  border-block-end-color: var(--color-bg-secondary);
+}
+
+.dark .context-badge-tooltip-portal .context-badge-tooltip-item {
+  color: var(--color-text-primary);
+}
+
+.dark .context-badge-tooltip-portal .context-badge-tooltip-item:not(:last-child) {
+  border-color: var(--color-border);
+}
+
+/* Dark mode for multi-select */
+.dark .context-multiselect-trigger {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .context-multiselect-dropdown {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .context-multiselect-item {
+  color: var(--color-text-primary);
+}
+
+.dark .context-multiselect-item:not(:last-child) {
+  border-color: var(--color-border);
+}
+
+.dark .context-multiselect-item:active {
+  background: var(--color-bg-hover);
+}
+
+.dark .context-multiselect-item.selected {
+  background: var(--overlay-indigo-15);
+}
+
+.dark .context-multiselect-item.selected svg {
+  color: var(--color-indigo-400);
+}
+
+/* Dark mode for playbooks expanded */
+.dark .context-playbooks-expanded {
+  border-color: var(--color-border);
+}
+
+/* Dark mode for new mobile styles */
+.dark .context-field-label-mobile {
+  color: var(--color-text-secondary);
+}
+
+.dark .context-select-mobile {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .context-tag {
+  background: var(--overlay-white-10);
+  color: var(--color-text-primary);
+}
+
+.dark .context-tag.role {
+  --tag-bg: var(--overlay-indigo-15);
+  --tag-text: var(--color-indigo-300);
+}
+
+.dark .context-pb-item-mobile {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .context-pb-item-mobile.selected {
+  background: var(--overlay-indigo-15);
+  border-color: var(--color-indigo-400);
+  color: var(--color-indigo-300);
+}

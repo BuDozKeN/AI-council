@@ -1,0 +1,227 @@
+/**
+ * Stage3DropdownsOptions.css - Project and Playbook dropdown styles
+ * Extracted from Stage3Dropdowns.css for CSS budget compliance
+ */
+
+/* ===========================================
+   PROJECT DROPDOWN - Extends unified system
+   =========================================== */
+
+.save-project-selector-inline {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Project pill extends toolbar-pill */
+.save-project-pill {
+  max-width: 160px;
+}
+
+.save-project-pill span {
+  max-width: 100px;
+}
+
+/* Project selected - consistent white style, selection shown by project name */
+.save-project-pill.has-project {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
+  font-weight: 500;
+}
+
+.save-project-pill.has-project:hover:not(:disabled) {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Project-specific selected state */
+.toolbar-dropdown-option.project-option.selected {
+  background: var(--color-violet-50);
+}
+
+.toolbar-dropdown-option.project-option.selected svg {
+  color: var(--color-violet-600);
+}
+
+.toolbar-dropdown-option.project-option.selected .toolbar-dropdown-option-name {
+  color: var(--color-violet-700);
+}
+
+.toolbar-option-mobile.project-option.selected {
+  background: var(--color-violet-50);
+  border-color: var(--color-violet-300);
+}
+
+.toolbar-option-mobile.project-option.selected .toolbar-option-icon {
+  background: var(--color-violet-100);
+  color: var(--color-violet-600);
+}
+
+/* Legacy class aliases for backwards compatibility */
+.save-project-dropdown-portal {
+  /* Extends toolbar-dropdown-portal */
+}
+
+.save-project-dropdown-header {
+  /* Extends toolbar-dropdown-header */
+}
+
+.save-project-list {
+  /* Extends toolbar-dropdown-list */
+}
+
+.save-project-option {
+  /* Extends toolbar-dropdown-option */
+}
+
+.save-project-option-name {
+  /* Extends toolbar-dropdown-option-name */
+}
+
+.save-project-option-desc {
+  /* Extends toolbar-dropdown-option-desc */
+}
+
+.save-project-create {
+  /* Extends toolbar-dropdown-footer */
+}
+
+.save-project-create-btn {
+  /* Extends toolbar-dropdown-create-btn */
+}
+
+/* ===========================================
+   PLAYBOOK DROPDOWN - Extends unified system
+   =========================================== */
+
+.playbook-selector-inline {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Playbook trigger pill - type-specific colors when selected */
+.playbook-trigger-pill.has-type {
+  font-weight: 500;
+}
+
+/* SOP type - consistent white style */
+.playbook-trigger-pill.has-type.sop {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
+}
+
+.playbook-trigger-pill.has-type.sop:hover:not(:disabled) {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Framework type - consistent white style */
+.playbook-trigger-pill.has-type.framework {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
+}
+
+.playbook-trigger-pill.has-type.framework:hover:not(:disabled) {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Policy type - consistent white style */
+.playbook-trigger-pill.has-type.policy {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
+}
+
+.playbook-trigger-pill.has-type.policy:hover:not(:disabled) {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Locked state when decision is already saved - visually shows it's not interactive */
+.playbook-trigger-pill.saved,
+.playbook-trigger-pill.locked {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.playbook-trigger-pill.saved:disabled,
+.playbook-trigger-pill.locked:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  background: var(--color-slate-100);
+  color: var(--color-slate-500);
+}
+
+/* Playbook options - type-specific colors (desktop) */
+.toolbar-dropdown-option.playbook-option.sop:hover,
+.toolbar-dropdown-option.playbook-option.sop.selected {
+  background: var(--color-blue-50);
+}
+
+.toolbar-dropdown-option.playbook-option.sop.selected svg {
+  color: var(--color-blue-600);
+}
+
+.toolbar-dropdown-option.playbook-option.sop.selected .toolbar-dropdown-option-name {
+  color: var(--color-blue-700);
+}
+
+.toolbar-dropdown-option.playbook-option.framework:hover,
+.toolbar-dropdown-option.playbook-option.framework.selected {
+  background: var(--color-amber-50);
+}
+
+.toolbar-dropdown-option.playbook-option.framework.selected svg {
+  color: var(--color-amber-600);
+}
+
+.toolbar-dropdown-option.playbook-option.framework.selected .toolbar-dropdown-option-name {
+  color: var(--color-amber-700);
+}
+
+.toolbar-dropdown-option.playbook-option.policy:hover,
+.toolbar-dropdown-option.playbook-option.policy.selected {
+  background: var(--color-purple-50);
+}
+
+.toolbar-dropdown-option.playbook-option.policy.selected svg {
+  color: var(--color-purple-600);
+}
+
+.toolbar-dropdown-option.playbook-option.policy.selected .toolbar-dropdown-option-name {
+  color: var(--color-purple-700);
+}
+
+/* Playbook options - type-specific colors (mobile) */
+.toolbar-option-mobile.playbook-option.sop.selected {
+  background: var(--color-blue-50);
+  border-color: var(--color-blue-300);
+}
+
+.toolbar-option-mobile.playbook-option.sop .toolbar-option-icon {
+  background: var(--color-blue-100);
+  color: var(--color-blue-600);
+}
+
+.toolbar-option-mobile.playbook-option.framework.selected {
+  background: var(--color-amber-50);
+  border-color: var(--color-amber-300);
+}
+
+.toolbar-option-mobile.playbook-option.framework .toolbar-option-icon {
+  background: var(--color-amber-100);
+  color: var(--color-amber-600);
+}
+
+.toolbar-option-mobile.playbook-option.policy.selected {
+  background: var(--color-purple-50);
+  border-color: var(--color-purple-300);
+}
+
+.toolbar-option-mobile.playbook-option.policy .toolbar-option-icon {
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+}

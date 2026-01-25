@@ -16,6 +16,7 @@ interface Plan {
   is_free: boolean;
   queries_display: string;
   features: string[];
+  contact_sales?: boolean;
 }
 
 interface Subscription {
@@ -153,12 +154,20 @@ export default function Billing({ onClose }: BillingProps) {
         <div className="billing-plans">
           {plans.map((plan) => {
             const isCurrentPlan = plan.id === currentTier;
-            const isUpgrade =
-              !plan.is_free &&
-              (currentTier === 'free' || (currentTier === 'pro' && plan.id === 'enterprise'));
-            const isDowngrade =
-              (plan.is_free && currentTier !== 'free') ||
-              (plan.id === 'pro' && currentTier === 'enterprise');
+
+            // Tier ranking for upgrade/downgrade logic (5-tier system)
+            const tierRank: Record<string, number> = {
+              free: 0,
+              starter: 1,
+              pro: 2,
+              business: 3,
+              enterprise: 4,
+            };
+            const currentRank = tierRank[currentTier] ?? 0;
+            const planRank = tierRank[plan.id] ?? 0;
+
+            const isUpgrade = planRank > currentRank;
+            const isDowngrade = planRank < currentRank;
 
             return (
               <div
@@ -195,6 +204,16 @@ export default function Billing({ onClose }: BillingProps) {
                   {isCurrentPlan ? (
                     <Button variant="outline" disabled>
                       {t('billing.currentPlan')}
+                    </Button>
+                  ) : plan.contact_sales ? (
+                    <Button
+                      variant="default"
+                      onClick={() =>
+                        (window.location.href =
+                          'mailto:sales@axcouncil.com?subject=Enterprise%20Plan%20Inquiry')
+                      }
+                    >
+                      {t('billing.contactSales')}
                     </Button>
                   ) : isDowngrade ? (
                     <Button

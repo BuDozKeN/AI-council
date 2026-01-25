@@ -1,0 +1,83 @@
+/**
+ * AdminPortal - Loading and Error States
+ * Extracted from AdminPortal.css for CSS budget compliance.
+ */
+
+/* =============================================================================
+   LOADING AND ERROR STATES
+   ============================================================================= */
+
+.admin-portal--loading,
+.admin-portal--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-loading-content,
+.admin-error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+  padding: var(--space-8);
+}
+
+.admin-loading-spinner {
+  width: 48px;
+  height: 48px;
+  color: var(--color-primary);
+}
+
+.admin-error-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--color-text-muted);
+}
+
+.admin-error-icon--denied {
+  color: var(--color-destructive);
+}
+
+.admin-error-content h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: 0;
+}
+
+.admin-error-content p {
+  color: var(--color-text-secondary);
+  max-width: 400px;
+  margin: 0;
+}
+
+.admin-error-detail {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.admin-error-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.admin-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-retry-btn:hover {
+  background: var(--color-primary-hover);
+}

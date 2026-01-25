@@ -1,0 +1,204 @@
+/**
+ * shell-header.css - Header components (company switcher, close button)
+ * Extracted from shell.css for CSS budget compliance
+ */
+
+/* Title row - company name + "Command Center" */
+.mc-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+.mc-title-suffix {
+  font-size: 0.875rem;
+  color: rgb(var(--color-white-rgb, 255, 255, 255), 0.5);
+  font-weight: 400;
+}
+
+/* Company Switcher - Button with dropdown */
+.mc-company-switcher {
+  position: relative;
+  margin-top: var(--space-2);
+}
+
+/* Modern select trigger for company switcher */
+.mc-company-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--space-2) var(--space-3-5);
+  background: var(--overlay-white-10);
+  border: 1px solid var(--overlay-white-20);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--overlay-white-90);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  min-width: 140px;
+  height: auto;
+}
+
+.mc-company-select-trigger:hover {
+  background: var(--overlay-white-15);
+  border-color: var(--overlay-white-25);
+}
+
+.mc-company-select-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--overlay-white-25);
+}
+
+.mc-company-select-trigger svg {
+  opacity: 0.8;
+}
+
+/* Static company display when only one company (no dropdown) */
+.mc-company-display {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--space-2) var(--space-3-5);
+  background: var(--overlay-white-10);
+  border: 1px solid var(--overlay-white-20);
+  border-radius: var(--radius-md);
+  color: var(--overlay-white-90);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.mc-company-display svg {
+  opacity: 0.8;
+}
+
+.mc-company-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-3);
+  background: rgb(var(--color-white-rgb, 255, 255, 255), 0.1);
+  border: 1px solid rgb(var(--color-white-rgb, 255, 255, 255), 0.15);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: rgb(var(--color-white-rgb, 255, 255, 255), 0.7);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.mc-company-dropdown-btn:hover {
+  background: rgb(var(--color-white-rgb, 255, 255, 255), 0.15);
+  border-color: rgb(var(--color-white-rgb, 255, 255, 255), 0.25);
+  color: var(--color-text-inverse);
+}
+
+.mc-switch-icon {
+  opacity: 0.7;
+}
+
+.mc-company-dropdown-btn:hover .mc-switch-icon {
+  opacity: 1;
+}
+
+.mc-chevron {
+  color: rgb(var(--color-white-rgb, 255, 255, 255), 0.5);
+  transition: transform 0.2s ease;
+  margin-left: var(--space-0-5);
+}
+
+.mc-chevron.open {
+  transform: rotate(180deg);
+}
+
+.mc-company-dropdown {
+  position: absolute;
+  inset-block-start: calc(100% + 8px);
+  left: 0;
+  min-width: 220px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-modal);
+  overflow: hidden;
+  animation: mc-dropdown-slide 0.15s ease;
+}
+
+@keyframes mc-dropdown-slide {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mc-company-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.mc-company-option:hover {
+  background: var(--color-bg-secondary);
+}
+
+.mc-company-option.active {
+  background: var(--color-green-50);
+}
+
+.mc-company-option-name {
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.mc-company-option.active .mc-company-option-name {
+  color: var(--color-emerald-600);
+}
+
+.mc-company-option svg {
+  color: var(--color-emerald-600);
+  flex-shrink: 0;
+}
+
+/* Divider between company options */
+.mc-company-option:not(:last-child) {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mc-close-btn {
+  position: relative;
+  z-index: var(--z-base);
+  background: transparent;
+  border: none;
+  font-size: var(--text-lg);
+  cursor: pointer;
+  color: rgb(var(--color-white-rgb, 255, 255, 255), 0.4);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.mc-close-btn:hover {
+  background: rgb(var(--color-white-rgb, 255, 255, 255), 0.1);
+  color: rgb(var(--color-white-rgb, 255, 255, 255), 0.9);
+  opacity: 1;
+}

@@ -1395,6 +1395,7 @@
     "mostPopular": "Most Popular",
     "cancelToDowngrade": "Cancel subscription to downgrade to Free",
     "subscribe": "Subscribe",
+    "contactSales": "Contact Sales",
     "manageSubscriptionBilling": "Manage Subscription & Billing",
     "stripePowered": "Secure payments powered by Stripe"
   },

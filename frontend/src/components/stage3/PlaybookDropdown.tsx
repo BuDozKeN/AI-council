@@ -4,6 +4,8 @@ import * as Popover from '@radix-ui/react-popover';
 import { BottomSheet } from '../ui/BottomSheet';
 import { BookOpen, ChevronDown, ScrollText, Layers, FileText } from 'lucide-react';
 import './styles/Stage3Dropdowns.css';
+import './styles/Stage3DropdownsOptions.css';
+import './styles/Stage3DropdownsDark.css';
 
 type DocType = 'sop' | 'framework' | 'policy' | '';
 type SaveState = 'idle' | 'saving' | 'promoting' | 'saved' | 'promoted' | 'error';

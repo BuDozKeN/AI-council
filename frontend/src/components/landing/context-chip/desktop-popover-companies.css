@@ -1,0 +1,97 @@
+/**
+ * desktop-popover-companies.css - Company and Preset buttons
+ * Extracted from desktop-popover-legacy.css for CSS budget compliance
+ *
+ * Contains:
+ * - Company buttons list
+ * - Context check icon
+ * - Presets list and items
+ */
+
+/* Company buttons */
+.context-companies {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs-plus);
+}
+
+.context-company-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm-plus);
+  width: 100%;
+  padding: var(--space-3) var(--space-3-5);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-company-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-brand-primary);
+}
+
+.context-company-btn.active {
+  background: var(--color-brand-primary-light);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary-hover);
+}
+
+.context-company-btn svg {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.context-company-btn.active svg {
+  color: var(--color-brand-primary);
+}
+
+.context-company-btn span {
+  flex: 1;
+}
+
+.context-check {
+  width: 16px;
+  height: 16px;
+  color: var(--color-brand-primary);
+  flex-shrink: 0;
+}
+
+/* Presets */
+.context-presets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs-plus);
+}
+
+.context-preset {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  width: 100%;
+  padding: var(--space-2-5) var(--space-3);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-preset:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.context-preset svg {
+  color: var(--color-text-tertiary);
+}

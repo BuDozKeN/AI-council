@@ -1,0 +1,107 @@
+/**
+ * AdminTableBadges.css - Status and role badge styles
+ * Extracted from AdminTable.css for CSS budget compliance
+ */
+
+/* =============================================================================
+   STATUS BADGES
+   ============================================================================= */
+
+.admin-status-badge {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.admin-status-badge--active {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+.admin-status-badge--pending {
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+}
+
+.admin-status-badge--expired {
+  background: var(--overlay-black-10);
+  color: var(--color-text-muted);
+}
+
+.admin-status-badge--cancelled {
+  background: var(--overlay-red-15);
+  color: var(--color-destructive);
+}
+
+.admin-status-badge--suspended {
+  background: var(--overlay-red-15);
+  color: var(--color-destructive);
+}
+
+.admin-status-badge--deleted {
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+}
+
+/* Badge with reason indicator (shows eye icon) */
+.admin-status-badge--has-reason {
+  cursor: help;
+}
+
+.admin-status-badge--has-reason svg {
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.admin-status-badge--has-reason:hover svg {
+  opacity: 1;
+}
+
+/* =============================================================================
+   ROLE BADGES
+   ============================================================================= */
+
+.admin-role-badge {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  text-transform: capitalize;
+}
+
+.admin-role-badge--super_admin {
+  background: var(--overlay-purple-15);
+  color: var(--color-violet-500);
+}
+
+.admin-role-badge--admin {
+  background: var(--overlay-blue-15);
+  color: var(--color-primary);
+}
+
+.admin-role-badge--support {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+/* "You" badge for current user */
+.admin-you-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  margin-left: var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}

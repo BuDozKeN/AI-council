@@ -1,0 +1,171 @@
+/**
+ * shell-tabs.css - Tabs, content area, and dark mode
+ * Extracted from shell.css for CSS budget compliance
+ */
+
+/* Tabs - Modern pill/segment design */
+.mc-tabs {
+  display: flex;
+  justify-content: space-evenly;
+  gap: var(--gap-xs);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mc-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2-5) var(--space-4);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.mc-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background: transparent;
+  border-radius: var(--radius-xs);
+  transition: all 0.2s ease;
+}
+
+.mc-tab:hover {
+  color: var(--color-text-primary);
+  background: var(--overlay-black-5);
+}
+
+.mc-tab.active {
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.mc-tab.active::after {
+  width: 16px;
+  background: var(--color-indigo-500);
+}
+
+.mc-tab-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.mc-tab-label {
+  letter-spacing: -0.01em;
+}
+
+/* Content Area - Fixed height, no resizing between tabs */
+.mc-content {
+  /* flex: 1 1 0 ensures this fills remaining space but can shrink to 0 basis */
+  flex: 1 1 0;
+
+  /* min-height: 0 is CRITICAL - allows flex item to shrink below content size */
+  min-height: 0;
+
+  /* overflow:hidden forces children to handle their own scrolling */
+  overflow: hidden;
+  padding: var(--space-6);
+  background: var(--color-bg-primary);
+
+  /* Enable flex for child tabs to fill height */
+  display: flex;
+  flex-direction: column;
+}
+
+/* =============================================================================
+   DARK MODE - Command Center Shell
+   ============================================================================= */
+
+/* Panel */
+.dark .mc-panel,
+[data-theme='dark'] .mc-panel {
+  background: var(--color-bg-primary);
+  box-shadow: 0 32px 64px var(--overlay-black-50);
+}
+
+/* Tabs - dark background */
+.dark .mc-tabs,
+[data-theme='dark'] .mc-tabs {
+  background: var(--color-bg-secondary);
+  border-block-end-color: var(--color-border);
+}
+
+.dark .mc-tab,
+[data-theme='dark'] .mc-tab {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-tab:hover,
+[data-theme='dark'] .mc-tab:hover {
+  color: var(--color-text-secondary);
+  background: var(--overlay-white-5);
+}
+
+.dark .mc-tab.active,
+[data-theme='dark'] .mc-tab.active {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+  box-shadow: 0 1px 3px var(--overlay-black-30);
+}
+
+.dark .mc-tab.active::after,
+[data-theme='dark'] .mc-tab.active::after {
+  background: var(--color-brand-primary);
+}
+
+/* Content area */
+.dark .mc-content,
+[data-theme='dark'] .mc-content {
+  background: var(--color-bg-primary);
+}
+
+/* Company dropdown */
+.dark .mc-company-dropdown,
+[data-theme='dark'] .mc-company-dropdown {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 8px 24px var(--overlay-black-40);
+}
+
+.dark .mc-company-option,
+[data-theme='dark'] .mc-company-option {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-company-option:hover,
+[data-theme='dark'] .mc-company-option:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-company-option.active,
+[data-theme='dark'] .mc-company-option.active {
+  background: var(--overlay-emerald-15);
+}
+
+.dark .mc-company-option-name,
+[data-theme='dark'] .mc-company-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-company-option.active .mc-company-option-name,
+[data-theme='dark'] .mc-company-option.active .mc-company-option-name {
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-company-option:not(:last-child),
+[data-theme='dark'] .mc-company-option:not(:last-child) {
+  border-block-end-color: var(--color-border);
+}
