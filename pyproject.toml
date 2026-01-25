@@ -21,6 +21,7 @@ dependencies = [
     "redis>=5.0.0",  # Caching, rate limiting, job queues
     "numpy>=1.26.0",  # Vector math for embeddings/similarity
     "qdrant-client>=1.9.0",  # Vector database for semantic search
+    "protobuf>=5.29.0,<6.33.4",  # Pin to avoid CVE-2026-0994 (DoS in ParseDict)
     "sentry-sdk[fastapi]>=2.0.0",  # Error monitoring
     "cryptography>=42.0.0",  # Secure token generation
 ]
