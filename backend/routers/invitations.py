@@ -9,7 +9,7 @@ Endpoints for invitation acceptance flow:
 Some endpoints are public (no auth), some require authentication.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 from typing import Optional
@@ -223,7 +223,7 @@ async def accept_invitation(
         # Mark invitation as accepted
         supabase.table("platform_invitations").update({
             "status": "accepted",
-            "accepted_at": datetime.utcnow().isoformat(),
+            "accepted_at": datetime.now(timezone.utc).isoformat(),
             "accepted_user_id": data.user_id,
         }).eq("id", invitation["id"]).execute()
 
@@ -391,7 +391,7 @@ async def accept_company_invitation(
             # Already a member - mark invitation as accepted and return success
             supabase.table("platform_invitations").update({
                 "status": "accepted",
-                "accepted_at": datetime.utcnow().isoformat(),
+                "accepted_at": datetime.now(timezone.utc).isoformat(),
                 "accepted_user_id": user_id,
             }).eq("id", invitation["id"]).execute()
 
@@ -411,7 +411,7 @@ async def accept_company_invitation(
         # Mark invitation as accepted
         supabase.table("platform_invitations").update({
             "status": "accepted",
-            "accepted_at": datetime.utcnow().isoformat(),
+            "accepted_at": datetime.now(timezone.utc).isoformat(),
             "accepted_user_id": user_id,
         }).eq("id", invitation["id"]).execute()
 
@@ -420,7 +420,7 @@ async def accept_company_invitation(
             "company_id": invitation["target_company_id"],
             "user_id": user_id,
             "role": invitation.get("target_company_role", "member"),
-            "joined_at": datetime.utcnow().isoformat(),
+            "joined_at": datetime.now(timezone.utc).isoformat(),
         }).execute()
 
         # Get company name for response
