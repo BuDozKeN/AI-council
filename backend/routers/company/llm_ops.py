@@ -10,7 +10,7 @@ Endpoints for LLM usage analytics, rate limits, and budget management:
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ...auth import get_current_user, get_effective_user
 from .utils import (
@@ -397,7 +397,7 @@ async def update_rate_limits(request: Request, company_id: ValidCompanyId,
     if not update_data:
         raise HTTPException(status_code=400, detail=t('errors.no_updates_provided', locale))
 
-    update_data['updated_at'] = datetime.now().isoformat()
+    update_data['updated_at'] = datetime.now(timezone.utc).isoformat()
 
     try:
         # Upsert rate limits
@@ -497,7 +497,7 @@ async def acknowledge_alert(request: Request, company_id: ValidCompanyId,
     try:
         result = client.table('budget_alerts') \
             .update({
-                'acknowledged_at': datetime.now().isoformat(),
+                'acknowledged_at': datetime.now(timezone.utc).isoformat(),
                 'acknowledged_by': user_id
             }) \
             .eq('id', alert_id) \
@@ -645,7 +645,7 @@ async def update_llm_preset(request: Request, company_id: ValidCompanyId,
         raise HTTPException(status_code=400, detail=t('errors.invalid_preset_id', locale, valid_presets=str(valid_presets)))
 
     # Build update data
-    update_data: Dict[str, Any] = {'updated_at': datetime.now().isoformat()}
+    update_data: Dict[str, Any] = {'updated_at': datetime.now(timezone.utc).isoformat()}
 
     if body.name is not None:
         update_data['name'] = body.name
@@ -802,7 +802,7 @@ async def update_model_registry_entry(request: Request, company_id: ValidCompany
         raise HTTPException(status_code=404, detail=t('errors.model_not_found', locale))
 
     # Build update data
-    update_data: Dict[str, Any] = {'updated_at': datetime.now().isoformat()}
+    update_data: Dict[str, Any] = {'updated_at': datetime.now(timezone.utc).isoformat()}
 
     if body.model_id is not None:
         update_data['model_id'] = body.model_id
@@ -1178,7 +1178,7 @@ async def update_persona(request: Request, company_id: ValidCompanyId,
         raise HTTPException(status_code=400, detail=t('errors.persona_not_editable', locale))
 
     # Build update data
-    update_data: Dict[str, Any] = {'updated_at': datetime.now().isoformat()}
+    update_data: Dict[str, Any] = {'updated_at': datetime.now(timezone.utc).isoformat()}
 
     if body.name is not None:
         update_data['name'] = body.name

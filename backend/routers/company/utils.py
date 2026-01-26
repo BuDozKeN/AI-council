@@ -7,7 +7,7 @@ Shared helpers, validators, and Pydantic models for company sub-routers.
 from fastapi import HTTPException, Path
 from pydantic import BaseModel
 from typing import Optional, List, Annotated, Literal
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 import time
 import json
@@ -611,8 +611,7 @@ async def create_budget_alert(
     client = get_service_client()
 
     # Determine period start based on alert type
-    from datetime import datetime
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     if 'hourly' in alert_type:
         period_start = now.replace(minute=0, second=0, microsecond=0)
     elif 'daily' in alert_type:
@@ -692,7 +691,7 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
         mock_context = f"# {project.get('name', 'Project')}\n\n{project.get('description', '')}\n\n## Key Decisions\n\nAuto-synthesized from {len(decisions)} decisions."
         service_client.table("projects").update({
             "context_md": mock_context,
-            "updated_at": datetime.now().isoformat()
+            "updated_at": datetime.now(timezone.utc).isoformat()
         }).eq("id", project_id).execute()
         return True
 
@@ -711,7 +710,7 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
             content = content[:1000] + "..."
         decisions_summary += f"\n### Decision {i}: {title} ({date_str})\n{content}\n"
 
-    today_date = datetime.now().strftime("%B %d, %Y")
+    today_date = datetime.now(timezone.utc).strftime("%B %d, %Y")
 
     user_prompt = f"""Create a CLEAN, WELL-ORGANIZED project document.
 
@@ -795,7 +794,7 @@ Today's date: {today_date}"""
 
     service_client.table("projects").update({
         "context_md": new_context,
-        "updated_at": datetime.now().isoformat()
+        "updated_at": datetime.now(timezone.utc).isoformat()
     }).eq("id", project_id).execute()
 
     return True

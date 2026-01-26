@@ -11,7 +11,7 @@ Endpoints for SOP, framework, and policy management:
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional, Any
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import json
 
@@ -343,7 +343,7 @@ async def update_playbook(request: Request, company_id: ValidCompanyId, playbook
         doc_updates["tags"] = data.tags
 
     if doc_updates:
-        doc_updates["updated_at"] = datetime.utcnow().isoformat()
+        doc_updates["updated_at"] = datetime.now(timezone.utc).isoformat()
         client.table("org_documents").update(doc_updates).eq("id", playbook_id).execute()
 
     if data.content is not None and (not current_version or data.content != current_version.get("content")):

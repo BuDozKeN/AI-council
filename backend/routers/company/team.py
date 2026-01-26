@@ -11,7 +11,7 @@ Endpoints for department and role management:
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional, Any, Dict, List
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import logging
 
@@ -490,7 +490,7 @@ async def update_department(request: Request, company_id: ValidCompanyId, dept_i
     company_uuid = resolve_company_id(client, company_id)
 
     update_data = {k: v for k, v in data.dict().items() if v is not None}
-    update_data["updated_at"] = datetime.utcnow().isoformat()
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     result = client.table("departments") \
         .update(update_data) \
@@ -547,7 +547,7 @@ async def update_role(request: Request, company_id: ValidCompanyId, dept_id: Val
     client = get_client(user)
 
     update_data = {k: v for k, v in data.dict().items() if v is not None}
-    update_data["updated_at"] = datetime.utcnow().isoformat()
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
 
     result = client.table("roles") \
         .update(update_data) \
