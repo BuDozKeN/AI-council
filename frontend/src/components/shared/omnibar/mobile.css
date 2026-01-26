@@ -98,20 +98,22 @@
     height: 44px;
   }
 
-  /* Inline mode toggle - very compact on mobile, now on right side */
+  /* Inline mode toggle - WCAG 44px touch target on mobile */
   .omni-inline-mode-toggle {
-    padding: 1px;
-    min-height: 28px;
+    padding: 2px;
+    min-height: 44px;
     margin-left: 0;
     flex-shrink: 0;
   }
 
   .inline-mode-indicator {
-    padding: var(--space-1) 6px;
-    font-size: var(--text-2xs); /* 10px - closest to 9px */
-    min-height: 24px;
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-xs); /* 12px - readable and accessible */
+    min-height: 44px;
+    min-width: 44px;
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   /* Context popover on mobile - card-style items like DepartmentCheckboxItem */
@@ -137,22 +139,22 @@
     background: var(--color-bg-hover);
   }
 
-  /* Larger checkbox/radio on mobile - match DepartmentCheckboxItem.mobile (22px) */
+  /* Larger checkbox/radio on mobile - match DepartmentCheckboxItem.mobile (24px) */
   .context-popover-checkbox,
   .context-popover-radio {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: var(--radius-md);
   }
 
   .context-popover-checkbox svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
   }
 
   .context-popover-radio svg {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
   }
 
   /* Larger accordion headers for Playbooks */

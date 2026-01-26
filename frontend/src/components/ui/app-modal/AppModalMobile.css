@@ -18,15 +18,15 @@
   }
 
   .app-modal-header {
-    padding: var(--space-3-5) var(--space-4);
+    padding: var(--space-3-5) var(--space-5);
   }
 
   .app-modal-body {
-    padding: var(--space-4);
+    padding: var(--space-5);
   }
 
   .app-modal-footer {
-    padding: var(--space-4);
+    padding: var(--space-5);
     gap: var(--gap-sm);
   }
 
@@ -34,7 +34,7 @@
   .app-modal-footer-with-actions {
     flex-direction: column;
     gap: var(--gap);
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-5);
   }
 
   .app-modal-footer-left {
@@ -52,7 +52,7 @@
   /* Buttons - full width on mobile */
   .app-modal-btn {
     min-height: 44px;
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-3) var(--space-5);
   }
 
   .app-modal-btn-action {
@@ -212,7 +212,7 @@
   .app-modal-footer,
   .app-modal-footer-with-actions {
     flex-shrink: 0;
-    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
   }
 
   /* Full-size modals take more space on mobile */
@@ -287,6 +287,6 @@
   .app-modal-lg .app-modal-header,
   .app-modal-xl .app-modal-header,
   .app-modal-full .app-modal-header {
-    padding-top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+    padding-top: calc(var(--space-5) + env(safe-area-inset-top, 0px));
   }
 }

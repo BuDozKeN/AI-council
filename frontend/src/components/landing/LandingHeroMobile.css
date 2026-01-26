@@ -139,3 +139,18 @@
     height: 12px;
   }
 }
+
+/* =============================================================================
+   ACCESSIBILITY: Focus-visible styles for interactive elements
+   ============================================================================= */
+
+/* Stats pills and interactive elements on landing page */
+.stat-pill:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-full);
+}
+
+.dark .stat-pill:focus-visible {
+  outline-color: var(--color-blue-500);
+}

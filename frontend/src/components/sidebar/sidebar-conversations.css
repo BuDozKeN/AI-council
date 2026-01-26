@@ -279,3 +279,24 @@
   scrollbar-width: thin;
   scrollbar-color: var(--sidebar-scrollbar-thumb) var(--sidebar-scrollbar-track);
 }
+
+/* ============================================================================
+   MOBILE STYLES - Touch targets
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .conversation-item {
+    min-height: 52px;
+    padding: var(--space-3);
+  }
+
+  .conversation-title {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
+  .group-header {
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3);
+  }
+}

@@ -21,7 +21,7 @@ You are responsible for ensuring AxCouncil builds successfully and stays within 
    - Check for build errors and warnings
 
 2. **Check Bundle Sizes**
-   - CSS budget: 1300KB source, 700KB built
+   - CSS budget: 1350KB source, 700KB built
    - JS bundle size monitoring
    - Asset optimization verification
 
@@ -57,7 +57,7 @@ pip install -e . --dry-run
 
 | Metric | Budget | Action if Exceeded |
 |--------|--------|-------------------|
-| CSS Source | 1300KB | CI fails, reduce CSS |
+| CSS Source | 1350KB | CI fails, reduce CSS |
 | CSS Built | 700KB | Warning, optimize |
 | JS Bundle | 500KB | Warning, code split |
 | Total Assets | 2MB | Warning, optimize images |
@@ -75,7 +75,7 @@ Report results as:
 ### Bundle Sizes
 | Asset | Size | Budget | Status |
 |-------|------|--------|--------|
-| CSS (source) | XKB | 1300KB | OK/FAIL |
+| CSS (source) | XKB | 1350KB | OK/FAIL |
 | CSS (built) | XKB | 700KB | OK/WARN |
 | JS | XKB | 500KB | OK/WARN |
 

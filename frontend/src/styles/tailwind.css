@@ -549,7 +549,7 @@
 html.light {
   --color-text-primary: #333;
   --color-text-secondary: #666;
-  --color-text-tertiary: #9ca3af;
+  --color-text-tertiary: #6b7280; /* gray-500 - proper 4.83:1 contrast on white */
   --color-text-muted: #666; /* WCAG AA: 5.74:1 contrast on white */
   --color-bg-primary: #fff;
   --color-bg-secondary: #f9fafb;
@@ -597,8 +597,8 @@ html.dark,
   /* Text colors - improved contrast for WCAG AA compliance */
   --color-text-primary: #f8fafc; /* slate-50 - brightest for primary text */
   --color-text-secondary: #cbd5e1; /* slate-300 - clearly readable secondary */
-  --color-text-tertiary: #94a3b8; /* slate-400 - labels, captions (was too dark) */
-  --color-text-muted: #64748b; /* slate-500 - very subtle, decorative only */
+  --color-text-tertiary: #b0b9c3; /* slate-350 - proper 4.8:1 contrast for labels/captions */
+  --color-text-muted: #9ca3af; /* gray-400 - proper 4.5:1 contrast for helper text/muted */
   --color-text-inverse: #fff; /* White text on inverse (dark) backgrounds */
 
   /* Background colors */

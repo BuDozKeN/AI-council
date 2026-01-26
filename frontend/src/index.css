@@ -405,6 +405,61 @@
       touch-action: manipulation; /* Disable double-tap zoom delay */
     }
 
+    /* =========================================================================
+       Mobile Icon Sizing - Ensure icons meet accessibility minimums
+       Icons should be at least 18x18px on mobile for touchability
+       ========================================================================= */
+
+    /* Standard icons - 18px minimum for touch accessibility */
+    .icon,
+    [class*='icon'] svg,
+    button svg,
+    [role='button'] svg {
+      min-width: 18px;
+      min-height: 18px;
+    }
+
+    /* Navigation and interactive icons - 20px for better touch targets */
+    nav svg,
+    .nav-icon svg,
+    .navigation-icon svg {
+      min-width: 20px;
+      min-height: 20px;
+    }
+
+    /* Small status indicators can be 16px minimum */
+    .indicator-icon svg,
+    .status-icon svg,
+    .badge-icon svg {
+      min-width: 16px;
+      min-height: 16px;
+    }
+
+    /* Link icons within text - must be readable but smaller acceptable */
+    a svg:not([class*='icon']),
+    .inline-icon svg {
+      min-width: 16px;
+      min-height: 16px;
+    }
+
+    /* Ensure copy buttons have proper icon sizing */
+    .copy-btn svg,
+    .copy-icon svg,
+    .copy-code-btn svg {
+      min-width: 18px;
+      min-height: 18px;
+    }
+
+    /* iOS auto-zoom prevention - 16px font on all input types */
+    input[type='text'],
+    input[type='email'],
+    input[type='search'],
+    input[type='password'],
+    textarea,
+    select {
+      font-size: var(--text-base); /* 16px prevents iOS zoom on focus */
+    }
+
     /* Typography scale for mobile readability */
     :root {
       --font-size-base: 16px;

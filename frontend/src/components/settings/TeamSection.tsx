@@ -8,6 +8,10 @@ import {
   ChevronUp,
   ChevronDown,
   AlertCircle,
+  Mail,
+  Clock,
+  RefreshCw,
+  X,
   LucideIcon,
 } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
@@ -92,6 +96,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
   const { t } = useTranslation();
   const {
     members,
+    pendingInvitations,
     teamLoading,
     teamError,
     showAddForm,
@@ -103,13 +108,29 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
     addError,
     addingMember,
     memberActionLoading,
+    invitationActionLoading,
     currentUserRole,
     canManageMembers,
     loadTeamData,
     handleAddMember,
     handleChangeRole,
     handleRemoveMember,
+    handleCancelInvitation,
+    handleResendInvitation,
   } = useTeam(isOpen, companyId, user);
+
+  // Format relative date for invitation expiry
+  const formatRelativeDate = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = date.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'Expired';
+    if (diffDays === 0) return 'Expires today';
+    if (diffDays === 1) return 'Expires tomorrow';
+    return `Expires in ${diffDays} days`;
+  };
 
   if (teamLoading) {
     return <TeamSkeleton />;
@@ -194,8 +215,61 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   {addError}
                 </div>
               )}
-              <p className="form-hint">{t('settings.userMustExist')}</p>
+              <p className="form-hint">An invitation email will be sent.</p>
             </form>
+          )}
+
+          {/* Pending Invitations */}
+          {pendingInvitations.length > 0 && (
+            <div className="pending-invitations-section">
+              <h4 className="section-subtitle">
+                Pending Invitations
+                <span className="count-badge">{pendingInvitations.length}</span>
+              </h4>
+              <div className="invitations-list">
+                {pendingInvitations.map((invitation) => {
+                  const roleConfig =
+                    ROLE_CONFIG[invitation.target_company_role] || ROLE_CONFIG.member;
+                  const isLoading = invitationActionLoading === invitation.id;
+
+                  return (
+                    <div key={invitation.id} className="invitation-row">
+                      <div className="invitation-icon">
+                        <Mail size={16} />
+                      </div>
+                      <span className="invitation-email">{invitation.email}</span>
+                      <span className="member-role-badge" style={{ color: roleConfig.color }}>
+                        {t(`settings.${roleConfig.roleKey}`)}
+                      </span>
+                      <span className="invitation-status">
+                        <Clock size={12} />
+                        {formatRelativeDate(invitation.expires_at)}
+                      </span>
+                      {isLoading ? (
+                        <Spinner size={14} />
+                      ) : (
+                        <div className="invitation-actions">
+                          <button
+                            className="icon-btn"
+                            onClick={() => handleResendInvitation(invitation.id)}
+                            title="Resend invitation"
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                          <button
+                            className="icon-btn danger"
+                            onClick={() => handleCancelInvitation(invitation.id)}
+                            title="Cancel invitation"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
           {/* Members list */}

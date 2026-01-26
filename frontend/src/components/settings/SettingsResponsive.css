@@ -2,6 +2,7 @@
  * SettingsResponsive.css - Responsive and mobile styles
  * Extracted from SettingsLayout.css for CSS budget compliance
  */
+@import url('./SettingsResponsiveFocus.css');
 
 /* Responsive - Tablet */
 @media (width <= 640px) {
@@ -140,6 +141,15 @@
     font-size: var(--text-xs);
     color: var(--color-text-tertiary);
     margin-top: var(--space-0-5);
+  }
+
+  /* Section header padding - improve visual separation on mobile (16px instead of 12px) */
+  .settings-section-header,
+  .section-header,
+  .card-header,
+  .panel-header {
+    padding-block: var(--space-4); /* 16px vertical padding */
+    margin-bottom: var(--space-3);
   }
 
   /* Form groups - better spacing */

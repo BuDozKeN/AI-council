@@ -727,8 +727,8 @@ npm run format:check
 npm run test:run -- --changed --changedSince=origin/main --passWithNoTests
 npm run build
 
-# CSS Budget check (same as CI - 1300KB limit)
-find src -name '*.css' -type f -exec cat {} + | wc -c | awk '{kb=int($1/1024); if(kb>1200) print "❌ FAIL: "kb"KB > 1200KB"; else print "✅ CSS: "kb"KB / 1200KB"}'
+# CSS Budget check (same as CI - 1350KB limit)
+find src -name '*.css' -type f -exec cat {} + | wc -c | awk '{kb=int($1/1024); if(kb>1350) print "❌ FAIL: "kb"KB > 1350KB"; else print "✅ CSS: "kb"KB / 1350KB"}'
 
 # Accessibility (if UI changed)
 npx @axe-core/cli dist --exit

@@ -1,21 +1,23 @@
 """
-Invitations Router (Public)
+Invitations Router
 
-Public endpoints for invitation acceptance flow:
-- Validate invitation token
-- Accept invitation (after Supabase signup)
+Endpoints for invitation acceptance flow:
+- Validate invitation token (public)
+- Accept invitation after signup (public)
+- Accept company member invitation (authenticated - for existing users)
 
-These endpoints are accessible without authentication.
+Some endpoints are public (no auth), some require authentication.
 """
 
-from datetime import datetime
-from fastapi import APIRouter, HTTPException, Query, Request
+from datetime import datetime, timezone
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 from typing import Optional
 
 from ..database import get_supabase_service
 from ..security import log_app_event
 from ..i18n import t, get_locale_from_request
+from ..auth import get_current_user
 
 # Import shared rate limiter
 from ..rate_limit import limiter
@@ -221,7 +223,7 @@ async def accept_invitation(
         # Mark invitation as accepted
         supabase.table("platform_invitations").update({
             "status": "accepted",
-            "accepted_at": datetime.utcnow().isoformat(),
+            "accepted_at": datetime.now(timezone.utc).isoformat(),
             "accepted_user_id": data.user_id,
         }).eq("id", invitation["id"]).execute()
 
@@ -285,6 +287,168 @@ async def accept_invitation(
     except Exception as e:
         log_app_event(
             "INVITATION: Accept error",
+            level="ERROR",
+            error=str(e)
+        )
+        raise HTTPException(status_code=500, detail=t("errors.invitation_accept_failed", locale))
+
+
+# =============================================================================
+# AUTHENTICATED ENDPOINTS (for existing users)
+# =============================================================================
+
+class AcceptCompanyInvitationResponse(BaseModel):
+    """Response after accepting a company member invitation."""
+    success: bool
+    message: str
+    company_id: Optional[str] = None
+    company_name: Optional[str] = None
+
+
+@router.post("/accept-company")
+@limiter.limit("10/minute")
+async def accept_company_invitation(
+    request: Request,
+    token: str = Query(..., description="Invitation token from email"),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Accept a company member invitation as an existing authenticated user.
+
+    This endpoint is for users who already have accounts and are accepting
+    an invitation to join a company. They must be logged in.
+
+    Flow:
+    1. User receives company invitation email
+    2. User clicks "Accept & Join" link
+    3. If not logged in, redirected to login, then back to acceptance page
+    4. Frontend calls this endpoint with the token
+    5. User is added to company_members
+
+    Requires authentication.
+    """
+    locale = get_locale_from_request(request)
+
+    try:
+        supabase = get_supabase_service()
+        user_id = user.get("id") if isinstance(user, dict) else user.id
+        user_email = user.get("email", "").lower() if isinstance(user, dict) else getattr(user, "email", "").lower()
+
+        # Get invitation by token
+        result = supabase.table("platform_invitations").select(
+            "id, email, status, expires_at, target_company_id, target_company_role, invitation_type"
+        ).eq("token", token).maybe_single().execute()
+
+        if not result or not result.data:
+            raise HTTPException(status_code=404, detail=t("errors.invitation_not_found", locale))
+
+        invitation = result.data
+
+        # Must be a company_member invitation
+        if invitation.get("invitation_type") != "company_member":
+            raise HTTPException(
+                status_code=400,
+                detail=t("errors.invitation_requires_signup", locale)
+            )
+
+        # Verify email matches
+        if invitation["email"].lower() != user_email:
+            log_app_event(
+                "INVITATION: Email mismatch on company acceptance",
+                level="WARNING",
+                invitation_email=invitation["email"],
+                user_email=user_email,
+            )
+            raise HTTPException(
+                status_code=403,
+                detail=t("errors.invitation_email_mismatch", locale, email=invitation["email"])
+            )
+
+        # Validate status
+        if invitation["status"] != "pending":
+            raise HTTPException(
+                status_code=400,
+                detail=t("errors.invitation_already_used", locale, status=invitation['status'])
+            )
+
+        # Check expiration
+        expires_at = datetime.fromisoformat(invitation["expires_at"].replace("Z", "+00:00"))
+        if expires_at < datetime.now(expires_at.tzinfo):
+            supabase.table("platform_invitations").update({
+                "status": "expired"
+            }).eq("id", invitation["id"]).execute()
+            raise HTTPException(status_code=400, detail=t("errors.invitation_expired", locale))
+
+        # Check if already a member
+        existing_member = supabase.table("company_members") \
+            .select("id") \
+            .eq("company_id", invitation["target_company_id"]) \
+            .eq("user_id", user_id) \
+            .maybe_single() \
+            .execute()
+
+        if existing_member.data:
+            # Already a member - mark invitation as accepted and return success
+            supabase.table("platform_invitations").update({
+                "status": "accepted",
+                "accepted_at": datetime.now(timezone.utc).isoformat(),
+                "accepted_user_id": user_id,
+            }).eq("id", invitation["id"]).execute()
+
+            # Get company name
+            company_result = supabase.table("companies").select(
+                "name"
+            ).eq("id", invitation["target_company_id"]).maybe_single().execute()
+            company_name = company_result.data.get("name") if company_result.data else None
+
+            return AcceptCompanyInvitationResponse(
+                success=True,
+                message="You are already a member of this company",
+                company_id=invitation["target_company_id"],
+                company_name=company_name,
+            )
+
+        # Mark invitation as accepted
+        supabase.table("platform_invitations").update({
+            "status": "accepted",
+            "accepted_at": datetime.now(timezone.utc).isoformat(),
+            "accepted_user_id": user_id,
+        }).eq("id", invitation["id"]).execute()
+
+        # Add to company_members
+        supabase.table("company_members").insert({
+            "company_id": invitation["target_company_id"],
+            "user_id": user_id,
+            "role": invitation.get("target_company_role", "member"),
+            "joined_at": datetime.now(timezone.utc).isoformat(),
+        }).execute()
+
+        # Get company name for response
+        company_result = supabase.table("companies").select(
+            "name"
+        ).eq("id", invitation["target_company_id"]).maybe_single().execute()
+        company_name = company_result.data.get("name") if company_result.data else None
+
+        log_app_event(
+            "INVITATION: Company member invitation accepted",
+            user_id=user_id,
+            invitation_id=invitation["id"],
+            company_id=invitation["target_company_id"],
+            role=invitation.get("target_company_role", "member"),
+        )
+
+        return AcceptCompanyInvitationResponse(
+            success=True,
+            message=f"You have joined {company_name or 'the company'}",
+            company_id=invitation["target_company_id"],
+            company_name=company_name,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "INVITATION: Company accept error",
             level="ERROR",
             error=str(e)
         )

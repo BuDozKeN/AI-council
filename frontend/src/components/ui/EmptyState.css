@@ -143,3 +143,63 @@
   background: var(--color-bg-tertiary);
   color: var(--color-text-muted);
 }
+
+/* -----------------------------------------------------------------------------
+   MOBILE RESPONSIVE - Small screens (<360px)
+   ----------------------------------------------------------------------------- */
+
+@media (width <= 640px) {
+  .empty-state {
+    padding: var(--space-6) var(--space-4);
+    min-height: 140px;
+  }
+
+  .empty-state-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .empty-state-message {
+    max-width: 240px;
+    font-size: var(--text-xs-plus);
+  }
+
+  .empty-state-action {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .empty-state-action button {
+    min-height: 44px;
+    min-width: 140px;
+  }
+
+  .empty-state-large {
+    min-height: 200px;
+  }
+
+  .empty-state-large .empty-state-title {
+    font-size: var(--text-lg);
+  }
+
+  .empty-state-large .empty-state-message {
+    max-width: 280px;
+    font-size: var(--text-sm);
+  }
+}
+
+@media (width <= 360px) {
+  .empty-state {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .empty-state-message {
+    max-width: 200px;
+  }
+
+  .empty-state-action button {
+    width: 100%;
+    max-width: 200px;
+  }
+}

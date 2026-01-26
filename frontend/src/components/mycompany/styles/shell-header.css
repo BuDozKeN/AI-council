@@ -202,3 +202,29 @@
   color: rgb(var(--color-white-rgb, 255, 255, 255), 0.9);
   opacity: 1;
 }
+
+/* ============================================================================
+   MOBILE TOUCH TARGETS - WCAG 2.1 AA Compliance
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* Company switcher - ensure touch-friendly size */
+  .mc-company-select-trigger {
+    min-height: 44px;
+    padding: var(--space-2-5) var(--space-3);
+  }
+
+  /* Close button - increase to 44px touch target */
+  .mc-close-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Company dropdown option - ensure 44px minimum touch target */
+  .mc-company-option {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-4);
+  }
+}

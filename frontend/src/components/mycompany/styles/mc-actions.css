@@ -77,3 +77,16 @@
   border-color: var(--color-red-400);
   color: var(--color-red-400);
 }
+
+/* ============================================================================
+   MOBILE TOUCH TARGETS - WCAG 2.1 AA Compliance
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .mc-action-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

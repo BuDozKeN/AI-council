@@ -1,5 +1,6 @@
 /* Responsive & dark mode: See LoginResponsive.css */
 @import url('./LoginResponsive.css');
+@import url('./LoginFocusStyles.css');
 
 /* Aurora Background */
 .aurora-container {

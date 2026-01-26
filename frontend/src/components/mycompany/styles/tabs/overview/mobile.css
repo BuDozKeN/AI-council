@@ -112,6 +112,12 @@
   .mc-overview {
     padding: 0; /* Parent .mc-content provides padding */
     gap: var(--gap);
+
+    /* CRITICAL: Constrain width to prevent content overflow */
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   /* Context card - match hero padding for alignment */
@@ -126,33 +132,39 @@
     /* Shadow must be preserved for depth effect */
     box-shadow: var(--shadow-md);
 
-    /* Ensure card contains all content - no overflow clipping */
-    overflow: visible;
+    /* CRITICAL: Constrain horizontal overflow on mobile */
+    overflow: hidden auto;
 
-    /* CRITICAL: Ensure card expands to fit ALL content */
+    /* Allow vertical expansion but constrain width */
     flex-shrink: 0;
     height: auto;
     min-height: fit-content;
+    min-width: 0;
+    max-width: 100%;
 
     /* Match hero: no margin on mobile */
     margin: 0;
     width: 100%;
   }
 
-  /* Content inside card must flow naturally - no constraints */
+  /* Content inside card - constrain width, allow vertical flow */
   .mc-context-card .mc-context-content {
-    /* Ensure content is not constrained */
     height: auto;
     min-height: 0;
     max-height: none;
-    overflow: visible;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden visible;
   }
 
-  /* MarkdownViewer prose inside card - ensure it renders fully */
+  /* MarkdownViewer prose inside card - constrain width for mobile */
   .mc-context-card .prose {
-    /* Ensure all markdown content displays fully */
-    overflow: visible;
     height: auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    overflow-x: hidden;
   }
 
   /* Empty context state in Overview - proper mobile layout */

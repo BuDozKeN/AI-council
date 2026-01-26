@@ -220,13 +220,13 @@
   background: var(--color-indigo-50);
 }
 
-/* Checkbox */
+/* Checkbox - 20px visual indicator for accessibility */
 .multi-playbook-checkbox {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border: 2px solid var(--color-gray-300);
   border-radius: var(--radius-sm);
   background: var(--color-bg-primary);

@@ -23,13 +23,13 @@
     min-height: 0;
     overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
-    padding: var(--space-4);
+    padding: var(--space-5);
   }
 
   /* Footer inside app-modal-body - don't shrink, respect safe area */
   .app-modal-body > .app-modal-footer-with-actions {
     flex-shrink: 0;
-    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
   }
 
   /* FORMS: When a form is the direct child of app-modal-body */
@@ -47,13 +47,13 @@
     min-height: 0;
     overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
-    padding: var(--space-4);
+    padding: var(--space-5);
   }
 
   /* Form footers - both .app-modal-footer (from AppModal.Footer) */
   .app-modal-body > form > .app-modal-footer {
     flex-shrink: 0;
-    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom, 0px));
   }
 
   /* Decision content area - make scrollable */

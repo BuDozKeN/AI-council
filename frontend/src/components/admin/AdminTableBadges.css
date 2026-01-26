@@ -105,3 +105,31 @@
   border-radius: var(--radius-sm);
   white-space: nowrap;
 }
+
+/* =============================================================================
+   MOBILE - Badge Dimension Fixes
+   Ensure badges have adequate touch targets and readability on mobile devices
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Status badges - increase minimum height for better touch targets */
+  .admin-status-badge {
+    min-height: 20px;
+    font-size: var(--text-xs);
+    padding: var(--space-0-5) var(--space-2);
+  }
+
+  /* Role badges - increase minimum height for better touch targets */
+  .admin-role-badge {
+    min-height: 20px;
+    font-size: var(--text-xs);
+    padding: var(--space-0-5) var(--space-2);
+  }
+
+  /* "You" badge - improve touch target while maintaining badge semantics */
+  .admin-you-badge {
+    min-height: 18px;
+    font-size: var(--text-2xs);
+    padding: var(--space-0-5) var(--space-1-5);
+  }
+}

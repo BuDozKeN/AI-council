@@ -95,3 +95,32 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Very small phones (360px and below) */
+@media (width <= 360px) {
+  .mc-dept-row {
+    padding: var(--space-2) var(--space-2);
+  }
+
+  .mc-role-row {
+    padding: var(--space-2);
+  }
+
+  .mc-dept-expanded-content {
+    padding: var(--space-2);
+  }
+
+  .mc-context-btn {
+    padding: var(--space-2-5);
+    font-size: var(--text-xs-plus);
+  }
+
+  .mc-usage-grid {
+    grid-template-columns: 1fr; /* Stack on very small screens */
+    gap: var(--gap-xs);
+  }
+
+  .mc-member-joined {
+    margin-left: 36px; /* Smaller avatar offset */
+  }
+}

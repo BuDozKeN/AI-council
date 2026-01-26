@@ -1,0 +1,30 @@
+/* =============================================================================
+   LOGIN FOCUS STYLES - Keyboard Navigation
+   Extracted to separate file for CSS budget compliance
+   Enhanced focus indicators for login form elements
+   ============================================================================= */
+
+.google-button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-lg);
+}
+
+.submit-button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.link-button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Login form input focus override - ensure visibility on aurora background */
+.login-form .form-group input:focus-visible {
+  outline: 2px solid var(--color-blue-400);
+  outline-offset: -1px;
+  border-color: var(--color-blue-400);
+}

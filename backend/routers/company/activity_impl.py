@@ -5,7 +5,7 @@ This module extracts helper functions to reduce cyclomatic complexity from E (45
 """
 
 from typing import Set, Dict, List, Optional, Tuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 def _build_activity_query(client, company_uuid: str, fetch_limit: int, event_type: Optional[str], days: Optional[int]):
@@ -32,7 +32,7 @@ def _build_activity_query(client, company_uuid: str, fetch_limit: int, event_typ
         query = query.eq("event_type", event_type)
 
     if days:
-        cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
         query = query.gte("created_at", cutoff)
 
     return query

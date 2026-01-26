@@ -70,7 +70,7 @@
 /* Expanded content area */
 .mc-dept-expanded-content {
   background: var(--color-bg-secondary);
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
   padding: var(--space-3) var(--space-4) 16px;
   margin-top: -2px;
 }

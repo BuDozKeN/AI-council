@@ -108,3 +108,24 @@
   background: var(--color-text-inverse);
   border-radius: var(--radius-xs);
 }
+
+/* =============================================================================
+   MOBILE TOUCH TARGETS - WCAG 2.1 AA Compliance
+   Minimum 44px touch targets for all interactive buttons
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Ensure all action buttons have 44px touch targets on mobile */
+  .input-action-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep icons centered but smaller (18px is fine) */
+  .input-action-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}

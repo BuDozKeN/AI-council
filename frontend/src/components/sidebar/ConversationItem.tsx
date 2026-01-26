@@ -104,19 +104,19 @@ export const ConversationItem = memo(function ConversationItem({
   // Swipe actions for mobile
   const swipeActions = [
     {
-      label: 'Star',
+      label: conversation.is_starred ? 'Unstar conversation' : 'Star conversation',
       icon: <Star size={18} fill={conversation.is_starred ? 'currentColor' : 'none'} />,
       onClick: () => onStar?.(conversation.id, !conversation.is_starred),
       variant: 'warning' as const,
     },
     {
-      label: 'Archive',
+      label: conversation.is_archived ? 'Unarchive conversation' : 'Archive conversation',
       icon: conversation.is_archived ? <ArchiveRestore size={18} /> : <Archive size={18} />,
       onClick: () => onArchive?.(conversation.id, !conversation.is_archived),
       variant: 'archive' as const,
     },
     {
-      label: 'Delete',
+      label: 'Delete conversation',
       icon: <Trash2 size={18} />,
       onClick: () => onDelete(conversation.id),
       variant: 'danger' as const,
@@ -332,7 +332,7 @@ export const ConversationItem = memo(function ConversationItem({
       {itemContent}
       <div className="hover-actions" role="group" aria-label="Conversation actions">
         <button
-          className={`hover-action-btn ${isSelected ? 'active' : ''}`}
+          className={`hover-action-btn touch-target ${isSelected ? 'active' : ''}`}
           onClick={(e) => onToggleSelection(conversation.id, e)}
           aria-label={isSelected ? 'Deselect conversation' : 'Select conversation'}
           aria-pressed={isSelected}
@@ -340,7 +340,7 @@ export const ConversationItem = memo(function ConversationItem({
           {isSelected ? <CheckSquare size={14} /> : <Square size={14} />}
         </button>
         <button
-          className="hover-action-btn"
+          className="hover-action-btn touch-target"
           onClick={(e) => {
             e.stopPropagation();
             onStartEdit(conversation, e);
@@ -350,7 +350,7 @@ export const ConversationItem = memo(function ConversationItem({
           <Pencil size={14} />
         </button>
         <button
-          className={`hover-action-btn ${conversation.is_starred ? 'starred' : ''}`}
+          className={`hover-action-btn touch-target ${conversation.is_starred ? 'starred' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
             onStar?.(conversation.id, !conversation.is_starred);
@@ -361,7 +361,7 @@ export const ConversationItem = memo(function ConversationItem({
           <Star size={14} fill={conversation.is_starred ? 'currentColor' : 'none'} />
         </button>
         <button
-          className="hover-action-btn"
+          className="hover-action-btn touch-target"
           onClick={(e) => {
             e.stopPropagation();
             onArchive?.(conversation.id, !conversation.is_archived);
@@ -371,7 +371,7 @@ export const ConversationItem = memo(function ConversationItem({
           {conversation.is_archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
         </button>
         <button
-          className="hover-action-btn danger"
+          className="hover-action-btn touch-target danger"
           onClick={(e) => {
             e.stopPropagation();
             onDelete(conversation.id);

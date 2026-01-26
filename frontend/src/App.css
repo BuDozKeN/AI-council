@@ -53,7 +53,7 @@ button[disabled],
   width: 20px;
   height: 60px;
   border: none;
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
   background: var(--overlay-black-8);
   cursor: pointer;
   align-items: center;

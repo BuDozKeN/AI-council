@@ -274,3 +274,173 @@ async def send_invitation_email(
         html=html,
         text=text,
     )
+
+
+# =============================================================================
+# COMPANY MEMBER INVITATION TEMPLATES
+# =============================================================================
+
+def get_company_member_invitation_email_html(
+    invitee_email: str,
+    inviter_name: str,
+    company_name: str,
+    invitation_token: str,
+    expires_at: str,
+    is_existing_user: bool,
+) -> str:
+    """Generate HTML email for company member invitation."""
+    if is_existing_user:
+        # Existing user - direct join flow
+        accept_url = f"{APP_URL}/accept-company-invite?token={invitation_token}"
+        cta_text = "Accept & Join"
+        intro_text = f"<strong>{inviter_name}</strong> has invited you to join <strong>{company_name}</strong> on {APP_NAME}."
+        instruction_text = "Click the button below to join the team."
+    else:
+        # New user - signup + join flow
+        accept_url = f"{APP_URL}/accept-invite?token={invitation_token}"
+        cta_text = "Create Account & Join"
+        intro_text = f"<strong>{inviter_name}</strong> has invited you to join <strong>{company_name}</strong> on {APP_NAME}."
+        instruction_text = "Create your account to get started and join the team."
+
+    return f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join {company_name} on {APP_NAME}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 28px;">{APP_NAME}</h1>
+        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">AI-Powered Decision Council</p>
+    </div>
+
+    <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none;">
+        <h2 style="color: #111827; margin-top: 0;">Join {company_name}!</h2>
+
+        <p>{intro_text}</p>
+
+        <p>{instruction_text}</p>
+
+        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 0 0 15px 0;"><strong>As a team member, you'll have access to:</strong></p>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li>Collaborate with your team using AI-powered decision making</li>
+                <li>Access to {company_name}'s departments and projects</li>
+                <li>Participate in council sessions and reviews</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{accept_url}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                {cta_text}
+            </a>
+        </div>
+
+        <p style="color: #6b7280; font-size: 14px;">
+            This invitation expires on <strong>{expires_at}</strong>.
+        </p>
+
+        <p style="color: #6b7280; font-size: 14px;">
+            If the button doesn't work, copy and paste this link into your browser:<br>
+            <a href="{accept_url}" style="color: #667eea; word-break: break-all;">{accept_url}</a>
+        </p>
+    </div>
+
+    <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
+        <p style="margin: 0;">© {datetime.now().year} {APP_NAME}. All rights reserved.</p>
+        <p style="margin: 5px 0 0 0;">If you didn't expect this invitation, you can safely ignore this email.</p>
+    </div>
+</body>
+</html>
+"""
+
+
+def get_company_member_invitation_email_text(
+    invitee_email: str,
+    inviter_name: str,
+    company_name: str,
+    invitation_token: str,
+    expires_at: str,
+    is_existing_user: bool,
+) -> str:
+    """Generate plain text email for company member invitation."""
+    if is_existing_user:
+        accept_url = f"{APP_URL}/accept-company-invite?token={invitation_token}"
+        instruction_text = "Click the link below to accept and join the team."
+    else:
+        accept_url = f"{APP_URL}/accept-invite?token={invitation_token}"
+        instruction_text = "Create your account to get started and join the team."
+
+    return f"""
+Join {company_name} on {APP_NAME}!
+
+{inviter_name} has invited you to join {company_name} on {APP_NAME}.
+
+{instruction_text}
+
+As a team member, you'll have access to:
+- Collaborate with your team using AI-powered decision making
+- Access to {company_name}'s departments and projects
+- Participate in council sessions and reviews
+
+Accept your invitation here:
+{accept_url}
+
+This invitation expires on {expires_at}.
+
+If you didn't expect this invitation, you can safely ignore this email.
+
+© {datetime.now().year} {APP_NAME}
+"""
+
+
+async def send_company_member_invitation_email(
+    invitee_email: str,
+    inviter_name: str,
+    company_name: str,
+    invitation_token: str,
+    expires_at: str,
+    is_existing_user: bool,
+) -> dict:
+    """
+    Send a company member invitation email.
+
+    Args:
+        invitee_email: Email address of the person being invited
+        inviter_name: Name of the person sending the invitation
+        company_name: Name of the company they're being invited to
+        invitation_token: Unique token for accepting the invitation
+        expires_at: Human-readable expiration date
+        is_existing_user: Whether the invitee already has an account
+
+    Returns:
+        dict with 'success' and 'message_id' or 'error'
+    """
+    subject = f"You're invited to join {company_name} on {APP_NAME}"
+
+    html = get_company_member_invitation_email_html(
+        invitee_email=invitee_email,
+        inviter_name=inviter_name,
+        company_name=company_name,
+        invitation_token=invitation_token,
+        expires_at=expires_at,
+        is_existing_user=is_existing_user,
+    )
+
+    text = get_company_member_invitation_email_text(
+        invitee_email=invitee_email,
+        inviter_name=inviter_name,
+        company_name=company_name,
+        invitation_token=invitation_token,
+        expires_at=expires_at,
+        is_existing_user=is_existing_user,
+    )
+
+    return await send_email(
+        to=invitee_email,
+        subject=subject,
+        html=html,
+        text=text,
+    )

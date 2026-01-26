@@ -26,8 +26,9 @@ import { ErrorPage } from './components/ErrorPage';
 
 // Lazy load admin portal for code splitting (admin is rarely accessed)
 const AdminPortal = lazy(() => import('./components/admin/AdminPortal'));
-// Lazy load accept invite page (public, rarely accessed)
+// Lazy load accept invite pages (public/authenticated, rarely accessed)
 const AcceptInvite = lazy(() => import('./components/AcceptInvite'));
+const AcceptCompanyInvite = lazy(() => import('./components/AcceptCompanyInvite'));
 
 // The App component handles all rendering - routes just control what's visible
 // This is a "modal overlay with URL sync" approach - keeps current UX but URLs change
@@ -137,6 +138,39 @@ export const router = createBrowserRouter([
         }
       >
         <AcceptInvite />
+      </Suspense>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  // Accept company invitation page - for existing users joining a company
+  {
+    path: '/accept-company-invite',
+    element: (
+      <Suspense
+        fallback={
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100vh',
+              background: 'var(--color-bg-primary, #fafafa)',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                border: '3px solid var(--color-border, #e5e5e5)',
+                borderTopColor: 'var(--color-primary, #6366f1)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
+          </div>
+        }
+      >
+        <AcceptCompanyInvite />
       </Suspense>
     ),
     errorElement: <ErrorPage />,

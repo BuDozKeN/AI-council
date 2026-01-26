@@ -43,6 +43,12 @@
     border-radius: 0;
   }
 
+  /* Match header background on mobile - needs dark mode specificity to override shell-tabs.css */
+  .dark .mc-panel,
+  [data-theme='dark'] .mc-panel {
+    background: var(--color-bg-inverse);
+  }
+
   /* Move tabs to bottom - iOS-style tab bar (doubled selector for specificity) */
   .mc-tabs.mc-tabs {
     order: 3;
@@ -82,18 +88,19 @@
     top: 0;
     right: 0;
     bottom: 0;
-    width: 48px;
-    background: linear-gradient(to right, transparent, var(--color-bg-inverse) 70%);
+    width: 56px; /* Wider for better visibility */
+    background: linear-gradient(to right, transparent 0%, var(--color-bg-inverse) 80%);
     border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
     pointer-events: none;
     z-index: var(--z-above);
     opacity: 1;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease-out; /* Smoother fade timing */
   }
 
   /* Hide scroll indicator when scrolled to end */
   .mc-tabs-fade.hidden {
     opacity: 0;
+    transition: opacity 0.15s ease-in; /* Faster hide for responsiveness */
   }
 
   /* Remove pseudo-element - using real element now */
@@ -107,7 +114,7 @@
     flex-direction: column;
     gap: var(--gap-2xs);
     padding: var(--space-1-5) var(--space-2);
-    min-width: 56px; /* Ensure minimum tap target width */
+    min-width: 64px; /* Ensure minimum tap target width */
     max-width: none;
     min-height: 44px;
     border-radius: var(--radius-md);
@@ -129,7 +136,7 @@
   /* Show labels on bottom nav - full width, no truncation */
   .mc-tab-label {
     display: block;
-    font-size: var(--text-2xs);
+    font-size: var(--text-xs);
     font-weight: 500;
     letter-spacing: 0;
     white-space: nowrap;
@@ -163,11 +170,15 @@
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     order: 2;
 
-    /* Ensure content fills available height */
+    /* Ensure content fills available height AND width */
     flex: 1;
     min-height: 0;
+    min-width: 0; /* CRITICAL: Allow flex shrinking below content size */
+    width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* Contain children within bounds */
   }
 
   /* Header stays at top */
