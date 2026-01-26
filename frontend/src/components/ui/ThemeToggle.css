@@ -92,3 +92,16 @@
     background: var(--overlay-white-20);
   }
 }
+
+/* Enhanced dark mode focus styles for theme toggle */
+.dark .theme-toggle-btn:focus-visible {
+  outline-color: var(--color-blue-500);
+}
+
+/* Mobile focus styles - ensure visible on small screens */
+@media (width <= 640px) {
+  .theme-toggle-btn:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}

@@ -201,11 +201,13 @@
   color: var(--color-text-muted);
 }
 
-/* Checkbox */
+/* Checkbox - 44px touch target with 20px visual indicator */
 .admin-modal__checkbox-label {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px; /* WCAG 44px touch target */
+  padding: var(--space-2);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -213,7 +215,8 @@
 }
 
 .admin-modal__checkbox {
-  margin-top: 3px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   accent-color: var(--color-primary);
 }

@@ -112,6 +112,21 @@
   color: var(--color-success);
 }
 
+.accept-invite-icon--warning {
+  color: var(--color-warning, #f59e0b);
+}
+
+.accept-invite-state--warning {
+  background: var(--overlay-amber-10, rgba(245, 158, 11, 0.1));
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+}
+
+.accept-invite-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
 .accept-invite-btn {
   display: inline-flex;
   align-items: center;
@@ -148,6 +163,70 @@
 .accept-invite-welcome p {
   color: var(--color-text-secondary);
   margin: 0;
+}
+
+.accept-invite-company-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-primary);
+  margin-bottom: var(--space-3);
+}
+
+/* Benefits list for company invite */
+.accept-invite-benefits {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.accept-invite-benefits p {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.accept-invite-benefits ul {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.accept-invite-benefits li {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Action buttons container */
+.accept-invite-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Secondary button style */
+.accept-invite-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.accept-invite-btn-secondary:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
 }
 
 /* Invitation details */

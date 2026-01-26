@@ -47,9 +47,9 @@
 
   /* Action buttons on mobile */
   .input-action-btn {
-    width: 36px;
-    height: 36px;
-    min-width: 36px; /* Touch-friendly */
+    width: 44px;
+    height: 44px;
+    min-width: 44px; /* Touch-friendly */
   }
 
   .input-action-btn svg {
@@ -73,7 +73,7 @@
   .context-bar button.context-select-trigger,
   button.context-select-trigger {
     padding: var(--space-1) var(--space-2);
-    height: 30px;
+    min-height: 44px;
     font-size: var(--text-xs);
   }
 }
@@ -90,15 +90,15 @@
   }
 
   .message-input {
-    min-height: 40px;
+    min-height: 44px;
     padding: var(--space-2-5) 0;
   }
 
   /* Slightly larger touch targets on small phones */
   .input-action-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
   }
 
   .user-message .message-content {
@@ -160,7 +160,7 @@
   }
 
   .dept-pill-compact {
-    min-height: 36px;
+    min-height: 44px;
     padding: var(--space-2) var(--space-3);
   }
 
@@ -183,7 +183,7 @@
   }
 
   .message-input {
-    min-height: 40px;
+    min-height: 44px;
   }
 
   .send-button,
@@ -239,7 +239,7 @@ button.mobile-role-select {
   border-radius: var(--radius-full);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
-  min-height: 40px;
+  min-height: 44px;
   background: var(--color-bg-base);
 }
 

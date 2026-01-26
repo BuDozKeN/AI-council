@@ -127,18 +127,18 @@
     background: var(--color-bg-hover);
   }
 
-  /* Larger checkbox/radio on mobile */
+  /* Larger checkbox/radio on mobile - 24px for better accessibility */
   .context-popover-checkbox,
   .context-popover-radio {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: var(--radius-md);
   }
 
   .context-popover-checkbox svg,
   .context-popover-radio svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
   }
 
   /* Larger accordion headers for Playbooks */

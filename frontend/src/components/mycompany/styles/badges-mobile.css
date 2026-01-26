@@ -1,0 +1,66 @@
+/**
+ * MyCompany Badge Mobile Styles
+ * Mobile-specific badge dimension fixes for touch targets and readability
+ * 
+ * Extracted from badges.css to comply with 300-line budget per component
+ */
+
+@media (width <= 640px) {
+  /* Main badge types - increase minimum height for better touch targets */
+  .mc-type-badge,
+  .mc-dept-badge,
+  .mc-scope-badge,
+  .mc-meta-badge,
+  .mc-council-badge,
+  .mc-promoted-badge,
+  .mc-pending-badge {
+    min-height: 20px;
+    font-size: var(--text-xs);
+    padding: var(--space-0-5) var(--space-2);
+  }
+
+  /* Maintain proportional spacing for badges with borders */
+  .mc-dept-badge,
+  .mc-scope-badge.company-wide,
+  .mc-promoted-badge,
+  .mc-pending-badge {
+    min-height: 22px;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* Mini badges need compact touch target */
+  .mc-mini-badge {
+    min-height: 18px;
+    font-size: 0.65rem;
+    padding: var(--space-0-5) var(--space-1-5);
+  }
+
+  /* Tag badges */
+  .mc-tag {
+    min-height: 20px;
+    padding: var(--space-0-5) var(--space-2);
+  }
+
+  /* Version badge */
+  .mc-playbook-version {
+    min-height: 18px;
+    padding: var(--space-0-5) var(--space-2);
+  }
+
+  /* Status dots remain small for compact indicator */
+  .mc-status-dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Department chip mini needs better touch target */
+  .mc-dept-chip-mini {
+    min-height: 20px;
+    padding: var(--space-1) var(--space-2-5);
+  }
+
+  /* Edit hint visibility on mobile */
+  .mc-edit-hint {
+    font-size: 0.7rem;
+  }
+}

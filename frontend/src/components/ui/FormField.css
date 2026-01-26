@@ -196,6 +196,34 @@
 /* Legacy class aliases: See FormFieldLegacy.css */
 
 /* =============================================================================
+   MOBILE - Touch-friendly sizes (44px minimum touch target)
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .form-input,
+  .form-select {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-3-5);
+    font-size: var(--text-base); /* 16px prevents iOS auto-zoom */
+    border-radius: var(--radius-lg);
+  }
+
+  .form-textarea {
+    min-height: 100px;
+    padding: var(--space-3) var(--space-3-5);
+    font-size: var(--text-base);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Adjust select dropdown arrow positioning for larger padding */
+  .form-select {
+    padding-right: 40px;
+    background-position: right 14px center;
+    background-size: 18px;
+  }
+}
+
+/* =============================================================================
    DARK MODE
    ============================================================================= */
 

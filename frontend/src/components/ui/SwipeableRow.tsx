@@ -135,6 +135,7 @@ export function SwipeableRow({
           <button
             key={index}
             className={`swipeable-action ${action.variant || 'default'}`}
+            aria-label={action.label}
             onClick={() => handleActionClick(action)}
           >
             {action.icon}

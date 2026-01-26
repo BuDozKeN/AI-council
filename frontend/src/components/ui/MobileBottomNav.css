@@ -32,7 +32,8 @@
   justify-content: center;
   gap: var(--space-1);
   padding: var(--space-2);
-  min-height: 44px; /* WCAG touch target */
+  min-width: 80px; /* Increased from implicit - better touch target */
+  min-height: 56px; /* Increased from 44px - WCAG AAA touch target, 56px ensures visibility with icons + labels */
   border: none;
   background: transparent;
   color: var(--color-text-tertiary);
@@ -74,10 +75,20 @@
 
 .mobile-nav-icon {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.mobile-nav-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .mobile-nav-label {
-  font-size: var(--text-xs);
+  font-size: var(--text-xs); /* 12px - readable on mobile */
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -90,7 +101,7 @@
 /* Very small screens - smaller font to fit all labels */
 @media (width <= 380px) {
   .mobile-nav-label {
-    font-size: var(--text-2xs);
+    font-size: var(--text-2xs); /* 10px for tiny screens */
   }
 }
 
@@ -102,6 +113,7 @@
 
   .mobile-nav-item {
     gap: 0;
+    min-height: 48px; /* Slightly reduced when no label */
   }
 }
 
@@ -124,4 +136,21 @@
   .mobile-nav-item {
     transition: none;
   }
+}
+
+/* Enhanced dark mode focus styles for mobile navigation */
+.dark .mobile-nav-item:focus-visible {
+  outline: 2px solid var(--color-blue-500);
+  outline-offset: 2px;
+}
+
+/* Ensure focus is visible even with active state */
+.mobile-nav-item.active:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  z-index: var(--z-base);
+}
+
+.dark .mobile-nav-item.active:focus-visible {
+  outline-color: var(--color-blue-500);
 }

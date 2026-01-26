@@ -132,3 +132,33 @@
   width: 14px;
   height: 14px;
 }
+
+/* =============================================================================
+   MOBILE - Badge and Chip Dimension Fixes
+   Ensure department badges and chips have adequate touch targets on mobile
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Department chip mini - improve touch target */
+  .mc-dept-chip-mini {
+    min-height: 20px;
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2-5);
+  }
+
+  /* Department done button - maintain consistent sizing */
+  .mc-dept-done-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mc-dept-done-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Department label text for better readability */
+  .mc-dept-label {
+    font-size: var(--text-2xs);
+  }
+}

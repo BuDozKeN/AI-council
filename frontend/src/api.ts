@@ -2874,6 +2874,90 @@ export const api = {
     return text ? JSON.parse(text) : { success: true };
   },
 
+  // ===== COMPANY INVITATIONS =====
+
+  /**
+   * Get pending invitations for a company.
+   * @param {string} companyId - Company ID
+   * @returns {Promise<{invitations: Array}>} List of pending invitations
+   */
+  async getCompanyInvitations(companyId: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/invitations`, {
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to get invitations' }));
+      throw new Error(error.detail || 'Failed to get invitations');
+    }
+    return response.json();
+  },
+
+  /**
+   * Cancel a pending company invitation.
+   * @param {string} companyId - Company ID
+   * @param {string} invitationId - Invitation ID
+   * @returns {Promise<{success: boolean, message: string}>}
+   */
+  async cancelCompanyInvitation(companyId: string, invitationId: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/invitations/${invitationId}`,
+      {
+        method: 'DELETE',
+        headers,
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to cancel invitation' }));
+      throw new Error(error.detail || 'Failed to cancel invitation');
+    }
+    return response.json();
+  },
+
+  /**
+   * Resend a pending company invitation email.
+   * @param {string} companyId - Company ID
+   * @param {string} invitationId - Invitation ID
+   * @returns {Promise<{success: boolean, message: string, resend_count: number}>}
+   */
+  async resendCompanyInvitation(companyId: string, invitationId: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/invitations/${invitationId}/resend`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to resend invitation' }));
+      throw new Error(error.detail || 'Failed to resend invitation');
+    }
+    return response.json();
+  },
+
+  /**
+   * Accept a company member invitation as an existing authenticated user.
+   * @param {string} token - Invitation token from email
+   * @returns {Promise<{success: boolean, message: string, company_id: string, company_name: string}>}
+   */
+  async acceptCompanyInvitation(token: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/invitations/accept-company?token=${encodeURIComponent(token)}`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to accept invitation' }));
+      throw new Error(error.detail || 'Failed to accept invitation');
+    }
+    return response.json();
+  },
+
   // ===== USAGE TRACKING =====
 
   /**

@@ -260,6 +260,9 @@ export function useCompanyData({
       } catch (err) {
         log.error(`Failed to load ${activeTab}`, { error: err });
         setError(`Failed to load ${activeTab}`);
+        // CRITICAL: Set tab as loaded even on error, otherwise showSkeleton stays true forever
+        // and the error message never renders (skeleton check comes before error check in MyCompany.tsx)
+        setTabLoaded(activeTab, true);
       }
       setLoading(false);
       loadingInProgressRef.current = null; // Clear the guard

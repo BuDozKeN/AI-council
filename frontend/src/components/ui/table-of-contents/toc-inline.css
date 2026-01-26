@@ -85,3 +85,16 @@
   color: var(--color-iris-600);
   font-weight: 600;
 }
+
+/* =============================================================================
+   INLINE TOC TOUCH TARGET FIX - 44px minimum height for accessibility
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .toc-inline-link {
+    min-height: 44px;
+    font-size: var(--text-sm);
+    padding: var(--space-2) var(--space-3);
+    align-items: center;
+  }
+}

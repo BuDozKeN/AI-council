@@ -227,3 +227,16 @@
     right: 40px;
   }
 }
+
+/* =============================================================================
+   DESKTOP TOC TOUCH TARGET FIX - 44px minimum height for tablet/responsive
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .stage3-toc-link {
+    min-height: 44px;
+    font-size: var(--text-sm);
+    padding: var(--space-2) var(--space-3);
+    align-items: center;
+  }
+}

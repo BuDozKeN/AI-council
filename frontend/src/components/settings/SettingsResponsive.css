@@ -2,6 +2,7 @@
  * SettingsResponsive.css - Responsive and mobile styles
  * Extracted from SettingsLayout.css for CSS budget compliance
  */
+@import url('./SettingsResponsiveFocus.css');
 
 /* Responsive - Tablet */
 @media (width <= 640px) {

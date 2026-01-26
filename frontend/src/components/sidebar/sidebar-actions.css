@@ -38,6 +38,15 @@
   transition: all 0.15s ease;
 }
 
+/* Touch target helper - ensures 44x44px minimum touch area */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .hover-action-btn:hover {
   background: var(--sidebar-hover-bg);
   color: var(--sidebar-text-primary);
@@ -217,4 +226,22 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* =============================================================================
+   MOBILE TOUCH TARGETS - 44x44px minimum
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .hover-action-btn {
+    min-width: 44px;
+    min-height: 44px;
+    margin: calc(-1 * var(--space-2));
+    padding: var(--space-2);
+  }
+
+  .hover-actions {
+    gap: 0;
+    right: calc(-1 * var(--space-1));
+  }
 }

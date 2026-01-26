@@ -58,51 +58,60 @@ async def get_activity_logs(request: Request, company_id: ValidCompanyId,
         _extract_unique_related_ids
     )
 
-    client = get_service_client()
-
     try:
-        company_uuid = resolve_company_id(client, company_id)
+        client = get_service_client()
+
+        try:
+            company_uuid = resolve_company_id(client, company_id)
+        except HTTPException:
+            return {"logs": [], "playbook_ids": [], "decision_ids": []}
+
+        # SECURITY: Verify user has access to this company
+        verify_company_access(client, company_uuid, user)
+
+        # 1. Build and execute query (fetch more than requested to account for filtering orphans)
+        fetch_limit = limit * 2
+        query = _build_activity_query(client, company_uuid, fetch_limit, event_type, days)
+        result = query.execute()
+        all_logs = result.data or []
+
+        # 2. Collect all related IDs grouped by type
+        decision_ids_to_check, playbook_ids_to_check, project_ids_to_check = _collect_related_ids(all_logs)
+
+        # 3. Batch check existence of related items
+        existing_decisions, decision_promoted_types = _batch_check_decisions(
+            client, decision_ids_to_check, log_error
+        )
+        existing_playbooks = _batch_check_playbooks(client, playbook_ids_to_check, log_error)
+        existing_projects = _batch_check_projects(client, project_ids_to_check, log_error)
+
+        # 4. Filter out orphaned logs and enrich with current state
+        valid_logs, orphaned_ids = _filter_and_enrich_logs(
+            all_logs,
+            existing_decisions,
+            existing_playbooks,
+            existing_projects,
+            decision_promoted_types
+        )
+
+        # 5. Auto-cleanup orphaned logs in background (don't wait)
+        _cleanup_orphaned_logs(client, orphaned_ids, log_error)
+
+        # 6. Return only up to the requested limit
+        logs = valid_logs[:limit]
+
+        # 7. Extract unique related IDs for navigation
+        playbook_ids, decision_ids = _extract_unique_related_ids(logs)
+
+        return {"logs": logs, "playbook_ids": playbook_ids, "decision_ids": decision_ids}
+
     except HTTPException:
-        return {"logs": [], "playbook_ids": [], "decision_ids": []}
-
-    # SECURITY: Verify user has access to this company
-    verify_company_access(client, company_uuid, user)
-
-    # 1. Build and execute query (fetch more than requested to account for filtering orphans)
-    fetch_limit = limit * 2
-    query = _build_activity_query(client, company_uuid, fetch_limit, event_type, days)
-    result = query.execute()
-    all_logs = result.data or []
-
-    # 2. Collect all related IDs grouped by type
-    decision_ids_to_check, playbook_ids_to_check, project_ids_to_check = _collect_related_ids(all_logs)
-
-    # 3. Batch check existence of related items
-    existing_decisions, decision_promoted_types = _batch_check_decisions(
-        client, decision_ids_to_check, log_error
-    )
-    existing_playbooks = _batch_check_playbooks(client, playbook_ids_to_check, log_error)
-    existing_projects = _batch_check_projects(client, project_ids_to_check, log_error)
-
-    # 4. Filter out orphaned logs and enrich with current state
-    valid_logs, orphaned_ids = _filter_and_enrich_logs(
-        all_logs,
-        existing_decisions,
-        existing_playbooks,
-        existing_projects,
-        decision_promoted_types
-    )
-
-    # 5. Auto-cleanup orphaned logs in background (don't wait)
-    _cleanup_orphaned_logs(client, orphaned_ids, log_error)
-
-    # 6. Return only up to the requested limit
-    logs = valid_logs[:limit]
-
-    # 7. Extract unique related IDs for navigation
-    playbook_ids, decision_ids = _extract_unique_related_ids(logs)
-
-    return {"logs": logs, "playbook_ids": playbook_ids, "decision_ids": decision_ids}
+        raise  # Re-raise HTTP exceptions as-is
+    except Exception as e:
+        # Log the actual error for debugging
+        import logging
+        logging.error(f"Activity endpoint error: {type(e).__name__}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal error: {type(e).__name__}")
 
 
 @router.delete("/{company_id}/activity/cleanup")

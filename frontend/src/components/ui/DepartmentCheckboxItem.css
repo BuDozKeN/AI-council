@@ -14,6 +14,7 @@
   align-items: center;
   gap: var(--gap-sm-plus);
   width: 100%;
+  min-height: 44px; /* WCAG 44px touch target */
   padding: var(--space-2-5) var(--space-3);
   padding-left: var(--space-2-5);
   border: none;
@@ -37,13 +38,13 @@
   background: var(--color-bg-tertiary);
 }
 
-/* Checkbox */
+/* Checkbox - 20px visual indicator for accessibility */
 .dept-checkbox {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border: 1.5px solid var(--color-border-dark);
   border-radius: var(--radius-sm);
   background: var(--color-bg-primary);
@@ -58,8 +59,8 @@
 }
 
 .dept-checkbox-icon {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
 }
 
 /* Label */
@@ -102,14 +103,14 @@
 }
 
 .dept-checkbox-item.mobile .dept-checkbox {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-md);
 }
 
 .dept-checkbox-item.mobile .dept-checkbox-icon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 /* =============================================================================

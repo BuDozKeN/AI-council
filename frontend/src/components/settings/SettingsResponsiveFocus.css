@@ -1,0 +1,30 @@
+/* =============================================================================
+   SETTINGS RESPONSIVE FOCUS STYLES - Keyboard Navigation
+   Extracted to separate file for CSS budget compliance
+   Mobile settings tabs and form controls focus indicators
+   ============================================================================= */
+
+.settings-sidebar .settings-tab:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.dark .settings-sidebar .settings-tab:focus-visible {
+  outline-color: var(--color-blue-500);
+}
+
+/* Ensure focus is visible on small phones too */
+@media (width <= 400px) {
+  .settings-sidebar .settings-tab:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 1px;
+  }
+}
+
+@media (width <= 360px) {
+  .settings-sidebar .settings-tab:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 1px;
+  }
+}

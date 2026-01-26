@@ -971,7 +971,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                         </span>
                       </div>
                       <ChevronRight
-                        size={16}
+                        size={18}
                         className={`llm-card-chevron ${isExpanded ? 'rotated' : ''}`}
                       />
                     </button>
@@ -1180,7 +1180,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                         </span>
                       </div>
                       <ChevronRight
-                        size={16}
+                        size={18}
                         className={`llm-card-chevron ${isExpanded ? 'rotated' : ''}`}
                       />
                     </button>
@@ -1346,7 +1346,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                           </span>
                         </div>
                         <ChevronRight
-                          size={16}
+                          size={18}
                           className={`llm-card-chevron ${isEditing ? 'rotated' : ''}`}
                         />
                       </button>

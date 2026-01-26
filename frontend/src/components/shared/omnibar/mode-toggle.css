@@ -52,8 +52,8 @@
 
 .omni-mode-btn::before {
   content: '';
-  width: 8px;
-  height: 8px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: currentcolor;
   opacity: 0.4;
@@ -75,17 +75,17 @@
   opacity: 1;
 }
 
-/* Quick mode indicator - single dot */
+/* Quick mode indicator - single dot (20px for accessibility) */
 .omni-mode-btn:first-child::before {
-  width: 6px;
-  height: 6px;
+  width: 20px;
+  height: 20px;
 }
 
-/* Council mode indicator - triple dot effect */
+/* Council mode indicator - triple dot effect (20px height for accessibility) */
 .omni-mode-btn:last-child::before {
-  width: 16px;
-  height: 6px;
-  border-radius: var(--radius-xs);
+  width: 36px;
+  height: 20px;
+  border-radius: var(--radius-sm);
   background: linear-gradient(
     90deg,
     currentcolor 0%,

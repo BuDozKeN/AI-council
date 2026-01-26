@@ -26,6 +26,7 @@
   align-items: center;
   gap: var(--gap-sm-plus);
   width: 100%;
+  min-height: 44px; /* WCAG 44px touch target */
   padding: var(--space-2-5) var(--space-3);
   border: none;
   background: transparent;
@@ -56,15 +57,15 @@
 
 /* =============================================================================
    CHECKBOX & RADIO INDICATORS
-   Match DepartmentCheckboxItem sizing for consistency (16px desktop)
+   Match DepartmentCheckboxItem sizing for accessibility (20px desktop)
    ============================================================================= */
 
 .context-popover-checkbox {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border: 1.5px solid var(--color-border-dark);
   border-radius: var(--radius-sm);
   background: var(--color-bg-primary);
@@ -79,16 +80,16 @@
 }
 
 .context-popover-checkbox svg {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
 }
 
 .context-popover-radio {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border: 1.5px solid var(--color-border-dark);
   border-radius: var(--radius-full);
   background: var(--color-bg-primary);
@@ -103,8 +104,8 @@
 }
 
 .context-popover-radio svg {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
 
 /* =============================================================================
