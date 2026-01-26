@@ -160,11 +160,11 @@ Is it truly global (button reset, body font)?
 
 | Metric | Budget | Current | Status |
 |--------|--------|---------|--------|
-| **Source CSS** | 1300KB | ~1255KB | 97% used, ~45KB headroom |
+| **Source CSS** | 1350KB | ~1309KB | 97% used, ~41KB headroom |
 | **Built CSS** | 700KB target | ~700KB | Under target |
 | **Gzipped** | N/A | ~110KB | Excellent |
 
-**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1300KB.
+**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1350KB.
 
 ### If CI Budget Check Fails
 

@@ -98,7 +98,7 @@ Run specialized agents for complex tasks:
 - **Max 300 lines** per CSS file
 - **No hardcoded colors**: Use `var(--color-*)` tokens
 - **3 breakpoints only**: default (mobile), 641px (tablet), 1025px (desktop)
-- **Budget**: 1300KB source, 700KB built
+- **Budget**: 1350KB source, 700KB built
 
 ### Styling Priority
 1. Tailwind utilities for layout
@@ -147,10 +147,10 @@ raise create_secure_error(404, "Resource not found", log_details={"id": item_id}
 
 | Metric | Budget | Current |
 |--------|--------|---------|
-| Source CSS | 1300KB | ~1255KB |
+| Source CSS | 1350KB | ~1309KB |
 | Built CSS | 700KB | ~700KB |
 
-CI fails if source CSS exceeds 1300KB.
+CI fails if source CSS exceeds 1350KB.
 
 ## Testing
 

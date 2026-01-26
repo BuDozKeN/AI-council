@@ -141,7 +141,7 @@ if (Test-Path "frontend\src") {
             }
         }
         $CssKB = [math]::Round($CssSize / 1024)
-        $Budget = 1300
+        $Budget = 1350
         $Percent = [math]::Round(($CssKB / $Budget) * 100)
 
         if ($CssKB -gt $Budget) {

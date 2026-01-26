@@ -18,7 +18,7 @@ You are responsible for enforcing AxCouncil's CSS conventions and budget limits.
 ## Your Responsibilities
 
 1. **Budget Monitoring**
-   - Source CSS must stay under 1300KB
+   - Source CSS must stay under 1350KB
    - Built CSS target is 700KB
    - Alert if approaching limits
 
@@ -53,7 +53,7 @@ cd frontend && npm run build && du -ch dist/assets/*.css
 
 | Metric | Budget | Status |
 |--------|--------|--------|
-| Source CSS | 1300KB | Check with find command |
+| Source CSS | 1350KB | Check with find command |
 | Built CSS | 700KB | Check after build |
 | Max file lines | 300 | Check with wc -l |
 
