@@ -88,18 +88,19 @@
     top: 0;
     right: 0;
     bottom: 0;
-    width: 48px;
-    background: linear-gradient(to right, transparent, var(--color-bg-inverse) 70%);
+    width: 56px; /* Wider for better visibility */
+    background: linear-gradient(to right, transparent 0%, var(--color-bg-inverse) 80%);
     border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
     pointer-events: none;
     z-index: var(--z-above);
     opacity: 1;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease-out; /* Smoother fade timing */
   }
 
   /* Hide scroll indicator when scrolled to end */
   .mc-tabs-fade.hidden {
     opacity: 0;
+    transition: opacity 0.15s ease-in; /* Faster hide for responsiveness */
   }
 
   /* Remove pseudo-element - using real element now */

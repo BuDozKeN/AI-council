@@ -221,6 +221,33 @@
     background-position: right 14px center;
     background-size: 18px;
   }
+
+  /* Form field spacing on mobile */
+  .form-field {
+    margin-bottom: var(--space-5);
+  }
+
+  .form-field-label {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+  }
+
+  /* Error text with better mobile visibility */
+  .form-field-error-text {
+    margin: var(--space-2) 0 0;
+    padding: var(--space-1-5) var(--space-2);
+    font-size: var(--text-xs-plus);
+    background: var(--overlay-red-10);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--gap-xs);
+  }
+
+  /* Hint text spacing */
+  .form-field-hint {
+    margin-bottom: var(--space-2-5);
+  }
 }
 
 /* =============================================================================
