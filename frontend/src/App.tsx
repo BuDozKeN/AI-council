@@ -10,7 +10,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import { LandingHero } from './components/landing';
 import { useAuth } from './AuthContext';
@@ -279,6 +279,7 @@ function App() {
 
   // Navigation hook for full-page route changes (e.g., /admin)
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Compute department preset from selected department (for ResponseStyleSelector default)
   const departmentPreset = useMemo<import('./types/business').LLMPresetId>(() => {
@@ -702,6 +703,21 @@ function App() {
 
     return () => clearTimeout(timeout);
   }, [returnToMyCompanyTab, clearReturnState]);
+
+  // Handle returnTo redirect after login
+  // When user logs in and there's a returnTo param, redirect to that URL
+  useEffect(() => {
+    if (!isAuthenticated || authLoading) return;
+
+    const returnTo = searchParams.get('returnTo');
+    if (returnTo) {
+      // Clear the returnTo param from URL
+      searchParams.delete('returnTo');
+      setSearchParams(searchParams, { replace: true });
+      // Navigate to the returnTo URL
+      navigate(returnTo, { replace: true });
+    }
+  }, [isAuthenticated, authLoading, searchParams, setSearchParams, navigate]);
 
   // Show blank screen while checking auth (auth is fast, avoids flicker)
   // Use bg-secondary to match landing page background
