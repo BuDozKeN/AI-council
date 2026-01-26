@@ -228,7 +228,8 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
               </h4>
               <div className="invitations-list">
                 {pendingInvitations.map((invitation) => {
-                  const roleConfig = ROLE_CONFIG[invitation.target_company_role] || ROLE_CONFIG.member;
+                  const roleConfig =
+                    ROLE_CONFIG[invitation.target_company_role] || ROLE_CONFIG.member;
                   const isLoading = invitationActionLoading === invitation.id;
 
                   return (

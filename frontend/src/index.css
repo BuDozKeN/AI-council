@@ -412,7 +412,7 @@
 
     /* Standard icons - 18px minimum for touch accessibility */
     .icon,
-    [class*="icon"] svg,
+    [class*='icon'] svg,
     button svg,
     [role='button'] svg {
       min-width: 18px;
@@ -436,7 +436,7 @@
     }
 
     /* Link icons within text - must be readable but smaller acceptable */
-    a svg:not([class*="icon"]),
+    a svg:not([class*='icon']),
     .inline-icon svg {
       min-width: 16px;
       min-height: 16px;
@@ -449,7 +449,6 @@
       min-width: 18px;
       min-height: 18px;
     }
-
 
     /* iOS auto-zoom prevention - 16px font on all input types */
     input[type='text'],

@@ -15,15 +15,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getIntlLocale } from '../i18n';
-import {
-  Building2,
-  CheckCircle,
-  XCircle,
-  Loader2,
-  Clock,
-  AlertCircle,
-  LogOut,
-} from 'lucide-react';
+import { Building2, CheckCircle, XCircle, Loader2, Clock, AlertCircle, LogOut } from 'lucide-react';
 import { supabase } from '../supabase';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
@@ -112,9 +104,7 @@ export default function AcceptCompanyInvite() {
       } catch (err) {
         console.error('Token validation error:', err);
         setPageState('invalid');
-        setErrorMessage(
-          t('acceptCompanyInvite.validationError', 'Could not validate invitation.')
-        );
+        setErrorMessage(t('acceptCompanyInvite.validationError', 'Could not validate invitation.'));
       }
     };
 
@@ -276,14 +266,9 @@ export default function AcceptCompanyInvite() {
                     )}
                   </li>
                   <li>
-                    {t(
-                      'acceptCompanyInvite.benefit2',
-                      'Access company departments and projects'
-                    )}
+                    {t('acceptCompanyInvite.benefit2', 'Access company departments and projects')}
                   </li>
-                  <li>
-                    {t('acceptCompanyInvite.benefit3', 'Participate in council sessions')}
-                  </li>
+                  <li>{t('acceptCompanyInvite.benefit3', 'Participate in council sessions')}</li>
                 </ul>
               </div>
 
@@ -291,10 +276,7 @@ export default function AcceptCompanyInvite() {
                 <button className="accept-invite-submit" onClick={handleAccept}>
                   {t('acceptCompanyInvite.acceptButton', 'Accept & Join')}
                 </button>
-                <button
-                  className="accept-invite-btn-secondary"
-                  onClick={() => navigate('/')}
-                >
+                <button className="accept-invite-btn-secondary" onClick={() => navigate('/')}>
                   {t('common.decline', 'Decline')}
                 </button>
               </div>

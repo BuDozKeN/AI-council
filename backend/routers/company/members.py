@@ -222,7 +222,7 @@ async def invite_company_member(
     # Update email sent status
     if email_result.get("success"):
         client.table("platform_invitations").update({
-            "email_sent_at": datetime.utcnow().isoformat(),
+            "email_sent_at": datetime.now(timezone.utc).isoformat(),
             "email_message_id": email_result.get("message_id"),
         }).eq("id", invitation["id"]).execute()
 
@@ -515,7 +515,7 @@ async def cancel_company_invitation(
     # Cancel the invitation
     client.table("platform_invitations").update({
         "status": "cancelled",
-        "cancelled_at": datetime.utcnow().isoformat(),
+        "cancelled_at": datetime.now(timezone.utc).isoformat(),
     }).eq("id", invitation_id).execute()
 
     # Log the activity
@@ -593,7 +593,7 @@ async def resend_company_invitation(
 
     if expires_at < now:
         # Extend expiration by 7 days from now
-        new_expires_at = datetime.utcnow() + timedelta(days=7)
+        new_expires_at = datetime.now(timezone.utc) + timedelta(days=7)
         client.table("platform_invitations").update({
             "expires_at": new_expires_at.isoformat(),
         }).eq("id", invitation_id).execute()
@@ -629,7 +629,7 @@ async def resend_company_invitation(
     resend_count = (invitation.get("resend_count") or 0) + 1
     client.table("platform_invitations").update({
         "resend_count": resend_count,
-        "last_resent_at": datetime.utcnow().isoformat(),
+        "last_resent_at": datetime.now(timezone.utc).isoformat(),
     }).eq("id", invitation_id).execute()
 
     log_app_event("INVITATION_RESENT", "Member invitation resent",
@@ -712,7 +712,7 @@ async def get_company_usage(request: Request, company_id: ValidCompanyId,
         total_sessions = len(all_time.data) if all_time.data else 0
 
         # Get this month's usage
-        first_of_month = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        first_of_month = datetime.now(timezone.utc).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
         this_month = client.table("usage_events") \
             .select("id") \
