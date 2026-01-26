@@ -133,8 +133,7 @@
     box-shadow: var(--shadow-md);
 
     /* CRITICAL: Constrain horizontal overflow on mobile */
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden auto;
 
     /* Allow vertical expansion but constrain width */
     flex-shrink: 0;
@@ -155,8 +154,7 @@
     max-height: none;
     min-width: 0;
     max-width: 100%;
-    overflow-x: hidden;
-    overflow-y: visible;
+    overflow: hidden visible;
   }
 
   /* MarkdownViewer prose inside card - constrain width for mobile */
