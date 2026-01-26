@@ -152,10 +152,10 @@
   font-weight: 500;
 }
 
-/* Mobile trigger improvements */
+/* Mobile trigger improvements - WCAG 44px touch target */
 @media (width <= 640px) {
   .sort-select-trigger {
-    min-height: 40px;
+    min-height: 44px;
     padding: var(--space-2) var(--space-3);
     font-size: var(--text-xs-plus);
     border-radius: var(--radius-lg);

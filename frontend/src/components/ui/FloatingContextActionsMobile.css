@@ -8,37 +8,38 @@
    =========================================== */
 
 @media (width <= 640px) {
+  /* WCAG 2.1 AA - 44px minimum touch targets */
   .floating-copy-btn {
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
   }
 
   .floating-copy-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
 
-  /* Sticky copy button on mobile - larger touch target */
+  /* Sticky copy button on mobile - WCAG compliant */
   .floating-copy-btn-sticky {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
   }
 
   .floating-copy-btn-sticky svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
 
   .floating-scroll-top-btn {
     bottom: 10px;
     right: 10px;
-    width: 32px;
-    height: 32px;
+    width: 44px;
+    height: 44px;
   }
 
   .floating-scroll-top-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
 
   /* Remove max-height on mobile - let flex layout determine height */

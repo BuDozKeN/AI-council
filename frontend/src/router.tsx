@@ -59,6 +59,11 @@ export const router = createBrowserRouter([
       { path: 'mycompany/:tab', element: null },
       { path: 'mycompany/:tab/:itemId', element: null },
 
+      // /my-company alias (with hyphen) - redirect to /company
+      { path: 'my-company', element: <Navigate to="/company" replace /> },
+      { path: 'my-company/:tab', element: <Navigate to="/company" replace /> },
+      { path: 'my-company/:tab/:itemId', element: <Navigate to="/company" replace /> },
+
       // Leaderboard
       { path: 'leaderboard', element: null },
 

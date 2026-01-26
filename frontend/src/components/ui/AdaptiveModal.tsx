@@ -73,7 +73,7 @@ export function AdaptiveModal({
         isOpen={isOpen}
         onClose={onClose}
         title={title}
-        showCloseButton={false} // Mobile: swipe down or tap outside to close - X button is redundant
+        showCloseButton={showCloseButton} // Show close button for accessibility - not all users know swipe/tap gestures
         className={className}
       >
         {children}

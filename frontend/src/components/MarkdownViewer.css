@@ -151,6 +151,27 @@
   margin-block: 1.25rem;
 }
 
+/* Fade indicator showing more content to the right */
+.prose .table-scroll-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 6px; /* Account for scrollbar height */
+  width: 24px;
+  background: linear-gradient(to right, transparent, var(--color-bg-primary));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Show fade when table has horizontal overflow on mobile */
+@media (width <= 640px) {
+  .prose .table-scroll-wrapper::after {
+    opacity: 1;
+  }
+}
+
 /* Scrollbar styling for table wrapper */
 .prose .table-scroll-wrapper::-webkit-scrollbar {
   height: 6px;

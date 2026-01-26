@@ -82,7 +82,11 @@ export function useRouteSync(options: UseRouteSyncOptions) {
     try {
       if (pathname.startsWith('/settings')) {
         openSettings();
-      } else if (pathname.startsWith('/company') || pathname.startsWith('/mycompany')) {
+      } else if (
+        pathname.startsWith('/company') ||
+        pathname.startsWith('/mycompany') ||
+        pathname.startsWith('/my-company')
+      ) {
         const pathParts = pathname.split('/').filter(Boolean);
         const tab = (pathParts[1] as MyCompanyTab) || 'overview';
         const itemId = pathParts[2] || null;
@@ -137,7 +141,8 @@ export function useRouteSync(options: UseRouteSyncOptions) {
       } else if (
         isMyCompanyOpen &&
         !pathname.startsWith('/company') &&
-        !pathname.startsWith('/mycompany')
+        !pathname.startsWith('/mycompany') &&
+        !pathname.startsWith('/my-company')
       ) {
         navigate('/company'); // Push for back button support
       } else if (isLeaderboardOpen && pathname !== '/leaderboard') {
@@ -197,7 +202,11 @@ export function useRouteSync(options: UseRouteSyncOptions) {
       }
 
       // My Company modal
-      if (pathname.startsWith('/company') || pathname.startsWith('/mycompany')) {
+      if (
+        pathname.startsWith('/company') ||
+        pathname.startsWith('/mycompany') ||
+        pathname.startsWith('/my-company')
+      ) {
         if (!isMyCompanyOpen) {
           // Close other modals first
           if (isSettingsOpen) closeSettings();
@@ -228,6 +237,7 @@ export function useRouteSync(options: UseRouteSyncOptions) {
         !pathname.startsWith('/settings') &&
         !pathname.startsWith('/company') &&
         !pathname.startsWith('/mycompany') &&
+        !pathname.startsWith('/my-company') &&
         pathname !== '/leaderboard'
       ) {
         if (pathname.startsWith('/chat/')) {

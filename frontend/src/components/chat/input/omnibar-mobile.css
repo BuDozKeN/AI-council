@@ -3,7 +3,7 @@
 /* Extracted from ChatInput.css lines 1244-end */
 
 /* =============================================================================
-   OMNIBAR - Mobile Responsive
+   OMNIBAR - Mobile Responsive (WCAG 44px touch targets)
    ============================================================================= */
 
 @media (width <= 640px) {
@@ -12,10 +12,10 @@
     border-radius: var(--radius-xl);
   }
 
-  /* All icons same size on mobile */
+  /* All icons - WCAG 44px touch target */
   .omni-icon-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
   }
 
   .omni-input {
@@ -24,8 +24,8 @@
   }
 
   .omni-send-btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
   }
 
   .omni-bottom {
@@ -43,40 +43,41 @@
 
   /* Mobile capsule styles are in OmniBar.css */
 
-  /* Reset button - slightly larger touch target on mobile */
+  /* Reset button - WCAG 44px touch target */
   .omni-reset-all {
-    width: 28px;
-    height: 28px;
+    width: 44px;
+    height: 44px;
   }
 
-  /* Inline mode toggle - compact to match landing hero */
+  /* Inline mode toggle - WCAG compliant */
   .omni-inline-mode-toggle {
     padding: var(--space-0-5);
+    min-height: 44px;
   }
 
   .inline-mode-btn {
-    padding: var(--space-1) var(--space-2-5);
+    padding: var(--space-2) var(--space-2-5);
     font-size: var(--text-xs);
-
-    /* No min-height - let it be natural size like landing */
+    min-height: 44px;
   }
 }
 
-@media (width <= 640px) {
+/* Very small phones - maintain WCAG touch targets but reduce spacing */
+@media (width <= 480px) {
   .omnibar {
     padding: var(--space-2) var(--space-3-5); /* Match small phone message padding */
   }
 
-  /* Slightly smaller icons on very small screens */
+  /* Keep 44px touch targets on small screens - WCAG compliance */
   .omni-icon-btn {
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
   }
 
   .omni-send-btn {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
   }
 
   .omni-left {
