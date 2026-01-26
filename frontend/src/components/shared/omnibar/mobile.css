@@ -47,18 +47,18 @@
     gap: var(--space-1);
   }
 
-  /* Compact action buttons on mobile */
+  /* Action buttons - WCAG 44px touch target */
   .omni-bar-right .omni-icon-btn {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .omni-bar-right .omni-bar-submit {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
   }
 
   .omni-bar-input {
@@ -85,11 +85,11 @@
     height: 44px;
   }
 
-  /* Reset button - smaller on mobile to save space */
+  /* Reset button - WCAG 44px touch target */
   .omni-reset-all {
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
     flex-shrink: 0;
   }
 

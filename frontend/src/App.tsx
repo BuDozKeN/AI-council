@@ -339,21 +339,9 @@ function App() {
   // Determine if we should show the landing hero (Perplexity-style)
   // Show when: authenticated, has a temp conversation with no messages
   const showLandingHero = useMemo(() => {
-    if (!isAuthenticated || needsPasswordReset) {
-      log.debug('[showLandingHero] false: not authenticated or needs password reset');
-      return false;
-    }
-    if (!currentConversation) {
-      log.debug('[showLandingHero] false: no current conversation');
-      return false;
-    }
-    const result = currentConversation.isTemp && currentConversation.messages?.length === 0;
-    log.debug('[showLandingHero]', result, {
-      isTemp: currentConversation.isTemp,
-      messagesLength: currentConversation.messages?.length,
-      id: currentConversation.id,
-    });
-    return result;
+    if (!isAuthenticated || needsPasswordReset) return false;
+    if (!currentConversation) return false;
+    return currentConversation.isTemp && currentConversation.messages?.length === 0;
   }, [isAuthenticated, needsPasswordReset, currentConversation]);
 
   // Performance: Preload ChatInterface while user is on LandingHero

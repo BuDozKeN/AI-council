@@ -14,8 +14,8 @@
   padding-bottom: max(var(--space-2), env(safe-area-inset-bottom)); /* iOS safe area */
 }
 
-/* Show only on mobile */
-@media (width <= 640px) {
+/* Show on mobile and tablet */
+@media (width <= 1024px) {
   .mobile-bottom-nav {
     display: flex;
     justify-content: stretch; /* Let flex: 1 handle equal widths */

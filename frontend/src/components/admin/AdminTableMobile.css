@@ -203,8 +203,8 @@
   }
 
   .admin-pagination-btn {
-    min-height: 36px;
-    padding: var(--space-1-5) var(--space-3);
+    min-height: 44px; /* WCAG 2.1 AA touch target */
+    padding: var(--space-2) var(--space-3);
     font-size: var(--font-size-xs);
   }
 }
