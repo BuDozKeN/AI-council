@@ -641,6 +641,8 @@ async def resend_company_invitation(
         "success": True,
         "message": f"Invitation resent to {invitation['email']}",
         "resend_count": resend_count,
+        "email_sent": email_result.get("success", False),
+        "email": invitation["email"],
     }
 
 

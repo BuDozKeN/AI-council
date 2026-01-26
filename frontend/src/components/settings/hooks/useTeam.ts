@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../api';
+import { toast } from '../../ui/sonner';
 import type { User } from '@supabase/supabase-js';
 
 export type TeamRole = 'owner' | 'admin' | 'member';
@@ -93,7 +94,7 @@ export function useTeam(isOpen: boolean, companyId: string | null, user: User | 
     try {
       setAddingMember(true);
       setAddError(null);
-      await api.addCompanyMember(
+      const result = await api.addCompanyMember(
         companyId,
         newEmail.trim(),
         newRole === 'owner' ? 'admin' : newRole
@@ -102,6 +103,18 @@ export function useTeam(isOpen: boolean, companyId: string | null, user: User | 
       setNewEmail('');
       setNewRole('member');
       setShowAddForm(false);
+
+      // Check if email was sent successfully
+      if (result.email_sent === false) {
+        toast.warning('Invitation created but email could not be sent', {
+          description: 'Please use "Resend" or contact the user directly.',
+          duration: 8000,
+        });
+      } else {
+        toast.success('Invitation sent', {
+          description: `Invitation email sent to ${result.email || newEmail.trim()}`,
+        });
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to add member';
       setAddError(message);
@@ -156,11 +169,23 @@ export function useTeam(isOpen: boolean, companyId: string | null, user: User | 
     if (!companyId) return;
     try {
       setInvitationActionLoading(invitationId);
-      await api.resendCompanyInvitation(companyId, invitationId);
+      const result = await api.resendCompanyInvitation(companyId, invitationId);
       await loadTeamData();
+
+      // Check if email was sent successfully
+      if (result.email_sent === false) {
+        toast.warning('Invitation updated but email could not be sent', {
+          description: 'Please try again or contact the user directly.',
+          duration: 8000,
+        });
+      } else {
+        toast.success('Invitation resent', {
+          description: `Email sent to ${result.email || 'the invitee'}`,
+        });
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to resend invitation';
-      alert(message);
+      toast.error('Failed to resend invitation', { description: message });
     } finally {
       setInvitationActionLoading(null);
     }
