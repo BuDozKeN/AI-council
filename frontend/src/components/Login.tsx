@@ -5,6 +5,7 @@ import { useAuth } from '../AuthContext';
 import { AuroraBackground } from './ui/aurora-background';
 import { hapticMedium, hapticSuccess, hapticError } from '../lib/haptics';
 import { springs, interactionStates, springWithDelay } from '../lib/animations';
+import { saveReturnUrl } from '../utils/authRedirect';
 import './Login.css';
 
 // Google Icon SVG
@@ -63,6 +64,8 @@ export default function Login() {
     setError('');
     setGoogleLoading(true);
     try {
+      // Save returnTo URL before OAuth redirect (it would be lost otherwise)
+      saveReturnUrl();
       await signInWithGoogle();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

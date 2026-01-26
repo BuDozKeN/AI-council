@@ -41,6 +41,7 @@ import MobileBottomNav from './components/ui/MobileBottomNav';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { useTheme } from 'next-themes';
 import { logger } from './utils/logger';
+import { consumeReturnUrl } from './utils/authRedirect';
 import type { Conversation } from './types/conversation';
 import './App.css';
 
@@ -706,14 +707,18 @@ function App() {
 
   // Handle returnTo redirect after login
   // When user logs in and there's a returnTo param, redirect to that URL
+  // Check both URL params (for email/password login) and sessionStorage (for OAuth)
   useEffect(() => {
     if (!isAuthenticated || authLoading) return;
 
-    const returnTo = searchParams.get('returnTo');
+    // Check URL params first, then sessionStorage (OAuth saves it there before redirect)
+    const returnTo = searchParams.get('returnTo') || consumeReturnUrl();
     if (returnTo) {
-      // Clear the returnTo param from URL
-      searchParams.delete('returnTo');
-      setSearchParams(searchParams, { replace: true });
+      // Clear the returnTo param from URL if present
+      if (searchParams.has('returnTo')) {
+        searchParams.delete('returnTo');
+        setSearchParams(searchParams, { replace: true });
+      }
       // Navigate to the returnTo URL
       navigate(returnTo, { replace: true });
     }
