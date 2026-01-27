@@ -609,22 +609,25 @@ export function ChatInput({
                 {/* MOBILE: Single Context button (Perplexity style) */}
                 {isMobile && (hasProjects || hasDepartments || hasRoles || hasPlaybooks) && (
                   <>
-                    <button
-                      type="button"
-                      className={cn(
-                        'mobile-context-btn',
-                        totalSelectionCount > 0 && 'has-selection'
-                      )}
-                      onClick={() => setMobileContextOpen(true)}
-                      disabled={disabled}
-                      aria-label={totalSelectionCount > 0 ? t('context.configure') + ` (${totalSelectionCount} selected)` : t('context.configure')}
-                    >
-                      <Settings2 size={16} aria-hidden="true" />
-                      <span className="mobile-context-label">{t('context.context')}</span>
-                      {totalSelectionCount > 0 && (
-                        <span className="mobile-context-badge" aria-hidden="true">{totalSelectionCount}</span>
-                      )}
-                    </button>
+                    {withTooltip(
+                      <button
+                        type="button"
+                        className={cn(
+                          'mobile-context-btn',
+                          totalSelectionCount > 0 && 'has-selection'
+                        )}
+                        onClick={() => setMobileContextOpen(true)}
+                        disabled={disabled}
+                        aria-label={totalSelectionCount > 0 ? t('context.configure') + ` (${totalSelectionCount} selected)` : t('context.configure')}
+                      >
+                        <Settings2 size={16} aria-hidden="true" />
+                        <span className="mobile-context-label">{t('context.context')}</span>
+                        {totalSelectionCount > 0 && (
+                          <span className="mobile-context-badge" aria-hidden="true">{totalSelectionCount}</span>
+                        )}
+                      </button>,
+                      t('context.configure')
+                    )}
                     <BottomSheet
                       isOpen={mobileContextOpen}
                       onClose={() => setMobileContextOpen(false)}
@@ -651,24 +654,35 @@ export function ChatInput({
 
                 {/* DESKTOP: Two-column hover dropdown (same as OmniBar) */}
                 {!isMobile && (hasProjects || hasDepartments || hasRoles || hasPlaybooks) && (
-                  <Popover.Root open={mobileContextOpen} onOpenChange={handleContextDropdownOpen}>
-                    <Popover.Trigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          'context-trigger',
-                          totalSelectionCount > 0 && 'has-selection'
-                        )}
-                        disabled={disabled}
-                        aria-label={totalSelectionCount > 0 ? t('context.configure') + ` (${totalSelectionCount} selected)` : t('context.configure')}
-                      >
-                        <span>{t('context.context')}</span>
-                        {totalSelectionCount > 0 && (
-                          <span className="context-trigger-badge">{totalSelectionCount}</span>
-                        )}
-                        <ChevronDown size={14} className="context-trigger-chevron" aria-hidden="true" />
-                      </button>
-                    </Popover.Trigger>
+                  <Tooltip.Provider delayDuration={400}>
+                    <Popover.Root open={mobileContextOpen} onOpenChange={handleContextDropdownOpen}>
+                      <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                          <Popover.Trigger asChild>
+                            <button
+                              type="button"
+                              className={cn(
+                                'context-trigger',
+                                totalSelectionCount > 0 && 'has-selection'
+                              )}
+                              disabled={disabled}
+                              aria-label={totalSelectionCount > 0 ? t('context.configure') + ` (${totalSelectionCount} selected)` : t('context.configure')}
+                            >
+                              <span>{t('context.context')}</span>
+                              {totalSelectionCount > 0 && (
+                                <span className="context-trigger-badge">{totalSelectionCount}</span>
+                              )}
+                              <ChevronDown size={14} className="context-trigger-chevron" aria-hidden="true" />
+                            </button>
+                          </Popover.Trigger>
+                        </Tooltip.Trigger>
+                        <Tooltip.Portal>
+                          <Tooltip.Content className="tooltip-content" sideOffset={8}>
+                            {t('context.configure')}
+                            <Tooltip.Arrow className="tooltip-arrow" />
+                          </Tooltip.Content>
+                        </Tooltip.Portal>
+                      </Tooltip.Root>
                     <Popover.Portal>
                       <Popover.Content
                         className="context-dropdown"
@@ -791,7 +805,8 @@ export function ChatInput({
                         </div>
                       </Popover.Content>
                     </Popover.Portal>
-                  </Popover.Root>
+                    </Popover.Root>
+                  </Tooltip.Provider>
                 )}
 
                 {/* Mode toggle - dynamic "1 AI / N AIs" pill based on LLM Hub config */}

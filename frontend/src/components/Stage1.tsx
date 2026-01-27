@@ -152,11 +152,11 @@ const ModelCard = memo(function ModelCard({
   const displayName = persona.providerLabel || persona.shortName;
   const tooltipName = persona.fullName;
 
-  // Rank display helper
+  // Rank display helper - returns display text with emoji and rank label
   const getRankLabel = (position: number): string => {
-    if (position === 1) return '🥇';
-    if (position === 2) return '🥈';
-    if (position === 3) return '🥉';
+    if (position === 1) return '🥇 1st';
+    if (position === 2) return '🥈 2nd';
+    if (position === 3) return '🥉 3rd';
     return `#${position}`;
   };
 

@@ -329,7 +329,7 @@ export function ActivityTab({
                         title={t('mycompany.viewSourceConversation')}
                         aria-label={t('mycompany.viewSourceConversation')}
                       >
-                        <ExternalLink size={16} />
+                        <ExternalLink size={16} aria-label="Opens in new tab" />
                       </button>
                     )}
                   </li>
