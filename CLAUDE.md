@@ -297,17 +297,85 @@ logger.error(f"Database error: {error}", exc_info=True)
 
 **Security rules?** Load `.claude/skills/supabase-rls.md`
 
+## Git Workflow & Version Control
+
+### Branching Strategy
+```
+master (main branch - always deployable)
+  ├── feature/chat-persistence (feature branch)
+  ├── fix/mobile-scroll-bug (fix branch)
+  └── refactor/api-structure (refactor branch)
+```
+
+**Branch Naming:**
+- `feature/*` - New features (`feature/dark-mode`)
+- `fix/*` - Bug fixes (`fix/llm-timeout`)
+- `refactor/*` - Code quality improvements (`refactor/error-handling`)
+- `docs/*` - Documentation only (`docs/api-guide`)
+
+### Commit Message Convention
+```
+type(scope): description
+
+Details here if needed (wrapped at 72 chars).
+Multi-line explanation of WHY, not WHAT.
+
+Fixes #123  (issue reference if applicable)
+```
+
+**Types:** `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `perf`, `security`
+
+**Examples:**
+```
+feat(auth): add OAuth integration
+fix(modal): close button not responsive on mobile
+refactor(api): simplify error handling in routers
+docs(claude.md): update bash guidelines
+```
+
+### Pull Request Process
+1. **Create branch** from `master` with descriptive name
+2. **Make focused changes** (one feature/fix per PR)
+3. **Run quality checks before pushing:**
+   ```bash
+   cd frontend && npm run lint && npm run type-check && npm run test:run
+   python -m pytest backend/
+   ```
+4. **Push and open PR** with clear title + description
+5. **PR Checks** (auto):
+   - Lint errors → must fix
+   - Type errors → must fix
+   - Tests failing → must fix
+   - Coverage < 70% → may fail
+6. **Merge** once all checks pass
+   - Squash trivial fixes, keep meaningful commits
+   - Prefer `Squash and merge` for single-feature PRs
+   - Use `Create a merge commit` for multi-commit histories
+
+### Merge Protection Rules
+- ✓ Must pass all CI checks (lint, tests, coverage)
+- ✓ Must pass pre-push tests (434 tests)
+- ✓ Must not exceed CSS budget (1350KB source)
+- ✗ Cannot force-push to master
+- ✗ Cannot merge with failing security scan
+
 ## Database Schema
 
 | Table | Purpose |
 |-------|---------|
-| `companies` | Company profiles |
+| `companies` | Company profiles (tenant root) |
 | `departments` | Department configs |
 | `roles` | AI personas |
-| `conversations` | Chat history |
+| `conversations` | Chat history (RLS filtered) |
 | `knowledge_entries` | Saved decisions |
 
-**RLS Policy**: `company_id IN (SELECT id FROM companies WHERE user_id = auth.uid())`
+**RLS Policy (enforced on all tables):**
+```sql
+company_id IN (SELECT id FROM companies WHERE user_id = auth.uid())
+```
+Every query automatically filtered. No manual WHERE clauses needed for company isolation.
+
+**RLS Deep Dive?** Load `.claude/skills/supabase-rls.md`
 
 ## CSS Performance Budgets
 
@@ -318,57 +386,154 @@ logger.error(f"Database error: {error}", exc_info=True)
 
 CI fails if source CSS exceeds 1350KB.
 
-## Testing
+## Quality Gates & Testing
 
+### Pre-Push Quality Checks (MUST PASS)
 ```bash
-cd frontend
-npm run test        # Watch mode
-npm run test:run    # Single run
-npm run lint        # ESLint
-npm run lint:css    # Stylelint
-npm run type-check  # TypeScript
+# Frontend: Run all checks
+cd frontend && npm run lint && npm run type-check && npm run test:run
+
+# Backend: Run tests + static analysis
+python -m pytest backend/ -v
+python -m bandit -r backend/  # Security scan
 ```
+
+### Development Workflow
+```bash
+# 1. Start development
+dev.bat
+
+# 2. Make changes + iterate
+cd frontend && npm run dev  # Hot reload + ESLint feedback
+
+# 3. Before committing
+cd frontend && npm run lint && npm run type-check
+npm run test:run  # Run all tests
+
+# 4. Push to GitHub (pre-push hook runs 434 tests)
+git push origin feature/my-feature
+```
+
+### Test Commands Reference
+| Command | Purpose | When to Use |
+|---------|---------|------------|
+| `npm run test` | Watch mode | During development |
+| `npm run test:run` | Single run + coverage | Before commit |
+| `npm run lint` | ESLint violations | Code style |
+| `npm run lint:css` | Stylelint violations | CSS conventions |
+| `npm run type-check` | TypeScript errors | Type safety |
+
+### Coverage Requirements
+- **Minimum**: 70% for CI to pass
+- **Target**: 80%+ for critical paths
+- Coverage report: `frontend/coverage/`
 
 ## Common Pitfalls (Quick Reference)
 
-**Frontend:**
-- Don't hardcode colors - use CSS variables
-- Don't skip mobile testing
-- Don't use `!important` - increase specificity instead
+### Frontend Mistakes
+| Mistake | Problem | Solution |
+|---------|---------|----------|
+| Hardcoded colors | Can't theme, not accessible | Use `var(--color-*)` from tokens |
+| `!important` in CSS | Unmanageable specificity | Increase selector specificity instead |
+| Skipping mobile tests | Broken on real devices | Test at 375px, 768px, 1440px widths |
+| Stale closures in hooks | Outdated state in callbacks | Use `useRef` for values read in callbacks |
+| Missing TypeScript types | Runtime errors | Type at boundaries (API, props) |
 
-**Backend:**
-- Don't expose internal errors - use `create_secure_error()`
-- Don't bypass RLS unless admin operation requires it
+### Backend Mistakes
+| Mistake | Problem | Solution |
+|---------|---------|----------|
+| Exposed error details | Security vulnerability | Use `create_secure_error()` |
+| String concatenation in SQL | SQL injection risk | Use parameterized queries |
+| Bypassing RLS | Multi-tenant data leak | Never skip RLS (requires explicit approval) |
+| Forgetting `await` on async | Returns Promise instead of value | Always `await` async calls |
+| Logging sensitive data | Compliance violation | Log IDs, not user data |
 
-**For detailed debugging patterns, load the relevant skill.**
+### Shared Mistakes
+| Mistake | Problem | Solution |
+|---------|---------|----------|
+| Large components (>300 lines CSS) | Unmaintainable, hard to test | Split into smaller components |
+| No error handling | Silent failures | Use try-catch or error boundaries |
+| Ignoring CI feedback | Broken builds | Fix linting/type errors immediately |
 
-## Key Commands
+## Bash Guidelines
+
+### Use Claude Code Tools Instead of Bash Piping
+For filtering/searching, prefer specialized tools over piping:
 
 ```bash
-# Development
-dev.bat                       # Start all services
-cd frontend && npm run dev    # Frontend only
-python -m backend.main        # Backend only
+# ✗ Avoid piping (harder to debug, uses extra processes)
+git log | grep "feature"
+find . -name "*.tsx" | head -10
 
-# Quality
-cd frontend && npm run lint && npm run type-check
-
-# Build
-cd frontend && npm run build
+# ✓ Use tools instead
+git log --grep="feature" -n 10
+Glob pattern: **/*.tsx (use the Glob tool in Claude Code)
+Grep pattern: feature (use the Grep tool in Claude Code)
 ```
 
-## Automated Safeguards
+### When Piping is OK
+```bash
+# ✓ Fine: Command-specific flags already limit output
+git log --oneline -n 20  # Use -n flag, not | head
 
-| Hook | Trigger | Action |
-|------|---------|--------|
-| `pre-commit` | git commit | Lint-staged |
-| `commit-msg` | git commit | Validate message |
-| `pre-push` | git push | Run 434 tests |
+# ✓ Fine: Chaining simple commands (git operations)
+git add . && git commit -m "message" && git push
+```
 
-| CI Workflow | Checks |
-|-------------|--------|
-| `ci.yml` | Lint, TypeScript, tests, 70% coverage |
-| `security.yml` | CodeQL, Bandit, Gitleaks |
+### Why This Matters
+- **Clearer intent**: `git log -n 10` obviously shows "last 10 commits"
+- **Debuggable**: Failures show exactly which command failed
+- **Efficient**: No extra process overhead
+- **Claude tools are better**: `Glob`, `Grep`, `Read` give better output than piping
+
+## Key Commands Reference
+
+### Development
+```bash
+dev.bat                          # Start all (Chrome + Backend + Frontend)
+cd frontend && npm run dev       # Frontend only (hot reload)
+python -m backend.main           # Backend only (auto-reload)
+npm run build && npm run preview # Build + test production build
+```
+
+### Quality & Verification
+```bash
+cd frontend
+npm run lint                # ESLint check
+npm run lint:css           # CSS conventions check
+npm run type-check         # TypeScript check
+npm run test:run           # All tests (one-shot)
+npm run test               # Tests (watch mode)
+
+# Full pre-commit check
+npm run lint && npm run type-check && npm run test:run
+```
+
+### Deployment
+```bash
+git push origin master     # Triggers Vercel (frontend) + Render (backend)
+```
+
+## Automated Quality Safeguards
+
+### Git Hooks (Auto-run)
+| Hook | Trigger | What Happens |
+|------|---------|--------------|
+| `pre-commit` | Before commit | Runs lint-staged (lints changed files) |
+| `commit-msg` | After commit message | Validates message format |
+| `pre-push` | Before git push | Runs all 434 tests + coverage check |
+
+### CI/CD Workflows
+| Workflow | Triggers | Checks |
+|----------|----------|--------|
+| `ci.yml` | Push to any branch | ESLint, TypeScript, tests, 70% coverage |
+| `security.yml` | Push to master | CodeQL, Bandit (Python), Gitleaks |
+| `deploy.yml` | Push to master | Auto-deploys to Vercel (frontend) + Render (backend) |
+
+### Build Safeguards
+- **CSS Budget**: Source ≤ 1350KB, Built ≤ 700KB (CI fails if exceeded)
+- **Bundle Size**: Checked in CI (warns if increase)
+- **Test Coverage**: Must be ≥ 70% for master
 
 ## MCP Servers
 
