@@ -617,12 +617,12 @@ export function ChatInput({
                       )}
                       onClick={() => setMobileContextOpen(true)}
                       disabled={disabled}
-                      aria-label={t('context.configure')}
+                      aria-label={totalSelectionCount > 0 ? t('context.configure') + ` (${totalSelectionCount} selected)` : t('context.configure')}
                     >
-                      <Settings2 size={16} />
+                      <Settings2 size={16} aria-hidden="true" />
                       <span className="mobile-context-label">{t('context.context')}</span>
                       {totalSelectionCount > 0 && (
-                        <span className="mobile-context-badge">{totalSelectionCount}</span>
+                        <span className="mobile-context-badge" aria-hidden="true">{totalSelectionCount}</span>
                       )}
                     </button>
                     <BottomSheet
@@ -660,12 +660,13 @@ export function ChatInput({
                           totalSelectionCount > 0 && 'has-selection'
                         )}
                         disabled={disabled}
+                        aria-label={totalSelectionCount > 0 ? t('context.configure') + ` (${totalSelectionCount} selected)` : t('context.configure')}
                       >
                         <span>{t('context.context')}</span>
                         {totalSelectionCount > 0 && (
                           <span className="context-trigger-badge">{totalSelectionCount}</span>
                         )}
-                        <ChevronDown size={14} className="context-trigger-chevron" />
+                        <ChevronDown size={14} className="context-trigger-chevron" aria-hidden="true" />
                       </button>
                     </Popover.Trigger>
                     <Popover.Portal>
@@ -691,10 +692,10 @@ export function ChatInput({
                                 onMouseEnter={() => setActiveContextTab('project')}
                                 onFocus={() => setActiveContextTab('project')}
                               >
-                                <FolderKanban size={16} />
+                                <FolderKanban size={16} aria-hidden="true" />
                                 <span>{t('context.project')}</span>
-                                {selectedProject && <span className="context-menu-badge">1</span>}
-                                <ChevronRight size={14} className="context-menu-arrow" />
+                                {selectedProject && <span className="context-menu-badge" aria-hidden="true">1</span>}
+                                <ChevronRight size={14} className="context-menu-arrow" aria-hidden="true" />
                               </div>
                             )}
                             {hasDepartments && (
@@ -708,14 +709,14 @@ export function ChatInput({
                                 onMouseEnter={() => setActiveContextTab('departments')}
                                 onFocus={() => setActiveContextTab('departments')}
                               >
-                                <Building2 size={16} />
+                                <Building2 size={16} aria-hidden="true" />
                                 <span>{t('departments.title')}</span>
                                 {selectedDepartments.length > 0 && (
-                                  <span className="context-menu-badge">
+                                  <span className="context-menu-badge" aria-hidden="true">
                                     {selectedDepartments.length}
                                   </span>
                                 )}
-                                <ChevronRight size={14} className="context-menu-arrow" />
+                                <ChevronRight size={14} className="context-menu-arrow" aria-hidden="true" />
                               </div>
                             )}
                             {hasRoles && (
@@ -729,12 +730,12 @@ export function ChatInput({
                                 onMouseEnter={() => setActiveContextTab('roles')}
                                 onFocus={() => setActiveContextTab('roles')}
                               >
-                                <Users size={16} />
+                                <Users size={16} aria-hidden="true" />
                                 <span>{t('roles.title')}</span>
                                 {selectedRoles.length > 0 && (
-                                  <span className="context-menu-badge">{selectedRoles.length}</span>
+                                  <span className="context-menu-badge" aria-hidden="true">{selectedRoles.length}</span>
                                 )}
-                                <ChevronRight size={14} className="context-menu-arrow" />
+                                <ChevronRight size={14} className="context-menu-arrow" aria-hidden="true" />
                               </div>
                             )}
                             {hasPlaybooks && (
@@ -748,14 +749,14 @@ export function ChatInput({
                                 onMouseEnter={() => setActiveContextTab('playbooks')}
                                 onFocus={() => setActiveContextTab('playbooks')}
                               >
-                                <BookOpen size={16} />
+                                <BookOpen size={16} aria-hidden="true" />
                                 <span>{t('context.playbooks')}</span>
                                 {selectedPlaybooks.length > 0 && (
-                                  <span className="context-menu-badge">
+                                  <span className="context-menu-badge" aria-hidden="true">
                                     {selectedPlaybooks.length}
                                   </span>
                                 )}
-                                <ChevronRight size={14} className="context-menu-arrow" />
+                                <ChevronRight size={14} className="context-menu-arrow" aria-hidden="true" />
                               </div>
                             )}
                             {/* Clear All button at bottom of menu */}
@@ -771,7 +772,7 @@ export function ChatInput({
                                   onResetAll();
                                 }}
                               >
-                                <RotateCcw size={14} />
+                                <RotateCcw size={14} aria-hidden="true" />
                                 <span>{t('common.clearAll')}</span>
                               </button>
                             )}
@@ -882,7 +883,7 @@ export function ChatInput({
                     onClick={onStopGeneration}
                     aria-label="Stop generation"
                   >
-                    <span className="stop-icon" />
+                    <span className="stop-icon" aria-hidden="true" />
                   </button>,
                   TOOLTIPS.stop
                 )
@@ -894,7 +895,7 @@ export function ChatInput({
                     onClick={onSubmit}
                     aria-label="Send message"
                   >
-                    <Send className="h-5 w-5" />
+                    <Send className="h-5 w-5" aria-hidden="true" />
                   </button>,
                   TOOLTIPS.send
                 )}

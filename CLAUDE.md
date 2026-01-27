@@ -535,65 +535,221 @@ git push origin master     # Triggers Vercel (frontend) + Render (backend)
 - **Bundle Size**: Checked in CI (warns if increase)
 - **Test Coverage**: Must be ≥ 70% for master
 
-## MCP Servers
+## Documentation Standards
 
-```json
-{
-  "supabase": { "type": "http", "url": "https://mcp.supabase.com/..." },
-  "chrome-devtools": { "command": "npx", "args": ["chrome-devtools-mcp@latest"] }
-}
-```
+### Code Comments
+- **Write comments for the why, not the what:**
+  ```tsx
+  // ✗ Bad: Just restates code
+  // Increment counter
+  count++
 
-For browser debugging, run `dev.bat` and Chrome will have debug port enabled.
+  // ✓ Good: Explains intent
+  // Skip stale entries from previous audit cycles
+  entries = entries.filter(e => !e.isStale)
+  ```
+- **Document complex algorithms** (only 2-3 lines, usually)
+- **No JSDoc for obvious functions** (the code should be clear)
+- **Use JSDoc for public APIs:**
+  ```tsx
+  /**
+   * Orchestrates 3-stage LLM decision council.
+   * @param question - The decision to deliberate
+   * @returns Promise<Decision> - Synthesized recommendation
+   */
+  export async function runCouncil(question: string): Promise<Decision>
+  ```
+
+### README Patterns
+- **Public libraries**: Full setup, examples, API docs
+- **Internal modules**: 2-3 sentence explanation + link to code
+- **Example format**: "What it does" → "How to use it" → "Where the code is"
 
 ## Feature Flags
 
 ```python
 from backend.feature_flags import is_enabled
-if is_enabled("advanced_search"):
-    # use feature
+
+if is_enabled("prompt_caching"):
+    # Use cached prompts
+    response = await cache_optimized_call()
 ```
 
-Key flags: `prompt_caching`, `streaming_responses`, `dark_mode`, `gpt5_model`, `claude_opus`
+**Active flags:**
+- `prompt_caching` - Reuse cached LLM prompts
+- `streaming_responses` - Stream model outputs
+- `dark_mode` - UI theme support
+- `gpt5_model` - GPT-5 model (when available)
+- `claude_opus` - Claude Opus routing
 
-## LLM Model Configuration
+## LLM Pipeline Configuration
 
-| Stage | Models | Strategy |
-|-------|--------|----------|
-| Stage 1 | 5 premium | Full deliberation |
-| Stage 2 | 3 cheap | Peer review |
-| Stage 3 | 1 chairman | Synthesis |
+### 3-Stage Orchestration
+| Stage | Role | Models | Purpose |
+|-------|------|--------|---------|
+| **Stage 1** | Individual analysts | 5 premium | Full deliberation + context absorption |
+| **Stage 2** | Peer reviewers | 3 efficient | Challenge assumptions, identify risks |
+| **Stage 3** | Chairman | 1 best | Synthesize into final recommendation |
 
-Prompt caching enabled by default. Config in `backend/model_registry.py`.
+**Prompt caching**: Enabled by default. Reduces API costs + improves latency.
+**Config location**: `backend/model_registry.py`
 
-## Deployment
+### Adding a New Model
+1. Add model definition to `backend/model_registry.py`
+2. Test in Stage 3 first (lowest risk)
+3. Monitor latency + accuracy before promoting to Stage 1
 
-- **Frontend**: Vercel, auto-deploys on push to master
-- **Backend**: Render, auto-deploys via GitHub Actions
+## Browser Debugging
 
+### Chrome DevTools MCP
+```json
+{
+  "chrome-devtools": {
+    "command": "npx",
+    "args": ["chrome-devtools-mcp@latest"]
+  }
+}
+```
+
+**Usage:**
+1. Run `dev.bat` (starts Chrome with debug port enabled)
+2. Take screenshots: `take_screenshot` tool
+3. Inspect elements: `take_snapshot` tool
+4. Simulate mobile: `emulate` tool
+5. Network inspection: `list_network_requests` tool
+
+**Debugging mobile issues?** Load `.claude/skills/mobile-debugging.md`
+
+## Deployment & Infrastructure
+
+### Automatic Deployment
+```
+Your commit → git push origin master
+                    ↓
+             GitHub Actions
+                    ↓
+        ┌───────────┴───────────┐
+        ↓                       ↓
+    Vercel                   Render
+    (Frontend)              (Backend)
+   Live in ~2min          Live in ~3min
+```
+
+**Status:** Check GitHub Actions tab for deployment progress.
+
+### Rolling Back (Emergency)
 ```bash
-git push origin master  # Triggers both
+# If deployment broken, revert last commit
+git revert HEAD
+git push origin master
 ```
 
-## Claude Code Hooks
+## Troubleshooting Common Issues
 
-Hooks auto-run during sessions:
-- **SessionStart**: Shows CSS budget reminder
-- **PostToolUse (Write/Edit)**: Warns if CSS file exceeds 300 lines
-- **PreToolUse (Bash)**: Blocks dangerous git commands
+### Frontend Won't Start
+```bash
+# Clear cache + reinstall
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
 
-## Audit Commands
+# Still broken? Check env vars
+cat .env | grep VITE_
+```
 
-45+ audit commands available. Key ones:
-- `/qa` - Pre-push quality check
-- `/audit-security` - Banking-grade security audit
-- `/audit-css-architecture` - CSS audit
-- `/audit-mobile` - Mobile experience audit
-- `/daily-health` - Daily health check
-- `/security-watch` - Security monitoring
+### Backend Connection Errors
+```bash
+# Verify backend is running
+curl http://localhost:8081/health
+
+# Check .env variables
+python -c "from backend.config import settings; print(settings)"
+
+# Restart with fresh state
+pip install -e ".[dev]"
+python -m backend.main
+```
+
+### CSS File > 300 Lines (CI Fails)
+Solution: Split component into smaller pieces
+```bash
+# Find the culprit
+find frontend/src -name "*.css" -exec wc -l {} + | sort -rn | head -5
+```
+
+### Type Errors Before Commit
+```bash
+npm run type-check  # See all errors
+# Fix each error, then try again
+```
+
+### Tests Failing on Pre-Push
+```bash
+npm run test:run    # See which test failed
+# Debug the failing test
+npm run test -- --testPathPattern="FileName"
+```
+
+## Specialized Tools & Agents
+
+### Audit Commands (45+ available)
+Run these before major milestones:
+
+| Command | Purpose | When to Use |
+|---------|---------|------------|
+| `/qa` | Pre-push quality check | Before pushing to master |
+| `/audit-security` | Banking-grade security | Before demo/release |
+| `/audit-css-architecture` | CSS conventions + budget | CSS-heavy changes |
+| `/audit-mobile` | Mobile UX + responsiveness | Before mobile features |
+| `/audit-performance` | Performance bottlenecks | If app feels slow |
+| `/daily-health` | Quick health check | Daily standup |
+| `/security-watch` | Continuous monitoring | Weekly security review |
+
+### Specialized Agents
+Use these when the task matches:
+
+| Agent | Best For |
+|-------|----------|
+| `security-guardian` | Vulnerability scanning, security fixes |
+| `mobile-ux-tester` | Mobile UX issues via Chrome DevTools |
+| `council-ops` | LLM costs, pipeline health |
+| `enterprise-readiness` | $25M exit checklist items |
+| `web-researcher` | Latest tech/security updates |
+
+**Launch like:** `task(description, subagent_type="security-guardian")`
+
+## Performance & Scalability Targets
+
+| Metric | Target | Current |
+|--------|--------|---------|
+| **Frontend** |
+| LCP (Largest Contentful Paint) | < 2.5s | Monitor via `/audit-performance` |
+| FID (First Input Delay) | < 100ms | Check during dev |
+| CLS (Cumulative Layout Shift) | < 0.1 | CSS should prevent |
+| JS Bundle Size | < 400KB | Built size, check via build |
+| **Backend** |
+| API Response Time | < 500ms | Average response time |
+| 3-Stage Pipeline | < 15s | Total decision time |
+| RLS Query Overhead | < 5ms | Database per-request cost |
+
+Monitor via `/audit-performance` and production logs.
 
 ---
 
-**Target**: $25M exit. See `todo/EXIT-READINESS-25M.md` for checklist.
+## Quick Links & Context
 
-**For detailed patterns**: Load relevant skill from `.claude/skills/`
+| Goal | Resource |
+|------|----------|
+| **$25M Exit Readiness** | See `todo/EXIT-READINESS-25M.md` |
+| **Detailed CSS Patterns** | `.claude/skills/css-conventions.md` |
+| **React Hook Debugging** | `.claude/skills/react-patterns.md` |
+| **Database & RLS** | `.claude/skills/supabase-rls.md` |
+| **Mobile Issues** | `.claude/skills/mobile-debugging.md` |
+| **Radix UI Patterns** | `.claude/skills/radix-patterns.md` |
+| **Exit Prep Checklist** | `.claude/skills/exit-readiness.md` |
+
+**Questions?** Check relevant skill first, then ask for help in your dev session.
+
+---
+
+**Last updated:** 2026-01-28 | **Maintained by:** Development Team

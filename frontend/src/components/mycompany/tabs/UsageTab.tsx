@@ -340,6 +340,7 @@ export function UsageTab({
                     isMobile ? CHART_CONFIG.bar.margin.mobile : CHART_CONFIG.bar.margin.desktop
                   }
                   barCategoryGap="20%"
+                  aria-label={`Daily cost chart showing ${chartData.length} days of usage data. Data range: ${chartData.length > 0 ? chartData[0].date : ''} to ${chartData.length > 0 ? chartData[chartData.length - 1].date : ''}.`}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
                   <XAxis
@@ -411,31 +412,33 @@ export function UsageTab({
         <div className={`mc-usage-section ${!hasData ? 'empty-state' : ''}`}>
           <h3 className="mc-usage-section-title">{t('mycompany.costByModel')}</h3>
           {hasData && usage.models.length > 0 ? (
-            <div className="mc-usage-model-bars">
+            <div className="mc-usage-model-bars" role="region" aria-label="Cost breakdown by AI model">
               {usage.models.map((model) => {
                 const maxCost = Math.max(...usage.models.map((m) => m.cost_cents));
                 const percentage = maxCost > 0 ? (model.cost_cents / maxCost) * 100 : 0;
                 return (
-                  <div key={model.model} className="mc-usage-model-row">
+                  <div key={model.model} className="mc-usage-model-row" role="group" aria-label={`${getModelShortName(model.model)}: ${formatCost(model.cost_cents)}, ${formatTokens(model.tokens_input + model.tokens_output)} tokens`}>
                     <div className="mc-usage-model-label">
                       <div
                         className="mc-usage-model-dot"
                         style={{ background: getModelColor(model.model) }}
+                        aria-hidden="true"
                       />
                       <span className="mc-usage-model-name">{getModelShortName(model.model)}</span>
                     </div>
-                    <div className="mc-usage-model-bar-wrapper">
+                    <div className="mc-usage-model-bar-wrapper" role="progressbar" aria-valuenow={Math.round(percentage)} aria-valuemin={0} aria-valuemax={100} aria-label={`Cost usage ${Math.round(percentage)}% of highest cost model`}>
                       <div
                         className="mc-usage-model-bar-fill"
                         style={{
                           width: `${percentage}%`,
                           background: getModelColor(model.model),
                         }}
+                        aria-hidden="true"
                       />
                     </div>
                     <div className="mc-usage-model-values">
-                      <span className="mc-usage-model-cost">{formatCost(model.cost_cents)}</span>
-                      <span className="mc-usage-model-tokens">
+                      <span className="mc-usage-model-cost" aria-label={`Cost: ${formatCost(model.cost_cents)}`}>{formatCost(model.cost_cents)}</span>
+                      <span className="mc-usage-model-tokens" aria-label={`Tokens: ${formatTokens(model.tokens_input + model.tokens_output)}`}>
                         {formatTokens(model.tokens_input + model.tokens_output)}
                       </span>
                     </div>
@@ -462,10 +465,11 @@ export function UsageTab({
                 / {budgetProgress ? formatCost(budgetProgress.limit) : '$100.00'}
               </span>
             </div>
-            <div className="mc-usage-budget-bar">
+            <div className="mc-usage-budget-bar" role="progressbar" aria-valuenow={Math.round(budgetProgress?.percent ?? 0)} aria-valuemin={0} aria-valuemax={100} aria-label={`Monthly budget used: ${budgetProgress ? budgetProgress.percent.toFixed(0) : 0}%`}>
               <div
                 className={`mc-usage-budget-fill ${budgetProgress && budgetProgress.percent >= 80 ? 'warning' : ''} ${budgetProgress && budgetProgress.percent >= 100 ? 'exceeded' : ''}`}
                 style={{ width: `${budgetProgress?.percent ?? 0}%` }}
+                aria-hidden="true"
               />
             </div>
             <div className="mc-usage-budget-footer">
@@ -490,25 +494,25 @@ export function UsageTab({
           <div className="mc-usage-extra-stats">
             <div className="mc-usage-extra-stat">
               <span className="mc-usage-extra-label">{t('mycompany.avgTokensPerSession')}</span>
-              <span className="mc-usage-extra-value">
+              <span className="mc-usage-extra-value" aria-label={`Average tokens per session: ${hasData ? formatTokens(usage.summary.avg_tokens_per_session) : '0'}`}>
                 {hasData ? formatTokens(usage.summary.avg_tokens_per_session) : '0'}
               </span>
             </div>
             <div className="mc-usage-extra-stat">
               <span className="mc-usage-extra-label">{t('mycompany.rankingParseRate')}</span>
-              <span className="mc-usage-extra-value">
+              <span className="mc-usage-extra-value" aria-label={`Response ranking parse rate: ${hasData ? `${usage.summary.parse_success_rate?.toFixed(1) ?? 100}%` : '100%'}`}>
                 {hasData ? `${usage.summary.parse_success_rate?.toFixed(1) ?? 100}%` : '100%'}
               </span>
             </div>
             <div className="mc-usage-extra-stat">
               <span className="mc-usage-extra-label">{t('mycompany.inputTokens')}</span>
-              <span className="mc-usage-extra-value">
+              <span className="mc-usage-extra-value" aria-label={`Total input tokens: ${hasData ? formatTokens(usage.summary.total_input_tokens) : '0'}`}>
                 {hasData ? formatTokens(usage.summary.total_input_tokens) : '0'}
               </span>
             </div>
             <div className="mc-usage-extra-stat">
               <span className="mc-usage-extra-label">{t('mycompany.outputTokens')}</span>
-              <span className="mc-usage-extra-value">
+              <span className="mc-usage-extra-value" aria-label={`Total output tokens: ${hasData ? formatTokens(usage.summary.total_output_tokens) : '0'}`}>
                 {hasData ? formatTokens(usage.summary.total_output_tokens) : '0'}
               </span>
             </div>
