@@ -93,6 +93,7 @@
   line-height: 1;
   letter-spacing: 0.01em;
   white-space: nowrap;
+
   /* Allow slight overflow to prevent truncation of short labels */
   overflow: visible;
   max-width: 100%;
