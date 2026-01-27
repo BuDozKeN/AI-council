@@ -424,6 +424,7 @@ export default function Organization({
                         setEditingDept({ ...dept });
                       }}
                       title={t('organization.editDepartment')}
+                      aria-label={t('organization.editDepartment')}
                     >
                       ✏️
                     </button>
@@ -439,6 +440,7 @@ export default function Organization({
                         });
                       }}
                       title={t('organization.deleteDepartment')}
+                      aria-label={t('organization.deleteDepartment')}
                     >
                       🗑️
                     </button>
@@ -472,6 +474,7 @@ export default function Organization({
                               className="org-icon-btn small"
                               onClick={() => setEditingRole({ deptId: dept.id, role: { ...role } })}
                               title={t('organization.editRole')}
+                              aria-label={t('organization.editRole')}
                             >
                               ✏️
                             </button>
@@ -486,6 +489,7 @@ export default function Organization({
                                 })
                               }
                               title={t('organization.deleteRole')}
+                              aria-label={t('organization.deleteRole')}
                             >
                               🗑️
                             </button>

@@ -1330,6 +1330,11 @@ function UsersTab() {
                 ? t('admin.users.hideDeleted', 'Hide deleted users')
                 : t('admin.users.showDeleted', 'Show deleted users')
             }
+            aria-label={
+              showDeletedUsers
+                ? t('admin.users.hideDeleted', 'Hide deleted users')
+                : t('admin.users.showDeleted', 'Show deleted users')
+            }
           >
             <Archive className="h-4 w-4" />
             {deletedUsersData?.total ? (

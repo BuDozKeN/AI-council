@@ -320,8 +320,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           className="icon-btn promote"
                           onClick={() => handleChangeRole(member.id, 'admin')}
                           title={t('settings.promoteToAdmin')}
+                          aria-label={t('settings.promoteToAdmin')}
                         >
-                          <ChevronUp size={14} />
+                          <ChevronUp size={14} aria-hidden="true" />
                         </button>
                       )}
                       {canDemote && (
@@ -329,8 +330,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           className="icon-btn demote"
                           onClick={() => handleChangeRole(member.id, 'member')}
                           title={t('settings.demoteToMember')}
+                          aria-label={t('settings.demoteToMember')}
                         >
-                          <ChevronDown size={14} />
+                          <ChevronDown size={14} aria-hidden="true" />
                         </button>
                       )}
                       {canRemove && (
@@ -338,8 +340,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           className="icon-btn danger"
                           onClick={() => onRemoveMember(member.id, member.role, handleRemoveMember)}
                           title={t('settings.removeFromTeam')}
+                          aria-label={t('settings.removeFromTeam')}
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={14} aria-hidden="true" />
                         </button>
                       )}
                     </div>
