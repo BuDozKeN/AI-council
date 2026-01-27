@@ -279,9 +279,10 @@ const ModelCard = memo(function ModelCard({
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      tabIndex={0}
-      role="article"
+      tabIndex={-1}
+      role="button"
       aria-label={`${displayName} response${data.isStreaming ? ', generating' : data.isComplete ? ', complete' : ''}`}
+      aria-pressed={isExpanded}
     >
       {/* Header */}
       <div className="model-card-header">
