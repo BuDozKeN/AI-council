@@ -186,31 +186,33 @@
   opacity: 1;
 }
 
-/* Main save button - matches toolbar-pill height for symmetry */
+/* Main save button - outlined secondary style (Issue #463, #466) */
 .save-action-btn {
   display: inline-flex;
   align-items: center;
   gap: var(--gap-xs);
   padding: var(--space-1-5) var(--space-3);
-  background: var(--color-emerald-600);
-  border: none;
+  background: transparent;
+  border: 1px solid var(--color-emerald-600);
   border-radius: var(--radius-md);
   font-size: var(--text-xs);
   font-weight: 600;
-  color: var(--color-text-inverse);
+  color: var(--color-emerald-600);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 1px 2px var(--overlay-emerald-20);
+  box-shadow: none;
 }
 
 .save-action-btn:hover:not(:disabled) {
-  background: var(--color-emerald-700);
-  box-shadow: 0 4px 8px var(--overlay-emerald-20);
-  transform: translateY(-1px);
+  background: var(--overlay-emerald-10);
+  border-color: var(--color-emerald-700);
+  color: var(--color-emerald-700);
+  box-shadow: 0 1px 2px var(--overlay-emerald-15);
 }
 
 .save-action-btn:active:not(:disabled) {
+  background: var(--overlay-emerald-15);
   transform: translateY(0);
 }
 
@@ -221,6 +223,8 @@
 }
 
 .save-action-btn.loading {
-  background: var(--color-gray-500);
+  background: transparent;
+  border-color: var(--color-gray-500);
+  color: var(--color-gray-500);
   box-shadow: none;
 }

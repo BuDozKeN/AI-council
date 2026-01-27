@@ -184,11 +184,41 @@
   flex-shrink: 0;
 }
 
-/* Rank badges - just emoji, no backgrounds */
+/* Rank badges - emoji + visual differentiation for top 3 (Issue #450) */
 .stage1 .model-card-rank.rank-1,
 .stage1 .model-card-rank.rank-2,
 .stage1 .model-card-rank.rank-3 {
   font-size: var(--text-sm);
+}
+
+/* Top ranked responses - gold border for visual hierarchy */
+.stage1 .model-card.rank-1 {
+  border-color: var(--color-amber-400);
+  background: var(--overlay-amber-8);
+}
+
+.stage1 .model-card.rank-1:hover {
+  border-color: var(--color-amber-500);
+}
+
+/* Second ranked - silver border */
+.stage1 .model-card.rank-2 {
+  border-color: var(--color-slate-300);
+  background: var(--overlay-white-5);
+}
+
+.stage1 .model-card.rank-2:hover {
+  border-color: var(--color-slate-400);
+}
+
+/* Third ranked - bronze border */
+.stage1 .model-card.rank-3 {
+  border-color: var(--color-orange-400);
+  background: var(--overlay-orange-8);
+}
+
+.stage1 .model-card.rank-3:hover {
+  border-color: var(--color-orange-500);
 }
 
 /* Non-medal ranks (#4, #5, etc.) - subtle text */

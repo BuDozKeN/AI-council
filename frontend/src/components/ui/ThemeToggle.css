@@ -105,3 +105,15 @@
     outline-offset: 2px;
   }
 }
+
+/* Dark mode adjustments for desktop theme toggle (Issue #6 - visibility in dark) */
+.dark .theme-toggle-btn {
+  background: var(--overlay-white-15);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .theme-toggle-btn:hover {
+  background: var(--overlay-white-20);
+  color: var(--color-text-primary);
+}

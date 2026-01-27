@@ -229,6 +229,7 @@ const ModelCard = memo(function ModelCard({
     data.isStreaming && 'streaming',
     (data.hasError || data.isEmpty) && 'error',
     isExpanded && 'expanded',
+    rankData && `rank-${rankData.position}`, // Add rank class for visual differentiation (Issue #450)
   ]
     .filter(Boolean)
     .join(' ');

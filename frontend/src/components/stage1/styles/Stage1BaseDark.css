@@ -117,3 +117,31 @@
 .dark .stage1 .llm-status-badge {
   border-color: var(--color-bg-secondary);
 }
+
+/* Dark mode rank badges - colored borders for top 3 (Issue #450) */
+.dark .stage1 .model-card.rank-1 {
+  border-color: var(--color-amber-500);
+  background: var(--overlay-amber-15);
+}
+
+.dark .stage1 .model-card.rank-1:hover {
+  border-color: var(--color-amber-400);
+}
+
+.dark .stage1 .model-card.rank-2 {
+  border-color: var(--color-slate-400);
+  background: var(--overlay-white-8);
+}
+
+.dark .stage1 .model-card.rank-2:hover {
+  border-color: var(--color-slate-300);
+}
+
+.dark .stage1 .model-card.rank-3 {
+  border-color: var(--color-orange-500);
+  background: var(--overlay-orange-15);
+}
+
+.dark .stage1 .model-card.rank-3:hover {
+  border-color: var(--color-orange-400);
+}

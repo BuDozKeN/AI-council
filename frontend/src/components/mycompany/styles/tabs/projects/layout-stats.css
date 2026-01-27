@@ -70,10 +70,11 @@
   padding: var(--space-2) 0;
 }
 
+/* Filter group - improved spacing between dropdowns (Issue #263) */
 .mc-filters-left {
   display: flex;
   align-items: center;
-  gap: var(--gap-sm);
+  gap: var(--gap-md);
 }
 
 /* Empty filtered state - minimal, no borders */

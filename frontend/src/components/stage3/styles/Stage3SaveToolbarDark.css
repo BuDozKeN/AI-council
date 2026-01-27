@@ -62,3 +62,26 @@
 .dark .save-view-link:hover {
   color: var(--blue-300);
 }
+
+/* Dark mode save button - outlined secondary style (Issue #463) */
+.dark .save-action-btn {
+  background: transparent;
+  border-color: var(--color-emerald-500);
+  color: var(--color-emerald-400);
+}
+
+.dark .save-action-btn:hover:not(:disabled) {
+  background: var(--overlay-emerald-15);
+  border-color: var(--color-emerald-400);
+  color: var(--color-emerald-300);
+  box-shadow: 0 1px 2px var(--overlay-emerald-25);
+}
+
+.dark .save-action-btn:active:not(:disabled) {
+  background: var(--overlay-emerald-20);
+}
+
+.dark .save-action-btn.loading {
+  border-color: var(--color-slate-500);
+  color: var(--color-slate-400);
+}
