@@ -316,6 +316,7 @@ export function DecisionsTab({
               const displayTitle = getDecisionDisplayTitle(decision);
 
               return (
+                // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex
                 <li
                   key={decision.id}
                   className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
@@ -327,11 +328,10 @@ export function DecisionsTab({
                     }
                   } : undefined}
                   tabIndex={isDeleting ? -1 : 0}
-                  role={!isDeleting ? 'button' : undefined}
                   aria-label={`${displayTitle}, ${formatDateCompact(decision.created_at)}`}
                 >
                   {/* Status indicator - amber for pending */}
-                  <div className="mc-status-dot draft" />
+                  <div className="mc-status-dot draft" aria-label="Pending decision status" />
 
                   {/* Main content - title + badges */}
                   <div className="mc-elegant-content">

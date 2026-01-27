@@ -247,7 +247,11 @@ export function ActivityTab({
                     (log.related_type === 'conversation' && log.conversation_id) ||
                     (log.event_type === 'council_session' && log.conversation_id));
 
+                // Create user-friendly action text - convert technical terms to readable labels
+                const actionText = action ? action : log.event_type.charAt(0).toUpperCase() + log.event_type.slice(1).replace(/_/g, ' ');
+
                 return (
+                  // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex
                   <li
                     key={log.id}
                     className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
@@ -259,14 +263,13 @@ export function ActivityTab({
                           onActivityClick(log);
                         }
                       },
-                      tabIndex: 0,
-                      role: 'button'
+                      tabIndex: 0
                     } : {})}
-                    aria-label={`${cleanTitle}, ${action || log.event_type}${isDeleted ? ', deleted' : ''}`}
+                    aria-label={`${cleanTitle}, ${actionText}${isDeleted ? ', deleted' : ''}`}
                     title={isDeleted ? 'This item has been deleted' : undefined}
                   >
                     {/* Event type indicator */}
-                    <div className="mc-event-dot" style={{ background: dotColor }} />
+                    <div className="mc-event-dot" style={{ background: dotColor }} aria-hidden="true" />
 
                     {/* Main content */}
                     <div className="mc-elegant-content mc-activity-content-wrap">

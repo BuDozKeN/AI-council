@@ -502,6 +502,7 @@ export function PlaybooksTab({
                     const isRemoving = removingIds.has(doc.id);
 
                     return (
+                      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex
                       <li
                         key={doc.id}
                         className={`mc-elegant-row ${mobileActiveId === doc.id ? 'mobile-active' : ''} ${isRemoving ? 'removing' : ''}`}
@@ -512,8 +513,7 @@ export function PlaybooksTab({
                             handleRowClick(doc, e as unknown as React.MouseEvent);
                           }
                         }}
-                        tabIndex={0}
-                        role="button" // eslint-disable-line jsx-a11y/no-noninteractive-element-to-interactive-role
+                        tabIndex={0} // eslint-disable-line jsx-a11y/no-noninteractive-tabindex
                         aria-label={`${doc.title}, ${t(`mycompany.typeShort_${doc.doc_type}`)}`}
                         onTouchStart={() => handlePressStart(doc)}
                         onTouchEnd={handlePressEnd}
@@ -523,7 +523,7 @@ export function PlaybooksTab({
                         onMouseLeave={handlePressEnd}
                       >
                         {/* Type indicator dot */}
-                        <div className={`mc-type-dot ${doc.doc_type}`} />
+                        <div className={`mc-type-dot ${doc.doc_type}`} aria-hidden="true" />
 
                         {/* Main content */}
                         <div className="mc-elegant-content">
@@ -638,6 +638,9 @@ export function PlaybooksTab({
                         [type]: !prev[type],
                       }))
                     }
+                    aria-label={isExpanded
+                      ? t('mycompany.showLess')
+                      : t('mycompany.loadMore', { count: docs.length - MAX_VISIBLE })}
                   >
                     {isExpanded
                       ? t('mycompany.showLess')
