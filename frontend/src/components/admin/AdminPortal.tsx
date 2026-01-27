@@ -3271,7 +3271,7 @@ function AnalyticsTab() {
         <div className="analytics-status-card">
           <div className="analytics-status-header">
             <h3>User Status</h3>
-            <span className="analytics-status-total">{userStatusBreakdown.total} total</span>
+            <span className="analytics-status-total">{(displayStats?.total_users ?? 0).toLocaleString()} total</span>
           </div>
           <div className="analytics-status-chart">
             {usersLoading ? (
