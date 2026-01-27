@@ -340,7 +340,7 @@ export function UsageTab({
                     isMobile ? CHART_CONFIG.bar.margin.mobile : CHART_CONFIG.bar.margin.desktop
                   }
                   barCategoryGap="20%"
-                  aria-label={`Daily cost chart showing ${chartData.length} days of usage data. Data range: ${chartData.length > 0 ? chartData[0].date : ''} to ${chartData.length > 0 ? chartData[chartData.length - 1].date : ''}.`}
+                  aria-label={`Daily cost chart showing ${chartData.length} days of usage data. Data range: ${chartData.length > 0 ? chartData[0]?.date : ''} to ${chartData.length > 0 ? chartData[chartData.length - 1]?.date : ''}.`}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
                   <XAxis

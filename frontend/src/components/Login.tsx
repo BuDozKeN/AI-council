@@ -33,7 +33,8 @@ const GoogleIcon = () => (
 );
 
 // Transform backend error messages into user-friendly ones
-const getUserFriendlyError = (error: string, t: (key: string, fallback?: string) => string): string => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getUserFriendlyError = (error: string, t: any): string => {
   // Map technical error codes/messages to user-friendly translations
   const errorMap: Record<string, string> = {
     'block_new_signups': t('errors.signupDisabled', 'Sign up is currently unavailable. Please try again later.'),
