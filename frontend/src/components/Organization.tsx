@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { api } from '../api';
 import { Spinner } from './ui/Spinner';
 import { AppModal } from './ui/AppModal';
@@ -444,7 +445,11 @@ export default function Organization({
                     >
                       🗑️
                     </button>
-                    <span className="org-expand-icon">{expandedDept === dept.id ? '▼' : '▶'}</span>
+                    {expandedDept === dept.id ? (
+                      <ChevronDown size={16} className="org-expand-icon" aria-hidden="true" />
+                    ) : (
+                      <ChevronRight size={16} className="org-expand-icon" aria-hidden="true" />
+                    )}
                   </div>
                 </div>
 

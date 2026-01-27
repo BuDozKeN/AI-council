@@ -142,7 +142,7 @@
   --shadow-2xl:
     0 32px 64px -16px rgb(0 0 0 / 32%), 0 16px 32px -8px rgb(0 0 0 / 20%), 0 0 1px rgb(0 0 0 / 8%);
 
-  /* Focus ring (accessibility) - using iris brand color */
+/* Focus ring (accessibility) - using iris brand color */
   /* Increased opacity from 0.35 to 0.5 for better visibility (WCAG) */
   --shadow-focus: 0 0 0 3px rgb(var(--color-focus-rgb), 0.5);
   --shadow-focus-error: 0 0 0 3px rgb(239 68 68 / 50%);

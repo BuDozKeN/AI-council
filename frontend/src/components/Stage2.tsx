@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
 import { getModelPersona } from '../config/modelPersonas';
@@ -210,7 +211,11 @@ function Stage2({
       data-stage="stage2"
     >
       <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
-        <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
+        {isCollapsed ? (
+          <ChevronRight size={16} className="collapse-arrow" aria-hidden="true" />
+        ) : (
+          <ChevronDown size={16} className="collapse-arrow" aria-hidden="true" />
+        )}
         <span className="font-semibold tracking-tight">{t('stages.expertsReview')}</span>
         {/* Hint for first-time users - shows what this stage does */}
         {!isCollapsed && (

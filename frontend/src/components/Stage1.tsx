@@ -5,7 +5,7 @@ import ReactMarkdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
-import { Activity, AlertCircle, StopCircle, ChevronDown, X, Check } from 'lucide-react';
+import { Activity, AlertCircle, StopCircle, ChevronDown, ChevronRight, X, Check } from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
 import { hapticLight } from '../lib/haptics';
 import { springs, interactionStates } from '../lib/animations';
@@ -632,7 +632,11 @@ function Stage1({
       data-stage="stage1"
     >
       <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
-        <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
+        {isCollapsed ? (
+          <ChevronRight size={16} className="collapse-arrow" aria-hidden="true" />
+        ) : (
+          <ChevronDown size={16} className="collapse-arrow" aria-hidden="true" />
+        )}
         <span className="font-semibold tracking-tight">
           {t('stages.expertsRespondCount', { count: expertCount })}
         </span>

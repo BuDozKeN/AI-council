@@ -12,6 +12,7 @@ import { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { CouncilLoader } from '../ui/CouncilLoader';
 
 // Performance: Lazy-load Stage components to split CSS into separate chunks
@@ -198,7 +199,11 @@ function UserMessage({ content }: { content: string }) {
         <CopyButton text={content} size="sm" className="user-copy-btn no-touch-target" />
 
         <div className="user-collapse-row" {...makeClickable(() => setIsCollapsed(!isCollapsed))}>
-          <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
+          {isCollapsed ? (
+            <ChevronRight size={16} className="collapse-arrow" aria-hidden="true" />
+          ) : (
+            <ChevronDown size={16} className="collapse-arrow" aria-hidden="true" />
+          )}
           {/* Collapsed preview */}
           {isCollapsed && <span className="user-preview-inline">{previewText}</span>}
         </div>
