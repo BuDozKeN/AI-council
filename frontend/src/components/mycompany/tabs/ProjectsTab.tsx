@@ -374,7 +374,10 @@ export function ProjectsTab({
           {project.status === 'active' && (
             <button
               className="mc-project-action complete"
-              onClick={(e) => onCompleteProject && onCompleteProject(project, e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onCompleteProject && onCompleteProject(project, e);
+              }}
               title={t('mycompany.markCompleted')}
             >
               <CheckCircle className="w-3.5 h-3.5" />
@@ -384,7 +387,10 @@ export function ProjectsTab({
           {project.status === 'archived' ? (
             <button
               className="mc-project-action restore"
-              onClick={(e) => onRestoreProject && onRestoreProject(project, e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRestoreProject && onRestoreProject(project, e);
+              }}
               title={t('mycompany.restoreProject')}
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -393,7 +399,10 @@ export function ProjectsTab({
           ) : (
             <button
               className="mc-project-action archive"
-              onClick={(e) => onArchiveProject && onArchiveProject(project, e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onArchiveProject && onArchiveProject(project, e);
+              }}
               title={t('mycompany.archiveProject')}
             >
               <Archive className="w-3.5 h-3.5" />
@@ -404,7 +413,10 @@ export function ProjectsTab({
             <>
               <button
                 className="mc-project-action confirm-yes"
-                onClick={(e) => onDeleteProject && onDeleteProject(project, e)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteProject && onDeleteProject(project, e);
+                }}
                 title={t('common.confirm')}
               >
                 <span>{t('mycompany.confirmDelete')}</span>
@@ -423,7 +435,10 @@ export function ProjectsTab({
           ) : (
             <button
               className="mc-project-action delete"
-              onClick={(e) => onDeleteProject && onDeleteProject(project, e)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteProject && onDeleteProject(project, e);
+              }}
               title={t('mycompany.deleteProject')}
             >
               <Trash2 className="w-3.5 h-3.5" />
