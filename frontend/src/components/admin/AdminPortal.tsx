@@ -2226,29 +2226,30 @@ function CompaniesTab() {
                       key={company.id}
                       className={useDummyData ? 'admin-demo-row' : ''}
                       {...getCompanyRowProps(rowIndex)}
+                      aria-label={`${company.name}, Owner: ${company.owner_email || 'Unknown'}, Conversations: ${company.conversation_count}, Created: ${formatDate(company.created_at)}`}
                     >
                       <td>
                         <div className="admin-company-cell">
-                          <Building2 className="h-4 w-4" />
+                          <Building2 className="h-4 w-4" aria-hidden="true" />
                           <span>{company.name}</span>
                           {useDummyData && <span className="admin-demo-badge">DEMO</span>}
                         </div>
                       </td>
                       <td>
                         <div className="admin-user-cell">
-                          <Mail className="h-4 w-4" />
+                          <Mail className="h-4 w-4" aria-hidden="true" />
                           <span>{company.owner_email || 'Unknown'}</span>
                         </div>
                       </td>
                       <td>
                         <div className="admin-count-cell">
-                          <MessageSquare className="h-4 w-4" />
+                          <MessageSquare className="h-4 w-4" aria-hidden="true" />
                           <span>{company.conversation_count}</span>
                         </div>
                       </td>
                       <td>
                         <div className="admin-date-cell">
-                          <Calendar className="h-4 w-4" />
+                          <Calendar className="h-4 w-4" aria-hidden="true" />
                           <span>{formatDate(company.created_at)}</span>
                         </div>
                       </td>
@@ -2387,10 +2388,11 @@ function AdminsTab() {
                     key={admin.id}
                     className={useDummyData ? 'admin-demo-row' : ''}
                     {...getAdminRowProps(rowIndex)}
+                    aria-label={`${admin.email}, Role: ${admin.role.replace('_', ' ')}, Granted: ${formatDate(admin.created_at)}`}
                   >
                     <td>
                       <div className="admin-user-cell">
-                        <Shield className="h-4 w-4" />
+                        <Shield className="h-4 w-4" aria-hidden="true" />
                         <span>{admin.email}</span>
                         {useDummyData && <span className="admin-demo-badge">DEMO</span>}
                       </div>
@@ -2402,7 +2404,7 @@ function AdminsTab() {
                     </td>
                     <td className="admin-roles-date-col">
                       <div className="admin-date-cell">
-                        <Calendar className="h-4 w-4" />
+                        <Calendar className="h-4 w-4" aria-hidden="true" />
                         <span>{formatDate(admin.created_at)}</span>
                       </div>
                     </td>
@@ -2774,10 +2776,11 @@ function AuditTab() {
                       key={log.id}
                       className={useDummyData ? 'admin-demo-row' : ''}
                       {...getAuditRowProps(rowIndex)}
+                      aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)} on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
                     >
                       <td>
                         <div className="admin-date-cell">
-                          <Clock className="h-4 w-4" />
+                          <Clock className="h-4 w-4" aria-hidden="true" />
                           <span>{formatTimestamp(log.timestamp)}</span>
                           {useDummyData && <span className="admin-demo-badge">DEMO</span>}
                         </div>
@@ -2785,11 +2788,11 @@ function AuditTab() {
                       <td>
                         <div className="admin-user-cell">
                           {log.actor_type === 'admin' ? (
-                            <Shield className="h-4 w-4" />
+                            <Shield className="h-4 w-4" aria-hidden="true" />
                           ) : log.actor_type === 'system' ? (
-                            <Activity className="h-4 w-4" />
+                            <Activity className="h-4 w-4" aria-hidden="true" />
                           ) : (
-                            <Users className="h-4 w-4" />
+                            <Users className="h-4 w-4" aria-hidden="true" />
                           )}
                           <span title={log.actor_email || undefined}>
                             {log.actor_email || log.actor_type}
@@ -2810,7 +2813,7 @@ function AuditTab() {
                           >
                             <span className="admin-action-text admin-action-text--has-reason">
                               {formatActionName(log.action)}
-                              <Eye className="h-3 w-3" />
+                              <Eye className="h-3 w-3" aria-hidden="true" />
                             </span>
                           </Tooltip>
                         ) : (
