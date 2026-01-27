@@ -267,8 +267,8 @@
     padding-top: var(--space-5);
   }
 
-  /* Remove rounded corners on header - prevents white gaps at top corners on mobile */
-  .mc-header-dismissible {
+  /* Remove rounded corners on header target - prevents white gaps at top corners on mobile */
+  .mc-header-dismissible-target {
     border-radius: 0;
   }
 

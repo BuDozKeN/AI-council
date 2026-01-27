@@ -95,17 +95,22 @@
 
 /* Dismissible header - click anywhere to close */
 .mc-header-dismissible {
+  /* Base header styling only - interactive behavior moved to wrapper div */
+}
+
+/* WCAG 4.1.1 Fix: Interactive target is now a separate div to avoid button nesting */
+.mc-header-dismissible-target {
   cursor: pointer;
   transition: all 0.2s ease;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
-.mc-header-dismissible:hover {
+.mc-header-dismissible-target:hover {
   background:
     linear-gradient(var(--overlay-white-5), var(--overlay-white-5)), var(--color-bg-inverse);
 }
 
-.mc-header-dismissible:active {
+.mc-header-dismissible-target:active {
   background:
     linear-gradient(var(--overlay-white-10), var(--overlay-white-10)), var(--color-bg-inverse);
 }
@@ -148,9 +153,9 @@
   }
 }
 
-/* Show hint on hover */
-.mc-header-dismissible:hover .mc-dismiss-hint,
-.mc-header-dismissible:focus .mc-dismiss-hint {
+/* Show hint on hover/focus of the target wrapper */
+.mc-header-dismissible-target:hover .mc-dismiss-hint,
+.mc-header-dismissible-target:focus .mc-dismiss-hint {
   opacity: 1;
 }
 
