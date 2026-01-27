@@ -199,8 +199,8 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   value={newRole}
                   onValueChange={(value: string) => setNewRole(value as TeamRole)}
                 >
-                  <SelectTrigger className="form-select" aria-label={t('settings.profile', 'Role')}>
-                    <SelectValue placeholder={t('settings.profile', 'Role')} />
+                  <SelectTrigger className="form-select" aria-label={t('settings.selectRole', 'Role')}>
+                    <SelectValue placeholder={t('settings.selectRole', 'Role')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="member">{t('settings.member')}</SelectItem>
