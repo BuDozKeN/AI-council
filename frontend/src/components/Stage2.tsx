@@ -64,11 +64,12 @@ function deAnonymizeText(text: string, labelToModel?: Record<string, string>): s
 }
 
 // Rank label helper - medal emojis for top 3, numbers for rest
-function getRankLabel(position: number): string {
-  if (position === 1) return '🥇';
-  if (position === 2) return '🥈';
-  if (position === 3) return '🥉';
-  return `#${position}`;
+// Returns object with emoji/text and accessible label
+function getRankLabel(position: number): { label: string; ariaLabel: string } {
+  if (position === 1) return { label: '🥇', ariaLabel: 'Ranked #1' };
+  if (position === 2) return { label: '🥈', ariaLabel: 'Ranked #2' };
+  if (position === 3) return { label: '🥉', ariaLabel: 'Ranked #3' };
+  return { label: `#${position}`, ariaLabel: `Ranked #${position}` };
 }
 
 function Stage2({
@@ -401,7 +402,7 @@ function Stage2({
                         ? makeClickable(() => onModelClick(agg.model))
                         : {})}
                     >
-                      <span className="rank-position">{getRankLabel(index + 1)}</span>
+                      <span className="rank-position" aria-label={getRankLabel(index + 1).ariaLabel}>{getRankLabel(index + 1).label}</span>
                       <span className="rank-model">
                         {iconPath && (
                           <img
