@@ -100,6 +100,7 @@ export function MyCompanyHeader({
       </div>
       <button
         className="mc-close-btn"
+        aria-label="Close"
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           onClose?.();
