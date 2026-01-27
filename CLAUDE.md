@@ -1,38 +1,56 @@
 # CLAUDE.md - AxCouncil Development Guide
 
-> Concise context for Claude Code. Detailed patterns are in `.claude/skills/`.
+> **Quick reference for development standards.** Detailed patterns are in `.claude/skills/`. For $25M exit readiness, see `todo/EXIT-READINESS-25M.md`.
 
-## CRITICAL: Working Directory Verification
+## ⚡ Quick Setup Check
 
-Before starting ANY work, verify `.claude-workspace` file exists. If not, ask: "Is this the correct/primary repo folder?"
+Before starting work, verify:
+- [ ] You're in the `AI-council` directory
+- [ ] `.claude-workspace` file exists
+- [ ] `.env` is configured (copy from `.env.example`)
+
+If any are missing, ask: "Is this the correct repository folder?"
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js v18+, Python 3.10+, Git, Google Chrome
+- **Node.js** v18+ (frontend tooling)
+- **Python** 3.10+ (backend + LLM pipeline)
+- **Git** (version control)
+- **Google Chrome** (debugging with Chrome DevTools MCP)
 
-### Installation
+### Installation (One-time Setup)
 ```bash
-cd AI-council
+# Install frontend dependencies
 cd frontend && npm install && cd ..
+
+# Install backend + dev tools
 pip install -e ".[dev]"
-pre-commit install  # optional
+
+# Optional: Git hooks for pre-commit checks
+pre-commit install
 ```
 
-### Starting Development
+### Starting Development (Pick One)
 ```bash
-dev.bat  # Windows: Starts Chrome+Backend+Frontend
+# ✓ Recommended: Start all services at once
+dev.bat
 
-# Or manually:
-cd frontend && npm run dev     # Terminal 1
-python -m backend.main         # Terminal 2
+# Or manually in separate terminals:
+cd frontend && npm run dev     # Terminal 1: Frontend (http://localhost:5173)
+python -m backend.main         # Terminal 2: Backend (http://localhost:8081)
 ```
 
 ### Environment Variables
-Copy `.env.example` to `.env` and fill in:
-- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
-- `VITE_API_URL` - Usually `http://localhost:8081`
-- `OPENROUTER_API_KEY`
+Copy `.env.example` to `.env`:
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `VITE_SUPABASE_URL` | ✓ | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | ✓ | Supabase public key |
+| `VITE_API_URL` | ✓ | Backend URL (usually `http://localhost:8081`) |
+| `OPENROUTER_API_KEY` | ✓ | LLM API access |
+
+**Troubleshooting Setup?** Check `.claude/skills/` for detailed guides on specific issues.
 
 ## Project Overview
 
@@ -91,45 +109,193 @@ Run specialized agents for complex tasks:
 | `enterprise-readiness` | $25M exit checklist tracking |
 | `web-researcher` | Search for latest security/tech updates |
 
-## Frontend Conventions (Summary)
+## Code Style & Organization
 
-### CSS Rules (See skill for details)
-- **One CSS file per component**: `Component.tsx` → `Component.css`
-- **Max 300 lines** per CSS file
-- **No hardcoded colors**: Use `var(--color-*)` tokens
-- **3 breakpoints only**: default (mobile), 641px (tablet), 1025px (desktop)
-- **Budget**: 1350KB source, 700KB built
+### Naming Conventions
+| Category | Pattern | Example |
+|----------|---------|---------|
+| **Components** | PascalCase | `ChatInterface.tsx`, `UserProfile.tsx` |
+| **Functions/Hooks** | camelCase | `getChatHistory()`, `useUserContext()` |
+| **CSS Variables** | kebab-case, prefixed | `--color-text-primary`, `--space-4` |
+| **Constants** | UPPER_SNAKE_CASE | `MAX_RETRIES`, `API_TIMEOUT_MS` |
+| **Files** | Match export | Component.tsx, Component.css (paired) |
+| **Routes** | kebab-case | `/chat-sessions`, `/user-settings` |
 
-### Styling Priority
-1. Tailwind utilities for layout
-2. CSS variables for colors/spacing
-3. Component CSS files for complex styles
-
-### Design Tokens
-```css
-color: var(--color-text-primary);
-background: var(--color-bg-primary);
-padding: var(--space-4);
+### File Organization - Frontend
+```
+src/
+├── components/
+│   ├── ui/              # Basic UI (Button, Modal, etc.)
+│   ├── chat/            # Chat-specific components
+│   ├── mycompany/       # Company/org features
+│   └── stage[1-3]/      # Council pipeline stages
+├── hooks/               # Custom hooks (one hook per file)
+├── contexts/            # React contexts (one context per file)
+├── styles/              # Global: index.css, design-tokens.css
+└── types/               # Shared TypeScript types
 ```
 
-## Backend Conventions (Summary)
+### File Organization - Backend
+```
+backend/
+├── routers/             # API endpoints (one router = one resource)
+├── services/            # Business logic
+├── models/              # Data models + validation
+├── core/                # Infrastructure (auth, db, errors)
+├── council.py           # 3-stage LLM orchestration
+└── openrouter.py        # LLM API integration
+```
 
-### Router Pattern
+## Frontend Conventions
+
+### CSS Rules (See `.claude/skills/css-conventions.md` for details)
+- **One CSS file per component**: `Component.tsx` → `Component.css` (paired, same directory)
+- **Max 300 lines** per CSS file (if larger, component is too complex → split it)
+- **No hardcoded colors**: Use `var(--color-*)` tokens from design-tokens.css
+- **3 breakpoints only**: `default` (mobile), `641px` (tablet), `1025px` (desktop)
+- **Budget**: 1350KB source, 700KB built (CI fails if exceeded)
+
+### Styling Priority (in order)
+1. Tailwind utilities for **layout** (flex, grid, spacing via className)
+2. CSS variables for **colors & spacing** (design-tokens.css)
+3. Component CSS files for **complex styles** (animations, interactions)
+
+### Design Tokens Pattern
+```tsx
+// In TSX
+<div className="flex gap-4 p-6">
+  <span style={{ color: 'var(--color-text-primary)' }}>Hello</span>
+</div>
+
+// In CSS
+.my-component {
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  padding: var(--space-4);
+}
+```
+
+### React Component Pattern
+```tsx
+// Component.tsx
+import { ComponentProps } from 'react';
+import './Component.css';
+
+interface Props {
+  title: string;
+  onAction?: () => void;
+}
+
+export function Component({ title, onAction }: Props) {
+  return (
+    <div className="flex items-center gap-4">
+      <h1>{title}</h1>
+      {onAction && <button onClick={onAction}>Action</button>}
+    </div>
+  );
+}
+```
+**Hooks patterns?** Load `.claude/skills/react-patterns.md`
+
+### TypeScript Requirements
+- ✓ Strict mode enabled (`tsconfig.json: "strict": true`)
+- ✓ No `any` types (use `unknown` + type guards if needed)
+- ✓ Export types for all props interfaces
+- ✓ Type external data at system boundaries (API responses, props)
+- ✗ Don't over-type internal implementation details
+
+## Backend Conventions
+
+### API Router Pattern
 ```python
+# routers/items.py
+from fastapi import APIRouter, Depends
+from backend.core.auth import get_current_user
+
+router = APIRouter(prefix="/items", tags=["items"])
+
 @router.get("/")
 async def list_items(user: dict = Depends(get_current_user)):
-    return await get_items_for_user(user["id"])  # Always filter by ownership
+    """List all items for current user. RLS enforced automatically."""
+    return await get_items_for_user(user["id"])
+
+@router.post("/")
+async def create_item(
+    data: ItemCreate,
+    user: dict = Depends(get_current_user)
+):
+    """Create item owned by current user. Company isolation via RLS."""
+    return await save_item(data, user["id"])
 ```
 
-### Database
-- Use parameterized queries (never string concatenation)
-- Service client for admin ops, auth client for user queries
-- All tables have RLS enforcing multi-tenant isolation
+**Rules:**
+- Always filter by user ownership in queries
+- All table access automatically filtered by RLS policy
+- Never bypass RLS unless admin operation with explicit approval
 
-### Error Handling
+### Request/Response Format
 ```python
-raise create_secure_error(404, "Resource not found", log_details={"id": item_id})
+# ✓ Good: Consistent API responses
+{
+  "success": true,
+  "data": { ... },  # or null if empty
+  "error": null     # or error object
+}
+
+# Error response (automatic via create_secure_error)
+{
+  "success": false,
+  "data": null,
+  "error": {
+    "code": "RESOURCE_NOT_FOUND",
+    "message": "User-friendly error message"
+  }
+}
 ```
+
+### Database Best Practices
+- **Always use parameterized queries** (never string concatenation)
+  ```python
+  # ✓ Good
+  query = "SELECT * FROM items WHERE id = %s AND user_id = %s"
+  result = await db.fetch(query, item_id, user_id)
+
+  # ✗ Never do this
+  query = f"SELECT * FROM items WHERE id = {item_id}"
+  ```
+- **Use auth client for user queries** (automatically filters by RLS)
+- **Use service client only for admin operations** (requires explicit reason)
+- **All tables have RLS enforcing multi-tenant isolation**
+
+### Error Handling Pattern
+```python
+# ✓ Good: Secure error without exposing internals
+from backend.core.errors import create_secure_error
+
+@router.get("/{id}")
+async def get_item(id: str, user: dict = Depends(get_current_user)):
+    item = await db.fetch_one("SELECT * FROM items WHERE id = %s", id)
+    if not item:
+        raise create_secure_error(
+            404,
+            "Item not found",
+            log_details={"id": id, "user_id": user["id"]}
+        )
+    return item
+```
+
+### Logging Pattern
+```python
+import logging
+logger = logging.getLogger(__name__)
+
+# Log important actions
+logger.info(f"User {user_id} created item {item_id}")
+logger.warning(f"Invalid model selected: {model_name}")
+logger.error(f"Database error: {error}", exc_info=True)
+```
+
+**Security rules?** Load `.claude/skills/supabase-rls.md`
 
 ## Database Schema
 

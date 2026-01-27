@@ -102,7 +102,7 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
       {/* Plans */}
       <section className="plans-section" aria-labelledby="plans-heading">
         <h3 id="plans-heading">{t('settings.subscriptionPlans')}</h3>
-        <ul className="plans-grid" role="list" aria-label="Subscription plans">
+        <ul className="plans-grid" aria-label="Subscription plans">
           {plans.map((plan) => {
             const isCurrentPlan = plan.id === currentTier;
             const isUpgrade =
@@ -113,7 +113,6 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
               <li
                 key={plan.id}
                 className={`plan-card ${isCurrentPlan ? 'current' : ''} ${plan.id === 'pro' ? 'popular' : ''}`}
-                role="listitem"
                 aria-label={`${plan.name} plan, ${plan.is_free ? 'Free' : `${formatCurrency(plan.price, { maximumFractionDigits: 0 })} per month`}`}
               >
                 {plan.id === 'pro' && (

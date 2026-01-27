@@ -474,7 +474,7 @@ export function PlaybooksTab({
                   {t(`mycompany.typeLabel_${type}`)}
                   <span className="mc-group-count">({docs.length})</span>
                 </h4>
-                <ul className="mc-elegant-list" role="list" aria-label={`${t(`mycompany.typeLabel_${type}`)} list`}>
+                <ul className="mc-elegant-list" aria-label={`${t(`mycompany.typeLabel_${type}`)} list`}>
                   {visibleDocs.map((doc: ExtendedPlaybook) => {
                     // Use embedded department name (or fallback to lookup for backwards compat)
                     const dept:
@@ -513,7 +513,7 @@ export function PlaybooksTab({
                           }
                         }}
                         tabIndex={0}
-                        role="listitem"
+                        role="button" // eslint-disable-line jsx-a11y/no-noninteractive-element-to-interactive-role
                         aria-label={`${doc.title}, ${t(`mycompany.typeShort_${doc.doc_type}`)}`}
                         onTouchStart={() => handlePressStart(doc)}
                         onTouchEnd={handlePressEnd}

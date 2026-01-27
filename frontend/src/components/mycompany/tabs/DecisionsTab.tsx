@@ -310,7 +310,7 @@ export function DecisionsTab({
       {/* Decision list with scroll-to-top */}
       {filteredDecisions.length > 0 && (
         <ScrollableContent className="mc-decisions-list">
-          <ul className="mc-elegant-list" role="list" aria-label="Pending decisions">
+          <ul className="mc-elegant-list" aria-label="Pending decisions">
             {filteredDecisions.map((decision: Decision) => {
               const isDeleting = deletingDecisionId === decision.id;
               const displayTitle = getDecisionDisplayTitle(decision);
@@ -327,7 +327,7 @@ export function DecisionsTab({
                     }
                   } : undefined}
                   tabIndex={isDeleting ? -1 : 0}
-                  role="listitem"
+                  role={!isDeleting ? 'button' : undefined}
                   aria-label={`${displayTitle}, ${formatDateCompact(decision.created_at)}`}
                 >
                   {/* Status indicator - amber for pending */}

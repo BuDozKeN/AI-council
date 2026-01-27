@@ -229,7 +229,7 @@ export function ActivityTab({
         {Object.entries(groupedLogs).map(([date, logs]) => (
           <section key={date} className="mc-activity-group" aria-labelledby={`activity-date-${date.replace(/\s+/g, '-')}`}>
             <h4 id={`activity-date-${date.replace(/\s+/g, '-')}`} className="mc-group-title">{date}</h4>
-            <ul className="mc-elegant-list" role="list" aria-label={`Activity on ${date}`}>
+            <ul className="mc-elegant-list" aria-label={`Activity on ${date}`}>
               {logs.map((log) => {
                 const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
                 // Use explicit action column from database (no more title parsing)
@@ -251,15 +251,17 @@ export function ActivityTab({
                   <li
                     key={log.id}
                     className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
-                    onClick={isClickable && onActivityClick ? () => onActivityClick(log) : undefined}
-                    onKeyDown={isClickable && onActivityClick ? (e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onActivityClick(log);
-                      }
-                    } : undefined}
-                    tabIndex={isClickable ? 0 : -1}
-                    role="listitem"
+                    {...(isClickable && onActivityClick ? {
+                      onClick: () => onActivityClick(log),
+                      onKeyDown: (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onActivityClick(log);
+                        }
+                      },
+                      tabIndex: 0,
+                      role: 'button'
+                    } : {})}
                     aria-label={`${cleanTitle}, ${action || log.event_type}${isDeleted ? ', deleted' : ''}`}
                     title={isDeleted ? 'This item has been deleted' : undefined}
                   >
