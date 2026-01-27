@@ -2182,7 +2182,7 @@ function CompaniesTab() {
       ) : (
         <>
           <div className="admin-table-container">
-            <table className="admin-table" role="grid" aria-label={t('admin.companies.title', 'Companies List')}>
+            <table className="admin-table" aria-label={t('admin.companies.title', 'Companies List')}>
               <caption className="sr-only">{t('admin.companies.description', 'List of all companies with owner information and conversation count')}</caption>
               <thead>
                 <tr>
@@ -2348,7 +2348,7 @@ function AdminsTab() {
         </div>
       ) : (
         <div className="admin-table-container">
-          <table className="admin-table" role="grid" aria-label={t('admin.admins.title', 'Admin Users List')}>
+          <table className="admin-table" aria-label={t('admin.admins.title', 'Admin Users List')}>
             <caption className="sr-only">{t('admin.admins.description', 'List of platform administrators with their roles and grant dates')}</caption>
             <thead>
               <tr>
@@ -2733,7 +2733,7 @@ function AuditTab() {
       ) : (
         <>
           <div className="admin-table-container">
-            <table className="admin-table admin-table--audit" role="grid" aria-label={t('admin.audit.title', 'Audit Logs')}>
+            <table className="admin-table admin-table--audit" aria-label={t('admin.audit.title', 'Audit Logs')}>
               <caption className="sr-only">{t('admin.audit.description', 'Platform audit logs showing all administrative actions, timestamps, actors, and affected resources')}</caption>
               <thead>
                 <tr>
