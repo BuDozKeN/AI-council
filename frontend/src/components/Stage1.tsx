@@ -160,6 +160,14 @@ const ModelCard = memo(function ModelCard({
     return `#${position}`;
   };
 
+  // Screen reader-friendly rank label
+  const getRankAriaLabel = (position: number): string => {
+    if (position === 1) return t('stages.rank1', 'Ranked 1st place');
+    if (position === 2) return t('stages.rank2', 'Ranked 2nd place');
+    if (position === 3) return t('stages.rank3', 'Ranked 3rd place');
+    return t('stages.rankN', { position, defaultValue: `Ranked ${position}th place` });
+  };
+
   // Build informative tooltip for rank badge
   const getRankTooltip = () => {
     if (!rankData) return '';
@@ -316,7 +324,12 @@ const ModelCard = memo(function ModelCard({
 
           {/* Rank badge - shows position after rankings are complete */}
           {rankData && (
-            <span className={`model-card-rank rank-${rankData.position}`} title={getRankTooltip()}>
+            <span
+              className={`model-card-rank rank-${rankData.position}`}
+              title={getRankTooltip()}
+              aria-label={getRankAriaLabel(rankData.position)}
+              role="img"
+            >
               {getRankLabel(rankData.position)}
             </span>
           )}

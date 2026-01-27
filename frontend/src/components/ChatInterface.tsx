@@ -402,12 +402,12 @@ export default function ChatInterface({
     // (isLoadingConversation might lag behind the conversation being cleared)
     if (isLoadingConversation) {
       return (
-        <main id="main-content" className="chat-interface" aria-label="Chat interface">
+        <div className="chat-interface" role="region" aria-label="Chat interface">
           <h1 className="sr-only">Loading Conversation</h1>
           <div className="council-loader-overlay">
             <CouncilLoader text="Getting your conversation ready..." companyId={selectedBusiness} />
           </div>
-        </main>
+        </div>
       );
     }
 
@@ -432,7 +432,7 @@ export default function ChatInterface({
   const hasMessages = conversation.messages.length > 0;
 
   return (
-    <main id="main-content" className="chat-interface" aria-label="Chat interface">
+    <div className="chat-interface" role="region" aria-label="Chat interface">
       <h1 className="sr-only">{conversation?.title || 'Chat with Council'}</h1>
       {/* Back to My Company floating button */}
       {returnToMyCompanyTab && onReturnToMyCompany && (
@@ -654,6 +654,6 @@ export default function ChatInterface({
           />
         );
       })()}
-    </main>
+    </div>
   );
 }

@@ -16,7 +16,6 @@ import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
 import { formatDateCompact } from '../../../lib/dateUtils';
-import { makeClickable } from '../../../utils/a11y';
 import type { Department } from '../../../types/business';
 
 // Note: ScrollableContent provides sticky copy button + scroll-to-top for lists
@@ -311,18 +310,25 @@ export function DecisionsTab({
       {/* Decision list with scroll-to-top */}
       {filteredDecisions.length > 0 && (
         <ScrollableContent className="mc-decisions-list">
-          <div className="mc-elegant-list">
+          <ul className="mc-elegant-list" role="list" aria-label="Pending decisions">
             {filteredDecisions.map((decision: Decision) => {
               const isDeleting = deletingDecisionId === decision.id;
               const displayTitle = getDecisionDisplayTitle(decision);
 
               return (
-                <div
+                <li
                   key={decision.id}
                   className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                  {...(!isDeleting && onPromoteDecision
-                    ? makeClickable(() => onPromoteDecision(decision))
-                    : {})}
+                  onClick={!isDeleting && onPromoteDecision ? () => onPromoteDecision(decision) : undefined}
+                  onKeyDown={!isDeleting && onPromoteDecision ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onPromoteDecision(decision);
+                    }
+                  } : undefined}
+                  tabIndex={isDeleting ? -1 : 0}
+                  role="listitem"
+                  aria-label={`${displayTitle}, ${formatDateCompact(decision.created_at)}`}
                 >
                   {/* Status indicator - amber for pending */}
                   <div className="mc-status-dot draft" />
@@ -395,10 +401,10 @@ export function DecisionsTab({
                       </button>
                     </div>
                   </div>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </ScrollableContent>
       )}
     </div>

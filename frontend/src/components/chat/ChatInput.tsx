@@ -589,7 +589,7 @@ export function ChatInput({
             name="message"
             className="omni-input"
             placeholder={placeholder}
-            aria-label="Message input"
+            aria-label={placeholder}
             value={input}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={onKeyDown}

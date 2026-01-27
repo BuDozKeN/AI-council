@@ -19,7 +19,6 @@ import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { Skeleton } from '../../ui/Skeleton';
 import { getDeptColor } from '../../../lib/colors';
-import { makeClickable } from '../../../utils/a11y';
 import type { Department } from '../../../types/business';
 
 type DocType = 'sop' | 'framework' | 'policy';
@@ -395,45 +394,48 @@ export function PlaybooksTab({
   return (
     <div className="mc-playbooks">
       {/* Stats grid - clickable filters like Projects tab */}
-      <div className="mc-stats-grid">
-        <div
+      <div className="mc-stats-grid" role="group" aria-label="Filter playbooks by type">
+        <button
+          type="button"
           className={`mc-stat-card clickable ${playbookTypeFilter === 'all' ? 'selected' : ''}`}
-          {...(onTypeFilterChange ? makeClickable(() => onTypeFilterChange('all')) : {})}
+          onClick={onTypeFilterChange ? () => onTypeFilterChange('all') : undefined}
+          aria-pressed={playbookTypeFilter === 'all'}
+          aria-label={`${t('common.all')}: ${playbooks.length} ${t('mycompany.playbooks')}`}
         >
           <div className="mc-stat-value total">{playbooks.length}</div>
-          <div className="mc-stat-label">{t('mycompany.total')}</div>
-        </div>
-        <div
+          <div className="mc-stat-label">{t('common.all')}</div>
+        </button>
+        <button
+          type="button"
           className={`mc-stat-card clickable ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
-          {...(onTypeFilterChange
-            ? makeClickable(() => onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop'))
-            : {})}
+          onClick={onTypeFilterChange ? () => onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop') : undefined}
+          aria-pressed={playbookTypeFilter === 'sop'}
+          aria-label={`${t('mycompany.sopsLong', 'Standard Operating Procedures')}: ${allSops.length}`}
+          title={t('mycompany.sopsLong', 'Standard Operating Procedures')}
         >
           <div className="mc-stat-value sops">{allSops.length}</div>
           <div className="mc-stat-label">{t('mycompany.sops')}</div>
-        </div>
-        <div
+        </button>
+        <button
+          type="button"
           className={`mc-stat-card clickable ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
-          {...(onTypeFilterChange
-            ? makeClickable(() =>
-                onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')
-              )
-            : {})}
+          onClick={onTypeFilterChange ? () => onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework') : undefined}
+          aria-pressed={playbookTypeFilter === 'framework'}
+          aria-label={`${t('mycompany.frameworks')}: ${allFrameworks.length}`}
         >
           <div className="mc-stat-value frameworks">{allFrameworks.length}</div>
           <div className="mc-stat-label">{t('mycompany.frameworks')}</div>
-        </div>
-        <div
+        </button>
+        <button
+          type="button"
           className={`mc-stat-card clickable ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
-          {...(onTypeFilterChange
-            ? makeClickable(() =>
-                onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')
-              )
-            : {})}
+          onClick={onTypeFilterChange ? () => onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy') : undefined}
+          aria-pressed={playbookTypeFilter === 'policy'}
+          aria-label={`${t('mycompany.policies')}: ${allPolicies.length}`}
         >
           <div className="mc-stat-value policies">{allPolicies.length}</div>
           <div className="mc-stat-label">{t('mycompany.policies')}</div>
-        </div>
+        </button>
       </div>
 
       {/* Filters row - multi-department and search */}
@@ -467,12 +469,12 @@ export function PlaybooksTab({
             const hasMore = docs.length > MAX_VISIBLE;
 
             return (
-              <div key={type} className="mc-playbook-group">
-                <h4 className="mc-group-title">
+              <section key={type} className="mc-playbook-group" aria-labelledby={`playbook-type-${type}`}>
+                <h4 id={`playbook-type-${type}`} className="mc-group-title">
                   {t(`mycompany.typeLabel_${type}`)}
                   <span className="mc-group-count">({docs.length})</span>
                 </h4>
-                <div className="mc-elegant-list">
+                <ul className="mc-elegant-list" role="list" aria-label={`${t(`mycompany.typeLabel_${type}`)} list`}>
                   {visibleDocs.map((doc: ExtendedPlaybook) => {
                     // Use embedded department name (or fallback to lookup for backwards compat)
                     const dept:
@@ -500,11 +502,19 @@ export function PlaybooksTab({
                     const isRemoving = removingIds.has(doc.id);
 
                     return (
-                      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
-                      <div
+                      <li
                         key={doc.id}
                         className={`mc-elegant-row ${mobileActiveId === doc.id ? 'mobile-active' : ''} ${isRemoving ? 'removing' : ''}`}
-                        {...makeClickable((e) => handleRowClick(doc, e))}
+                        onClick={(e) => handleRowClick(doc, e)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleRowClick(doc, e as unknown as React.MouseEvent);
+                          }
+                        }}
+                        tabIndex={0}
+                        role="listitem"
+                        aria-label={`${doc.title}, ${t(`mycompany.typeShort_${doc.doc_type}`)}`}
                         onTouchStart={() => handlePressStart(doc)}
                         onTouchEnd={handlePressEnd}
                         onTouchMove={handlePressEnd}
@@ -613,10 +623,10 @@ export function PlaybooksTab({
                             )}
                           </div>
                         </div>
-                      </div>
+                      </li>
                     );
                   })}
-                </div>
+                </ul>
                 {/* Load more / Show less button */}
                 {hasMore && (
                   <button
@@ -634,7 +644,7 @@ export function PlaybooksTab({
                       : t('mycompany.loadMore', { count: docs.length - MAX_VISIBLE })}
                   </button>
                 )}
-              </div>
+              </section>
             );
           })
         )}

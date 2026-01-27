@@ -18,6 +18,13 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* Keyboard focus - visible ring for accessibility */
+.stage1 .model-card:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
 .stage1 .model-card.streaming {
   border-color: var(--color-indigo-500);
   background: var(--color-bg-primary);
@@ -245,4 +252,11 @@
 .stage1 .expand-btn:hover {
   background: var(--color-slate-100);
   color: var(--color-slate-600);
+}
+
+/* Keyboard focus for expand button */
+.stage1 .expand-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  background: var(--color-slate-100);
 }

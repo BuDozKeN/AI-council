@@ -143,8 +143,9 @@
     0 32px 64px -16px rgb(0 0 0 / 32%), 0 16px 32px -8px rgb(0 0 0 / 20%), 0 0 1px rgb(0 0 0 / 8%);
 
   /* Focus ring (accessibility) - using iris brand color */
-  --shadow-focus: 0 0 0 3px rgb(var(--color-focus-rgb), 0.35);
-  --shadow-focus-error: 0 0 0 3px rgb(239 68 68 / 35%);
+  /* Increased opacity from 0.35 to 0.5 for better visibility (WCAG) */
+  --shadow-focus: 0 0 0 3px rgb(var(--color-focus-rgb), 0.5);
+  --shadow-focus-error: 0 0 0 3px rgb(239 68 68 / 50%);
 
   /* ============================================================================
      NOISE TEXTURES (2025 Premium Trend - Vercel/Linear style)
@@ -470,6 +471,15 @@
 
 /* stylelint-disable declaration-no-important */
 @media (prefers-reduced-motion: reduce) {
+  /* Global: Reduce all transitions to instant */
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
   /* Disable all celebration/completion animations */
   .animate-success-pop,
   .animate-complete-glow,
@@ -493,6 +503,7 @@
   .stage.stage2.celebrating {
     animation: none !important;
     transition: none !important;
+    box-shadow: var(--shadow-sm) !important;
   }
 
   /* Disable chairman/council celebration */
@@ -506,6 +517,36 @@
   .pm-success-title,
   .pm-success-message {
     animation: none !important;
+  }
+
+  /* Disable streaming/loading pulse animations */
+  .llm-status-ping,
+  .pill-thinking-dot,
+  .model-card-cursor {
+    animation: none !important;
+  }
+
+  /* Spinners should still spin but not pulse */
+  .spinner {
+    animation-duration: 1s !important;
+  }
+
+  /* Disable sidebar slide animations */
+  .sidebar {
+    transition: none !important;
+  }
+
+  /* Disable modal/sheet slide animations */
+  .app-modal-content,
+  .bottom-sheet-content {
+    transition: none !important;
+  }
+
+  /* Disable hover state transitions on interactive elements */
+  button,
+  a,
+  [role='button'] {
+    transition: none !important;
   }
 }
 /* stylelint-enable declaration-no-important */

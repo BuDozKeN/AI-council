@@ -167,27 +167,54 @@
   }
 }
 
-/* iPhone SE */
-@media (width <= 640px) {
+/* Very small screens (iPhone SE - 320px width) */
+@media (width <= 360px) {
   .stage.stage1 {
-    padding: var(--space-2-5);
+    padding: var(--space-2);
   }
 
   .stage1 .model-card {
-    padding: var(--space-3);
+    padding: var(--space-2-5);
   }
 
   .stage1 .model-card-name {
-    font-size: var(--text-xs);
+    font-size: var(--text-2xs);
   }
 
   .stage1 .model-card-content,
   .stage1 .model-card-preview {
-    font-size: var(--text-xs-plus);
+    font-size: var(--text-xs);
+    line-height: 1.5;
   }
 
   .stage1 .model-summary-pill {
-    padding: var(--space-1) var(--space-2);
+    padding: var(--space-1) var(--space-1-5);
+    font-size: var(--text-2xs);
+  }
+
+  /* Ensure LLM icons don't overflow */
+  .stage1 .llm-icon-wrapper {
+    width: 28px;
+    height: 28px;
+  }
+
+  .stage1 .llm-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Rank badges - ensure they fit */
+  .stage1 .model-card-rank {
+    font-size: var(--text-xs);
+  }
+
+  /* Stage title - wrap properly */
+  .stage-title {
+    flex-wrap: wrap;
+    font-size: var(--text-sm);
+  }
+
+  .collapse-arrow {
     font-size: var(--text-2xs);
   }
 }

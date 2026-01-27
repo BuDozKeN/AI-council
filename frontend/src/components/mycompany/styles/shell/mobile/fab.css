@@ -23,7 +23,8 @@
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    /* Position above bottom nav: nav height (~72px) + spacing (16px) + safe area */
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
     right: 16px;
     width: 56px;
     height: 56px;

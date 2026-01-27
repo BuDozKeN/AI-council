@@ -223,6 +223,36 @@ const AuditTableSkeleton = () => (
   </>
 );
 
+/**
+ * Format technical action names into user-friendly text
+ * e.g., "view_audit_logs" -> "Viewed audit logs"
+ */
+const formatActionName = (action: string): string => {
+  // Map of technical actions to friendly names
+  const actionMap: Record<string, string> = {
+    'view_audit_logs': 'Viewed audit logs',
+    'view_user_details': 'Viewed user details',
+    'view_company_details': 'Viewed company details',
+    'update_user': 'Updated user',
+    'delete_user': 'Deleted user',
+    'create_company': 'Created company',
+    'update_company': 'Updated company',
+    'delete_company': 'Deleted company',
+    'impersonate_user': 'Impersonated user',
+    'grant_admin': 'Granted admin access',
+    'revoke_admin': 'Revoked admin access',
+  };
+
+  if (actionMap[action]) {
+    return actionMap[action];
+  }
+
+  // Fallback: Convert snake_case to readable text
+  return action
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 export default function AdminPortal() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -2771,12 +2801,12 @@ function AuditTab() {
                             side="top"
                           >
                             <span className="admin-action-text admin-action-text--has-reason">
-                              {log.action}
+                              {formatActionName(log.action)}
                               <Eye className="h-3 w-3" />
                             </span>
                           </Tooltip>
                         ) : (
-                          <span className="admin-action-text">{log.action}</span>
+                          <span className="admin-action-text">{formatActionName(log.action)}</span>
                         )}
                       </td>
                       <td>

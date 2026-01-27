@@ -112,7 +112,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                   </div>
                 </div>
               </div>
-              <ChevronDown className="accordion-chevron" size={20} />
+              <ChevronDown className="accordion-chevron" size={20} aria-hidden="true" />
             </Accordion.Trigger>
           </Accordion.Header>
 
@@ -298,8 +298,13 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                     </p>
                     <p>
                       {t('settings.step1Desc')}{' '}
-                      <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer">
-                        openrouter.ai <ExternalLink size={12} />
+                      <a
+                        href="https://openrouter.ai"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="openrouter.ai (opens in new tab)"
+                      >
+                        openrouter.ai <ExternalLink size={12} aria-hidden="true" />
                       </a>
                     </p>
                   </div>
@@ -317,8 +322,9 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                         href="https://openrouter.ai/credits"
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label="Credits (opens in new tab)"
                       >
-                        Credits <ExternalLink size={12} />
+                        Credits <ExternalLink size={12} aria-hidden="true" />
                       </a>
                     </p>
                   </div>
@@ -336,8 +342,9 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                         href="https://openrouter.ai/keys"
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label="API Keys (opens in new tab)"
                       >
-                        API Keys <ExternalLink size={12} />
+                        API Keys <ExternalLink size={12} aria-hidden="true" />
                       </a>
                     </p>
                   </div>

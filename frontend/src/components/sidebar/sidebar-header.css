@@ -65,17 +65,19 @@ button.sidebar-new-btn:hover {
   gap: var(--gap-xs-plus);
 }
 
-/* Pin/Unpin button - subtle */
+/* Pin/Unpin button - visible but subtle */
 .sidebar-pin-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  min-height: 32px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
-  color: var(--sidebar-text-muted);
+  color: var(--sidebar-text-secondary); /* More visible than muted */
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
@@ -84,10 +86,19 @@ button.sidebar-new-btn:hover {
 .sidebar-pin-btn:hover {
   background: var(--sidebar-hover-bg);
   color: var(--sidebar-text-primary);
+  border-color: var(--sidebar-border);
+}
+
+/* Keyboard focus - visible ring for accessibility */
+.sidebar-pin-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-color: var(--color-primary);
 }
 
 .sidebar--pinned .sidebar-pin-btn {
   color: var(--sidebar-icon-active);
+  background: var(--sidebar-active-bg);
 }
 
 /* =============================================================================
@@ -111,6 +122,12 @@ button.sidebar-new-btn:hover {
 .sidebar-icon-btn:hover {
   background: var(--sidebar-hover-bg);
   color: var(--sidebar-text-primary);
+}
+
+/* Keyboard focus for icon buttons */
+.sidebar-icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
 }
 
 /* Primary button - simple circle with accent color */

@@ -20,7 +20,6 @@ import { ScrollableContent } from '../../ui/ScrollableContent';
 import { Skeleton } from '../../ui/Skeleton';
 import { formatRelativeDate } from '../../../lib/dateUtils';
 import { getDeptColor } from '../../../lib/colors';
-import { makeClickable } from '../../../utils/a11y';
 import type { Department, Project } from '../../../types/business';
 
 type ProjectStatusFilter = 'all' | 'active' | 'completed' | 'archived';
@@ -321,10 +320,18 @@ export function ProjectsTab({
     const isFading = fadingProjectId === project.id;
 
     return (
-      <div
+      <article
         key={project.id}
         className={`mc-project-row-compact ${isFading ? 'fading' : ''}`}
-        {...(!isFading && onProjectClick ? makeClickable(() => onProjectClick(project)) : {})}
+        onClick={!isFading && onProjectClick ? () => onProjectClick(project) : undefined}
+        tabIndex={!isFading && onProjectClick ? 0 : undefined}
+        onKeyDown={!isFading && onProjectClick ? (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onProjectClick(project);
+          }
+        } : undefined}
+        aria-label={`Project: ${project.name}, Status: ${project.status}, ${project.decision_count || 0} decisions`}
       >
         {/* Status indicator dot */}
         <div className={`mc-status-dot ${project.status}`} />
@@ -424,48 +431,45 @@ export function ProjectsTab({
             </button>
           )}
         </div>
-      </div>
+      </article>
     );
   };
 
   return (
     <div className="mc-projects">
       {/* Stats grid - same style as Overview tab */}
-      <div className="mc-stats-grid">
-        <div
+      <div className="mc-stats-grid" role="group" aria-label="Project status filters">
+        <button
+          type="button"
           className={`mc-stat-card clickable ${projectStatusFilter === 'active' ? 'selected' : ''}`}
-          {...(onStatusFilterChange
-            ? makeClickable(() =>
-                onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')
-              )
-            : {})}
+          onClick={onStatusFilterChange ? () => onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active') : undefined}
+          aria-pressed={projectStatusFilter === 'active'}
+          aria-label={`Filter by active projects: ${stats.active} active`}
         >
           <div className="mc-stat-value active">{stats.active}</div>
           <div className="mc-stat-label">{t('mycompany.active')}</div>
-        </div>
-        <div
+        </button>
+        <button
+          type="button"
           className={`mc-stat-card clickable ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
-          {...(onStatusFilterChange
-            ? makeClickable(() =>
-                onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')
-              )
-            : {})}
+          onClick={onStatusFilterChange ? () => onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed') : undefined}
+          aria-pressed={projectStatusFilter === 'completed'}
+          aria-label={`Filter by completed projects: ${stats.completed} completed`}
         >
           <div className="mc-stat-value completed">{stats.completed}</div>
           <div className="mc-stat-label">{t('mycompany.completed')}</div>
-        </div>
-        <div
+        </button>
+        <button
+          type="button"
           className={`mc-stat-card clickable ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
-          {...(onStatusFilterChange
-            ? makeClickable(() =>
-                onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')
-              )
-            : {})}
+          onClick={onStatusFilterChange ? () => onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived') : undefined}
+          aria-pressed={projectStatusFilter === 'archived'}
+          aria-label={`Filter by archived projects: ${stats.archived} archived`}
         >
           <div className="mc-stat-value archived">{stats.archived}</div>
           <div className="mc-stat-label">{t('mycompany.archived')}</div>
-        </div>
-        <div className="mc-stat-card">
+        </button>
+        <div className="mc-stat-card" aria-label={`Total decisions: ${stats.totalDecisions}`}>
           <div className="mc-stat-value decisions">{stats.totalDecisions}</div>
           <div className="mc-stat-label">{t('mycompany.decisions')}</div>
         </div>

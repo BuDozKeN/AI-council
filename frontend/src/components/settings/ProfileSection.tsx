@@ -147,7 +147,11 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
               className="input-disabled"
               readOnly
               tabIndex={-1}
+              aria-describedby="email-disabled-hint"
             />
+            <span id="email-disabled-hint" className="form-hint">
+              {t('settings.emailCannotBeChanged', 'Email address cannot be changed')}
+            </span>
           </div>
         </CardContent>
       </Card>

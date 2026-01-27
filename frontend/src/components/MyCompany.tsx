@@ -5,7 +5,6 @@ import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
 import { usePullToRefresh, useSwipeGesture } from '../hooks';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { hapticLight, hapticSuccess, hapticMedium } from '../lib/haptics';
-import { makeClickable } from '../utils/a11y';
 
 // Extracted components
 import { MyCompanyHeader } from './mycompany/MyCompanyHeader';
@@ -707,11 +706,23 @@ export default function MyCompany({
   );
 
   return (
-    <div className="mc-overlay" {...makeClickable(handleOverlayClick)}>
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
+    <div
+      className="mc-overlay"
+      onClick={handleOverlayClick}
+      onKeyDown={(e) => e.key === 'Escape' && onClose?.()}
+      role="presentation"
+      aria-label="Close panel"
+    >
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
       <div
         className="mc-panel"
         ref={panelSwipeRef as React.RefObject<HTMLDivElement>}
-        {...makeClickable((e) => e.stopPropagation())}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="mycompany-header-title"
       >
         <MyCompanyHeader
           companyName={companyName}

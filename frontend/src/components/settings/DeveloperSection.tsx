@@ -146,8 +146,8 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
   return (
     <div className="developer-section">
       {/* Warning banner */}
-      <div className="dev-warning-banner">
-        <AlertTriangle size={16} />
+      <div className="dev-warning-banner" role="alert" aria-live="polite">
+        <AlertTriangle size={16} aria-hidden="true" />
         <span>{t('settings.devWarning')}</span>
       </div>
 
@@ -178,6 +178,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
                 checked={mockMode ?? false}
                 onCheckedChange={handleToggleMock}
                 disabled={isTogglingMock}
+                aria-label={t('settings.enableMockMode')}
               />
             </div>
           </div>
@@ -271,6 +272,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
                 checked={cachingMode ?? false}
                 onCheckedChange={handleToggleCaching}
                 disabled={isTogglingCaching}
+                aria-label={t('settings.enableCaching')}
               />
             </div>
           </div>
@@ -300,7 +302,11 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
               <span className={`dev-status-badge ${showTokenUsage ? 'active' : 'inactive'}`}>
                 {showTokenUsage ? t('settings.visible') : t('settings.hidden')}
               </span>
-              <Switch checked={showTokenUsage} onCheckedChange={handleToggleTokenUsage} />
+              <Switch
+                checked={showTokenUsage}
+                onCheckedChange={handleToggleTokenUsage}
+                aria-label={t('settings.showTokenUsage')}
+              />
             </div>
           </div>
 

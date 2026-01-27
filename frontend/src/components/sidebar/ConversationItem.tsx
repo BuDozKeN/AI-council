@@ -333,7 +333,12 @@ export const ConversationItem = memo(function ConversationItem({
       <div className="hover-actions" role="group" aria-label="Conversation actions">
         <button
           className={`hover-action-btn touch-target ${isSelected ? 'active' : ''}`}
-          onClick={(e) => onToggleSelection(conversation.id, e)}
+          onClick={(e) => {
+            e.preventDefault();
+            onToggleSelection(conversation.id, e);
+          }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           aria-label={isSelected ? 'Deselect conversation' : 'Select conversation'}
           aria-pressed={isSelected}
         >
@@ -343,8 +348,11 @@ export const ConversationItem = memo(function ConversationItem({
           className="hover-action-btn touch-target"
           onClick={(e) => {
             e.stopPropagation();
+            e.preventDefault();
             onStartEdit(conversation, e);
           }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           aria-label="Rename conversation"
         >
           <Pencil size={14} />
@@ -353,8 +361,11 @@ export const ConversationItem = memo(function ConversationItem({
           className={`hover-action-btn touch-target ${conversation.is_starred ? 'starred' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
+            e.preventDefault();
             onStar?.(conversation.id, !conversation.is_starred);
           }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           aria-label={conversation.is_starred ? 'Remove star' : 'Add star'}
           aria-pressed={conversation.is_starred}
         >
@@ -364,8 +375,11 @@ export const ConversationItem = memo(function ConversationItem({
           className="hover-action-btn touch-target"
           onClick={(e) => {
             e.stopPropagation();
+            e.preventDefault();
             onArchive?.(conversation.id, !conversation.is_archived);
           }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           aria-label={conversation.is_archived ? 'Unarchive conversation' : 'Archive conversation'}
         >
           {conversation.is_archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
@@ -374,8 +388,11 @@ export const ConversationItem = memo(function ConversationItem({
           className="hover-action-btn touch-target danger"
           onClick={(e) => {
             e.stopPropagation();
+            e.preventDefault();
             onDelete(conversation.id);
           }}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           aria-label="Delete conversation"
         >
           <Trash2 size={14} />

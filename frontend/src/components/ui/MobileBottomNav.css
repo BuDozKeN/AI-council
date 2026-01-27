@@ -93,9 +93,17 @@
   line-height: 1;
   letter-spacing: 0.01em;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Allow slight overflow to prevent truncation of short labels */
+  overflow: visible;
   max-width: 100%;
+  text-align: center;
+}
+
+/* Medium mobile screens - use abbreviations or slightly smaller font */
+@media (width <= 480px) {
+  .mobile-nav-label {
+    font-size: 11px; /* 11px - balance between readability and fit */
+  }
 }
 
 /* Very small screens - smaller font to fit all labels */

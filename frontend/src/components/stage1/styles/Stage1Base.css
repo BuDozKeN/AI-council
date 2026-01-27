@@ -140,6 +140,14 @@
   color: var(--color-brand-primary);
 }
 
+/* Keyboard focus for clickable stage title */
+.stage-title.clickable:focus-visible {
+  outline: none;
+  color: var(--color-brand-primary);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-focus);
+}
+
 /* Topic label shown in stage headers */
 .stage-topic {
   margin-left: var(--space-2);

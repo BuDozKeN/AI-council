@@ -226,14 +226,14 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                 Pending Invitations
                 <span className="count-badge">{pendingInvitations.length}</span>
               </h4>
-              <div className="invitations-list">
+              <ul className="invitations-list" role="list" aria-label="Pending invitations">
                 {pendingInvitations.map((invitation) => {
                   const roleConfig =
                     ROLE_CONFIG[invitation.target_company_role] || ROLE_CONFIG.member;
                   const isLoading = invitationActionLoading === invitation.id;
 
                   return (
-                    <div key={invitation.id} className="invitation-row">
+                    <li key={invitation.id} className="invitation-row" role="listitem" aria-label={`${invitation.email}, ${t(`settings.${roleConfig.roleKey}`)}`}>
                       <div className="invitation-icon">
                         <Mail size={16} />
                       </div>
@@ -265,15 +265,15 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           </button>
                         </div>
                       )}
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             </div>
           )}
 
           {/* Members list */}
-          <div className="members-list">
+          <ul className="members-list" role="list" aria-label="Team members">
             {members.map((member) => {
               const roleConfig = ROLE_CONFIG[member.role] || ROLE_CONFIG.member;
               const RoleIcon = roleConfig.icon;
@@ -290,9 +290,11 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   (currentUserRole === 'admin' && member.role === 'member'));
 
               return (
-                <div
+                <li
                   key={member.id}
                   className={`member-row-compact ${isCurrentUser ? 'current' : ''}`}
+                  role="listitem"
+                  aria-label={`${isCurrentUser ? t('settings.you') : `User ${member.user_id.slice(0, 8)}`}, ${t(`settings.${roleConfig.roleKey}`)}`}
                 >
                   <div className="member-role-icon" style={{ color: roleConfig.color }}>
                     <RoleIcon size={16} />
@@ -336,10 +338,10 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                       )}
                     </div>
                   )}
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </CardContent>
       </Card>
     </>

@@ -10,7 +10,6 @@ import { ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDateGroup } from '../../../lib/dateUtils';
 import { ScrollableContent } from '../../ui/ScrollableContent';
-import { makeClickable } from '../../../utils/a11y';
 
 // Promoted types array for validation
 const PROMOTED_TYPES = ['sop', 'framework', 'policy', 'project'] as const;
@@ -228,9 +227,9 @@ export function ActivityTab({
 
       <ScrollableContent className="mc-activity-list">
         {Object.entries(groupedLogs).map(([date, logs]) => (
-          <div key={date} className="mc-activity-group">
-            <h4 className="mc-group-title">{date}</h4>
-            <div className="mc-elegant-list">
+          <section key={date} className="mc-activity-group" aria-labelledby={`activity-date-${date.replace(/\s+/g, '-')}`}>
+            <h4 id={`activity-date-${date.replace(/\s+/g, '-')}`} className="mc-group-title">{date}</h4>
+            <ul className="mc-elegant-list" role="list" aria-label={`Activity on ${date}`}>
               {logs.map((log) => {
                 const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
                 // Use explicit action column from database (no more title parsing)
@@ -249,12 +248,19 @@ export function ActivityTab({
                     (log.event_type === 'council_session' && log.conversation_id));
 
                 return (
-                  <div
+                  <li
                     key={log.id}
                     className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
-                    {...(isClickable && onActivityClick
-                      ? makeClickable(() => onActivityClick(log))
-                      : {})}
+                    onClick={isClickable && onActivityClick ? () => onActivityClick(log) : undefined}
+                    onKeyDown={isClickable && onActivityClick ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onActivityClick(log);
+                      }
+                    } : undefined}
+                    tabIndex={isClickable ? 0 : -1}
+                    role="listitem"
+                    aria-label={`${cleanTitle}, ${action || log.event_type}${isDeleted ? ', deleted' : ''}`}
                     title={isDeleted ? 'This item has been deleted' : undefined}
                   >
                     {/* Event type indicator */}
@@ -321,11 +327,11 @@ export function ActivityTab({
                         <ExternalLink size={16} />
                       </button>
                     )}
-                  </div>
+                  </li>
                 );
               })}
-            </div>
-          </div>
+            </ul>
+          </section>
         ))}
 
         {/* Load more button */}
