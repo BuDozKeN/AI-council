@@ -930,7 +930,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
           <ChevronRight
             size={18}
             className={`llm-card-chevron ${expandedSection === 'response-styles' ? 'rotated' : ''}`}
-            aria-hidden="true"
+            aria-label={t('aria.expandSection')}
           />
         </button>
 
@@ -976,7 +976,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                       <ChevronRight
                         size={18}
                         className={`llm-card-chevron ${isExpanded ? 'rotated' : ''}`}
-                        aria-hidden="true"
+                        aria-label={t('aria.expandSection')}
                       />
                     </button>
 

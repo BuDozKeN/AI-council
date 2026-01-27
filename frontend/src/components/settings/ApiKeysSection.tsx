@@ -112,7 +112,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                   </div>
                 </div>
               </div>
-              <ChevronDown className="accordion-chevron" size={20} aria-hidden="true" />
+              <ChevronDown className="accordion-chevron" size={20} aria-label={t('aria.expandSection')} />
             </Accordion.Trigger>
           </Accordion.Header>
 
