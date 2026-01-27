@@ -1146,7 +1146,7 @@ function UsersTab() {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="admin-icon-btn admin-icon-btn--ghost" title="Actions">
+                <button className="admin-icon-btn admin-icon-btn--ghost" title="Actions" aria-label={t('common.actions', 'Actions')}>
                   <MoreVertical className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
@@ -1174,7 +1174,7 @@ function UsersTab() {
       <div className="admin-actions-cell">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="admin-icon-btn admin-icon-btn--ghost" title="Actions">
+            <button className="admin-icon-btn admin-icon-btn--ghost" title="Actions" aria-label={t('common.actions', 'Actions')}>
               <MoreVertical className="h-4 w-4" />
             </button>
           </DropdownMenuTrigger>
