@@ -377,83 +377,42 @@ Every query automatically filtered. No manual WHERE clauses needed for company i
 
 **RLS Deep Dive?** Load `.claude/skills/supabase-rls.md`
 
-## CSS Performance Budgets
+## Development Workflow
+
+```bash
+# 1. Start development
+dev.bat
+
+# 2. Make changes + iterate with hot reload
+cd frontend && npm run dev
+
+# 3. Before pushing: run full checks
+cd frontend && npm run lint && npm run type-check && npm run test:run
+
+# 4. Push (pre-push hook runs full test suite)
+git push origin feature/my-feature
+```
+
+## CSS Performance Budget
 
 | Metric | Budget | Current |
 |--------|--------|---------|
 | Source CSS | 1350KB | ~1309KB |
 | Built CSS | 700KB | ~700KB |
 
-CI fails if source CSS exceeds 1350KB.
+Exceeding source budget fails CI. Split large components instead of growing single files.
 
-## Quality Gates & Testing
+## Common Mistakes to Avoid
 
-### Pre-Push Quality Checks (MUST PASS)
-```bash
-# Frontend: Run all checks
-cd frontend && npm run lint && npm run type-check && npm run test:run
-
-# Backend: Run tests + static analysis
-python -m pytest backend/ -v
-python -m bandit -r backend/  # Security scan
-```
-
-### Development Workflow
-```bash
-# 1. Start development
-dev.bat
-
-# 2. Make changes + iterate
-cd frontend && npm run dev  # Hot reload + ESLint feedback
-
-# 3. Before committing
-cd frontend && npm run lint && npm run type-check
-npm run test:run  # Run all tests
-
-# 4. Push to GitHub (pre-push hook runs 434 tests)
-git push origin feature/my-feature
-```
-
-### Test Commands Reference
-| Command | Purpose | When to Use |
-|---------|---------|------------|
-| `npm run test` | Watch mode | During development |
-| `npm run test:run` | Single run + coverage | Before commit |
-| `npm run lint` | ESLint violations | Code style |
-| `npm run lint:css` | Stylelint violations | CSS conventions |
-| `npm run type-check` | TypeScript errors | Type safety |
-
-### Coverage Requirements
-- **Minimum**: 70% for CI to pass
-- **Target**: 80%+ for critical paths
-- Coverage report: `frontend/coverage/`
-
-## Common Pitfalls (Quick Reference)
-
-### Frontend Mistakes
-| Mistake | Problem | Solution |
-|---------|---------|----------|
-| Hardcoded colors | Can't theme, not accessible | Use `var(--color-*)` from tokens |
-| `!important` in CSS | Unmanageable specificity | Increase selector specificity instead |
-| Skipping mobile tests | Broken on real devices | Test at 375px, 768px, 1440px widths |
-| Stale closures in hooks | Outdated state in callbacks | Use `useRef` for values read in callbacks |
-| Missing TypeScript types | Runtime errors | Type at boundaries (API, props) |
-
-### Backend Mistakes
-| Mistake | Problem | Solution |
-|---------|---------|----------|
-| Exposed error details | Security vulnerability | Use `create_secure_error()` |
-| String concatenation in SQL | SQL injection risk | Use parameterized queries |
-| Bypassing RLS | Multi-tenant data leak | Never skip RLS (requires explicit approval) |
-| Forgetting `await` on async | Returns Promise instead of value | Always `await` async calls |
-| Logging sensitive data | Compliance violation | Log IDs, not user data |
-
-### Shared Mistakes
-| Mistake | Problem | Solution |
-|---------|---------|----------|
-| Large components (>300 lines CSS) | Unmaintainable, hard to test | Split into smaller components |
-| No error handling | Silent failures | Use try-catch or error boundaries |
-| Ignoring CI feedback | Broken builds | Fix linting/type errors immediately |
+| What | Why It's Wrong | How to Fix |
+|------|---|---|
+| Hardcoded colors in CSS | Breaks theming, accessibility | Use `var(--color-*)` from design-tokens.css |
+| `!important` rules | Creates specificity hell | Increase selector specificity instead |
+| `useCallback` without refs | Stale state in closures | Use `useRef` for values read in callbacks |
+| String concat in SQL | SQL injection | Use parameterized queries always |
+| Bypassing RLS | Data leak across tenants | Never skip RLS (requires explicit approval) |
+| Exposed errors in API | Security/compliance issue | Use `create_secure_error()` |
+| Large CSS files (>300 lines) | Unmaintainable | Split component into smaller pieces |
 
 ## Bash Guidelines
 
@@ -486,54 +445,15 @@ git add . && git commit -m "message" && git push
 - **Efficient**: No extra process overhead
 - **Claude tools are better**: `Glob`, `Grep`, `Read` give better output than piping
 
-## Key Commands Reference
+## Essential Commands
 
-### Development
 ```bash
-dev.bat                          # Start all (Chrome + Backend + Frontend)
-cd frontend && npm run dev       # Frontend only (hot reload)
-python -m backend.main           # Backend only (auto-reload)
-npm run build && npm run preview # Build + test production build
+dev.bat                    # Start all services (recommended)
+cd frontend && npm run dev # Frontend only
+python -m backend.main     # Backend only
+
+git push origin master     # Deploy to Vercel (frontend) + Render (backend)
 ```
-
-### Quality & Verification
-```bash
-cd frontend
-npm run lint                # ESLint check
-npm run lint:css           # CSS conventions check
-npm run type-check         # TypeScript check
-npm run test:run           # All tests (one-shot)
-npm run test               # Tests (watch mode)
-
-# Full pre-commit check
-npm run lint && npm run type-check && npm run test:run
-```
-
-### Deployment
-```bash
-git push origin master     # Triggers Vercel (frontend) + Render (backend)
-```
-
-## Automated Quality Safeguards
-
-### Git Hooks (Auto-run)
-| Hook | Trigger | What Happens |
-|------|---------|--------------|
-| `pre-commit` | Before commit | Runs lint-staged (lints changed files) |
-| `commit-msg` | After commit message | Validates message format |
-| `pre-push` | Before git push | Runs all 434 tests + coverage check |
-
-### CI/CD Workflows
-| Workflow | Triggers | Checks |
-|----------|----------|--------|
-| `ci.yml` | Push to any branch | ESLint, TypeScript, tests, 70% coverage |
-| `security.yml` | Push to master | CodeQL, Bandit (Python), Gitleaks |
-| `deploy.yml` | Push to master | Auto-deploys to Vercel (frontend) + Render (backend) |
-
-### Build Safeguards
-- **CSS Budget**: Source ≤ 1350KB, Built ≤ 700KB (CI fails if exceeded)
-- **Bundle Size**: Checked in CI (warns if increase)
-- **Test Coverage**: Must be ≥ 70% for master
 
 ## Documentation Standards
 
@@ -620,119 +540,35 @@ if is_enabled("prompt_caching"):
 
 **Debugging mobile issues?** Load `.claude/skills/mobile-debugging.md`
 
-## Deployment & Infrastructure
+## Deployment
 
-### Automatic Deployment
-```
-Your commit → git push origin master
-                    ↓
-             GitHub Actions
-                    ↓
-        ┌───────────┴───────────┐
-        ↓                       ↓
-    Vercel                   Render
-    (Frontend)              (Backend)
-   Live in ~2min          Live in ~3min
-```
+Push to `master` triggers auto-deployment:
+- **Vercel** (frontend): ~2 min
+- **Render** (backend): ~3 min
 
-**Status:** Check GitHub Actions tab for deployment progress.
+**Rollback**: `git revert HEAD && git push origin master`
 
-### Rolling Back (Emergency)
-```bash
-# If deployment broken, revert last commit
-git revert HEAD
-git push origin master
-```
+## Quick Troubleshooting
 
-## Troubleshooting Common Issues
+| Issue | Fix |
+|-------|-----|
+| Frontend won't start | `rm -rf node_modules && npm install && npm run dev` |
+| Backend not responding | `curl http://localhost:8081/health` |
+| CSS file > 300 lines | Split component; run `wc -l frontend/src/**/*.css` to find culprit |
+| Type errors | `npm run type-check` (fix errors, commit) |
+| Test failures | `npm run test:run` (identify failure), `npm run test -- --testPathPattern="File"` (debug) |
 
-### Frontend Won't Start
-```bash
-# Clear cache + reinstall
-rm -rf node_modules package-lock.json
-npm install
-npm run dev
+## Specialized Tools
 
-# Still broken? Check env vars
-cat .env | grep VITE_
-```
+For detailed audits, use these:
+- `/qa` - Pre-push quality check
+- `/audit-security` - Banking-grade security review
+- `/audit-mobile` - Mobile UX & responsiveness
+- `/audit-performance` - Performance bottlenecks
+- `security-guardian` agent - Vulnerability scanning
+- `mobile-ux-tester` agent - Mobile UX via Chrome DevTools
 
-### Backend Connection Errors
-```bash
-# Verify backend is running
-curl http://localhost:8081/health
-
-# Check .env variables
-python -c "from backend.config import settings; print(settings)"
-
-# Restart with fresh state
-pip install -e ".[dev]"
-python -m backend.main
-```
-
-### CSS File > 300 Lines (CI Fails)
-Solution: Split component into smaller pieces
-```bash
-# Find the culprit
-find frontend/src -name "*.css" -exec wc -l {} + | sort -rn | head -5
-```
-
-### Type Errors Before Commit
-```bash
-npm run type-check  # See all errors
-# Fix each error, then try again
-```
-
-### Tests Failing on Pre-Push
-```bash
-npm run test:run    # See which test failed
-# Debug the failing test
-npm run test -- --testPathPattern="FileName"
-```
-
-## Specialized Tools & Agents
-
-### Audit Commands (45+ available)
-Run these before major milestones:
-
-| Command | Purpose | When to Use |
-|---------|---------|------------|
-| `/qa` | Pre-push quality check | Before pushing to master |
-| `/audit-security` | Banking-grade security | Before demo/release |
-| `/audit-css-architecture` | CSS conventions + budget | CSS-heavy changes |
-| `/audit-mobile` | Mobile UX + responsiveness | Before mobile features |
-| `/audit-performance` | Performance bottlenecks | If app feels slow |
-| `/daily-health` | Quick health check | Daily standup |
-| `/security-watch` | Continuous monitoring | Weekly security review |
-
-### Specialized Agents
-Use these when the task matches:
-
-| Agent | Best For |
-|-------|----------|
-| `security-guardian` | Vulnerability scanning, security fixes |
-| `mobile-ux-tester` | Mobile UX issues via Chrome DevTools |
-| `council-ops` | LLM costs, pipeline health |
-| `enterprise-readiness` | $25M exit checklist items |
-| `web-researcher` | Latest tech/security updates |
-
-**Launch like:** `task(description, subagent_type="security-guardian")`
-
-## Performance & Scalability Targets
-
-| Metric | Target | Current |
-|--------|--------|---------|
-| **Frontend** |
-| LCP (Largest Contentful Paint) | < 2.5s | Monitor via `/audit-performance` |
-| FID (First Input Delay) | < 100ms | Check during dev |
-| CLS (Cumulative Layout Shift) | < 0.1 | CSS should prevent |
-| JS Bundle Size | < 400KB | Built size, check via build |
-| **Backend** |
-| API Response Time | < 500ms | Average response time |
-| 3-Stage Pipeline | < 15s | Total decision time |
-| RLS Query Overhead | < 5ms | Database per-request cost |
-
-Monitor via `/audit-performance` and production logs.
+Load `.claude/skills/` for deep dives on specific topics.
 
 ---
 
