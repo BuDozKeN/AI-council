@@ -293,3 +293,15 @@
 }
 
 /* Mobile responsive - see project-list-mobile.css */
+
+/* =============================================================================
+   MOBILE - Ensure WCAG 44px touch targets for action buttons
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .mc-project-action {
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--space-2-5) var(--space-3);
+  }
+}

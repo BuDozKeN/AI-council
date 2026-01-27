@@ -8,13 +8,8 @@
 
 /* Tablet and below */
 @media (width <= 640px) {
-  .scroll-to-top-fab {
-    width: 32px;
-    height: 32px;
-    bottom: 80px;
-    right: 16px;
-    opacity: 0.7;
-  }
+  /* Note: scroll-to-top-fab positioning is now in ScrollToTopButton.css
+     to ensure it's above the bottom nav on all screens */
 
   .messages-container {
     padding: 0 var(--space-4) 16px;
@@ -176,26 +171,85 @@
   }
 }
 
-/* Very small phones */
-@media (width <= 640px) {
+/* Very small phones (iPhone SE - 320px width) */
+@media (width <= 360px) {
+  .messages-container {
+    padding: 0 var(--space-2) 8px;
+  }
+
   .input-form {
-    padding: var(--space-2-5);
+    padding: var(--space-2);
+    gap: var(--gap-xs);
+  }
+
+  .input-row {
+    padding: var(--space-1) var(--space-1) 4px var(--space-2-5);
   }
 
   .message-input {
-    min-height: 44px;
+    min-height: 40px;
+    padding: var(--space-1-5) 0;
+  }
+
+  /* Maintain touch targets but reduce visual size */
+  .input-action-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .input-action-btn svg {
+    width: 16px;
+    height: 16px;
   }
 
   .send-button,
   .stop-button {
-    padding: var(--space-2) var(--space-3-5);
+    padding: var(--space-2) var(--space-3);
     font-size: var(--text-xs);
+  }
+
+  /* Compact context bar */
+  .context-bar {
+    gap: var(--gap-xs);
+    padding: var(--space-1-5) var(--space-2);
   }
 
   .context-bar button.context-select-trigger,
   button.context-select-trigger {
-    font-size: var(--text-xs);
+    font-size: var(--text-2xs);
     padding: var(--space-1) var(--space-1-5);
+    min-height: 40px;
+  }
+
+  /* Mode toggle compact */
+  .mode-btn-compact {
+    padding: var(--space-2) var(--space-2);
+    min-height: 40px;
+    font-size: var(--text-xs);
+  }
+
+  .dept-pill-compact {
+    min-height: 40px;
+    padding: var(--space-1-5) var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  .role-pill-compact {
+    min-height: 28px;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-2xs);
+  }
+
+  /* Mobile selectors - compact */
+  .mobile-selectors button.mobile-dept-select,
+  .mobile-selectors button.mobile-role-select,
+  button.mobile-dept-select,
+  button.mobile-role-select {
+    min-width: 100px;
+    padding: var(--space-2-5);
+    font-size: var(--text-xs);
+    min-height: 40px;
   }
 }
 

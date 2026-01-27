@@ -918,9 +918,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
           type="button"
           className="llm-card-header"
           onClick={() => toggleSection('response-styles')}
+          aria-expanded={expandedSection === 'response-styles'}
         >
           <div className="llm-card-icon" data-color="indigo">
-            <SlidersHorizontal size={20} />
+            <SlidersHorizontal size={20} aria-hidden="true" />
           </div>
           <div className="llm-card-info">
             <h3>{t('llmHub.responseStyles.title')}</h3>
@@ -929,6 +930,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
           <ChevronRight
             size={18}
             className={`llm-card-chevron ${expandedSection === 'response-styles' ? 'rotated' : ''}`}
+            aria-hidden="true"
           />
         </button>
 
@@ -955,9 +957,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                       type="button"
                       className="llm-inner-card-header"
                       onClick={() => togglePreset(preset.id)}
+                      aria-expanded={isExpanded}
                     >
                       <div className="llm-inner-card-icon" data-preset={preset.id}>
-                        <Icon size={16} />
+                        <Icon size={16} aria-hidden="true" />
                       </div>
                       <div className="llm-inner-card-info">
                         <span className="llm-inner-card-title">
@@ -973,6 +976,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                       <ChevronRight
                         size={18}
                         className={`llm-card-chevron ${isExpanded ? 'rotated' : ''}`}
+                        aria-hidden="true"
                       />
                     </button>
 
@@ -1135,9 +1139,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
           type="button"
           className="llm-card-header"
           onClick={() => toggleSection('ai-models')}
+          aria-expanded={expandedSection === 'ai-models'}
         >
           <div className="llm-card-icon" data-color="blue">
-            <Cpu size={20} />
+            <Cpu size={20} aria-hidden="true" />
           </div>
           <div className="llm-card-info">
             <h3>{t('llmHub.aiModels.title')}</h3>
@@ -1146,6 +1151,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
           <ChevronRight
             size={18}
             className={`llm-card-chevron ${expandedSection === 'ai-models' ? 'rotated' : ''}`}
+            aria-hidden="true"
           />
         </button>
 
@@ -1167,9 +1173,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                       type="button"
                       className="llm-inner-card-header"
                       onClick={() => toggleGroup(group.id)}
+                      aria-expanded={isExpanded}
                     >
                       <div className="llm-inner-card-icon" data-color={group.color}>
-                        <GroupIcon size={16} />
+                        <GroupIcon size={16} aria-hidden="true" />
                       </div>
                       <div className="llm-inner-card-info">
                         <span className="llm-inner-card-title">
@@ -1182,6 +1189,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                       <ChevronRight
                         size={18}
                         className={`llm-card-chevron ${isExpanded ? 'rotated' : ''}`}
+                        aria-hidden="true"
                       />
                     </button>
 
@@ -1292,9 +1300,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
             type="button"
             className="llm-card-header"
             onClick={() => toggleSection('ai-personas')}
+            aria-expanded={expandedSection === 'ai-personas'}
           >
             <div className="llm-card-icon" data-color="amber">
-              <Bot size={20} />
+              <Bot size={20} aria-hidden="true" />
             </div>
             <div className="llm-card-info">
               <h3>{t('llmHub.aiPersonas.title')}</h3>
@@ -1303,6 +1312,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
             <ChevronRight
               size={18}
               className={`llm-card-chevron ${expandedSection === 'ai-personas' ? 'rotated' : ''}`}
+              aria-hidden="true"
             />
           </button>
 
@@ -1326,9 +1336,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                         onClick={() =>
                           isEditing ? cancelEditingPersona() : startEditingPersona(persona)
                         }
+                        aria-expanded={isEditing}
                       >
                         <div className="llm-inner-card-icon" data-color="amber">
-                          <PersonaIcon size={16} />
+                          <PersonaIcon size={16} aria-hidden="true" />
                         </div>
                         <div className="llm-inner-card-info">
                           <span className="llm-inner-card-title">
@@ -1348,6 +1359,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                         <ChevronRight
                           size={18}
                           className={`llm-card-chevron ${isEditing ? 'rotated' : ''}`}
+                          aria-hidden="true"
                         />
                       </button>
 
