@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronLeft, Building2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { makeClickable, handleKeyPress } from '../../utils/a11y';
@@ -29,6 +30,7 @@ export function MyCompanyHeader({
   onClose,
   onHeaderClick,
 }: MyCompanyHeaderProps) {
+  const { t } = useTranslation();
   return (
     <header
       className="mc-header mc-header-dismissible"
@@ -100,7 +102,7 @@ export function MyCompanyHeader({
       </div>
       <button
         className="mc-close-btn"
-        aria-label="Close"
+        aria-label={t('common.close', 'Close')}
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           onClose?.();
