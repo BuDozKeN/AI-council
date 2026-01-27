@@ -126,13 +126,18 @@ export function ResponseStyleSelector({
   const dropdownContent = (
     <div className="response-style-list">
       {/* Department Default Option */}
-      <button
-        type="button"
-        className={cn('response-style-item', 'department-default', !isUsingOverride && 'selected')}
-        onClick={() => handleSelect(null)}
-      >
-        <div className="response-style-item-icon">
-          <Building2 size={14} />
+      <label className={cn('response-style-item', 'department-default', !isUsingOverride && 'selected')}>
+        <input
+          type="radio"
+          name="response-style"
+          value="department-default"
+          checked={!isUsingOverride}
+          onChange={() => handleSelect(null)}
+          className="response-style-radio"
+          aria-label={t('chat.responseStyle.departmentDefault', 'Department Default')}
+        />
+        <div className="response-style-item-icon" title={t('chat.responseStyle.usesDefault', 'Uses department defaults')}>
+          <Building2 size={14} aria-hidden="true" />
         </div>
         <div className="response-style-item-content">
           <span className="response-style-item-label">
@@ -148,11 +153,11 @@ export function ResponseStyleSelector({
           </span>
         </div>
         {!isUsingOverride && (
-          <div className="response-style-item-check">
+          <div className="response-style-item-check" aria-hidden="true">
             <Check size={14} />
           </div>
         )}
-      </button>
+      </label>
 
       {/* Separator */}
       <div className="response-style-separator" />
@@ -163,15 +168,28 @@ export function ResponseStyleSelector({
         const PresetIcon = presetConfig.icon;
         const isSelected = selectedPreset === presetId;
 
+        const iconTooltips: Record<LLMPresetId, string> = {
+          conservative: t('chat.responseStyle.tooltip.precise', 'Precise and focused'),
+          balanced: t('chat.responseStyle.tooltip.balanced', 'Balanced approach'),
+          creative: t('chat.responseStyle.tooltip.creative', 'Creative and imaginative'),
+        };
+
         return (
-          <button
+          <label
             key={presetId}
-            type="button"
             className={cn('response-style-item', presetConfig.colorClass, isSelected && 'selected')}
-            onClick={() => handleSelect(presetId)}
           >
-            <div className="response-style-item-icon">
-              <PresetIcon size={14} />
+            <input
+              type="radio"
+              name="response-style"
+              value={presetId}
+              checked={isSelected}
+              onChange={() => handleSelect(presetId)}
+              className="response-style-radio"
+              aria-label={getLabel(presetId)}
+            />
+            <div className="response-style-item-icon" title={iconTooltips[presetId]}>
+              <PresetIcon size={14} aria-hidden="true" />
             </div>
             <div className="response-style-item-content">
               <span className="response-style-item-label">{getLabel(presetId)}</span>
@@ -180,11 +198,11 @@ export function ResponseStyleSelector({
               </span>
             </div>
             {isSelected && (
-              <div className="response-style-item-check">
+              <div className="response-style-item-check" aria-hidden="true">
                 <Check size={14} />
               </div>
             )}
-          </button>
+          </label>
         );
       })}
 
@@ -196,9 +214,10 @@ export function ResponseStyleSelector({
             type="button"
             className="response-style-item llm-hub-link"
             onClick={handleOpenLLMHub}
+            title={t('chat.responseStyle.llmHubTooltip', 'Configure LLM models and presets')}
           >
             <div className="response-style-item-icon">
-              <Settings2 size={14} />
+              <Settings2 size={14} aria-hidden="true" />
             </div>
             <div className="response-style-item-content">
               <span className="response-style-item-label">

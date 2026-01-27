@@ -265,30 +265,42 @@ export function ChatInput({
     });
 
   const projectList = (
-    <div className="context-popover-list">
-      {projects.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noProjects')}</div>
-      ) : (
-        sortedProjects.map((proj) => {
-          const isSelected = selectedProject === proj.id;
-          return (
-            <button
-              key={proj.id}
-              className={cn('context-popover-item', isSelected && 'selected')}
-              onClick={() => {
-                onSelectProject?.(isSelected ? null : proj.id);
-              }}
-              type="button"
-            >
-              <div className={cn('context-popover-radio', isSelected && 'checked')}>
-                {isSelected && <Check />}
-              </div>
-              <span>{proj.name}</span>
-            </button>
-          );
-        })
-      )}
-    </div>
+    <>
+      <div className="context-popover-list">
+        {projects.length === 0 ? (
+          <div className="context-popover-empty">{t('context.noProjects')}</div>
+        ) : (
+          sortedProjects.map((proj) => {
+            const isSelected = selectedProject === proj.id;
+            return (
+              <label
+                key={proj.id}
+                className={cn('context-popover-item', isSelected && 'selected')}
+              >
+                <input
+                  type="radio"
+                  name="project"
+                  value={proj.id}
+                  checked={isSelected}
+                  onChange={() => {
+                    onSelectProject?.(isSelected ? null : proj.id);
+                  }}
+                  className="context-popover-input"
+                  aria-label={proj.name}
+                />
+                <div className={cn('context-popover-radio', isSelected && 'checked')} aria-hidden="true">
+                  {isSelected && <Check />}
+                </div>
+                <span>{proj.name}</span>
+              </label>
+            );
+          })
+        )}
+      </div>
+      <div className="context-help-text">
+        {t('context.projectHelp', 'Selected project will affect response generation')}
+      </div>
+    </>
   );
 
   // Department list content - uses shared DepartmentCheckboxItem for consistency with Stage3
@@ -302,21 +314,26 @@ export function ChatInput({
   });
 
   const departmentList = (
-    <div className="context-popover-list">
-      {departments.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noDepartments')}</div>
-      ) : (
-        sortedDepartments.map((dept) => (
-          <DepartmentCheckboxItem
-            key={dept.id}
-            department={dept}
-            isSelected={selectedDepartments.includes(dept.id)}
-            onToggle={toggleDepartment}
-            isMobile={isMobile}
-          />
-        ))
-      )}
-    </div>
+    <>
+      <div className="context-popover-list">
+        {departments.length === 0 ? (
+          <div className="context-popover-empty">{t('context.noDepartments')}</div>
+        ) : (
+          sortedDepartments.map((dept) => (
+            <DepartmentCheckboxItem
+              key={dept.id}
+              department={dept}
+              isSelected={selectedDepartments.includes(dept.id)}
+              onToggle={toggleDepartment}
+              isMobile={isMobile}
+            />
+          ))
+        )}
+      </div>
+      <div className="context-help-text">
+        {t('context.departmentHelp', 'Selected departments will be used to generate responses')}
+      </div>
+    </>
   );
 
   // Role list content
@@ -330,28 +347,40 @@ export function ChatInput({
   });
 
   const roleList = (
-    <div className="context-popover-list">
-      {roles.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noRoles')}</div>
-      ) : (
-        sortedRoles.map((role) => {
-          const isSelected = selectedRoles.includes(role.id);
-          return (
-            <button
-              key={role.id}
-              className={cn('context-popover-item', isSelected && 'selected')}
-              onClick={() => toggleRole(role.id)}
-              type="button"
-            >
-              <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
-                {isSelected && <Check />}
-              </div>
-              <span>{role.name}</span>
-            </button>
-          );
-        })
-      )}
-    </div>
+    <>
+      <div className="context-popover-list">
+        {roles.length === 0 ? (
+          <div className="context-popover-empty">{t('context.noRoles')}</div>
+        ) : (
+          sortedRoles.map((role) => {
+            const isSelected = selectedRoles.includes(role.id);
+            return (
+              <label
+                key={role.id}
+                className={cn('context-popover-item', isSelected && 'selected')}
+              >
+                <input
+                  type="checkbox"
+                  name="role"
+                  value={role.id}
+                  checked={isSelected}
+                  onChange={() => toggleRole(role.id)}
+                  className="context-popover-input"
+                  aria-label={role.name}
+                />
+                <div className={cn('context-popover-checkbox', isSelected && 'checked')} aria-hidden="true">
+                  {isSelected && <Check />}
+                </div>
+                <span>{role.name}</span>
+              </label>
+            );
+          })
+        )}
+      </div>
+      <div className="context-help-text">
+        {t('context.roleHelp', 'Selected roles will be used to generate responses')}
+      </div>
+    </>
   );
 
   // Group playbooks by type
@@ -432,17 +461,24 @@ export function ChatInput({
                     {sortedItems.map((pb) => {
                       const isSelected = selectedPlaybooks.includes(pb.id);
                       return (
-                        <button
+                        <label
                           key={pb.id}
                           className={cn('context-popover-item', isSelected && 'selected')}
-                          onClick={() => togglePlaybook(pb.id)}
-                          type="button"
                         >
-                          <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
+                          <input
+                            type="checkbox"
+                            name="playbook"
+                            value={pb.id}
+                            checked={isSelected}
+                            onChange={() => togglePlaybook(pb.id)}
+                            className="context-popover-input"
+                            aria-label={pb.title || pb.name}
+                          />
+                          <div className={cn('context-popover-checkbox', isSelected && 'checked')} aria-hidden="true">
                             {isSelected && <Check />}
                           </div>
                           <span>{pb.title || pb.name}</span>
-                        </button>
+                        </label>
                       );
                     })}
                   </div>

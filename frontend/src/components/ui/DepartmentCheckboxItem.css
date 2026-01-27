@@ -6,6 +6,23 @@
  */
 
 /* =============================================================================
+   FORM CONTROLS - Hidden checkbox input, styled via label
+   ============================================================================= */
+
+.dept-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.dept-checkbox-input:focus-visible ~ .dept-checkbox {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* =============================================================================
    DESKTOP STYLES
    ============================================================================= */
 
@@ -27,6 +44,7 @@
   cursor: pointer;
   transition: all 0.1s ease;
   text-align: left;
+  user-select: none;
 }
 
 .dept-checkbox-item:hover {
