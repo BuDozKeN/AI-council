@@ -2398,8 +2398,11 @@ function AdminsTab() {
                       </div>
                     </td>
                     <td>
-                      <span className={`admin-role-badge admin-role-badge--${admin.role}`}>
-                        {admin.role.replace('_', ' ')}
+                      <span
+                        className={`admin-role-badge admin-role-badge--${admin.role}`}
+                        title={admin.role === 'super_admin' ? t('mycompany.superAdminPermissions') : undefined}
+                      >
+                        {t(`admin.admins.roles.${admin.role}`, { defaultValue: admin.role.replace('_', ' ') })}
                       </span>
                     </td>
                     <td className="admin-roles-date-col">

@@ -95,7 +95,7 @@ export const formatRelativeDate = (date: DateInput): string => {
 
 /**
  * Format date for grouping (activity logs, conversation lists)
- * Returns "Today", "Yesterday", or weekday with date
+ * Returns "Today", "Yesterday", or weekday with date (adds year for entries older than 30 days)
  */
 export const formatDateGroup = (date: DateInput): string => {
   if (!date) return '';
@@ -112,7 +112,21 @@ export const formatDateGroup = (date: DateInput): string => {
   if (dateOnly.getTime() === todayOnly.getTime()) return i18n.t('dates.today');
   if (dateOnly.getTime() === yesterdayOnly.getTime()) return i18n.t('dates.yesterday');
 
-  // For activity grouping: "Monday, 6 Dec"
+  // Calculate days elapsed
+  const diffMs = todayOnly.getTime() - dateOnly.getTime();
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  // For entries older than 30 days, include the year
+  if (diffDays > 30) {
+    return new Date(date).toLocaleDateString(getLocale(), {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  }
+
+  // For activity grouping within 30 days: "Monday, 6 Dec"
   return new Date(date).toLocaleDateString(getLocale(), {
     weekday: 'long',
     day: 'numeric',

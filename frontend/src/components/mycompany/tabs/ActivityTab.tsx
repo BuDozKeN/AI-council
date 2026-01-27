@@ -312,7 +312,7 @@ export function ActivityTab({
                             className="mc-elegant-badge activity-action"
                             style={{ background: actionColors.bg, color: actionColors.text }}
                           >
-                            {action}
+                            {t(`mycompany.eventType_${action}`, { defaultValue: action })}
                           </span>
                         )}
                       </div>

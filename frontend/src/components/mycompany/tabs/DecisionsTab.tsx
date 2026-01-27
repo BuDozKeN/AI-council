@@ -331,7 +331,7 @@ export function DecisionsTab({
                   aria-label={`${displayTitle}, ${formatDateCompact(decision.created_at)}`}
                 >
                   {/* Status indicator - amber for pending */}
-                  <div className="mc-status-dot draft" aria-label="Pending decision status" />
+                  <div className="mc-status-dot draft" aria-label={t('mycompany.pendingDecisionAriaLabel')} title={t('mycompany.pendingDecisionAriaLabel')} />
 
                   {/* Main content - title + badges */}
                   <div className="mc-elegant-content">

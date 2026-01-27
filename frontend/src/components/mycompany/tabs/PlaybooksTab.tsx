@@ -400,10 +400,10 @@ export function PlaybooksTab({
           className={`mc-stat-card clickable ${playbookTypeFilter === 'all' ? 'selected' : ''}`}
           onClick={onTypeFilterChange ? () => onTypeFilterChange('all') : undefined}
           aria-pressed={playbookTypeFilter === 'all'}
-          aria-label={`${t('common.all')}: ${playbooks.length} playbooks`}
+          aria-label={`${playbooks.length} playbooks`}
         >
           <div className="mc-stat-value total">{playbooks.length}</div>
-          <div className="mc-stat-label">{t('common.all')}</div>
+          <div className="mc-stat-label">{t('mycompany.playbookCountLabel')}</div>
         </button>
         <button
           type="button"

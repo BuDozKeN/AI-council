@@ -32,9 +32,9 @@ import type { UsageData, RateLimitStatus, BudgetAlert, UsagePeriod } from '../ho
 // ============================================================================
 
 const PERIOD_OPTIONS: { value: UsagePeriod; label: string }[] = [
-  { value: 7, label: '7d' },
-  { value: 30, label: '30d' },
-  { value: 90, label: '90d' },
+  { value: 7, label: '7 days' },
+  { value: 30, label: '30 days' },
+  { value: 90, label: '90 days' },
 ];
 
 // Responsive breakpoint (matches CSS media queries)
