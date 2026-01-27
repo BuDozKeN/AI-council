@@ -180,6 +180,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
           {showAddForm && (
             <form onSubmit={handleAddMember} className="add-member-form">
               <div className="form-row">
+                <label htmlFor="new-member-email" className="sr-only">
+                  {t('settings.emailAddress')}
+                </label>
                 <input
                   id="new-member-email"
                   name="member-email"
@@ -189,13 +192,15 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   onChange={(e) => setNewEmail(e.target.value)}
                   className="form-input"
                   autoFocus
+                  aria-label={t('settings.emailAddress')}
+                  required
                 />
                 <Select
                   value={newRole}
                   onValueChange={(value: string) => setNewRole(value as TeamRole)}
                 >
-                  <SelectTrigger className="form-select">
-                    <SelectValue />
+                  <SelectTrigger className="form-select" aria-label={t('settings.role')}>
+                    <SelectValue placeholder={t('settings.role')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="member">{t('settings.member')}</SelectItem>
@@ -253,15 +258,17 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                             className="icon-btn"
                             onClick={() => handleResendInvitation(invitation.id)}
                             title="Resend invitation"
+                            aria-label={`Resend invitation to ${invitation.email}`}
                           >
-                            <RefreshCw size={14} />
+                            <RefreshCw size={14} aria-hidden="true" />
                           </button>
                           <button
                             className="icon-btn danger"
                             onClick={() => handleCancelInvitation(invitation.id)}
                             title="Cancel invitation"
+                            aria-label={`Cancel invitation to ${invitation.email}`}
                           >
-                            <X size={14} />
+                            <X size={14} aria-hidden="true" />
                           </button>
                         </div>
                       )}
