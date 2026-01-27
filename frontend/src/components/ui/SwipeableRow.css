@@ -146,6 +146,37 @@
 }
 
 /* =============================================================================
+   MOBILE - WCAG 44px touch target on mobile devices
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .swipeable-action {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    gap: var(--space-1);
+  }
+
+  .swipeable-action span {
+    display: inline;
+    font-size: var(--text-xs);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .swipeable-action svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .swipeable-row-actions {
+    gap: var(--gap-sm);
+    padding: 0 var(--space-2);
+  }
+}
+
+/* =============================================================================
    DARK MODE
    ============================================================================= */
 
