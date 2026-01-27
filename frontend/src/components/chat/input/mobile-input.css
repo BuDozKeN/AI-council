@@ -191,11 +191,11 @@
     padding: var(--space-1-5) 0;
   }
 
-  /* Maintain touch targets but reduce visual size */
+  /* Maintain WCAG 44px touch targets even at 320px */
   .input-action-btn {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
   }
 
   .input-action-btn svg {
@@ -219,29 +219,29 @@
   button.context-select-trigger {
     font-size: var(--text-2xs);
     padding: var(--space-1) var(--space-1-5);
-    min-height: 40px;
+    min-height: 44px;
   }
 
-  /* Mode toggle compact */
+  /* Mode toggle compact - maintain 44px touch targets */
   .mode-btn-compact {
     padding: var(--space-2) var(--space-2);
-    min-height: 40px;
+    min-height: 44px;
     font-size: var(--text-xs);
   }
 
   .dept-pill-compact {
-    min-height: 40px;
+    min-height: 44px;
     padding: var(--space-1-5) var(--space-2);
     font-size: var(--text-xs);
   }
 
   .role-pill-compact {
-    min-height: 28px;
+    min-height: 44px;
     padding: var(--space-1) var(--space-2);
     font-size: var(--text-2xs);
   }
 
-  /* Mobile selectors - compact */
+  /* Mobile selectors - compact but touch-friendly */
   .mobile-selectors button.mobile-dept-select,
   .mobile-selectors button.mobile-role-select,
   button.mobile-dept-select,
@@ -249,7 +249,7 @@
     min-width: 100px;
     padding: var(--space-2-5);
     font-size: var(--text-xs);
-    min-height: 40px;
+    min-height: 44px;
   }
 }
 

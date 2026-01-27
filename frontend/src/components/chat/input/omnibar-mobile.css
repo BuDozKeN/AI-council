@@ -88,3 +88,35 @@
     gap: var(--gap-2xs);
   }
 }
+
+/* Extra small phones (iPhone SE - 320px width) */
+@media (width <= 360px) {
+  .omnibar {
+    padding: var(--space-2) var(--space-2-5); /* Tight padding for 320px */
+  }
+
+  /* Maintain 44px touch targets for accessibility */
+  .omni-icon-btn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .omni-send-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+
+  .omni-left {
+    gap: var(--gap-2xs);
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .omni-right {
+    gap: var(--gap-2xs);
+    flex-shrink: 0;
+  }
+}
