@@ -881,7 +881,7 @@ export function ChatInput({
                     type="button"
                     className="omni-send-btn stop"
                     onClick={onStopGeneration}
-                    aria-label="Stop generation"
+                    aria-label={t('aria.stopGeneration', 'Stop generation')}
                   >
                     <span className="stop-icon" aria-hidden="true" />
                   </button>,
@@ -893,7 +893,7 @@ export function ChatInput({
                     className={cn('omni-send-btn', canSend && 'active')}
                     disabled={!canSend}
                     onClick={onSubmit}
-                    aria-label="Send message"
+                    aria-label={t('aria.sendMessage', 'Send message')}
                   >
                     <Send className="h-5 w-5" aria-hidden="true" />
                   </button>,

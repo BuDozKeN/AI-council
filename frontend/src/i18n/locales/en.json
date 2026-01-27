@@ -1105,7 +1105,11 @@
     "loading": "Loading content",
     "mainNavigation": "Main navigation",
     "userMenu": "User menu",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "sendMessage": "Send message",
+    "stopGeneration": "Stop generation",
+    "attachImage": "Attach image",
+    "quickActions": "Quick actions"
   },
   "triage": {
     "you": "You",
