@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowUp } from 'lucide-react';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
@@ -186,6 +187,7 @@ export default function ChatInterface({
   onSelectPreset,
   onOpenLLMHub,
 }: ChatInterfaceProps) {
+  const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState<'chat' | 'council'>('chat');
   const [attachedImages, setAttachedImages] = useState<UploadedImage[]>([]);
@@ -544,7 +546,7 @@ export default function ChatInterface({
             return (
               <div className="loading-indicator">
                 <Spinner size="md" />
-                <span>Preparing your council...</span>
+                <span>{t('stages.aiCouncilThinking', { defaultValue: 'AI Council is thinking...' })}</span>
               </div>
             );
           })()}

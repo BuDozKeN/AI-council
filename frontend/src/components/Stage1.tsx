@@ -171,7 +171,16 @@ const ModelCard = memo(function ModelCard({
   // Build informative tooltip for rank badge
   const getRankTooltip = () => {
     if (!rankData) return '';
-    const { average_rank, rankings_count, totalVoters } = rankData;
+    const { average_rank, rankings_count, totalVoters, position } = rankData;
+    // For rank 1, emphasize "Best answer selected by the council"
+    if (position === 1) {
+      return t('stages.bestAnswerTooltip', {
+        defaultValue: 'Best answer selected by the council',
+        avg: average_rank.toFixed(1),
+        votesReceived: rankings_count,
+        totalVoters,
+      });
+    }
     return t('stages.rankTooltip', {
       avg: average_rank.toFixed(1),
       votesReceived: rankings_count,
@@ -584,7 +593,7 @@ function Stage1({
 
         <div className="stage-loading">
           <Spinner size="md" />
-          <span>{t('stages.councilGathering')}</span>
+          <span>{t('stages.aiCouncilThinking', { defaultValue: 'AI Council is thinking...' })}</span>
         </div>
       </div>
     );
