@@ -555,7 +555,12 @@ export function PlaybooksTab({
                             )}
 
                             {/* Type badge */}
-                            <span className={`mc-elegant-badge ${doc.doc_type}`}>{typeLabel}</span>
+                            <span
+                              className={`mc-elegant-badge ${doc.doc_type}`}
+                              title={t(`mycompany.typeLabel_${doc.doc_type}`)}
+                            >
+                              {typeLabel}
+                            </span>
                           </div>
                         </div>
 
