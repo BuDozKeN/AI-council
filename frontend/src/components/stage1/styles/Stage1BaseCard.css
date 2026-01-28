@@ -44,6 +44,8 @@
   box-shadow: 0 4px 12px var(--stage1-shadow-color);
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Allow flex children to shrink below content size */
+  overflow: hidden; /* Contain content within card bounds */
 }
 
 /* Model card header */

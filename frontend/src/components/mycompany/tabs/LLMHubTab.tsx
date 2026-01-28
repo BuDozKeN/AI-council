@@ -321,7 +321,7 @@ const MODELS = [
   { id: 'x-ai/grok-4', name: 'Grok 4' },
   { id: 'x-ai/grok-4-fast', name: 'Grok 4 Fast' },
   { id: 'deepseek/deepseek-chat-v3-0324', name: 'DeepSeek V3' },
-  { id: 'moonshot/kimi-k2', name: 'Kimi K2' },
+  { id: 'moonshotai/kimi-k2', name: 'Kimi K2' },
 ];
 
 // Default models for each role when database has no entries
