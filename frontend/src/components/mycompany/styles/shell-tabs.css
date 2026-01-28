@@ -169,3 +169,51 @@
 [data-theme='dark'] .mc-company-option:not(:last-child) {
   border-block-end-color: var(--color-border);
 }
+
+/* =============================================================================
+   MOBILE - Tab responsive sizing to prevent truncation
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .mc-tabs {
+    padding: var(--space-2) var(--space-3);
+    gap: var(--gap-2xs);
+    overflow: auto hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mc-tab {
+    padding: var(--space-2) var(--space-2-5);
+    font-size: 0.8125rem; /* 13px - smaller on mobile */
+    flex-shrink: 0; /* Prevent tab squishing */
+    white-space: nowrap;
+  }
+
+  .mc-tab-label {
+    /* Hide labels on very small screens to show icons only */
+    display: none;
+  }
+
+  .mc-tab-icon {
+    font-size: 1.125rem;
+  }
+}
+
+/* Tiny screens - icon-only tabs with tooltips */
+@media (width <= 380px) {
+  .mc-tab {
+    padding: var(--space-2) var(--space-2-5);
+  }
+
+  .mc-tab-icon {
+    font-size: 1rem;
+  }
+}
+
+/* Desktop+ screens - show labels and allow normal layout */
+@media (width >= 641px) {
+  .mc-tab-label {
+    display: inline;
+  }
+}

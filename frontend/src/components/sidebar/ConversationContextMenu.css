@@ -77,3 +77,15 @@
     0 4px 16px var(--overlay-black-40),
     0 2px 6px var(--overlay-black-30);
 }
+
+/* =============================================================================
+   MOBILE - Ensure WCAG 44px touch targets
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .context-menu-item {
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--space-3) var(--space-4);
+  }
+}

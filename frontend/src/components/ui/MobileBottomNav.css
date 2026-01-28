@@ -93,27 +93,54 @@
   line-height: 1;
   letter-spacing: 0.01em;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+
+  /* Allow slight overflow to prevent truncation of short labels */
+  overflow: visible;
   max-width: 100%;
+  text-align: center;
 }
 
-/* Very small screens - smaller font to fit all labels */
-@media (width <= 380px) {
+/* Medium mobile screens - use abbreviations or slightly smaller font */
+@media (width <= 480px) {
   .mobile-nav-label {
-    font-size: var(--text-2xs); /* 10px for tiny screens */
+    font-size: 11px; /* 11px - balance between readability and fit */
   }
 }
 
-/* Tiny screens (iPhone SE) - icon-only mode */
-@media (width <= 320px) {
+/* Very small screens - hide labels to show icons only */
+@media (width <= 375px) {
   .mobile-nav-label {
-    display: none; /* Hide labels, show icons only */
+    display: none; /* Hide text labels, show only icons */
+  }
+
+  .mobile-nav-item {
+    gap: 0; /* Remove gap when no label shown */
+    min-height: 48px; /* Maintain touch target */
+    padding: var(--space-3);
+  }
+}
+
+/* Extra small screens (iPhone SE - 320px width) */
+@media (width <= 360px) {
+  .mobile-nav-label {
+    display: none; /* Hide text labels, show only icons */
   }
 
   .mobile-nav-item {
     gap: 0;
-    min-height: 48px; /* Slightly reduced when no label */
+    min-height: 44px; /* Maintain WCAG 44px touch target */
+    padding: var(--space-2);
+    flex: 1;
+  }
+
+  .mobile-nav-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobile-nav-icon svg {
+    width: 24px;
+    height: 24px;
   }
 }
 

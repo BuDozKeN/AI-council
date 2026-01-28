@@ -32,6 +32,43 @@ const GoogleIcon = () => (
   </svg>
 );
 
+// Transform backend error messages into user-friendly ones
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const getUserFriendlyError = (error: string, t: any): string => {
+  // Map technical error codes/messages to user-friendly translations
+  const errorMap: Record<string, string> = {
+    block_new_signups: t(
+      'errors.signupDisabled',
+      'Sign up is currently unavailable. Please try again later.'
+    ),
+    signups_not_allowed: t(
+      'errors.signupDisabled',
+      'Sign up is currently unavailable. Please try again later.'
+    ),
+    invalid_credentials: t('errors.invalidCredentials', 'Invalid email or password'),
+    email_not_confirmed: t(
+      'errors.emailNotConfirmed',
+      'Please check your email to confirm your account'
+    ),
+    user_already_registered: t('errors.userExists', 'An account with this email already exists'),
+    weak_password: t(
+      'errors.weakPassword',
+      'Password must be at least 8 characters with a mix of letters, numbers, and symbols'
+    ),
+  };
+
+  // Check if the error contains any known error codes
+  const lowerError = error.toLowerCase();
+  for (const [key, value] of Object.entries(errorMap)) {
+    if (lowerError.includes(key.toLowerCase())) {
+      return value;
+    }
+  }
+
+  // Return the original error if no mapping found
+  return error;
+};
+
 export default function Login() {
   const { t } = useTranslation();
   const [mode, setMode] = useState('signIn'); // 'signIn', 'signUp', 'forgotPassword', 'resetPassword'
@@ -68,7 +105,8 @@ export default function Login() {
       saveReturnUrl();
       await signInWithGoogle();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMsg = err instanceof Error ? err.message : t('errors.generic');
+      setError(getUserFriendlyError(errorMsg, t));
       setGoogleLoading(false);
     }
   };
@@ -111,7 +149,8 @@ export default function Login() {
         hapticSuccess();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('errors.generic'));
+      const errorMsg = err instanceof Error ? err.message : t('errors.generic');
+      setError(getUserFriendlyError(errorMsg, t));
       hapticError();
     } finally {
       setLoading(false);
@@ -130,6 +169,12 @@ export default function Login() {
         return t('auth.welcomeBack');
     }
   };
+
+  // Update document title based on current mode for better accessibility
+  useEffect(() => {
+    const pageTitle = getTitle();
+    document.title = `${pageTitle} - AxCouncil`;
+  }, [mode, t]);
 
   const getSubtitle = () => {
     switch (mode) {

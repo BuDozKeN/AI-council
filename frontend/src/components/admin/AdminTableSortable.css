@@ -18,7 +18,7 @@
 }
 
 .admin-sortable-header:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 3px solid var(--color-primary);
   outline-offset: -2px;
 }
 
@@ -59,7 +59,7 @@
 }
 
 .admin-table tbody tr:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 3px solid var(--color-primary);
   outline-offset: -2px;
   background: var(--color-bg-hover);
 }

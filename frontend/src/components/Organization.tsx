@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { api } from '../api';
 import { Spinner } from './ui/Spinner';
 import { AppModal } from './ui/AppModal';
@@ -424,6 +425,7 @@ export default function Organization({
                         setEditingDept({ ...dept });
                       }}
                       title={t('organization.editDepartment')}
+                      aria-label={t('organization.editDepartment')}
                     >
                       ✏️
                     </button>
@@ -439,10 +441,15 @@ export default function Organization({
                         });
                       }}
                       title={t('organization.deleteDepartment')}
+                      aria-label={t('organization.deleteDepartment')}
                     >
                       🗑️
                     </button>
-                    <span className="org-expand-icon">{expandedDept === dept.id ? '▼' : '▶'}</span>
+                    {expandedDept === dept.id ? (
+                      <ChevronDown size={16} className="org-expand-icon" aria-hidden="true" />
+                    ) : (
+                      <ChevronRight size={16} className="org-expand-icon" aria-hidden="true" />
+                    )}
                   </div>
                 </div>
 
@@ -472,6 +479,7 @@ export default function Organization({
                               className="org-icon-btn small"
                               onClick={() => setEditingRole({ deptId: dept.id, role: { ...role } })}
                               title={t('organization.editRole')}
+                              aria-label={t('organization.editRole')}
                             >
                               ✏️
                             </button>
@@ -486,6 +494,7 @@ export default function Organization({
                                 })
                               }
                               title={t('organization.deleteRole')}
+                              aria-label={t('organization.deleteRole')}
                             >
                               🗑️
                             </button>

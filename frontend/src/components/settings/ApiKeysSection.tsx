@@ -100,19 +100,31 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                       {apiKeyStatus &&
                         (apiKeyStatus.is_active ? (
                           apiKeyStatus.is_valid ? (
-                            <span className="status-dot connected" title={t('settings.active')} />
+                            <span
+                              className="status-dot connected"
+                              title={`${t('settings.active')} - ${t('mycompany.statusConnected')}`}
+                              aria-label={t('mycompany.statusConnected')}
+                            />
                           ) : (
                             <span className="status-dot invalid" title={t('settings.invalid')} />
                           )
                         ) : (
-                          <span className="status-dot paused" title={t('settings.paused')} />
+                          <span
+                            className="status-dot paused"
+                            title={`${t('settings.paused')} - ${t('mycompany.statusDisconnected')}`}
+                            aria-label={t('mycompany.statusDisconnected')}
+                          />
                         ))}
                     </div>
                     <span className="provider-tagline">{t('settings.openRouterTagline')}</span>
                   </div>
                 </div>
               </div>
-              <ChevronDown className="accordion-chevron" size={20} />
+              <ChevronDown
+                className="accordion-chevron"
+                size={20}
+                aria-label={t('aria.expandSection')}
+              />
             </Accordion.Trigger>
           </Accordion.Header>
 
@@ -298,8 +310,13 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                     </p>
                     <p>
                       {t('settings.step1Desc')}{' '}
-                      <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer">
-                        openrouter.ai <ExternalLink size={12} />
+                      <a
+                        href="https://openrouter.ai"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="openrouter.ai (opens in new tab)"
+                      >
+                        openrouter.ai <ExternalLink size={12} aria-hidden="true" />
                       </a>
                     </p>
                   </div>
@@ -317,8 +334,9 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                         href="https://openrouter.ai/credits"
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label="Credits (opens in new tab)"
                       >
-                        Credits <ExternalLink size={12} />
+                        Credits <ExternalLink size={12} aria-hidden="true" />
                       </a>
                     </p>
                   </div>
@@ -336,8 +354,9 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                         href="https://openrouter.ai/keys"
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label="API Keys (opens in new tab)"
                       >
-                        API Keys <ExternalLink size={12} />
+                        API Keys <ExternalLink size={12} aria-hidden="true" />
                       </a>
                     </p>
                   </div>

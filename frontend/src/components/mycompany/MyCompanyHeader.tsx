@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronLeft, Building2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { makeClickable, handleKeyPress } from '../../utils/a11y';
@@ -19,6 +20,9 @@ interface MyCompanyHeaderProps {
 
 /**
  * MyCompanyHeader - Header with company name, status indicator, and company switcher
+ *
+ * WCAG 4.1.1 Fix: Header element should not have role="button" when containing actual button elements.
+ * Use semantic <header> and handle keyboard/click on div instead.
  */
 export function MyCompanyHeader({
   companyName,
@@ -29,15 +33,68 @@ export function MyCompanyHeader({
   onClose,
   onHeaderClick,
 }: MyCompanyHeaderProps) {
+  const { t } = useTranslation();
   return (
-    <header
-      className="mc-header mc-header-dismissible"
-      onClick={onHeaderClick}
-      onKeyDown={handleKeyPress(onHeaderClick)}
-      role="button"
-      tabIndex={0}
-      aria-label="Click to close, or press Escape"
-    >
+    <header className="mc-header mc-header-dismissible">
+      <div
+        className="mc-header-dismissible-target"
+        onClick={onHeaderClick}
+        onKeyDown={handleKeyPress(onHeaderClick)}
+        role="button"
+        tabIndex={0}
+        aria-label="Click to close, or press Escape"
+      >
+        <div className="mc-dismiss-hint">
+          <ChevronDown size={16} />
+          <span>tap to close</span>
+        </div>
+        <div className="mc-header-content">
+          <div className="mc-title-row">
+            <h1>
+              <span
+                className={`mc-status-indicator ${pendingDecisionsCount === 0 ? 'all-good' : pendingDecisionsCount !== null && pendingDecisionsCount > 0 ? 'pending' : ''}`}
+                title={
+                  pendingDecisionsCount === 0
+                    ? 'All decisions promoted'
+                    : pendingDecisionsCount !== null && pendingDecisionsCount > 0
+                      ? `${pendingDecisionsCount} pending decision${pendingDecisionsCount !== 1 ? 's' : ''}`
+                      : 'Loading...'
+                }
+              />
+              {companyName || 'Your Company'}
+            </h1>
+            <span className="mc-title-suffix">Command Center</span>
+          </div>
+          {/* Company switcher - always show on mobile for clear company display, only show dropdown if multiple companies */}
+          <div className="mc-company-switcher" {...makeClickable((e) => e.stopPropagation())}>
+            {allCompanies.length > 1 ? (
+              <Select
+                value={companyId}
+                onValueChange={(val) => {
+                  if (val !== companyId) onSelectCompany?.(val);
+                }}
+              >
+                <SelectTrigger className="mc-company-select-trigger">
+                  <Building2 size={16} />
+                  <SelectValue placeholder="Switch company" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allCompanies.map((company) => (
+                    <SelectItem key={company.id} value={company.id}>
+                      {company.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="mc-company-display">
+                <Building2 size={16} />
+                <span>{companyName || 'Your Company'}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       <button
         className="mc-mobile-back-btn"
         onClick={(e: React.MouseEvent) => {
@@ -48,58 +105,9 @@ export function MyCompanyHeader({
       >
         <ChevronLeft size={20} />
       </button>
-      <div className="mc-dismiss-hint">
-        <ChevronDown size={16} />
-        <span>tap to close</span>
-      </div>
-      <div className="mc-header-content">
-        <div className="mc-title-row">
-          <h1>
-            <span
-              className={`mc-status-indicator ${pendingDecisionsCount === 0 ? 'all-good' : pendingDecisionsCount !== null && pendingDecisionsCount > 0 ? 'pending' : ''}`}
-              title={
-                pendingDecisionsCount === 0
-                  ? 'All decisions promoted'
-                  : pendingDecisionsCount !== null && pendingDecisionsCount > 0
-                    ? `${pendingDecisionsCount} pending decision${pendingDecisionsCount !== 1 ? 's' : ''}`
-                    : 'Loading...'
-              }
-            />
-            {companyName || 'Your Company'}
-          </h1>
-          <span className="mc-title-suffix">Command Center</span>
-        </div>
-        {/* Company switcher - always show on mobile for clear company display, only show dropdown if multiple companies */}
-        <div className="mc-company-switcher" {...makeClickable((e) => e.stopPropagation())}>
-          {allCompanies.length > 1 ? (
-            <Select
-              value={companyId}
-              onValueChange={(val) => {
-                if (val !== companyId) onSelectCompany?.(val);
-              }}
-            >
-              <SelectTrigger className="mc-company-select-trigger">
-                <Building2 size={16} />
-                <SelectValue placeholder="Switch company" />
-              </SelectTrigger>
-              <SelectContent>
-                {allCompanies.map((company) => (
-                  <SelectItem key={company.id} value={company.id}>
-                    {company.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <div className="mc-company-display">
-              <Building2 size={16} />
-              <span>{companyName || 'Your Company'}</span>
-            </div>
-          )}
-        </div>
-      </div>
       <button
         className="mc-close-btn"
+        aria-label={t('common.close', 'Close')}
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           onClose?.();

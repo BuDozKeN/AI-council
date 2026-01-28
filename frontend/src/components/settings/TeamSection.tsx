@@ -180,6 +180,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
           {showAddForm && (
             <form onSubmit={handleAddMember} className="add-member-form">
               <div className="form-row">
+                <label htmlFor="new-member-email" className="sr-only">
+                  {t('settings.emailAddress')}
+                </label>
                 <input
                   id="new-member-email"
                   name="member-email"
@@ -189,13 +192,18 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   onChange={(e) => setNewEmail(e.target.value)}
                   className="form-input"
                   autoFocus
+                  aria-label={t('settings.emailAddress')}
+                  required
                 />
                 <Select
                   value={newRole}
                   onValueChange={(value: string) => setNewRole(value as TeamRole)}
                 >
-                  <SelectTrigger className="form-select">
-                    <SelectValue />
+                  <SelectTrigger
+                    className="form-select"
+                    aria-label={t('settings.selectRole', 'Role')}
+                  >
+                    <SelectValue placeholder={t('settings.selectRole', 'Role')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="member">{t('settings.member')}</SelectItem>
@@ -226,14 +234,18 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                 Pending Invitations
                 <span className="count-badge">{pendingInvitations.length}</span>
               </h4>
-              <div className="invitations-list">
+              <ul className="invitations-list" aria-label="Pending invitations">
                 {pendingInvitations.map((invitation) => {
                   const roleConfig =
                     ROLE_CONFIG[invitation.target_company_role] || ROLE_CONFIG.member;
                   const isLoading = invitationActionLoading === invitation.id;
 
                   return (
-                    <div key={invitation.id} className="invitation-row">
+                    <li
+                      key={invitation.id}
+                      className="invitation-row"
+                      aria-label={`${invitation.email}, ${t(`settings.${roleConfig.roleKey}`)}`}
+                    >
                       <div className="invitation-icon">
                         <Mail size={16} />
                       </div>
@@ -253,27 +265,29 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                             className="icon-btn"
                             onClick={() => handleResendInvitation(invitation.id)}
                             title="Resend invitation"
+                            aria-label={`Resend invitation to ${invitation.email}`}
                           >
-                            <RefreshCw size={14} />
+                            <RefreshCw size={14} aria-hidden="true" />
                           </button>
                           <button
                             className="icon-btn danger"
                             onClick={() => handleCancelInvitation(invitation.id)}
                             title="Cancel invitation"
+                            aria-label={`Cancel invitation to ${invitation.email}`}
                           >
-                            <X size={14} />
+                            <X size={14} aria-hidden="true" />
                           </button>
                         </div>
                       )}
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             </div>
           )}
 
           {/* Members list */}
-          <div className="members-list">
+          <ul className="members-list" aria-label="Team members">
             {members.map((member) => {
               const roleConfig = ROLE_CONFIG[member.role] || ROLE_CONFIG.member;
               const RoleIcon = roleConfig.icon;
@@ -290,9 +304,10 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   (currentUserRole === 'admin' && member.role === 'member'));
 
               return (
-                <div
+                <li
                   key={member.id}
                   className={`member-row-compact ${isCurrentUser ? 'current' : ''}`}
+                  aria-label={`${isCurrentUser ? t('settings.you') : `User ${member.user_id.slice(0, 8)}`}, ${t(`settings.${roleConfig.roleKey}`)}`}
                 >
                   <div className="member-role-icon" style={{ color: roleConfig.color }}>
                     <RoleIcon size={16} />
@@ -312,8 +327,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           className="icon-btn promote"
                           onClick={() => handleChangeRole(member.id, 'admin')}
                           title={t('settings.promoteToAdmin')}
+                          aria-label={t('settings.promoteToAdmin')}
                         >
-                          <ChevronUp size={14} />
+                          <ChevronUp size={14} aria-hidden="true" />
                         </button>
                       )}
                       {canDemote && (
@@ -321,8 +337,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           className="icon-btn demote"
                           onClick={() => handleChangeRole(member.id, 'member')}
                           title={t('settings.demoteToMember')}
+                          aria-label={t('settings.demoteToMember')}
                         >
-                          <ChevronDown size={14} />
+                          <ChevronDown size={14} aria-hidden="true" />
                         </button>
                       )}
                       {canRemove && (
@@ -330,16 +347,17 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           className="icon-btn danger"
                           onClick={() => onRemoveMember(member.id, member.role, handleRemoveMember)}
                           title={t('settings.removeFromTeam')}
+                          aria-label={t('settings.removeFromTeam')}
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={14} aria-hidden="true" />
                         </button>
                       )}
                     </div>
                   )}
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </CardContent>
       </Card>
     </>

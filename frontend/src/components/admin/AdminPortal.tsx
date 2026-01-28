@@ -223,6 +223,34 @@ const AuditTableSkeleton = () => (
   </>
 );
 
+/**
+ * Format technical action names into user-friendly text
+ * e.g., "view_audit_logs" -> "Viewed audit logs"
+ */
+const formatActionName = (action: string): string => {
+  // Map of technical actions to friendly names
+  const actionMap: Record<string, string> = {
+    view_audit_logs: 'Viewed audit logs',
+    view_user_details: 'Viewed user details',
+    view_company_details: 'Viewed company details',
+    update_user: 'Updated user',
+    delete_user: 'Deleted user',
+    create_company: 'Created company',
+    update_company: 'Updated company',
+    delete_company: 'Deleted company',
+    impersonate_user: 'Impersonated user',
+    grant_admin: 'Granted admin access',
+    revoke_admin: 'Revoked admin access',
+  };
+
+  if (actionMap[action]) {
+    return actionMap[action];
+  }
+
+  // Fallback: Convert snake_case to readable text
+  return action.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+};
+
 export default function AdminPortal() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -1116,7 +1144,11 @@ function UsersTab() {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="admin-icon-btn admin-icon-btn--ghost" title="Actions">
+                <button
+                  className="admin-icon-btn admin-icon-btn--ghost"
+                  title="Actions"
+                  aria-label={t('common.actions', 'Actions')}
+                >
                   <MoreVertical className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
@@ -1144,7 +1176,11 @@ function UsersTab() {
       <div className="admin-actions-cell">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="admin-icon-btn admin-icon-btn--ghost" title="Actions">
+            <button
+              className="admin-icon-btn admin-icon-btn--ghost"
+              title="Actions"
+              aria-label={t('common.actions', 'Actions')}
+            >
               <MoreVertical className="h-4 w-4" />
             </button>
           </DropdownMenuTrigger>
@@ -1296,6 +1332,11 @@ function UsersTab() {
             className={`admin-icon-btn admin-show-deleted-btn ${showDeletedUsers ? 'admin-icon-btn--warning-active' : 'admin-icon-btn--secondary'}`}
             onClick={() => setShowDeletedUsers(!showDeletedUsers)}
             title={
+              showDeletedUsers
+                ? t('admin.users.hideDeleted', 'Hide deleted users')
+                : t('admin.users.showDeleted', 'Show deleted users')
+            }
+            aria-label={
               showDeletedUsers
                 ? t('admin.users.hideDeleted', 'Hide deleted users')
                 : t('admin.users.showDeleted', 'Show deleted users')
@@ -2152,7 +2193,16 @@ function CompaniesTab() {
       ) : (
         <>
           <div className="admin-table-container">
-            <table className="admin-table">
+            <table
+              className="admin-table"
+              aria-label={t('admin.companies.title', 'Companies List')}
+            >
+              <caption className="sr-only">
+                {t(
+                  'admin.companies.description',
+                  'List of all companies with owner information and conversation count'
+                )}
+              </caption>
               <thead>
                 <tr>
                   <SortableTableHeader
@@ -2190,29 +2240,30 @@ function CompaniesTab() {
                       key={company.id}
                       className={useDummyData ? 'admin-demo-row' : ''}
                       {...getCompanyRowProps(rowIndex)}
+                      aria-label={`${company.name}, Owner: ${company.owner_email || 'Unknown'}, Conversations: ${company.conversation_count}, Created: ${formatDate(company.created_at)}`}
                     >
                       <td>
                         <div className="admin-company-cell">
-                          <Building2 className="h-4 w-4" />
+                          <Building2 className="h-4 w-4" aria-hidden="true" />
                           <span>{company.name}</span>
                           {useDummyData && <span className="admin-demo-badge">DEMO</span>}
                         </div>
                       </td>
                       <td>
                         <div className="admin-user-cell">
-                          <Mail className="h-4 w-4" />
+                          <Mail className="h-4 w-4" aria-hidden="true" />
                           <span>{company.owner_email || 'Unknown'}</span>
                         </div>
                       </td>
                       <td>
                         <div className="admin-count-cell">
-                          <MessageSquare className="h-4 w-4" />
+                          <MessageSquare className="h-4 w-4" aria-hidden="true" />
                           <span>{company.conversation_count}</span>
                         </div>
                       </td>
                       <td>
                         <div className="admin-date-cell">
-                          <Calendar className="h-4 w-4" />
+                          <Calendar className="h-4 w-4" aria-hidden="true" />
                           <span>{formatDate(company.created_at)}</span>
                         </div>
                       </td>
@@ -2317,7 +2368,13 @@ function AdminsTab() {
         </div>
       ) : (
         <div className="admin-table-container">
-          <table className="admin-table">
+          <table className="admin-table" aria-label={t('admin.admins.title', 'Admin Users List')}>
+            <caption className="sr-only">
+              {t(
+                'admin.admins.description',
+                'List of platform administrators with their roles and grant dates'
+              )}
+            </caption>
             <thead>
               <tr>
                 <SortableTableHeader
@@ -2350,22 +2407,32 @@ function AdminsTab() {
                     key={admin.id}
                     className={useDummyData ? 'admin-demo-row' : ''}
                     {...getAdminRowProps(rowIndex)}
+                    aria-label={`${admin.email}, Role: ${admin.role.replace('_', ' ')}, Granted: ${formatDate(admin.created_at)}`}
                   >
                     <td>
                       <div className="admin-user-cell">
-                        <Shield className="h-4 w-4" />
+                        <Shield className="h-4 w-4" aria-hidden="true" />
                         <span>{admin.email}</span>
                         {useDummyData && <span className="admin-demo-badge">DEMO</span>}
                       </div>
                     </td>
                     <td>
-                      <span className={`admin-role-badge admin-role-badge--${admin.role}`}>
-                        {admin.role.replace('_', ' ')}
+                      <span
+                        className={`admin-role-badge admin-role-badge--${admin.role}`}
+                        title={
+                          admin.role === 'super_admin'
+                            ? t('mycompany.superAdminPermissions')
+                            : undefined
+                        }
+                      >
+                        {t(`admin.admins.roles.${admin.role}`, {
+                          defaultValue: admin.role.replace('_', ' '),
+                        })}
                       </span>
                     </td>
                     <td className="admin-roles-date-col">
                       <div className="admin-date-cell">
-                        <Calendar className="h-4 w-4" />
+                        <Calendar className="h-4 w-4" aria-hidden="true" />
                         <span>{formatDate(admin.created_at)}</span>
                       </div>
                     </td>
@@ -2701,7 +2768,16 @@ function AuditTab() {
       ) : (
         <>
           <div className="admin-table-container">
-            <table className="admin-table admin-table--audit">
+            <table
+              className="admin-table admin-table--audit"
+              aria-label={t('admin.audit.title', 'Audit Logs')}
+            >
+              <caption className="sr-only">
+                {t(
+                  'admin.audit.description',
+                  'Platform audit logs showing all administrative actions, timestamps, actors, and affected resources'
+                )}
+              </caption>
               <thead>
                 <tr>
                   <SortableTableHeader
@@ -2736,10 +2812,11 @@ function AuditTab() {
                       key={log.id}
                       className={useDummyData ? 'admin-demo-row' : ''}
                       {...getAuditRowProps(rowIndex)}
+                      aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)} on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
                     >
                       <td>
                         <div className="admin-date-cell">
-                          <Clock className="h-4 w-4" />
+                          <Clock className="h-4 w-4" aria-hidden="true" />
                           <span>{formatTimestamp(log.timestamp)}</span>
                           {useDummyData && <span className="admin-demo-badge">DEMO</span>}
                         </div>
@@ -2747,11 +2824,11 @@ function AuditTab() {
                       <td>
                         <div className="admin-user-cell">
                           {log.actor_type === 'admin' ? (
-                            <Shield className="h-4 w-4" />
+                            <Shield className="h-4 w-4" aria-hidden="true" />
                           ) : log.actor_type === 'system' ? (
-                            <Activity className="h-4 w-4" />
+                            <Activity className="h-4 w-4" aria-hidden="true" />
                           ) : (
-                            <Users className="h-4 w-4" />
+                            <Users className="h-4 w-4" aria-hidden="true" />
                           )}
                           <span title={log.actor_email || undefined}>
                             {log.actor_email || log.actor_type}
@@ -2771,12 +2848,12 @@ function AuditTab() {
                             side="top"
                           >
                             <span className="admin-action-text admin-action-text--has-reason">
-                              {log.action}
-                              <Eye className="h-3 w-3" />
+                              {formatActionName(log.action)}
+                              <Eye className="h-3 w-3" aria-hidden="true" />
                             </span>
                           </Tooltip>
                         ) : (
-                          <span className="admin-action-text">{log.action}</span>
+                          <span className="admin-action-text">{formatActionName(log.action)}</span>
                         )}
                       </td>
                       <td>
@@ -3230,7 +3307,9 @@ function AnalyticsTab() {
         <div className="analytics-status-card">
           <div className="analytics-status-header">
             <h3>User Status</h3>
-            <span className="analytics-status-total">{userStatusBreakdown.total} total</span>
+            <span className="analytics-status-total">
+              {(displayStats?.total_users ?? 0).toLocaleString()} total
+            </span>
           </div>
           <div className="analytics-status-chart">
             {usersLoading ? (

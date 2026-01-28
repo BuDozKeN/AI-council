@@ -10,7 +10,6 @@ import { ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDateGroup } from '../../../lib/dateUtils';
 import { ScrollableContent } from '../../ui/ScrollableContent';
-import { makeClickable } from '../../../utils/a11y';
 
 // Promoted types array for validation
 const PROMOTED_TYPES = ['sop', 'framework', 'policy', 'project'] as const;
@@ -228,9 +227,15 @@ export function ActivityTab({
 
       <ScrollableContent className="mc-activity-list">
         {Object.entries(groupedLogs).map(([date, logs]) => (
-          <div key={date} className="mc-activity-group">
-            <h4 className="mc-group-title">{date}</h4>
-            <div className="mc-elegant-list">
+          <section
+            key={date}
+            className="mc-activity-group"
+            aria-labelledby={`activity-date-${date.replace(/\s+/g, '-')}`}
+          >
+            <h4 id={`activity-date-${date.replace(/\s+/g, '-')}`} className="mc-group-title">
+              {date}
+            </h4>
+            <ul className="mc-elegant-list" aria-label={`Activity on ${date}`}>
               {logs.map((log) => {
                 const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
                 // Use explicit action column from database (no more title parsing)
@@ -248,17 +253,38 @@ export function ActivityTab({
                     (log.related_type === 'conversation' && log.conversation_id) ||
                     (log.event_type === 'council_session' && log.conversation_id));
 
+                // Create user-friendly action text - convert technical terms to readable labels
+                const actionText = action
+                  ? action
+                  : log.event_type.charAt(0).toUpperCase() +
+                    log.event_type.slice(1).replace(/_/g, ' ');
+
                 return (
-                  <div
+                  // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex
+                  <li
                     key={log.id}
                     className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
                     {...(isClickable && onActivityClick
-                      ? makeClickable(() => onActivityClick(log))
+                      ? {
+                          onClick: () => onActivityClick(log),
+                          onKeyDown: (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              onActivityClick(log);
+                            }
+                          },
+                          tabIndex: 0,
+                        }
                       : {})}
+                    aria-label={`${cleanTitle}, ${actionText}${isDeleted ? ', deleted' : ''}`}
                     title={isDeleted ? 'This item has been deleted' : undefined}
                   >
                     {/* Event type indicator */}
-                    <div className="mc-event-dot" style={{ background: dotColor }} />
+                    <div
+                      className="mc-event-dot"
+                      style={{ background: dotColor }}
+                      aria-hidden="true"
+                    />
 
                     {/* Main content */}
                     <div className="mc-elegant-content mc-activity-content-wrap">
@@ -301,7 +327,7 @@ export function ActivityTab({
                             className="mc-elegant-badge activity-action"
                             style={{ background: actionColors.bg, color: actionColors.text }}
                           >
-                            {action}
+                            {t(`mycompany.eventType_${action}`, { defaultValue: action })}
                           </span>
                         )}
                       </div>
@@ -318,14 +344,14 @@ export function ActivityTab({
                         title={t('mycompany.viewSourceConversation')}
                         aria-label={t('mycompany.viewSourceConversation')}
                       >
-                        <ExternalLink size={16} />
+                        <ExternalLink size={16} aria-label="Opens in new tab" />
                       </button>
                     )}
-                  </div>
+                  </li>
                 );
               })}
-            </div>
-          </div>
+            </ul>
+          </section>
         ))}
 
         {/* Load more button */}

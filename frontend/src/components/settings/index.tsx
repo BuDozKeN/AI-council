@@ -113,63 +113,75 @@ export default function Settings({
           {/* Sidebar tabs */}
           <div className="settings-sidebar" role="tablist" aria-label={t('settings.title')}>
             <button
+              id="profile-tab"
               className={`settings-tab ${activeTab === 'profile' ? 'active' : ''}`}
               onClick={() => setActiveTab('profile')}
               aria-label={t('settings.profile')}
               aria-selected={activeTab === 'profile'}
               role="tab"
+              aria-controls="profile-panel"
             >
               <User size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.profile')}</span>
             </button>
             <button
+              id="billing-tab"
               className={`settings-tab ${activeTab === 'billing' ? 'active' : ''}`}
               onClick={() => setActiveTab('billing')}
               aria-label={t('settings.billing')}
               aria-selected={activeTab === 'billing'}
               role="tab"
+              aria-controls="billing-panel"
             >
               <CreditCard size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.billing')}</span>
             </button>
             {companyId && (
               <button
+                id="team-tab"
                 className={`settings-tab ${activeTab === 'team' ? 'active' : ''}`}
                 onClick={() => setActiveTab('team')}
                 aria-label={t('settings.team')}
                 aria-selected={activeTab === 'team'}
                 role="tab"
+                aria-controls="team-panel"
               >
                 <Users size={18} className="tab-icon" aria-hidden="true" />
                 <span className="tab-label">{t('settings.team')}</span>
               </button>
             )}
             <button
+              id="api-tab"
               className={`settings-tab ${activeTab === 'api' ? 'active' : ''}`}
               onClick={() => setActiveTab('api')}
               aria-label={t('settings.apiKeys')}
               aria-selected={activeTab === 'api'}
               role="tab"
+              aria-controls="api-panel"
             >
               <Key size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.apiKeys')}</span>
             </button>
             <button
+              id="developer-tab"
               className={`settings-tab ${activeTab === 'developer' ? 'active' : ''}`}
               onClick={() => setActiveTab('developer')}
               aria-label={t('settings.developer')}
               aria-selected={activeTab === 'developer'}
               role="tab"
+              aria-controls="developer-panel"
             >
               <FlaskConical size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.developer')}</span>
             </button>
             <button
+              id="ai-config-tab"
               className={`settings-tab ${activeTab === 'ai-config' ? 'active' : ''}`}
               onClick={() => setActiveTab('ai-config')}
               aria-label={t('settings.llmHub', 'LLM Hub')}
               aria-selected={activeTab === 'ai-config'}
               role="tab"
+              aria-controls="ai-config-panel"
             >
               <Cpu size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.llmHub', 'LLM Hub')}</span>
@@ -179,19 +191,34 @@ export default function Settings({
           {/* Tab content */}
           <div className="settings-panel">
             {activeTab === 'profile' && (
-              <div className="profile-content">
+              <div
+                id="profile-panel"
+                className="profile-content"
+                role="tabpanel"
+                aria-labelledby="profile-tab"
+              >
                 <ProfileSection user={user} isOpen={isOpen} />
               </div>
             )}
 
             {activeTab === 'billing' && (
-              <div className="billing-content">
+              <div
+                id="billing-panel"
+                className="billing-content"
+                role="tabpanel"
+                aria-labelledby="billing-tab"
+              >
                 <BillingSection isOpen={isOpen} />
               </div>
             )}
 
             {activeTab === 'team' && companyId && (
-              <div className="team-content">
+              <div
+                id="team-panel"
+                className="team-content"
+                role="tabpanel"
+                aria-labelledby="team-tab"
+              >
                 <TeamSection
                   user={user}
                   isOpen={isOpen}
@@ -202,13 +229,18 @@ export default function Settings({
             )}
 
             {activeTab === 'api' && (
-              <div className="api-content">
+              <div id="api-panel" className="api-content" role="tabpanel" aria-labelledby="api-tab">
                 <ApiKeysSection isOpen={isOpen} onDeleteApiKey={handleDeleteApiKeyConfirm} />
               </div>
             )}
 
             {activeTab === 'developer' && (
-              <div className="developer-content">
+              <div
+                id="developer-panel"
+                className="developer-content"
+                role="tabpanel"
+                aria-labelledby="developer-tab"
+              >
                 <DeveloperSection
                   isOpen={isOpen}
                   {...(onMockModeChange ? { onMockModeChange } : {})}
@@ -217,7 +249,12 @@ export default function Settings({
             )}
 
             {activeTab === 'ai-config' && (
-              <div className="ai-config-content">
+              <div
+                id="ai-config-panel"
+                className="ai-config-content"
+                role="tabpanel"
+                aria-labelledby="ai-config-tab"
+              >
                 <Suspense
                   fallback={
                     <div className="settings-skeleton">

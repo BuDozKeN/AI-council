@@ -123,7 +123,11 @@ export default function Billing({ onClose }: BillingProps) {
       <div className="billing-modal" {...makeClickable((e) => e.stopPropagation())}>
         <div className="billing-header">
           <h2>{t('billing.subscriptionPlans')}</h2>
-          <button className="billing-close" onClick={onClose}>
+          <button
+            className="billing-close"
+            onClick={onClose}
+            aria-label={t('common.close', 'Close')}
+          >
             &times;
           </button>
         </div>

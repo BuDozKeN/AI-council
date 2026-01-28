@@ -1,7 +1,7 @@
 /* Floating scroll-to-top button (FAB style) - fixed position */
 .scroll-to-top-fab {
   position: fixed;
-  bottom: 100px; /* Above input form */
+  bottom: 100px; /* Above input form on desktop */
   right: 24px;
   display: flex;
   align-items: center;
@@ -44,4 +44,41 @@
 [data-theme='dark'] .scroll-to-top-fab:hover {
   background: var(--overlay-black-60);
   color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   MOBILE - Position above bottom nav
+   ============================================================================= */
+
+@media (width <= 1024px) {
+  .scroll-to-top-fab {
+    /* Position above bottom nav: nav height (~72px) + spacing (16px) + safe area */
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
+/* Small mobile screens */
+@media (width <= 640px) {
+  .scroll-to-top-fab {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px; /* WCAG touch target */
+  }
+}
+
+/* Very small screens (iPhone SE - 320px width) */
+@media (width <= 360px) {
+  .scroll-to-top-fab {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    right: 12px;
+  }
 }

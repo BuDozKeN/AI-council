@@ -91,7 +91,9 @@ export function SwipeableRow({
 
   // Close on action click
   const handleActionClick = useCallback(
-    (action: SwipeAction) => {
+    (action: SwipeAction, e: React.MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
       hapticLight();
       animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
       setIsOpen(false);
@@ -136,7 +138,7 @@ export function SwipeableRow({
             key={index}
             className={`swipeable-action ${action.variant || 'default'}`}
             aria-label={action.label}
-            onClick={() => handleActionClick(action)}
+            onClick={(e) => handleActionClick(action, e)}
           >
             {action.icon}
             <span>{action.label}</span>

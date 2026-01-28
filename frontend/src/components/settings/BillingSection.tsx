@@ -100,9 +100,9 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
       </Card>
 
       {/* Plans */}
-      <div className="plans-section">
-        <h3>{t('settings.subscriptionPlans')}</h3>
-        <div className="plans-grid">
+      <section className="plans-section" aria-labelledby="plans-heading">
+        <h3 id="plans-heading">{t('settings.subscriptionPlans')}</h3>
+        <ul className="plans-grid" aria-label="Subscription plans">
           {plans.map((plan) => {
             const isCurrentPlan = plan.id === currentTier;
             const isUpgrade =
@@ -110,9 +110,10 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
               (currentTier === 'free' || (currentTier === 'pro' && plan.id === 'enterprise'));
 
             return (
-              <div
+              <li
                 key={plan.id}
                 className={`plan-card ${isCurrentPlan ? 'current' : ''} ${plan.id === 'pro' ? 'popular' : ''}`}
+                aria-label={`${plan.name} plan, ${plan.is_free ? 'Free' : `${formatCurrency(plan.price, { maximumFractionDigits: 0 })} per month`}`}
               >
                 {plan.id === 'pro' && (
                   <div className="popular-badge">{t('settings.mostPopular')}</div>
@@ -160,11 +161,11 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                     </Button>
                   )}
                 </div>
-              </div>
+              </li>
             );
           })}
-        </div>
-      </div>
+        </ul>
+      </section>
 
       {/* Manage Subscription */}
       {currentTier !== 'free' && (

@@ -5,7 +5,15 @@ import ReactMarkdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
-import { Activity, AlertCircle, StopCircle, ChevronDown, X, Check } from 'lucide-react';
+import {
+  Activity,
+  AlertCircle,
+  StopCircle,
+  ChevronDown,
+  ChevronRight,
+  X,
+  Check,
+} from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
 import { hapticLight } from '../lib/haptics';
 import { springs, interactionStates } from '../lib/animations';
@@ -152,18 +160,35 @@ const ModelCard = memo(function ModelCard({
   const displayName = persona.providerLabel || persona.shortName;
   const tooltipName = persona.fullName;
 
-  // Rank display helper
+  // Rank display helper - returns display text with emoji and rank label
   const getRankLabel = (position: number): string => {
-    if (position === 1) return '🥇';
-    if (position === 2) return '🥈';
-    if (position === 3) return '🥉';
+    if (position === 1) return '🥇 1st';
+    if (position === 2) return '🥈 2nd';
+    if (position === 3) return '🥉 3rd';
     return `#${position}`;
+  };
+
+  // Screen reader-friendly rank label
+  const getRankAriaLabel = (position: number): string => {
+    if (position === 1) return t('stages.rank1', 'Ranked 1st place');
+    if (position === 2) return t('stages.rank2', 'Ranked 2nd place');
+    if (position === 3) return t('stages.rank3', 'Ranked 3rd place');
+    return t('stages.rankN', { position, defaultValue: `Ranked ${position}th place` });
   };
 
   // Build informative tooltip for rank badge
   const getRankTooltip = () => {
     if (!rankData) return '';
-    const { average_rank, rankings_count, totalVoters } = rankData;
+    const { average_rank, rankings_count, totalVoters, position } = rankData;
+    // For rank 1, emphasize "Best answer selected by the council"
+    if (position === 1) {
+      return t('stages.bestAnswerTooltip', {
+        defaultValue: 'Best answer selected by the council',
+        avg: average_rank.toFixed(1),
+        votesReceived: rankings_count,
+        totalVoters,
+      });
+    }
     return t('stages.rankTooltip', {
       avg: average_rank.toFixed(1),
       votesReceived: rankings_count,
@@ -221,6 +246,7 @@ const ModelCard = memo(function ModelCard({
     data.isStreaming && 'streaming',
     (data.hasError || data.isEmpty) && 'error',
     isExpanded && 'expanded',
+    rankData && `rank-${rankData.position}`, // Add rank class for visual differentiation (Issue #450)
   ]
     .filter(Boolean)
     .join(' ');
@@ -261,9 +287,10 @@ const ModelCard = memo(function ModelCard({
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      tabIndex={0}
-      role="article"
+      tabIndex={-1}
+      role="button"
       aria-label={`${displayName} response${data.isStreaming ? ', generating' : data.isComplete ? ', complete' : ''}`}
+      aria-pressed={isExpanded}
     >
       {/* Header */}
       <div className="model-card-header">
@@ -316,7 +343,12 @@ const ModelCard = memo(function ModelCard({
 
           {/* Rank badge - shows position after rankings are complete */}
           {rankData && (
-            <span className={`model-card-rank rank-${rankData.position}`} title={getRankTooltip()}>
+            <span
+              className={`model-card-rank rank-${rankData.position}`}
+              title={getRankTooltip()}
+              aria-label={getRankAriaLabel(rankData.position)}
+              role="img"
+            >
               {getRankLabel(rankData.position)}
             </span>
           )}
@@ -570,7 +602,9 @@ function Stage1({
 
         <div className="stage-loading">
           <Spinner size="md" />
-          <span>{t('stages.councilGathering')}</span>
+          <span>
+            {t('stages.aiCouncilThinking', { defaultValue: 'AI Council is thinking...' })}
+          </span>
         </div>
       </div>
     );
@@ -608,7 +642,11 @@ function Stage1({
       data-stage="stage1"
     >
       <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
-        <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
+        {isCollapsed ? (
+          <ChevronRight size={16} className="collapse-arrow" aria-hidden="true" />
+        ) : (
+          <ChevronDown size={16} className="collapse-arrow" aria-hidden="true" />
+        )}
         <span className="font-semibold tracking-tight">
           {t('stages.expertsRespondCount', { count: expertCount })}
         </span>

@@ -684,6 +684,8 @@ export default function Sidebar({
             {/* Conversation List */}
             <div
               className="conversation-list"
+              role="listbox"
+              aria-label={t('sidebar.allConversations')}
               ref={(el: HTMLDivElement | null) => {
                 pullToRefreshRef.current = el;
                 listContainerRef.current = el;

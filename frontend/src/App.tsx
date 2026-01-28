@@ -779,6 +779,11 @@ function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
+      {/* Skip to main content link - FIRST focusable element for accessibility */}
+      <a href="#main-content" className="sr-only focus:not-sr-only">
+        Skip to main content
+      </a>
+
       {/* Impersonation banner - shown when admin is impersonating a user */}
       <ImpersonationBanner />
 
@@ -790,11 +795,6 @@ function App() {
 
       {/* Help button - bottom-right floating button */}
       <HelpButton />
-
-      {/* Skip to main content link for accessibility */}
-      <a href="#main-content" className="sr-only focus:not-sr-only">
-        Skip to main content
-      </a>
 
       {/* Mobile sidebar edge indicator - subtle arrow hint */}
       <button

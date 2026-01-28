@@ -2,6 +2,7 @@ import { useState, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
 import { getModelPersona } from '../config/modelPersonas';
@@ -64,11 +65,12 @@ function deAnonymizeText(text: string, labelToModel?: Record<string, string>): s
 }
 
 // Rank label helper - medal emojis for top 3, numbers for rest
-function getRankLabel(position: number): string {
-  if (position === 1) return '🥇';
-  if (position === 2) return '🥈';
-  if (position === 3) return '🥉';
-  return `#${position}`;
+// Returns object with emoji/text and accessible label
+function getRankLabel(position: number): { label: string; ariaLabel: string } {
+  if (position === 1) return { label: '🥇', ariaLabel: 'Ranked #1' };
+  if (position === 2) return { label: '🥈', ariaLabel: 'Ranked #2' };
+  if (position === 3) return { label: '🥉', ariaLabel: 'Ranked #3' };
+  return { label: `#${position}`, ariaLabel: `Ranked #${position}` };
 }
 
 function Stage2({
@@ -209,7 +211,11 @@ function Stage2({
       data-stage="stage2"
     >
       <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
-        <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
+        {isCollapsed ? (
+          <ChevronRight size={16} className="collapse-arrow" aria-hidden="true" />
+        ) : (
+          <ChevronDown size={16} className="collapse-arrow" aria-hidden="true" />
+        )}
         <span className="font-semibold tracking-tight">{t('stages.expertsReview')}</span>
         {/* Hint for first-time users - shows what this stage does */}
         {!isCollapsed && (
@@ -401,7 +407,12 @@ function Stage2({
                         ? makeClickable(() => onModelClick(agg.model))
                         : {})}
                     >
-                      <span className="rank-position">{getRankLabel(index + 1)}</span>
+                      <span
+                        className="rank-position"
+                        aria-label={getRankLabel(index + 1).ariaLabel}
+                      >
+                        {getRankLabel(index + 1).label}
+                      </span>
                       <span className="rank-model">
                         {iconPath && (
                           <img

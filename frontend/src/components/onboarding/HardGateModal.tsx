@@ -92,9 +92,10 @@ export function HardGateModal({
             target="_blank"
             rel="noopener noreferrer"
             className="hard-gate-link"
+            aria-label="Get free API key (opens in new tab)"
           >
             Get free API key
-            <ExternalLink className="hard-gate-link-icon" />
+            <ExternalLink className="hard-gate-link-icon" aria-hidden="true" />
           </a>
         </div>
 

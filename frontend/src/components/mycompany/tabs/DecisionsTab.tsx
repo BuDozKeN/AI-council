@@ -16,7 +16,6 @@ import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
 import { formatDateCompact } from '../../../lib/dateUtils';
-import { makeClickable } from '../../../utils/a11y';
 import type { Department } from '../../../types/business';
 
 // Note: ScrollableContent provides sticky copy button + scroll-to-top for lists
@@ -311,21 +310,38 @@ export function DecisionsTab({
       {/* Decision list with scroll-to-top */}
       {filteredDecisions.length > 0 && (
         <ScrollableContent className="mc-decisions-list">
-          <div className="mc-elegant-list">
+          <ul className="mc-elegant-list" aria-label="Pending decisions">
             {filteredDecisions.map((decision: Decision) => {
               const isDeleting = deletingDecisionId === decision.id;
               const displayTitle = getDecisionDisplayTitle(decision);
 
               return (
-                <div
+                // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex
+                <li
                   key={decision.id}
                   className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                  {...(!isDeleting && onPromoteDecision
-                    ? makeClickable(() => onPromoteDecision(decision))
-                    : {})}
+                  onClick={
+                    !isDeleting && onPromoteDecision ? () => onPromoteDecision(decision) : undefined
+                  }
+                  onKeyDown={
+                    !isDeleting && onPromoteDecision
+                      ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onPromoteDecision(decision);
+                          }
+                        }
+                      : undefined
+                  }
+                  tabIndex={isDeleting ? -1 : 0}
+                  aria-label={`${displayTitle}, ${formatDateCompact(decision.created_at)}`}
                 >
                   {/* Status indicator - amber for pending */}
-                  <div className="mc-status-dot draft" />
+                  <div
+                    className="mc-status-dot draft"
+                    aria-label={t('mycompany.pendingDecisionAriaLabel')}
+                    title={t('mycompany.pendingDecisionAriaLabel')}
+                  />
 
                   {/* Main content - title + badges */}
                   <div className="mc-elegant-content">
@@ -395,10 +411,10 @@ export function DecisionsTab({
                       </button>
                     </div>
                   </div>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         </ScrollableContent>
       )}
     </div>

@@ -255,4 +255,27 @@
   color: var(--color-text-secondary);
 }
 
+/* =============================================================================
+   FORM CONTROLS - Hidden radio inputs, styled via labels
+   ============================================================================= */
+
+.response-style-radio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.response-style-item {
+  cursor: pointer;
+  user-select: none;
+}
+
+.response-style-item:has(input:focus-visible) {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: -2px;
+  border-radius: var(--radius-md);
+}
+
 /* Mobile adjustments: See ResponseStyleSelectorMobile.css */

@@ -71,6 +71,17 @@ button[disabled],
   background: var(--overlay-black-20);
 }
 
+/* Keyboard focus for accessibility - WCAG AAA visible focus ring */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.sidebar-edge-indicator:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
 .sidebar-edge-indicator svg {
   width: 16px;
   height: 16px;

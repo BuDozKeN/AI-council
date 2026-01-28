@@ -306,8 +306,9 @@ export function MembersTab({
                         className="mc-icon-btn promote"
                         onClick={() => handleChangeRole(member.id, 'admin')}
                         title={t('settings.promoteToAdmin')}
+                        aria-label={t('settings.promoteToAdmin')}
                       >
-                        <ChevronUp size={16} />
+                        <ChevronUp size={16} aria-hidden="true" />
                       </button>
                     )}
                     {canDemote && (
@@ -315,8 +316,9 @@ export function MembersTab({
                         className="mc-icon-btn demote"
                         onClick={() => handleChangeRole(member.id, 'member')}
                         title={t('settings.demoteToMember')}
+                        aria-label={t('settings.demoteToMember')}
                       >
-                        <ChevronDown size={16} />
+                        <ChevronDown size={16} aria-hidden="true" />
                       </button>
                     )}
                     {canRemove && (
@@ -324,8 +326,9 @@ export function MembersTab({
                         className="mc-icon-btn danger"
                         onClick={() => handleRemoveMember(member.id, member.role)}
                         title={t('settings.removeFromTeam')}
+                        aria-label={t('settings.removeFromTeam')}
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={16} aria-hidden="true" />
                       </button>
                     )}
                   </div>

@@ -33,17 +33,8 @@ export function DepartmentCheckboxItem({
   const colors = getDeptColor(department.id);
 
   return (
-    <button
-      type="button"
+    <label
       className={cn('dept-checkbox-item', isMobile && 'mobile', isSelected && 'selected')}
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        // Set timestamp to prevent parent modal from closing when selecting departments
-        (window as Window & { __multiDeptSelectClickTime?: number }).__multiDeptSelectClickTime =
-          Date.now();
-        onToggle(department.id);
-      }}
       style={
         {
           '--dept-color': colors.text,
@@ -51,11 +42,24 @@ export function DepartmentCheckboxItem({
         } as React.CSSProperties
       }
     >
-      <div className={cn('dept-checkbox', isSelected && 'checked')}>
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => {
+          // Set timestamp to prevent parent modal from closing when selecting departments
+          (window as Window & { __multiDeptSelectClickTime?: number }).__multiDeptSelectClickTime =
+            Date.now();
+          onToggle(department.id);
+        }}
+        className="dept-checkbox-input"
+        aria-label={department.name}
+        onMouseDown={(e) => e.preventDefault()}
+      />
+      <div className={cn('dept-checkbox', isSelected && 'checked')} aria-hidden="true">
         {isSelected && <Check className="dept-checkbox-icon" />}
       </div>
       <span className="dept-checkbox-label">{department.name}</span>
-    </button>
+    </label>
   );
 }
 

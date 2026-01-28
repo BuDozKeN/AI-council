@@ -61,10 +61,12 @@
   background: var(--color-bg-tertiary);
 }
 
+/* Decision count badge - improved dark mode contrast (Issue #259) */
 .dark .mc-project-decision-count,
 [data-theme='dark'] .mc-project-decision-count {
   background: var(--overlay-amber-15);
-  color: var(--color-amber-400);
+  color: var(--color-amber-300);
+  border-color: var(--overlay-amber-30);
 }
 
 .dark .mc-project-time,

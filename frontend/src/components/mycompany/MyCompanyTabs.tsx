@@ -122,8 +122,10 @@ export function MyCompanyTabs({ activeTab, onTabChange }: MyCompanyTabsProps) {
               onTabChange(tab.id);
             }}
             title={t(tab.tooltipKey)}
+            aria-current={activeTab === tab.id ? 'page' : undefined}
+            aria-label={`${t(tab.labelKey)} ${t(tab.tooltipKey)}`}
           >
-            <tab.Icon size={16} className="mc-tab-icon" />
+            <tab.Icon size={16} className="mc-tab-icon" aria-hidden="true" />
             <span className="mc-tab-label">{t(tab.labelKey)}</span>
           </button>
         ))}

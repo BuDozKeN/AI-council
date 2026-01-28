@@ -100,7 +100,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const signUp = useCallback(async (email: string, password: string) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
+    if (error) {
+      // Sanitize error messages to not expose internal database details
+      // Check for common patterns that indicate internal errors
+      const internalPatterns = [
+        'block_new_signups',
+        'raise_exception',
+        'function',
+        'trigger',
+        'policy',
+        'rls',
+        'postgres',
+        'supabase',
+      ];
+      const isInternalError = internalPatterns.some((pattern) =>
+        error.message?.toLowerCase().includes(pattern)
+      );
+
+      if (isInternalError) {
+        // Log the real error for debugging
+        logger.error('Signup blocked:', error.message);
+        // Throw a sanitized user-friendly message
+        throw new Error(
+          'Sign up is currently unavailable. Please try again later or contact support.'
+        );
+      }
+      throw error;
+    }
     return data;
   }, []);
 

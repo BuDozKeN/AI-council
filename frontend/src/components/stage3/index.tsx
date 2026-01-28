@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, ChevronDown, ChevronRight } from 'lucide-react';
 import { CopyButton } from '../ui/CopyButton';
 import { api } from '../../api';
 import { getModelPersona } from '../../config/modelPersonas';
@@ -373,7 +373,11 @@ function Stage3({
       aria-live="polite"
     >
       <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
-        <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
+        {isCollapsed ? (
+          <ChevronRight size={16} className="collapse-arrow" aria-hidden="true" />
+        ) : (
+          <ChevronDown size={16} className="collapse-arrow" aria-hidden="true" />
+        )}
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
         <span className="font-semibold tracking-tight">{t('stages.bestAnswer')}</span>
         {/* Hint for first-time users - shows what this stage does */}

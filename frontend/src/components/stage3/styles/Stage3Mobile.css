@@ -72,13 +72,34 @@
 
 /* Save toolbar mobile styles - see Stage3SaveToolbarMobile.css */
 
-/* Even smaller screens (iPhone SE, etc) - base layout */
-@media (width <= 640px) {
+/* Very small screens (iPhone SE - 320px width) - base layout */
+@media (width <= 360px) {
   .stage3 {
-    padding: var(--space-2-5);
+    padding: var(--space-2);
   }
 
   .final-response {
-    padding: var(--space-3);
+    padding: var(--space-2-5);
+  }
+
+  /* Smaller typography */
+  .final-text {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+
+  /* Copy button fits in corner */
+  .stage3-header-copy,
+  .copy-btn {
+    min-height: 40px;
+    min-width: 40px;
+    padding: var(--space-2);
+  }
+
+  /* Table cells more compact */
+  .stage3-content .table-scroll-wrapper th,
+  .stage3-content .table-scroll-wrapper td {
+    padding: var(--space-1-5) var(--space-2);
+    font-size: var(--text-xs);
   }
 }
