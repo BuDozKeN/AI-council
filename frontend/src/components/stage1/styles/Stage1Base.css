@@ -34,6 +34,16 @@
     0 0 40px 4px var(--overlay-emerald-10);
 }
 
+/* Loading placeholder - reserves height to prevent layout shift when streaming starts
+   This prevents the chat input bar from jumping when Stage1 transitions from
+   loading state (small) to streaming state (full model grid) */
+.stage.stage1.loading-placeholder {
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
 /* Living Feed Grid - single column for premium reading experience
    Consistent with ChatGPT/Claude patterns - vertical progression */
 .stage1 .model-grid {

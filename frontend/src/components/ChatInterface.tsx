@@ -249,7 +249,9 @@ export default function ChatInterface({
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Use 'instant' to match streaming scroll behavior and prevent competing animations
+    // Smooth scroll + instant scroll competing causes visual jitter
+    messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
   };
 
   const scrollToTop = () => {
