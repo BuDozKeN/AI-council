@@ -15,7 +15,7 @@ import { motion } from 'framer-motion';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
-import { formatDateCompact } from '../../../lib/dateUtils';
+import { formatRelativeDate } from '../../../lib/dateUtils';
 import type { Department } from '../../../types/business';
 
 // Note: ScrollableContent provides sticky copy button + scroll-to-top for lists
@@ -320,18 +320,28 @@ export function DecisionsTab({
                 <li
                   key={decision.id}
                   className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                  onClick={!isDeleting && onPromoteDecision ? () => onPromoteDecision(decision) : undefined}
-                  onKeyDown={!isDeleting && onPromoteDecision ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onPromoteDecision(decision);
-                    }
-                  } : undefined}
+                  onClick={
+                    !isDeleting && onPromoteDecision ? () => onPromoteDecision(decision) : undefined
+                  }
+                  onKeyDown={
+                    !isDeleting && onPromoteDecision
+                      ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onPromoteDecision(decision);
+                          }
+                        }
+                      : undefined
+                  }
                   tabIndex={isDeleting ? -1 : 0}
-                  aria-label={`${displayTitle}, ${formatDateCompact(decision.created_at)}`}
+                  aria-label={`${displayTitle}, ${formatRelativeDate(decision.created_at)}`}
                 >
                   {/* Status indicator - amber for pending */}
-                  <div className="mc-status-dot draft" aria-label={t('mycompany.pendingDecisionAriaLabel')} title={t('mycompany.pendingDecisionAriaLabel')} />
+                  <div
+                    className="mc-status-dot draft"
+                    aria-label={t('mycompany.pendingDecisionAriaLabel')}
+                    title={t('mycompany.pendingDecisionAriaLabel')}
+                  />
 
                   {/* Main content - title + badges */}
                   <div className="mc-elegant-content">
@@ -361,7 +371,7 @@ export function DecisionsTab({
                   {/* Right side: Date (fades on hover) + Actions (appear on hover) */}
                   <div className="mc-elegant-right">
                     <span className="mc-elegant-date">
-                      {formatDateCompact(decision.created_at)}
+                      {formatRelativeDate(decision.created_at)}
                     </span>
                     <div className="mc-elegant-actions">
                       {decision.source_conversation_id &&

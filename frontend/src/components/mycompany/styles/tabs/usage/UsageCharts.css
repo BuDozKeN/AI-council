@@ -119,6 +119,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Unit suffix for clarity */
+.mc-usage-unit {
+  font-size: 0.625rem;
+  color: var(--color-text-quaternary);
+  font-weight: 400;
+  margin-left: var(--space-1);
+}
+
 /* ============================================================================
    BUDGET PROGRESS
    ============================================================================ */

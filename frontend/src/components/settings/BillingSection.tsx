@@ -72,7 +72,11 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
 
   return (
     <>
-      {billingError && <div className="error-banner">{billingError}</div>}
+      {billingError && (
+        <div className="error-banner" role="alert">
+          {billingError}
+        </div>
+      )}
 
       {/* Usage Card */}
       <Card className="settings-card">
