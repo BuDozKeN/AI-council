@@ -298,7 +298,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   'x-ai': '/icons/grok.svg',
   deepseek: '/icons/deepseek.svg',
   meta: '/icons/meta.svg',
-  moonshotai: '/icons/moonshot.svg',  // Fixed: was 'moonshot', now 'moonshotai' to match model ID prefix
+  moonshotai: '/icons/moonshot.svg', // Fixed: was 'moonshot', now 'moonshotai' to match model ID prefix
 };
 
 function getProviderIcon(modelId: string): string {
