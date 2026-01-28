@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUp } from 'lucide-react';
+import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
 import { Spinner } from './ui/Spinner';
@@ -433,6 +434,13 @@ export default function ChatInterface({
       // Get pre-uploaded attachment IDs (waits for any pending uploads)
       const attachmentIds = attachedImages.length > 0 ? await getAttachmentIds() : null;
       const idsToSend = attachmentIds && attachmentIds.length > 0 ? attachmentIds : null;
+
+      // Abort if no content to send (empty input AND all uploads failed)
+      if (!input.trim() && !idsToSend) {
+        toast.error('Cannot send empty message. Please add text or upload images.');
+        clearImages();
+        return;
+      }
 
       if (!conversation || conversation.messages.length === 0) {
         onSendMessage(input, idsToSend);
