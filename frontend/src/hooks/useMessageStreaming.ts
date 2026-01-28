@@ -824,14 +824,9 @@ export function useMessageStreaming({
       }
 
       try {
-        // Add user message optimistically
+        // Add user message and assistant placeholder in a SINGLE state update
+        // This prevents layout thrashing from multiple render cycles
         const userMessage = { id: generateMessageId(), role: 'user' as const, content };
-        setCurrentConversation((prev) => {
-          if (!prev) return prev;
-          return { ...prev, messages: [...prev.messages, userMessage as StreamableMessage] };
-        });
-
-        // Create partial assistant message
         const assistantMessage = {
           id: generateMessageId(),
           role: 'assistant' as const,
@@ -841,7 +836,10 @@ export function useMessageStreaming({
 
         setCurrentConversation((prev) => {
           if (!prev) return prev;
-          return { ...prev, messages: [...prev.messages, assistantMessage] };
+          return {
+            ...prev,
+            messages: [...prev.messages, userMessage as StreamableMessage, assistantMessage],
+          };
         });
 
         // Build effective context
@@ -929,14 +927,9 @@ export function useMessageStreaming({
       setIsLoading(true);
 
       try {
-        // Add user message optimistically
+        // Add user message and assistant placeholder in a SINGLE state update
+        // This prevents layout thrashing from multiple render cycles
         const userMessage = { id: generateMessageId(), role: 'user' as const, content };
-        setCurrentConversation((prev) => {
-          if (!prev) return prev;
-          return { ...prev, messages: [...prev.messages, userMessage as StreamableMessage] };
-        });
-
-        // Create partial assistant message for chat
         const assistantMessage = {
           id: generateMessageId(),
           role: 'assistant' as const,
@@ -949,7 +942,10 @@ export function useMessageStreaming({
 
         setCurrentConversation((prev) => {
           if (!prev) return prev;
-          return { ...prev, messages: [...prev.messages, assistantMessage] };
+          return {
+            ...prev,
+            messages: [...prev.messages, userMessage as StreamableMessage, assistantMessage],
+          };
         });
 
         // Build effective context
