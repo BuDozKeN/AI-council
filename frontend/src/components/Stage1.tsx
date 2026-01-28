@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
 import {
@@ -31,6 +32,8 @@ import type {
   TouchStartData,
 } from '../types/stages';
 import './stage1/Stage1.css';
+// Import prose styles for consistent markdown rendering (fixes streaming vs saved state mismatch)
+import './MarkdownViewer.css';
 
 // Map provider to icon file path
 const PROVIDER_ICON_PATH: ProviderIconPaths = {
@@ -397,6 +400,7 @@ const ModelCard = memo(function ModelCard({
           <article className="prose prose-slate prose-sm dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-p:leading-relaxed prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200 overflow-hidden">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeSlug]}
               components={{
                 pre(
                   props: React.ClassAttributes<HTMLPreElement> &
@@ -577,9 +581,10 @@ function Stage1({
   const expertCount = displayData.length || (streaming ? Object.keys(streaming).length : 0);
 
   // Show loading state if stage1 is loading but no streaming data yet
+  // Uses 'loading-placeholder' class to reserve height and prevent layout shift
   if (displayData.length === 0 && isLoading) {
     return (
-      <div className="stage stage1">
+      <div className="stage stage1 loading-placeholder">
         <h3 className="stage-title flex items-center gap-2">
           <Activity className="h-5 w-5 text-blue-500 animate-pulse" />
           <span className="font-semibold tracking-tight">{t('stages.expertsRespond')}</span>

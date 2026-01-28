@@ -10,9 +10,12 @@
 
 import { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+// Import prose styles for consistent markdown rendering (fixes streaming vs saved state mismatch)
+import '../MarkdownViewer.css';
 import { CouncilLoader } from '../ui/CouncilLoader';
 
 // Performance: Lazy-load Stage components to split CSS into separate chunks
@@ -175,6 +178,31 @@ function CouncilStages({ msg, conversation }: CouncilStagesProps) {
 }
 
 /**
+ * CodeBlock - Custom code block renderer with copy button
+ * Matches Stage3Content styling for consistent markdown rendering
+ */
+function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
+  const code = String(children).replace(/\n$/, '');
+  const language = className?.replace('language-', '') || '';
+
+  const isActualCodeBlock = language || code.includes('\n') || code.length > 60;
+
+  if (!isActualCodeBlock) {
+    return <code className="inline-code">{children}</code>;
+  }
+
+  return (
+    <div className="code-block-wrapper copyable">
+      {language && <span className="code-language">{language}</span>}
+      <CopyButton text={code} size="sm" />
+      <pre className={className}>
+        <code>{children}</code>
+      </pre>
+    </div>
+  );
+}
+
+/**
  * UserMessage - Collapsible user message for archival reference
  * Shows the original question asked, collapsed by default
  * Important for reviewing past conversations
@@ -293,7 +321,7 @@ export function MessageList({
 
               {/* For chat-only messages, show a simpler response */}
               {msg.isChat ? (
-                /* Chat-only response - just show the response directly */
+                /* Chat-only response - uses same prose styling as Stage3 for consistency */
                 <div
                   className="chat-response"
                   aria-busy={msg.loading?.stage3 || !!msg.stage3Streaming}
@@ -301,18 +329,99 @@ export function MessageList({
                 >
                   <div className="chat-label">Response</div>
                   {msg.stage3Streaming ? (
-                    <div className="markdown-content" aria-label="Streaming response">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <article
+                      className="prose prose-slate max-w-none dark:prose-invert"
+                      aria-label="Streaming response"
+                    >
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeSlug]}
+                        components={{
+                          pre(
+                            props: React.ClassAttributes<HTMLPreElement> &
+                              React.HTMLAttributes<HTMLPreElement> &
+                              ExtraProps
+                          ) {
+                            const { node } = props;
+                            const codeElement = node?.children?.[0] as
+                              | {
+                                  properties?: { className?: string[] };
+                                  children?: Array<{ value?: string }>;
+                                }
+                              | undefined;
+                            const className = codeElement?.properties?.className?.[0] || '';
+                            const codeContent = codeElement?.children?.[0]?.value || '';
+                            return <CodeBlock className={className}>{codeContent}</CodeBlock>;
+                          },
+                          code({
+                            className,
+                            children,
+                            ...props
+                          }: React.ComponentPropsWithoutRef<'code'>) {
+                            return (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          },
+                          table({ children, ...props }: React.ComponentPropsWithoutRef<'table'>) {
+                            return (
+                              <div className="table-scroll-wrapper">
+                                <table {...props}>{children}</table>
+                              </div>
+                            );
+                          },
+                        }}
+                      >
                         {msg.stage3Streaming.text || ''}
                       </ReactMarkdown>
                       {msg.loading?.stage3 && <span className="cursor-blink">|</span>}
-                    </div>
+                    </article>
                   ) : msg.stage3 ? (
-                    <div className="markdown-content">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <article className="prose prose-slate max-w-none dark:prose-invert">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeSlug]}
+                        components={{
+                          pre(
+                            props: React.ClassAttributes<HTMLPreElement> &
+                              React.HTMLAttributes<HTMLPreElement> &
+                              ExtraProps
+                          ) {
+                            const { node } = props;
+                            const codeElement = node?.children?.[0] as
+                              | {
+                                  properties?: { className?: string[] };
+                                  children?: Array<{ value?: string }>;
+                                }
+                              | undefined;
+                            const className = codeElement?.properties?.className?.[0] || '';
+                            const codeContent = codeElement?.children?.[0]?.value || '';
+                            return <CodeBlock className={className}>{codeContent}</CodeBlock>;
+                          },
+                          code({
+                            className,
+                            children,
+                            ...props
+                          }: React.ComponentPropsWithoutRef<'code'>) {
+                            return (
+                              <code className={className} {...props}>
+                                {children}
+                              </code>
+                            );
+                          },
+                          table({ children, ...props }: React.ComponentPropsWithoutRef<'table'>) {
+                            return (
+                              <div className="table-scroll-wrapper">
+                                <table {...props}>{children}</table>
+                              </div>
+                            );
+                          },
+                        }}
+                      >
                         {msg.stage3.response || msg.stage3.content || ''}
                       </ReactMarkdown>
-                    </div>
+                    </article>
                   ) : null}
                 </div>
               ) : (
