@@ -24,6 +24,7 @@ const Stage1 = lazy(() => import('../Stage1'));
 const Stage2 = lazy(() => import('../Stage2'));
 const Stage3 = lazy(() => import('../stage3'));
 import { TokenUsageDisplay, type UsageData } from '../ui/TokenUsageDisplay';
+import { SessionCostSummary } from '../ui/SessionCostSummary';
 import { CopyButton } from '../ui/CopyButton';
 import { makeClickable } from '../../utils/a11y';
 import type { Project } from '../../types/business';
@@ -477,6 +478,9 @@ export function MessageList({
           )}
         </motion.div>
       ))}
+
+      {/* Session Cost Summary - shows cumulative cost across all messages */}
+      <SessionCostSummary messages={messages ?? []} />
     </AnimatePresence>
   );
 }

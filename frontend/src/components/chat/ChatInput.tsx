@@ -25,6 +25,7 @@ import {
   RotateCcw,
   Send,
   Settings2,
+  Paperclip,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -970,8 +971,23 @@ export function ChatInput({
             )}
           </div>
 
-          {/* Right side: Send button only */}
+          {/* Right side: Attach + Send buttons */}
           <div className="omni-right">
+            {/* Attach image button */}
+            {withTooltip(
+              <button
+                type="button"
+                className={cn('omni-icon-btn attach', hasImages && 'has-images')}
+                onClick={imageUpload.openFilePicker}
+                disabled={isLoading}
+                aria-label={t('aria.attachImage', 'Attach image')}
+              >
+                <Paperclip className="h-5 w-5" aria-hidden="true" />
+              </button>,
+              t('tooltips.attachImage', 'Attach image (or paste from clipboard)')
+            )}
+
+            {/* Send/Stop button */}
             {isLoading
               ? withTooltip(
                   <button

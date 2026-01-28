@@ -10,10 +10,10 @@
  * - Estimated cost
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Activity, Zap, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
-import { getShowTokenUsage } from '../settings/tokenUsageSettings';
+import { useShowTokenUsage } from '../../hooks/useShowTokenUsage';
 import { formatCostAuto } from '../../lib/currencyUtils';
 import { makeClickable } from '../../utils/a11y';
 import './TokenUsageDisplay.css';
@@ -135,21 +135,9 @@ export function TokenUsageDisplay({
   className = '',
 }: TokenUsageDisplayProps) {
   const { t } = useTranslation();
-  const [isVisible, setIsVisible] = useState(getShowTokenUsage());
+  // Use the hook that handles super admin auto-enable
+  const { showTokenUsage: isVisible } = useShowTokenUsage();
   const [isExpanded, setIsExpanded] = useState(false);
-
-  // Listen for visibility changes from settings
-  useEffect(() => {
-    const handleVisibilityChange = (e: Event) => {
-      const customEvent = e as CustomEvent<boolean>;
-      setIsVisible(customEvent.detail);
-    };
-
-    window.addEventListener('showTokenUsageChanged', handleVisibilityChange);
-    return () => {
-      window.removeEventListener('showTokenUsageChanged', handleVisibilityChange);
-    };
-  }, []);
 
   const stats = useMemo(() => {
     if (!usage) return null;

@@ -66,6 +66,16 @@
   color: var(--color-text-secondary);
 }
 
+/* Visual indicator when images are attached */
+.omni-icon-btn.attach.has-images {
+  color: var(--color-indigo-400);
+  opacity: 1;
+}
+
+.omni-icon-btn.attach.has-images:hover:not(:disabled) {
+  color: var(--color-indigo-300);
+}
+
 /* =============================================================================
    SEND BUTTON - matches OmniBar landing hero indigo style
    ============================================================================= */

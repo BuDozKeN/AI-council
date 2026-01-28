@@ -540,6 +540,9 @@
     "showTokenUsage": "Mostrar uso de tokens",
     "tokenUsageOn": "Mostrando tokens, estimaciones de costo y aciertos de caché por etapa",
     "tokenUsageOff": "Uso de tokens oculto de la UI",
+    "tokenUsageLockedAdmin": "Siempre activado para super administradores",
+    "tokenUsageAdminInfo": "Los costos de LLM siempre son visibles para super administradores para monitorear gastos.",
+    "alwaysOn": "Siempre Activo",
     "visible": "Visible",
     "hidden": "Oculto",
     "tokenUsageInfo": "El uso de tokens se mostrará debajo de cada etapa del consejo.",
@@ -683,7 +686,7 @@
     "saveAnswerHint": "Guardar esta respuesta para accederla luego desde Mi Empresa",
     "saveToProject": "Guardar en {{name}}",
     "saveAnswer": "Guardar respuesta",
-    "costTooltip": "Costo estimado para esta deliberación del consejo",
+    "costTooltip": "Costo total estimado para esta consulta (todas las etapas: deliberación + revisión + síntesis)",
     "rankTooltip": "Puntuación promedio: {{avg}} ({{votesReceived}}/{{totalVoters}} expertos votaron) — Menor es mejor",
     "rankTooltipFull": "{{fullName}} - Ranking promedio: {{avg}} ({{votesReceived}} de {{totalVoters}} expertos votaron). Menor es mejor - #1 es la mejor respuesta.",
     "clickToViewResponse": "Clic para ver respuesta.",
@@ -1514,7 +1517,11 @@
     "cacheRead": "Caché leído",
     "cacheCreated": "Caché creado",
     "perModel": "Por Modelo",
-    "cacheSavings": "Ahorro estimado de caché: {{amount}}"
+    "cacheSavings": "Ahorro estimado de caché: {{amount}}",
+    "councilQueries": "{{count}} consulta al consejo",
+    "councilQueries_other": "{{count}} consultas al consejo",
+    "followUps": "{{count}} seguimiento",
+    "followUps_other": "{{count}} seguimientos"
   },
   "mycompany": {
     "tabs": {
