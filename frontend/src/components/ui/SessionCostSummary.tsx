@@ -56,15 +56,13 @@ function calculateCost(usage: UsageData): number {
   return totalCost;
 }
 
-interface MessageWithUsage {
-  role: 'user' | 'assistant';
-  usage?: UsageData;
-  isChat?: boolean;
-  loading?: { stage1?: boolean; stage2?: boolean; stage3?: boolean };
-}
-
 interface SessionCostSummaryProps {
-  messages: MessageWithUsage[];
+  messages: Array<{
+    role: 'user' | 'assistant';
+    usage?: UsageData;
+    stage1?: unknown;
+    loading?: { stage1?: boolean; stage2?: boolean; stage3?: boolean };
+  }>;
   className?: string;
 }
 
@@ -95,7 +93,9 @@ export function SessionCostSummary({ messages, className = '' }: SessionCostSumm
       // Distinguish between council queries and follow-ups based on message structure
       // Council queries have full 3-stage pipeline (stage1 data), follow-ups don't
       // This works for both new messages and historical messages loaded from DB
-      const isCouncilQuery = Boolean(msg.stage1 && msg.stage1.length > 0);
+      const isCouncilQuery = Boolean(
+        msg.stage1 && Array.isArray(msg.stage1) && msg.stage1.length > 0
+      );
 
       if (isCouncilQuery) {
         councilCount++;
