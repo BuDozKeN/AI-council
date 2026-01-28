@@ -100,19 +100,31 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                       {apiKeyStatus &&
                         (apiKeyStatus.is_active ? (
                           apiKeyStatus.is_valid ? (
-                            <span className="status-dot connected" title={`${t('settings.active')} - ${t('mycompany.statusConnected')}`} aria-label={t('mycompany.statusConnected')} />
+                            <span
+                              className="status-dot connected"
+                              title={`${t('settings.active')} - ${t('mycompany.statusConnected')}`}
+                              aria-label={t('mycompany.statusConnected')}
+                            />
                           ) : (
                             <span className="status-dot invalid" title={t('settings.invalid')} />
                           )
                         ) : (
-                          <span className="status-dot paused" title={`${t('settings.paused')} - ${t('mycompany.statusDisconnected')}`} aria-label={t('mycompany.statusDisconnected')} />
+                          <span
+                            className="status-dot paused"
+                            title={`${t('settings.paused')} - ${t('mycompany.statusDisconnected')}`}
+                            aria-label={t('mycompany.statusDisconnected')}
+                          />
                         ))}
                     </div>
                     <span className="provider-tagline">{t('settings.openRouterTagline')}</span>
                   </div>
                 </div>
               </div>
-              <ChevronDown className="accordion-chevron" size={20} aria-label={t('aria.expandSection')} />
+              <ChevronDown
+                className="accordion-chevron"
+                size={20}
+                aria-label={t('aria.expandSection')}
+              />
             </Accordion.Trigger>
           </Accordion.Header>
 

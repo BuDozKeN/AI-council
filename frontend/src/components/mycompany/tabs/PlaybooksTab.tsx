@@ -408,7 +408,11 @@ export function PlaybooksTab({
         <button
           type="button"
           className={`mc-stat-card clickable ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
-          onClick={onTypeFilterChange ? () => onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop') : undefined}
+          onClick={
+            onTypeFilterChange
+              ? () => onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop')
+              : undefined
+          }
           aria-pressed={playbookTypeFilter === 'sop'}
           aria-label={`${t('mycompany.sopsLong', 'Standard Operating Procedures')}: ${allSops.length}`}
           title={t('mycompany.sopsLong', 'Standard Operating Procedures')}
@@ -419,7 +423,11 @@ export function PlaybooksTab({
         <button
           type="button"
           className={`mc-stat-card clickable ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
-          onClick={onTypeFilterChange ? () => onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework') : undefined}
+          onClick={
+            onTypeFilterChange
+              ? () => onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')
+              : undefined
+          }
           aria-pressed={playbookTypeFilter === 'framework'}
           aria-label={`${t('mycompany.frameworks')}: ${allFrameworks.length}`}
         >
@@ -429,7 +437,11 @@ export function PlaybooksTab({
         <button
           type="button"
           className={`mc-stat-card clickable ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
-          onClick={onTypeFilterChange ? () => onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy') : undefined}
+          onClick={
+            onTypeFilterChange
+              ? () => onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')
+              : undefined
+          }
           aria-pressed={playbookTypeFilter === 'policy'}
           aria-label={`${t('mycompany.policies')}: ${allPolicies.length}`}
         >
@@ -469,12 +481,19 @@ export function PlaybooksTab({
             const hasMore = docs.length > MAX_VISIBLE;
 
             return (
-              <section key={type} className="mc-playbook-group" aria-labelledby={`playbook-type-${type}`}>
+              <section
+                key={type}
+                className="mc-playbook-group"
+                aria-labelledby={`playbook-type-${type}`}
+              >
                 <h4 id={`playbook-type-${type}`} className="mc-group-title">
                   {t(`mycompany.typeLabel_${type}`)}
                   <span className="mc-group-count">({docs.length})</span>
                 </h4>
-                <ul className="mc-elegant-list" aria-label={`${t(`mycompany.typeLabel_${type}`)} list`}>
+                <ul
+                  className="mc-elegant-list"
+                  aria-label={`${t(`mycompany.typeLabel_${type}`)} list`}
+                >
                   {visibleDocs.map((doc: ExtendedPlaybook) => {
                     // Use embedded department name (or fallback to lookup for backwards compat)
                     const dept:
@@ -643,9 +662,11 @@ export function PlaybooksTab({
                         [type]: !prev[type],
                       }))
                     }
-                    aria-label={isExpanded
-                      ? t('mycompany.showLess')
-                      : t('mycompany.loadMore', { count: docs.length - MAX_VISIBLE })}
+                    aria-label={
+                      isExpanded
+                        ? t('mycompany.showLess')
+                        : t('mycompany.loadMore', { count: docs.length - MAX_VISIBLE })
+                    }
                   >
                     {isExpanded
                       ? t('mycompany.showLess')

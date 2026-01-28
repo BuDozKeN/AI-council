@@ -116,7 +116,7 @@
   a:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgb(var(--color-focus-rgb), 0.15);
+    box-shadow: 0 0 0 4px rgb(var(--color-focus-rgb), 0.25);
   }
 
   /* Card focus styles */
@@ -124,7 +124,7 @@
   [role='article']:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgb(var(--color-focus-rgb), 0.15);
+    box-shadow: 0 0 0 4px rgb(var(--color-focus-rgb), 0.25);
   }
 
   /* Input focus styles */
@@ -133,7 +133,7 @@
   select:focus-visible {
     outline: none;
     border-color: var(--color-focus);
-    box-shadow: 0 0 0 3px rgb(var(--color-focus-rgb), 0.15);
+    box-shadow: 0 0 0 3px rgb(var(--color-focus-rgb), 0.25);
   }
 
   /* Tab/pill focus styles */

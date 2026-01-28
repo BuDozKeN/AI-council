@@ -437,6 +437,7 @@
     "notifications": "Notifications",
     "displayName": "Display Name",
     "emailCannotChange": "Email cannot be changed",
+    "emailCannotBeChanged": "Email address cannot be changed",
     "accountInfo": "Account Information",
     "profileDetails": "Profile Details",
     "appearance": "Appearance",

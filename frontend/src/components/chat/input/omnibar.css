@@ -51,8 +51,26 @@
 
 /* Top row: Just the textarea */
 .omni-top {
+  position: relative;
   display: flex;
   width: 100%;
+}
+
+/* Character count - subtle indicator in corner */
+.omni-char-count {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: var(--text-2xs);
+  color: var(--color-text-quaternary);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+.omni-top:focus-within .omni-char-count {
+  opacity: 0.8;
 }
 
 /* Bottom row: Context icons (left) + Attach/Send (right) - Perplexity style */

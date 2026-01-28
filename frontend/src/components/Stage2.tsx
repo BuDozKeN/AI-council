@@ -407,7 +407,12 @@ function Stage2({
                         ? makeClickable(() => onModelClick(agg.model))
                         : {})}
                     >
-                      <span className="rank-position" aria-label={getRankLabel(index + 1).ariaLabel}>{getRankLabel(index + 1).label}</span>
+                      <span
+                        className="rank-position"
+                        aria-label={getRankLabel(index + 1).ariaLabel}
+                      >
+                        {getRankLabel(index + 1).label}
+                      </span>
                       <span className="rank-model">
                         {iconPath && (
                           <img

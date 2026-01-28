@@ -273,10 +273,7 @@ export function ChatInput({
           sortedProjects.map((proj) => {
             const isSelected = selectedProject === proj.id;
             return (
-              <label
-                key={proj.id}
-                className={cn('context-popover-item', isSelected && 'selected')}
-              >
+              <label key={proj.id} className={cn('context-popover-item', isSelected && 'selected')}>
                 <input
                   type="radio"
                   name="project"
@@ -288,7 +285,10 @@ export function ChatInput({
                   className="context-popover-input"
                   aria-label={proj.name}
                 />
-                <div className={cn('context-popover-radio', isSelected && 'checked')} aria-hidden="true">
+                <div
+                  className={cn('context-popover-radio', isSelected && 'checked')}
+                  aria-hidden="true"
+                >
                   {isSelected && <Check />}
                 </div>
                 <span>{proj.name}</span>
@@ -355,10 +355,7 @@ export function ChatInput({
           sortedRoles.map((role) => {
             const isSelected = selectedRoles.includes(role.id);
             return (
-              <label
-                key={role.id}
-                className={cn('context-popover-item', isSelected && 'selected')}
-              >
+              <label key={role.id} className={cn('context-popover-item', isSelected && 'selected')}>
                 <input
                   type="checkbox"
                   name="role"
@@ -368,7 +365,10 @@ export function ChatInput({
                   className="context-popover-input"
                   aria-label={role.name}
                 />
-                <div className={cn('context-popover-checkbox', isSelected && 'checked')} aria-hidden="true">
+                <div
+                  className={cn('context-popover-checkbox', isSelected && 'checked')}
+                  aria-hidden="true"
+                >
                   {isSelected && <Check />}
                 </div>
                 <span>{role.name}</span>
@@ -474,7 +474,10 @@ export function ChatInput({
                             className="context-popover-input"
                             aria-label={pb.title || pb.name}
                           />
-                          <div className={cn('context-popover-checkbox', isSelected && 'checked')} aria-hidden="true">
+                          <div
+                            className={cn('context-popover-checkbox', isSelected && 'checked')}
+                            aria-hidden="true"
+                          >
                             {isSelected && <Check />}
                           </div>
                           <span>{pb.title || pb.name}</span>
@@ -634,6 +637,12 @@ export function ChatInput({
             disabled={isLoading}
             rows={1}
           />
+          {/* Character count - subtle indicator */}
+          {input.length > 0 && (
+            <span className="omni-char-count" aria-live="polite" aria-atomic="true">
+              {input.length.toLocaleString()}
+            </span>
+          )}
         </div>
 
         {/* Bottom row: Context icons (left) + Attach/Send (right) - Perplexity style */}
@@ -654,12 +663,18 @@ export function ChatInput({
                         )}
                         onClick={() => setMobileContextOpen(true)}
                         disabled={disabled}
-                        aria-label={totalSelectionCount > 0 ? t('context.configure') + ` (${totalSelectionCount} selected)` : t('context.configure')}
+                        aria-label={
+                          totalSelectionCount > 0
+                            ? t('context.configure') + ` (${totalSelectionCount} selected)`
+                            : t('context.configure')
+                        }
                       >
                         <Settings2 size={16} aria-hidden="true" />
                         <span className="mobile-context-label">{t('context.context')}</span>
                         {totalSelectionCount > 0 && (
-                          <span className="mobile-context-badge" aria-hidden="true">{totalSelectionCount}</span>
+                          <span className="mobile-context-badge" aria-hidden="true">
+                            {totalSelectionCount}
+                          </span>
                         )}
                       </button>,
                       t('context.configure')
@@ -702,13 +717,21 @@ export function ChatInput({
                                 totalSelectionCount > 0 && 'has-selection'
                               )}
                               disabled={disabled}
-                              aria-label={totalSelectionCount > 0 ? t('context.configure') + ` (${totalSelectionCount} selected)` : t('context.configure')}
+                              aria-label={
+                                totalSelectionCount > 0
+                                  ? t('context.configure') + ` (${totalSelectionCount} selected)`
+                                  : t('context.configure')
+                              }
                             >
                               <span>{t('context.context')}</span>
                               {totalSelectionCount > 0 && (
                                 <span className="context-trigger-badge">{totalSelectionCount}</span>
                               )}
-                              <ChevronDown size={14} className="context-trigger-chevron" aria-hidden="true" />
+                              <ChevronDown
+                                size={14}
+                                className="context-trigger-chevron"
+                                aria-hidden="true"
+                              />
                             </button>
                           </Popover.Trigger>
                         </Tooltip.Trigger>
@@ -719,128 +742,152 @@ export function ChatInput({
                           </Tooltip.Content>
                         </Tooltip.Portal>
                       </Tooltip.Root>
-                    <Popover.Portal>
-                      <Popover.Content
-                        className="context-dropdown"
-                        side="bottom"
-                        align="start"
-                        sideOffset={8}
-                        collisionPadding={16}
-                      >
-                        {/* Two-column layout: categories left, options right */}
-                        <div className="context-dropdown-layout">
-                          {/* Left: Category menu */}
-                          <div className="context-dropdown-menu">
-                            {hasProjects && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'project' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('project')}
-                                onFocus={() => setActiveContextTab('project')}
-                              >
-                                <FolderKanban size={16} aria-hidden="true" />
-                                <span>{t('context.project')}</span>
-                                {selectedProject && <span className="context-menu-badge" aria-hidden="true">1</span>}
-                                <ChevronRight size={14} className="context-menu-arrow" aria-hidden="true" />
-                              </div>
-                            )}
-                            {hasDepartments && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'departments' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('departments')}
-                                onFocus={() => setActiveContextTab('departments')}
-                              >
-                                <Building2 size={16} aria-hidden="true" />
-                                <span>{t('departments.title')}</span>
-                                {selectedDepartments.length > 0 && (
-                                  <span className="context-menu-badge" aria-hidden="true">
-                                    {selectedDepartments.length}
-                                  </span>
-                                )}
-                                <ChevronRight size={14} className="context-menu-arrow" aria-hidden="true" />
-                              </div>
-                            )}
-                            {hasRoles && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'roles' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('roles')}
-                                onFocus={() => setActiveContextTab('roles')}
-                              >
-                                <Users size={16} aria-hidden="true" />
-                                <span>{t('roles.title')}</span>
-                                {selectedRoles.length > 0 && (
-                                  <span className="context-menu-badge" aria-hidden="true">{selectedRoles.length}</span>
-                                )}
-                                <ChevronRight size={14} className="context-menu-arrow" aria-hidden="true" />
-                              </div>
-                            )}
-                            {hasPlaybooks && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'playbooks' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('playbooks')}
-                                onFocus={() => setActiveContextTab('playbooks')}
-                              >
-                                <BookOpen size={16} aria-hidden="true" />
-                                <span>{t('context.playbooks')}</span>
-                                {selectedPlaybooks.length > 0 && (
-                                  <span className="context-menu-badge" aria-hidden="true">
-                                    {selectedPlaybooks.length}
-                                  </span>
-                                )}
-                                <ChevronRight size={14} className="context-menu-arrow" aria-hidden="true" />
-                              </div>
-                            )}
-                            {/* Clear All button at bottom of menu */}
-                            {hasAnySelections && onResetAll && (
-                              <div className="context-menu-divider" />
-                            )}
-                            {hasAnySelections && onResetAll && (
-                              <button
-                                type="button"
-                                className="context-menu-clear"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onResetAll();
-                                }}
-                              >
-                                <RotateCcw size={14} aria-hidden="true" />
-                                <span>{t('common.clearAll')}</span>
-                              </button>
-                            )}
-                          </div>
+                      <Popover.Portal>
+                        <Popover.Content
+                          className="context-dropdown"
+                          side="bottom"
+                          align="start"
+                          sideOffset={8}
+                          collisionPadding={16}
+                        >
+                          {/* Two-column layout: categories left, options right */}
+                          <div className="context-dropdown-layout">
+                            {/* Left: Category menu */}
+                            <div className="context-dropdown-menu">
+                              {hasProjects && (
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'project' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('project')}
+                                  onFocus={() => setActiveContextTab('project')}
+                                >
+                                  <FolderKanban size={16} aria-hidden="true" />
+                                  <span>{t('context.project')}</span>
+                                  {selectedProject && (
+                                    <span className="context-menu-badge" aria-hidden="true">
+                                      1
+                                    </span>
+                                  )}
+                                  <ChevronRight
+                                    size={14}
+                                    className="context-menu-arrow"
+                                    aria-hidden="true"
+                                  />
+                                </div>
+                              )}
+                              {hasDepartments && (
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'departments' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('departments')}
+                                  onFocus={() => setActiveContextTab('departments')}
+                                >
+                                  <Building2 size={16} aria-hidden="true" />
+                                  <span>{t('departments.title')}</span>
+                                  {selectedDepartments.length > 0 && (
+                                    <span className="context-menu-badge" aria-hidden="true">
+                                      {selectedDepartments.length}
+                                    </span>
+                                  )}
+                                  <ChevronRight
+                                    size={14}
+                                    className="context-menu-arrow"
+                                    aria-hidden="true"
+                                  />
+                                </div>
+                              )}
+                              {hasRoles && (
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'roles' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('roles')}
+                                  onFocus={() => setActiveContextTab('roles')}
+                                >
+                                  <Users size={16} aria-hidden="true" />
+                                  <span>{t('roles.title')}</span>
+                                  {selectedRoles.length > 0 && (
+                                    <span className="context-menu-badge" aria-hidden="true">
+                                      {selectedRoles.length}
+                                    </span>
+                                  )}
+                                  <ChevronRight
+                                    size={14}
+                                    className="context-menu-arrow"
+                                    aria-hidden="true"
+                                  />
+                                </div>
+                              )}
+                              {hasPlaybooks && (
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'playbooks' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('playbooks')}
+                                  onFocus={() => setActiveContextTab('playbooks')}
+                                >
+                                  <BookOpen size={16} aria-hidden="true" />
+                                  <span>{t('context.playbooks')}</span>
+                                  {selectedPlaybooks.length > 0 && (
+                                    <span className="context-menu-badge" aria-hidden="true">
+                                      {selectedPlaybooks.length}
+                                    </span>
+                                  )}
+                                  <ChevronRight
+                                    size={14}
+                                    className="context-menu-arrow"
+                                    aria-hidden="true"
+                                  />
+                                </div>
+                              )}
+                              {/* Clear All button at bottom of menu */}
+                              {hasAnySelections && onResetAll && (
+                                <div className="context-menu-divider" />
+                              )}
+                              {hasAnySelections && onResetAll && (
+                                <button
+                                  type="button"
+                                  className="context-menu-clear"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onResetAll();
+                                  }}
+                                >
+                                  <RotateCcw size={14} aria-hidden="true" />
+                                  <span>{t('common.clearAll')}</span>
+                                </button>
+                              )}
+                            </div>
 
-                          {/* Right: Options panel (always visible, content changes on hover) */}
-                          <div className="context-dropdown-panel">
-                            {activeContextTab === 'project' && projectList}
-                            {activeContextTab === 'departments' && departmentList}
-                            {activeContextTab === 'roles' && roleList}
-                            {activeContextTab === 'playbooks' && playbookList}
-                            {!activeContextTab && (
-                              <div className="context-panel-hint">{t('context.hoverToSelect')}</div>
-                            )}
+                            {/* Right: Options panel (always visible, content changes on hover) */}
+                            <div className="context-dropdown-panel">
+                              {activeContextTab === 'project' && projectList}
+                              {activeContextTab === 'departments' && departmentList}
+                              {activeContextTab === 'roles' && roleList}
+                              {activeContextTab === 'playbooks' && playbookList}
+                              {!activeContextTab && (
+                                <div className="context-panel-hint">
+                                  {t('context.hoverToSelect')}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </Popover.Content>
-                    </Popover.Portal>
+                        </Popover.Content>
+                      </Popover.Portal>
                     </Popover.Root>
                   </Tooltip.Provider>
                 )}

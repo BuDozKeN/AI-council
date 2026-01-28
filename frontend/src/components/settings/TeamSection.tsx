@@ -199,7 +199,10 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   value={newRole}
                   onValueChange={(value: string) => setNewRole(value as TeamRole)}
                 >
-                  <SelectTrigger className="form-select" aria-label={t('settings.selectRole', 'Role')}>
+                  <SelectTrigger
+                    className="form-select"
+                    aria-label={t('settings.selectRole', 'Role')}
+                  >
                     <SelectValue placeholder={t('settings.selectRole', 'Role')} />
                   </SelectTrigger>
                   <SelectContent>
@@ -238,7 +241,11 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   const isLoading = invitationActionLoading === invitation.id;
 
                   return (
-                    <li key={invitation.id} className="invitation-row" aria-label={`${invitation.email}, ${t(`settings.${roleConfig.roleKey}`)}`}>
+                    <li
+                      key={invitation.id}
+                      className="invitation-row"
+                      aria-label={`${invitation.email}, ${t(`settings.${roleConfig.roleKey}`)}`}
+                    >
                       <div className="invitation-icon">
                         <Mail size={16} />
                       </div>
