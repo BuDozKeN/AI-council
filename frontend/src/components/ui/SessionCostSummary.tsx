@@ -92,12 +92,17 @@ export function SessionCostSummary({ messages, className = '' }: SessionCostSumm
       const cost = calculateCost(msg.usage);
       totalCost += cost;
 
-      if (msg.isChat) {
-        followUpCount++;
-        followUpCost += cost;
-      } else {
+      // Distinguish between council queries and follow-ups based on message structure
+      // Council queries have full 3-stage pipeline (stage1 data), follow-ups don't
+      // This works for both new messages and historical messages loaded from DB
+      const isCouncilQuery = Boolean(msg.stage1 && msg.stage1.length > 0);
+
+      if (isCouncilQuery) {
         councilCount++;
         councilCost += cost;
+      } else {
+        followUpCount++;
+        followUpCost += cost;
       }
     }
 
