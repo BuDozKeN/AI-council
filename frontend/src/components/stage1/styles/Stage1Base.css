@@ -54,6 +54,7 @@
 /* Expanded card content - scrollable, full height */
 .stage1 .model-card.expanded .model-card-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: var(--space-2);
 }
