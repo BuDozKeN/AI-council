@@ -85,12 +85,19 @@ async def get_llm_config(
     """
     config = DEFAULT_STAGE_CONFIG.copy()
 
+    # Normalize preset_override (lowercase, strip whitespace)
+    normalized_preset = (preset_override.lower().strip() if preset_override else None)
+
+    # DEBUG: Log config selection logic
+    _logger.info(f"[CONFIG_DEBUG] {stage}: preset_override={preset_override} (normalized={normalized_preset}), department_id={department_id}")
+
     # If preset_override is provided, use fallback configs directly
     # This bypasses the department lookup entirely
-    if preset_override and preset_override in FALLBACK_CONFIGS:
-        preset_config = FALLBACK_CONFIGS[preset_override]
+    if normalized_preset and normalized_preset in FALLBACK_CONFIGS:
+        preset_config = FALLBACK_CONFIGS[normalized_preset]
         if stage in preset_config:
             config = preset_config[stage].copy()
+            _logger.info(f"[CONFIG_DEBUG] Using preset_override '{normalized_preset}' for {stage}: max_tokens={config.get('max_tokens')}")
     elif department_id:
         try:
             from .database import get_supabase_service
@@ -111,10 +118,16 @@ async def get_llm_config(
             # Log but don't fail - use defaults
             _logger.warning(f"get_llm_config failed for {department_id}: {type(e).__name__} - using fallback")
 
+    # DEBUG: Log final config if still using default
+    if config.get('max_tokens') == DEFAULT_STAGE_CONFIG.get('max_tokens'):
+        _logger.info(f"[CONFIG_DEBUG] Using DEFAULT_STAGE_CONFIG for {stage}: max_tokens={config.get('max_tokens')}")
+
     # Apply conversation modifier (bounded adjustment)
     if conversation_modifier:
         config = _apply_modifier(config, conversation_modifier)
+        _logger.info(f"[CONFIG_DEBUG] Applied modifier '{conversation_modifier}' for {stage}: max_tokens={config.get('max_tokens')}")
 
+    _logger.info(f"[CONFIG_DEBUG] Final config for {stage}: {config}")
     return config
 
 

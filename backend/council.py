@@ -153,7 +153,14 @@ async def stage1_stream_responses(
         log_app_event, QueryTooLongError
     )
 
-    # 2. Build system prompt with context
+    # 2. Get council models and LLM config FIRST (needed for system prompt token limit)
+    effective_dept_id = department_uuid or (department_ids[0] if department_ids else None)
+    council_models, stage1_config = await _get_council_models_and_config(
+        get_models, get_models_sync, get_llm_config,
+        effective_dept_id, conversation_modifier, preset_override
+    )
+
+    # 3. Build system prompt with context and token limit from config
     system_prompt = get_system_prompt_with_context(
         business_id=business_id,
         department_id=department_id,
@@ -166,21 +173,15 @@ async def stage1_stream_responses(
         department_uuid=department_uuid,
         department_ids=department_ids,
         role_ids=role_ids,
-        playbook_ids=playbook_ids
+        playbook_ids=playbook_ids,
+        max_tokens=stage1_config.get("max_tokens")  # Pass token limit to system prompt
     )
 
-    # 3. Build messages array
+    # 4. Build messages array
     messages = _build_stage1_messages(system_prompt, conversation_history, user_query, wrap_user_query)
 
-    # 4. Track stage start time for timeout enforcement
+    # 5. Track stage start time for timeout enforcement
     stage_start_time = time.time()
-
-    # 5. Get council models and LLM config
-    effective_dept_id = department_uuid or (department_ids[0] if department_ids else None)
-    council_models, stage1_config = await _get_council_models_and_config(
-        get_models, get_models_sync, get_llm_config,
-        effective_dept_id, conversation_modifier, preset_override
-    )
 
     # 6. Initialize queue and state tracking
     queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
@@ -464,6 +465,21 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     # Build messages with optional contexts
     messages = []
 
+    # Get LLM config for Stage 3 FIRST (needed for system prompt token limit)
+    effective_dept_id = department_uuid or (department_ids[0] if department_ids else None)
+    log_app_event(
+        "STAGE3_CONFIG_REQUEST",
+        level="INFO",
+        department_id=effective_dept_id,
+        preset_override=preset_override
+    )
+    stage3_config = await get_llm_config(
+        department_id=effective_dept_id,
+        stage="stage3",
+        preset_override=preset_override,
+    )
+
+    # Build system prompt with context and token limit from config
     system_prompt = get_system_prompt_with_context(
         business_id=business_id,
         department_id=department_id,
@@ -475,7 +491,8 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         department_uuid=department_uuid,
         department_ids=department_ids,
         role_ids=role_ids,
-        playbook_ids=playbook_ids
+        playbook_ids=playbook_ids,
+        max_tokens=stage3_config.get("max_tokens")  # Pass token limit to system prompt
     )
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
@@ -489,14 +506,6 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     chairman_models = await get_models('chairman')
     if not chairman_models:
         chairman_models = get_models_sync('chairman')
-
-    # Get LLM config for Stage 3 (Chairman synthesis)
-    effective_dept_id = department_uuid or (department_ids[0] if department_ids else None)
-    stage3_config = await get_llm_config(
-        department_id=effective_dept_id,
-        stage="stage3",
-        preset_override=preset_override,
-    )
 
     # Try each chairman model in order until one succeeds
     successful_chairman = None

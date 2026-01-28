@@ -90,6 +90,9 @@
   padding: var(--space-8) var(--space-3) var(--space-3);
   overflow-x: auto;
   background: var(--color-code-bg);
+  max-width: 100%; /* Constrain pre to wrapper width */
+  min-width: 0; /* Allow shrinking */
+  overflow-wrap: break-word; /* Break long words that can't wrap */
 }
 
 .stage1 .code-block-wrapper code {
@@ -97,6 +100,8 @@
   font-size: var(--text-xs-plus);
   line-height: 1.5;
   color: var(--color-code-text);
+  overflow-wrap: break-word; /* Ensure long lines break */
+  white-space: pre-wrap; /* Preserve whitespace and wrap */
 }
 
 /* Inline code styling (for short snippets like table names, paths) */
@@ -109,12 +114,26 @@
   font-size: 0.9em;
   color: inherit;
   overflow-wrap: break-word;
+  word-break: break-all; /* Break extra-long words that would overflow */
 }
 
 .response-text {
   color: var(--color-text-primary);
   line-height: 1.6;
   overflow-wrap: break-word;
+}
+
+/* Table wrapper - ensure tables don't overflow */
+.stage1 .table-scroll-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.stage1 .table-scroll-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .response-text.error-text {

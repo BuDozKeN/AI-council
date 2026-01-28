@@ -59,11 +59,14 @@ def _build_streaming_payload(
     Returns:
         Complete payload dict
     """
+    # Use configured max_tokens or default to 16384
+    effective_max_tokens = max_tokens if max_tokens is not None else 16384
+
     payload = {
         "model": model,
         "messages": cached_messages,
         "stream": True,
-        "max_tokens": max_tokens if max_tokens is not None else 16384,
+        "max_tokens": effective_max_tokens,
         "usage": {"include": True},  # Required for token usage in streaming
     }
 

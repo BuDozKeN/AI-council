@@ -36,6 +36,10 @@ MAX_CONTEXT_CHARS = 150000
 # Maximum characters per section to prevent any single section from being too large
 MAX_SECTION_CHARS = 30000
 
+# Token limit instruction template - prepended to all system prompts
+# {{MAX_TOKENS}} is replaced at runtime with the actual token limit
+TOKEN_LIMIT_INSTRUCTION = """You have {{MAX_TOKENS}} tokens available for your response. Provide thorough, well-reasoned content that fully addresses the request within this constraint."""
+
 
 def estimate_tokens(text: str) -> int:
     """Rough estimate of token count (approximately 4 chars per token)."""
@@ -1231,13 +1235,16 @@ def get_system_prompt_with_context(
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None,
     role_ids: Optional[List[str]] = None,
-    playbook_ids: Optional[List[str]] = None
+    playbook_ids: Optional[List[str]] = None,
+    # Token limit for dynamic instruction injection
+    max_tokens: Optional[int] = None
 ) -> Optional[str]:
     """
     Generate a system prompt that includes business, project, and department context.
 
     Now reads all context from Supabase database instead of markdown files.
     Supports multi-select for departments and roles.
+    Automatically injects token limit instruction when max_tokens is provided.
 
     Refactored to use helper functions for better maintainability.
 
@@ -1254,6 +1261,7 @@ def get_system_prompt_with_context(
         department_ids: Optional list of department UUIDs for multi-select
         role_ids: Optional list of role UUIDs for multi-select
         playbook_ids: Optional list of playbook UUIDs to inject
+        max_tokens: Optional token limit to inject into system prompt (e.g., 8192)
 
     Returns:
         System prompt string with all context, or None if no context found
@@ -1291,8 +1299,17 @@ def get_system_prompt_with_context(
         if info:
             role_infos.append(info)
 
-    # 5. Build the system prompt header based on role selection
-    system_prompt = _build_role_header_prompt(role_infos)
+    # 5. Build the system prompt header with token limit instruction
+    # Token limit instruction comes FIRST so it's the highest priority for the LLM
+    system_prompt = ""
+
+    # Inject token limit instruction if max_tokens is provided
+    if max_tokens is not None:
+        token_instruction = TOKEN_LIMIT_INSTRUCTION.replace("{{MAX_TOKENS}}", str(max_tokens))
+        system_prompt += token_instruction + "\n\n"
+
+    # Add role header after token instruction
+    system_prompt += _build_role_header_prompt(role_infos)
 
     # 6. Add company context
     company_context = truncate_to_limit(company_context, MAX_SECTION_CHARS, "company context")

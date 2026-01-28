@@ -55,8 +55,10 @@
 .stage1 .model-card.expanded .model-card-content {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden auto; /* x: hidden, y: auto - prevents horizontal overflow, allows vertical scroll */
   padding-right: var(--space-2);
+  min-width: 0; /* Allow content to shrink */
+  width: 100%; /* Constrain to card width */
 }
 
 /* Custom scrollbar for expanded content */

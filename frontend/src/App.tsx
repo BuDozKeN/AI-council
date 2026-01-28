@@ -320,6 +320,7 @@ function App() {
       selectedPlaybooks,
       selectedProject,
       selectedPreset,
+      departmentPreset,
       useCompanyContext,
       useDepartmentContext,
     },
