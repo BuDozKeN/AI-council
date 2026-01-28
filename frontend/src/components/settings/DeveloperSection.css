@@ -110,6 +110,15 @@
   color: var(--color-text-muted);
 }
 
+.dev-status-badge.locked {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-2xs);
+  background: var(--overlay-green-15);
+  color: var(--color-green-500);
+  min-width: auto;
+}
+
 /* Info boxes */
 .dev-info-box {
   display: flex;

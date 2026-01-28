@@ -52,12 +52,6 @@ declare global {
   }
 }
 
-// Image upload type
-interface UploadedImage {
-  file: File;
-  preview: string;
-}
-
 // =============================================================================
 // Performance: Route-based code splitting
 // These components are lazily loaded to reduce initial bundle size (~70% reduction)
@@ -747,13 +741,15 @@ function App() {
   // These maintain the existing API for components while delegating to the hook
 
   // Send message wrapper (TRIAGE DISABLED: Go directly to council)
-  const handleSendMessage = async (content: string, images: UploadedImage[] | null = null) => {
-    await sendToCouncil(content, images);
+  // Now accepts pre-uploaded attachment IDs instead of raw images
+  const handleSendMessage = async (content: string, attachmentIds: string[] | null = null) => {
+    await sendToCouncil(content, attachmentIds);
   };
 
   // Send chat message - delegates to hook
-  const handleSendChatMessage = async (content: string) => {
-    await sendChatMessage(content);
+  // Now accepts pre-uploaded attachment IDs instead of raw images
+  const handleSendChatMessage = async (content: string, attachmentIds?: string[] | null) => {
+    await sendChatMessage(content, attachmentIds);
   };
 
   // Handle submit from Landing Hero

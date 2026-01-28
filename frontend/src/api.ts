@@ -133,6 +133,7 @@ export interface ChatStreamOptions {
   roleIds?: string[] | null;
   playbookIds?: string[] | null;
   projectId?: string | null;
+  attachmentIds?: string[] | null;
   signal?: AbortSignal | null;
 }
 
@@ -528,6 +529,7 @@ export const api = {
       roleIds = null,
       playbookIds = null,
       projectId = null,
+      attachmentIds = null,
       signal = null,
     } = options;
     const headers = await getAuthHeaders();
@@ -544,6 +546,7 @@ export const api = {
           role_ids: roleIds, // Multi-select support
           playbook_ids: playbookIds, // Playbook IDs to inject
           project_id: projectId,
+          attachment_ids: attachmentIds, // Image attachments
         }),
         signal,
       }

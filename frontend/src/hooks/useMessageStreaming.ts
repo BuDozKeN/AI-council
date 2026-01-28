@@ -37,16 +37,6 @@ interface StreamableMessage extends Message {
 }
 
 /** Image attachment for upload */
-interface ImageAttachment {
-  file: File;
-  preview?: string;
-}
-
-/** Uploaded attachment response */
-interface UploadedAttachment {
-  id: string;
-}
-
 /** Stream event data - typed as Record for API compatibility with narrowing helpers */
 type StreamEventData = Record<string, unknown>;
 
@@ -284,14 +274,17 @@ interface UseMessageStreamingOptions {
   context: StreamingContext;
   conversationState: ConversationState;
   setIsLoading: (loading: boolean) => void;
-  setIsUploading: (uploading: boolean) => void;
+  /** @deprecated Images are now pre-uploaded via useImagePreUpload hook */
+  setIsUploading?: (uploading: boolean) => void;
 }
 
 export function useMessageStreaming({
   context,
   conversationState,
   setIsLoading,
-  setIsUploading,
+  // Images are now pre-uploaded, so we don't need this anymore
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setIsUploading: _setIsUploading,
 }: UseMessageStreamingOptions) {
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -764,28 +757,16 @@ export function useMessageStreaming({
   );
 
   // Send message to council (full deliberation)
+  // Images are pre-uploaded - we receive attachment IDs directly
   const sendToCouncil = useCallback(
-    async (content: string, images: ImageAttachment[] | null = null) => {
+    async (content: string, attachmentIds: string[] | null = null) => {
       if (!currentConversationId) return;
 
       abortControllerRef.current = new AbortController();
       setIsLoading(true);
 
-      // Upload images if provided
-      let attachmentIds: string[] | null = null;
-      if (images && images.length > 0) {
-        try {
-          setIsUploading(true);
-          log.debug(`Uploading ${images.length} images...`);
-          const uploadPromises = images.map((img) => api.uploadAttachment(img.file));
-          const uploadedAttachments = (await Promise.all(uploadPromises)) as UploadedAttachment[];
-          attachmentIds = uploadedAttachments.map((a) => a.id);
-          log.debug(`Uploaded attachments:`, attachmentIds);
-        } catch (error) {
-          log.error('Failed to upload images:', error);
-        } finally {
-          setIsUploading(false);
-        }
+      if (attachmentIds && attachmentIds.length > 0) {
+        log.debug(`Sending with ${attachmentIds.length} pre-uploaded attachments:`, attachmentIds);
       }
 
       // Handle temp conversation creation
@@ -914,17 +895,24 @@ export function useMessageStreaming({
       skipNextLoadRef,
       createStreamEventHandler,
       setIsLoading,
-      setIsUploading,
     ]
   );
 
   // Send chat message (chairman only, no full council)
+  // Images are pre-uploaded - we receive attachment IDs directly
   const sendChatMessage = useCallback(
-    async (content: string) => {
+    async (content: string, attachmentIds?: string[] | null) => {
       if (!currentConversationId || currentConversation?.isTemp) return;
 
       abortControllerRef.current = new AbortController();
       setIsLoading(true);
+
+      if (attachmentIds && attachmentIds.length > 0) {
+        log.debug(
+          `Sending chat with ${attachmentIds.length} pre-uploaded attachments:`,
+          attachmentIds
+        );
+      }
 
       try {
         // Add user message and assistant placeholder in a SINGLE state update
@@ -1022,6 +1010,19 @@ export function useMessageStreaming({
               case 'cancelled':
                 log.debug('Chat request cancelled');
                 flushNow();
+                setCurrentConversation((prev) => {
+                  if (!prev?.messages) return prev;
+                  const messages = prev.messages.map((msg, idx) =>
+                    idx === prev.messages.length - 1
+                      ? {
+                          ...msg,
+                          loading: { stage1: false, stage2: false, stage3: false },
+                          stopped: true,
+                        }
+                      : msg
+                  ) as StreamableMessage[];
+                  return { ...prev, messages };
+                });
                 setIsLoading(false);
                 break;
 
@@ -1036,12 +1037,26 @@ export function useMessageStreaming({
             roleIds: effectiveRoleIds,
             playbookIds: effectivePlaybookIds,
             projectId: selectedProject,
+            attachmentIds: attachmentIds ?? null,
             signal: abortControllerRef.current?.signal,
           }
         );
       } catch (error: unknown) {
         if (error instanceof Error && error.name === 'AbortError') {
           log.debug('Chat request was cancelled');
+          setCurrentConversation((prev) => {
+            if (!prev?.messages) return prev;
+            const messages = prev.messages.map((msg, idx) =>
+              idx === prev.messages.length - 1
+                ? {
+                    ...msg,
+                    loading: { stage1: false, stage2: false, stage3: false },
+                    stopped: true,
+                  }
+                : msg
+            ) as StreamableMessage[];
+            return { ...prev, messages };
+          });
           setIsLoading(false);
           return;
         }
@@ -1081,4 +1096,4 @@ export function useMessageStreaming({
   };
 }
 
-export type { StreamingContext, ConversationState, UseMessageStreamingOptions, ImageAttachment };
+export type { StreamingContext, ConversationState, UseMessageStreamingOptions };

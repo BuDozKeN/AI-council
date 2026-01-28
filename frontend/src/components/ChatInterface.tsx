@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUp } from 'lucide-react';
 import ImageUpload from './ImageUpload';
@@ -7,6 +7,7 @@ import { Spinner } from './ui/Spinner';
 import { CouncilLoader } from './ui/CouncilLoader';
 import { WelcomeState, ContextIndicator, MessageList, ChatInput } from './chat';
 import { hapticLight } from '../lib/haptics';
+import { useImagePreUpload } from '../hooks/useImagePreUpload';
 import type { Conversation } from '../types/conversation';
 import type {
   Business,
@@ -45,8 +46,8 @@ interface UploadedImage {
 
 interface ChatInterfaceProps {
   conversation: Conversation | null;
-  onSendMessage: (content: string, images: UploadedImage[] | null) => void;
-  onSendChatMessage: (content: string) => void;
+  onSendMessage: (content: string, attachmentIds: string[] | null) => void;
+  onSendChatMessage: (content: string, attachmentIds?: string[] | null) => void;
   onStopGeneration: () => void;
   isLoading: boolean;
   businesses?: Business[];
@@ -190,11 +191,29 @@ export default function ChatInterface({
   const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState<'chat' | 'council'>('chat');
-  const [attachedImages, setAttachedImages] = useState<UploadedImage[]>([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const userHasScrolledUp = useRef(false);
+
+  // Pre-upload images on selection (not on send)
+  const {
+    images: preUploadedImages,
+    addImages,
+    removeImage: removePreUploadedImage,
+    clearImages,
+    getAttachmentIds,
+    hasUploadsInProgress,
+  } = useImagePreUpload();
+
+  // Convert PreUploadedImage[] to UploadedImage[] for ImageUpload component
+  const attachedImages: UploadedImage[] = preUploadedImages.map((img) => ({
+    file: img.file,
+    preview: img.preview,
+    name: img.name,
+    size: img.size,
+    type: img.type,
+  }));
 
   // Get first user question for context indicator
   const firstUserQuestion = useMemo(() => {
@@ -221,13 +240,30 @@ export default function ChatInterface({
     };
   }, [selectedDepartments, departments]);
 
-  // Image upload hook
+  // Handle images change from ImageUpload - detect new images and trigger pre-upload
+  const handleImagesChange = useCallback(
+    (newImages: UploadedImage[]) => {
+      // Find images that were added (not in current preUploadedImages)
+      const currentPreviews = new Set(preUploadedImages.map((img) => img.preview));
+      const addedImages = newImages.filter((img) => !currentPreviews.has(img.preview));
+
+      if (addedImages.length > 0) {
+        // New images added - trigger pre-upload
+        addImages(addedImages);
+      }
+      // Note: Removals are handled by ImageUpload's removeImage which calls our removePreUploadedImage
+    },
+    [preUploadedImages, addImages]
+  );
+
+  // Image upload hook - pass onRemove to use our pre-upload hook's version
   const imageUpload = ImageUpload({
     images: attachedImages,
-    onImagesChange: setAttachedImages,
-    disabled: isLoading,
+    onImagesChange: handleImagesChange,
+    disabled: isLoading || hasUploadsInProgress,
     maxImages: 5,
     maxSizeMB: 10,
+    onRemove: removePreUploadedImage,
   });
 
   // Check if user is near the bottom of the scroll area
@@ -373,30 +409,33 @@ export default function ChatInterface({
     }
   }, [streamingTextLength, lastMsg]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((input.trim() || attachedImages.length > 0) && !isLoading) {
       hapticLight(); // Haptic feedback on send
       userHasScrolledUp.current = false;
-      const imagesToSend = attachedImages.length > 0 ? attachedImages : null;
+
+      // Get pre-uploaded attachment IDs (waits for any pending uploads)
+      const attachmentIds = attachedImages.length > 0 ? await getAttachmentIds() : null;
+      const idsToSend = attachmentIds && attachmentIds.length > 0 ? attachmentIds : null;
 
       if (!conversation || conversation.messages.length === 0) {
-        onSendMessage(input, imagesToSend);
+        onSendMessage(input, idsToSend);
       } else if (chatMode === 'council') {
-        onSendMessage(input, imagesToSend);
+        onSendMessage(input, idsToSend);
       } else {
-        onSendChatMessage(input);
+        onSendChatMessage(input, idsToSend);
       }
 
       setInput('');
-      setAttachedImages([]);
+      clearImages();
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e);
+      void handleSubmit(e);
     }
   };
 

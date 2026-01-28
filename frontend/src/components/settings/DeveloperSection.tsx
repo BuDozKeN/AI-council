@@ -12,7 +12,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlaskConical, Zap, AlertTriangle, CheckCircle, Activity, Ruler } from 'lucide-react';
+import { FlaskConical, Zap, AlertTriangle, CheckCircle, Activity, Ruler, Lock } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../ui/card';
 import { Switch } from '../ui/switch';
 import { Skeleton } from '../ui/Skeleton';
@@ -20,7 +20,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { api } from '../../api';
 import { useAuth } from '../../AuthContext';
 import { logger } from '../../utils/logger';
-import { getShowTokenUsage, setShowTokenUsage } from './tokenUsageSettings';
+import { useShowTokenUsage } from '../../hooks/useShowTokenUsage';
 import './DeveloperSection.css';
 
 // Mock length options with human-readable labels
@@ -45,7 +45,12 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
   const [mockMode, setMockMode] = useState<boolean | null>(null);
   const [mockLengthOverride, setMockLengthOverride] = useState<number | null>(null);
   const [cachingMode, setCachingMode] = useState<boolean | null>(null);
-  const [showTokenUsage, setShowTokenUsageState] = useState<boolean>(getShowTokenUsage());
+  // Use the hook that handles super admin auto-enable
+  const {
+    showTokenUsage,
+    isLocked: isTokenUsageLocked,
+    toggleShowTokenUsage: handleToggleTokenUsage,
+  } = useShowTokenUsage();
   const [isTogglingMock, setIsTogglingMock] = useState(false);
   const [isTogglingCaching, setIsTogglingCaching] = useState(false);
   const [isChangingLength, setIsChangingLength] = useState(false);
@@ -107,11 +112,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
     }
   };
 
-  const handleToggleTokenUsage = () => {
-    const newValue = !showTokenUsage;
-    setShowTokenUsageState(newValue);
-    setShowTokenUsage(newValue);
-  };
+  // handleToggleTokenUsage is now provided by the useShowTokenUsage hook
 
   const handleChangeMockLength = async (value: string) => {
     if (isChangingLength) return;
@@ -294,23 +295,47 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
               <div className="dev-toggle-text">
                 <span className="dev-toggle-label">{t('settings.showTokenUsage')}</span>
                 <span className="dev-toggle-desc">
-                  {showTokenUsage ? t('settings.tokenUsageOn') : t('settings.tokenUsageOff')}
+                  {isTokenUsageLocked
+                    ? t('settings.tokenUsageLockedAdmin', 'Always enabled for super admins')
+                    : showTokenUsage
+                      ? t('settings.tokenUsageOn')
+                      : t('settings.tokenUsageOff')}
                 </span>
               </div>
             </div>
             <div className="dev-toggle-control">
-              <span className={`dev-status-badge ${showTokenUsage ? 'active' : 'inactive'}`}>
-                {showTokenUsage ? t('settings.visible') : t('settings.hidden')}
-              </span>
+              {isTokenUsageLocked ? (
+                <span className="dev-status-badge locked">
+                  <Lock size={12} />
+                  {t('settings.alwaysOn', 'Always On')}
+                </span>
+              ) : (
+                <span className={`dev-status-badge ${showTokenUsage ? 'active' : 'inactive'}`}>
+                  {showTokenUsage ? t('settings.visible') : t('settings.hidden')}
+                </span>
+              )}
               <Switch
                 checked={showTokenUsage}
                 onCheckedChange={handleToggleTokenUsage}
+                disabled={isTokenUsageLocked}
                 aria-label={t('settings.showTokenUsage')}
               />
             </div>
           </div>
 
-          {showTokenUsage && (
+          {isTokenUsageLocked && (
+            <div className="dev-info-box success">
+              <Lock size={14} />
+              <span>
+                {t(
+                  'settings.tokenUsageAdminInfo',
+                  'LLM costs are always visible for super admins to monitor spending.'
+                )}
+              </span>
+            </div>
+          )}
+
+          {showTokenUsage && !isTokenUsageLocked && (
             <div className="dev-info-box info">
               <Activity size={14} />
               <span>{t('settings.tokenUsageInfo')}</span>

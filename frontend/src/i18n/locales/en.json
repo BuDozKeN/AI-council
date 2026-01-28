@@ -540,6 +540,9 @@
     "showTokenUsage": "Show Token Usage",
     "tokenUsageOn": "Showing tokens, cost estimates, and cache hits per stage",
     "tokenUsageOff": "Token usage hidden from UI",
+    "tokenUsageLockedAdmin": "Always enabled for super admins",
+    "tokenUsageAdminInfo": "LLM costs are always visible for super admins to monitor spending.",
+    "alwaysOn": "Always On",
     "visible": "Visible",
     "hidden": "Hidden",
     "tokenUsageInfo": "Token usage will be displayed below each council stage.",
@@ -684,7 +687,7 @@
     "saveAnswerHint": "Save this answer to access it later from My Company",
     "saveToProject": "Save to {{name}}",
     "saveAnswer": "Save Answer",
-    "costTooltip": "Estimated cost for this council deliberation",
+    "costTooltip": "Total estimated cost for this query (all stages: deliberation + review + synthesis)",
     "rankTooltip": "Avg score: {{avg}} ({{votesReceived}}/{{totalVoters}} experts voted) — Lower is better",
     "rankTooltipFull": "{{fullName}} - Average rank: {{avg}} ({{votesReceived}} of {{totalVoters}} experts voted). Lower is better - #1 is the top answer.",
     "bestAnswerTooltip": "Best answer selected by the council - Avg score: {{avg}} ({{votesReceived}}/{{totalVoters}} experts voted)",
@@ -1526,7 +1529,11 @@
     "cacheRead": "Cache read",
     "cacheCreated": "Cache created",
     "perModel": "Per Model",
-    "cacheSavings": "Estimated cache savings: {{amount}}"
+    "cacheSavings": "Estimated cache savings: {{amount}}",
+    "councilQueries": "{{count}} council query",
+    "councilQueries_other": "{{count}} council queries",
+    "followUps": "{{count}} follow-up",
+    "followUps_other": "{{count}} follow-ups"
   },
   "mycompany": {
     "tabs": {
