@@ -3752,6 +3752,7 @@ function formatModelName(model: string): string {
     'x-ai/grok-4-fast': 'Grok 4 Fast',
     'deepseek/deepseek-chat-v3-0324': 'DeepSeek V3',
     'moonshotai/kimi-k2': 'Kimi K2',
+    'moonshotai/kimi-k2.5': 'Kimi K2.5',
   };
 
   // Check for exact match first

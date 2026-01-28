@@ -90,6 +90,7 @@ FALLBACK_MODELS = {
         'openai/gpt-5.1',
         'anthropic/claude-opus-4.5',
         'x-ai/grok-4',
+        'moonshotai/kimi-k2.5',            # $0.57/$2.85 - multimodal + agentic tool-calling
         'deepseek/deepseek-chat-v3-0324',
     ],
     'stage2_reviewer': [

@@ -35,8 +35,9 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'deepseek/deepseek-chat-v3-0324': { input: 0.28, output: 0.42 },
   // Meta (Llama) - Stage 2 reviewer
   'meta-llama/llama-4-maverick': { input: 0.15, output: 0.6 },
-  // Moonshot (Kimi) - Stage 2 reviewer
-  'moonshotai/kimi-k2': { input: 0.456, output: 1.84 },
+  // Moonshot (Kimi)
+  'moonshotai/kimi-k2': { input: 0.456, output: 1.84 },    // Stage 2 reviewer
+  'moonshotai/kimi-k2.5': { input: 0.57, output: 2.85 },   // Stage 1 analyst
   default: { input: 2, output: 8 },
 };
 
