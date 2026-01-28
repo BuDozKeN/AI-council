@@ -42,8 +42,6 @@
   grid-column: 1 / -1;
   border-color: var(--color-blue-500);
   box-shadow: 0 4px 12px var(--stage1-shadow-color);
-  max-height: 500px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
