@@ -240,30 +240,45 @@ export default function ChatInterface({
     };
   }, [selectedDepartments, departments]);
 
-  // Handle images change from ImageUpload - detect new images and trigger pre-upload
+  // Handle images change from ImageUpload - detect additions and removals
   const handleImagesChange = useCallback(
     (newImages: UploadedImage[]) => {
-      // Find images that were added (not in current preUploadedImages)
       const currentPreviews = new Set(preUploadedImages.map((img) => img.preview));
+      const newPreviews = new Set(newImages.map((img) => img.preview));
+
+      // Find images that were added
       const addedImages = newImages.filter((img) => !currentPreviews.has(img.preview));
+
+      // Find images that were removed (collect indices in reverse order)
+      const removedIndices: number[] = [];
+      preUploadedImages.forEach((img, index) => {
+        if (!newPreviews.has(img.preview)) {
+          removedIndices.push(index);
+        }
+      });
 
       if (addedImages.length > 0) {
         // New images added - trigger pre-upload
         addImages(addedImages);
       }
-      // Note: Removals are handled by ImageUpload's removeImage which calls our removePreUploadedImage
+
+      // Remove in reverse order to maintain correct indices
+      if (removedIndices.length > 0) {
+        removedIndices.reverse().forEach((index) => {
+          removePreUploadedImage(index);
+        });
+      }
     },
-    [preUploadedImages, addImages]
+    [preUploadedImages, addImages, removePreUploadedImage]
   );
 
-  // Image upload hook - pass onRemove to use our pre-upload hook's version
+  // Image upload hook
   const imageUpload = ImageUpload({
     images: attachedImages,
     onImagesChange: handleImagesChange,
     disabled: isLoading || hasUploadsInProgress,
     maxImages: 5,
     maxSizeMB: 10,
-    onRemove: removePreUploadedImage,
   });
 
   // Check if user is near the bottom of the scroll area
