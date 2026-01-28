@@ -280,7 +280,12 @@ export function ChatInput({
                   value={proj.id}
                   checked={isSelected}
                   onChange={() => {
-                    onSelectProject?.(isSelected ? null : proj.id);
+                    // onChange only fires for newly selected (unchecked -> checked)
+                    if (!isSelected) onSelectProject?.(proj.id);
+                  }}
+                  onClick={() => {
+                    // onClick fires even when already checked, enabling deselect
+                    if (isSelected) onSelectProject?.(null);
                   }}
                   className="context-popover-input"
                   aria-label={proj.name}
