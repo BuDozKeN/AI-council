@@ -44,6 +44,8 @@ interface ImageUploadProps {
   disabled?: boolean;
   maxImages?: number;
   maxSizeMB?: number;
+  /** Optional callback when an image is removed. If provided, this is called instead of onImagesChange for removals. */
+  onRemove?: (index: number) => void;
 }
 
 // Static constant - no need to recreate on each render
@@ -62,6 +64,7 @@ export default function ImageUpload({
   disabled = false,
   maxImages = 5,
   maxSizeMB = 10,
+  onRemove,
 }: ImageUploadProps): ImageUploadReturn {
   const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -131,6 +134,12 @@ export default function ImageUpload({
   );
 
   const removeImage = (index: number) => {
+    // If custom onRemove callback is provided, use it (for pre-upload hook integration)
+    if (onRemove) {
+      onRemove(index);
+      return;
+    }
+
     const newImages = [...images];
     // Revoke the object URL to free memory
     const imageToRemove = newImages[index];
