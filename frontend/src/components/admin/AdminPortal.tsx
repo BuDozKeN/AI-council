@@ -3703,7 +3703,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   'x-ai': '/icons/grok.svg',
   deepseek: '/icons/deepseek.svg',
   meta: '/icons/meta.svg',
-  moonshot: '/icons/moonshot.svg',
+  moonshotai: '/icons/moonshot.svg',  // Fixed: was 'moonshot', now 'moonshotai' to match model ID prefix
 };
 
 // Get provider from model ID (e.g., "anthropic/claude-opus-4.5" -> "anthropic")
