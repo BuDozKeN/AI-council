@@ -52,3 +52,6 @@ chrome-debug-profile/
 # Prevent nested repo copies (safety measure)
 AI-council/
 AxCouncil/
+
+# Test screenshots
+screenshots/
