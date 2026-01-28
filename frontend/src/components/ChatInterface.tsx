@@ -256,22 +256,15 @@ export default function ChatInterface({
     [preUploadedImages, addImages]
   );
 
-  // Image upload hook - wrap removeImage to use our pre-upload hook's version
+  // Image upload hook - pass onRemove to use our pre-upload hook's version
   const imageUpload = ImageUpload({
     images: attachedImages,
     onImagesChange: handleImagesChange,
     disabled: isLoading || hasUploadsInProgress,
     maxImages: 5,
     maxSizeMB: 10,
+    onRemove: removePreUploadedImage,
   });
-
-  // Override the removeImage from ImageUpload to use our pre-upload hook
-  imageUpload.removeImage = useCallback(
-    (index: number) => {
-      removePreUploadedImage(index);
-    },
-    [removePreUploadedImage]
-  );
 
   // Check if user is near the bottom of the scroll area
   const isNearBottom = () => {
