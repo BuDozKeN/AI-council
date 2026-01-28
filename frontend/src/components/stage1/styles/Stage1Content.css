@@ -108,6 +108,7 @@
   font-family: var(--font-mono);
   font-size: 0.9em;
   color: inherit;
+  overflow-wrap: break-word;
 }
 
 .response-text {

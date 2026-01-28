@@ -51,11 +51,11 @@
   line-height: 1.5;
 }
 
-/* Expanded card content - scrollable */
+/* Expanded card content - scrollable, full height */
 .stage1 .model-card.expanded .model-card-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  max-height: 400px;
   padding-right: var(--space-2);
 }
 
@@ -80,7 +80,7 @@
 
 .stage1 .model-card-content.truncated {
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
