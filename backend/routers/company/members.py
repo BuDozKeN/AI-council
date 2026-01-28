@@ -235,7 +235,7 @@ async def invite_company_member(
     )
 
     # SECURITY: Log invitation for audit trail
-    log_app_event("MEMBER_INVITED", "Member invitation sent",
+    log_app_event("MEMBER_INVITED",
                   user_id=current_user_id, resource_id=company_uuid,
                   invitee_email=email_lower, role=data.role, user_exists=user_exists)
 
@@ -404,7 +404,7 @@ async def remove_company_member(request: Request, company_id: ValidCompanyId,
     )
 
     # SECURITY: Log member removal for audit trail
-    log_app_event("MEMBER_REMOVED", "Member removed from company",
+    log_app_event("MEMBER_REMOVED",
                   user_id=current_user_id, resource_id=company_uuid,
                   target_role=target_role)
 
@@ -526,7 +526,7 @@ async def cancel_company_invitation(
         description=f"Cancelled invitation for {invitation['email']}"
     )
 
-    log_app_event("INVITATION_CANCELLED", "Member invitation cancelled",
+    log_app_event("INVITATION_CANCELLED",
                   user_id=current_user_id, resource_id=company_uuid,
                   invitation_id=invitation_id, invitee_email=invitation['email'])
 
@@ -632,7 +632,7 @@ async def resend_company_invitation(
         "last_resent_at": datetime.now(timezone.utc).isoformat(),
     }).eq("id", invitation_id).execute()
 
-    log_app_event("INVITATION_RESENT", "Member invitation resent",
+    log_app_event("INVITATION_RESENT",
                   user_id=current_user_id, resource_id=company_uuid,
                   invitation_id=invitation_id, invitee_email=invitation['email'],
                   resend_count=resend_count)

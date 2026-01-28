@@ -393,7 +393,7 @@ async def delete_decision(request: Request, company_id: ValidCompanyId, decision
     )
 
     current_user_id = user.get('id') if isinstance(user, dict) else user.id
-    log_app_event("DECISION_DELETED", "Decision permanently deleted",
+    log_app_event("DECISION_DELETED",
                   user_id=current_user_id, resource_id=decision_id)
 
     return {"success": True, "message": f"Decision '{decision_title}' deleted"}
