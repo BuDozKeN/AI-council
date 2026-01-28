@@ -35,9 +35,7 @@ export function MyCompanyHeader({
 }: MyCompanyHeaderProps) {
   const { t } = useTranslation();
   return (
-    <header
-      className="mc-header mc-header-dismissible"
-    >
+    <header className="mc-header mc-header-dismissible">
       <div
         className="mc-header-dismissible-target"
         onClick={onHeaderClick}

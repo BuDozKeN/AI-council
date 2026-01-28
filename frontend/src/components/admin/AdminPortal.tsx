@@ -230,17 +230,17 @@ const AuditTableSkeleton = () => (
 const formatActionName = (action: string): string => {
   // Map of technical actions to friendly names
   const actionMap: Record<string, string> = {
-    'view_audit_logs': 'Viewed audit logs',
-    'view_user_details': 'Viewed user details',
-    'view_company_details': 'Viewed company details',
-    'update_user': 'Updated user',
-    'delete_user': 'Deleted user',
-    'create_company': 'Created company',
-    'update_company': 'Updated company',
-    'delete_company': 'Deleted company',
-    'impersonate_user': 'Impersonated user',
-    'grant_admin': 'Granted admin access',
-    'revoke_admin': 'Revoked admin access',
+    view_audit_logs: 'Viewed audit logs',
+    view_user_details: 'Viewed user details',
+    view_company_details: 'Viewed company details',
+    update_user: 'Updated user',
+    delete_user: 'Deleted user',
+    create_company: 'Created company',
+    update_company: 'Updated company',
+    delete_company: 'Deleted company',
+    impersonate_user: 'Impersonated user',
+    grant_admin: 'Granted admin access',
+    revoke_admin: 'Revoked admin access',
   };
 
   if (actionMap[action]) {
@@ -248,9 +248,7 @@ const formatActionName = (action: string): string => {
   }
 
   // Fallback: Convert snake_case to readable text
-  return action
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return action.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 };
 
 export default function AdminPortal() {
@@ -1146,7 +1144,11 @@ function UsersTab() {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="admin-icon-btn admin-icon-btn--ghost" title="Actions" aria-label={t('common.actions', 'Actions')}>
+                <button
+                  className="admin-icon-btn admin-icon-btn--ghost"
+                  title="Actions"
+                  aria-label={t('common.actions', 'Actions')}
+                >
                   <MoreVertical className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
@@ -1174,7 +1176,11 @@ function UsersTab() {
       <div className="admin-actions-cell">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="admin-icon-btn admin-icon-btn--ghost" title="Actions" aria-label={t('common.actions', 'Actions')}>
+            <button
+              className="admin-icon-btn admin-icon-btn--ghost"
+              title="Actions"
+              aria-label={t('common.actions', 'Actions')}
+            >
               <MoreVertical className="h-4 w-4" />
             </button>
           </DropdownMenuTrigger>
@@ -2187,8 +2193,16 @@ function CompaniesTab() {
       ) : (
         <>
           <div className="admin-table-container">
-            <table className="admin-table" aria-label={t('admin.companies.title', 'Companies List')}>
-              <caption className="sr-only">{t('admin.companies.description', 'List of all companies with owner information and conversation count')}</caption>
+            <table
+              className="admin-table"
+              aria-label={t('admin.companies.title', 'Companies List')}
+            >
+              <caption className="sr-only">
+                {t(
+                  'admin.companies.description',
+                  'List of all companies with owner information and conversation count'
+                )}
+              </caption>
               <thead>
                 <tr>
                   <SortableTableHeader
@@ -2355,7 +2369,12 @@ function AdminsTab() {
       ) : (
         <div className="admin-table-container">
           <table className="admin-table" aria-label={t('admin.admins.title', 'Admin Users List')}>
-            <caption className="sr-only">{t('admin.admins.description', 'List of platform administrators with their roles and grant dates')}</caption>
+            <caption className="sr-only">
+              {t(
+                'admin.admins.description',
+                'List of platform administrators with their roles and grant dates'
+              )}
+            </caption>
             <thead>
               <tr>
                 <SortableTableHeader
@@ -2400,9 +2419,15 @@ function AdminsTab() {
                     <td>
                       <span
                         className={`admin-role-badge admin-role-badge--${admin.role}`}
-                        title={admin.role === 'super_admin' ? t('mycompany.superAdminPermissions') : undefined}
+                        title={
+                          admin.role === 'super_admin'
+                            ? t('mycompany.superAdminPermissions')
+                            : undefined
+                        }
                       >
-                        {t(`admin.admins.roles.${admin.role}`, { defaultValue: admin.role.replace('_', ' ') })}
+                        {t(`admin.admins.roles.${admin.role}`, {
+                          defaultValue: admin.role.replace('_', ' '),
+                        })}
                       </span>
                     </td>
                     <td className="admin-roles-date-col">
@@ -2743,8 +2768,16 @@ function AuditTab() {
       ) : (
         <>
           <div className="admin-table-container">
-            <table className="admin-table admin-table--audit" aria-label={t('admin.audit.title', 'Audit Logs')}>
-              <caption className="sr-only">{t('admin.audit.description', 'Platform audit logs showing all administrative actions, timestamps, actors, and affected resources')}</caption>
+            <table
+              className="admin-table admin-table--audit"
+              aria-label={t('admin.audit.title', 'Audit Logs')}
+            >
+              <caption className="sr-only">
+                {t(
+                  'admin.audit.description',
+                  'Platform audit logs showing all administrative actions, timestamps, actors, and affected resources'
+                )}
+              </caption>
               <thead>
                 <tr>
                   <SortableTableHeader
@@ -3274,7 +3307,9 @@ function AnalyticsTab() {
         <div className="analytics-status-card">
           <div className="analytics-status-header">
             <h3>User Status</h3>
-            <span className="analytics-status-total">{(displayStats?.total_users ?? 0).toLocaleString()} total</span>
+            <span className="analytics-status-total">
+              {(displayStats?.total_users ?? 0).toLocaleString()} total
+            </span>
           </div>
           <div className="analytics-status-chart">
             {usersLoading ? (

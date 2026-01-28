@@ -126,7 +126,9 @@ export function ResponseStyleSelector({
   const dropdownContent = (
     <div className="response-style-list">
       {/* Department Default Option */}
-      <label className={cn('response-style-item', 'department-default', !isUsingOverride && 'selected')}>
+      <label
+        className={cn('response-style-item', 'department-default', !isUsingOverride && 'selected')}
+      >
         <input
           type="radio"
           name="response-style"
@@ -136,7 +138,10 @@ export function ResponseStyleSelector({
           className="response-style-radio"
           aria-label={t('chat.responseStyle.departmentDefault', 'Department Default')}
         />
-        <div className="response-style-item-icon" title={t('chat.responseStyle.usesDefault', 'Uses department defaults')}>
+        <div
+          className="response-style-item-icon"
+          title={t('chat.responseStyle.usesDefault', 'Uses department defaults')}
+        >
           <Building2 size={14} aria-hidden="true" />
         </div>
         <div className="response-style-item-content">

@@ -325,12 +325,16 @@ export function ProjectsTab({
         className={`mc-project-row-compact ${isFading ? 'fading' : ''}`}
         onClick={!isFading && onProjectClick ? () => onProjectClick(project) : undefined}
         tabIndex={!isFading && onProjectClick ? 0 : undefined}
-        onKeyDown={!isFading && onProjectClick ? (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onProjectClick(project);
-          }
-        } : undefined}
+        onKeyDown={
+          !isFading && onProjectClick
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onProjectClick(project);
+                }
+              }
+            : undefined
+        }
         aria-label={`Project: ${project.name}, Status: ${project.status}, ${project.decision_count || 0} decisions`}
       >
         {/* Status indicator dot */}
@@ -457,7 +461,11 @@ export function ProjectsTab({
         <button
           type="button"
           className={`mc-stat-card clickable ${projectStatusFilter === 'active' ? 'selected' : ''}`}
-          onClick={onStatusFilterChange ? () => onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active') : undefined}
+          onClick={
+            onStatusFilterChange
+              ? () => onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')
+              : undefined
+          }
           aria-pressed={projectStatusFilter === 'active'}
           aria-label={`Filter by active projects: ${stats.active} active`}
         >
@@ -467,7 +475,12 @@ export function ProjectsTab({
         <button
           type="button"
           className={`mc-stat-card clickable ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
-          onClick={onStatusFilterChange ? () => onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed') : undefined}
+          onClick={
+            onStatusFilterChange
+              ? () =>
+                  onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')
+              : undefined
+          }
           aria-pressed={projectStatusFilter === 'completed'}
           aria-label={`Filter by completed projects: ${stats.completed} completed`}
         >
@@ -477,7 +490,11 @@ export function ProjectsTab({
         <button
           type="button"
           className={`mc-stat-card clickable ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
-          onClick={onStatusFilterChange ? () => onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived') : undefined}
+          onClick={
+            onStatusFilterChange
+              ? () => onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')
+              : undefined
+          }
           aria-pressed={projectStatusFilter === 'archived'}
           aria-label={`Filter by archived projects: ${stats.archived} archived`}
         >

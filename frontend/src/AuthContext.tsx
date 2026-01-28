@@ -121,7 +121,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Log the real error for debugging
         logger.error('Signup blocked:', error.message);
         // Throw a sanitized user-friendly message
-        throw new Error('Sign up is currently unavailable. Please try again later or contact support.');
+        throw new Error(
+          'Sign up is currently unavailable. Please try again later or contact support.'
+        );
       }
       throw error;
     }

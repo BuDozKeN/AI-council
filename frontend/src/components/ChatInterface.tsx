@@ -546,7 +546,9 @@ export default function ChatInterface({
             return (
               <div className="loading-indicator">
                 <Spinner size="md" />
-                <span>{t('stages.aiCouncilThinking', { defaultValue: 'AI Council is thinking...' })}</span>
+                <span>
+                  {t('stages.aiCouncilThinking', { defaultValue: 'AI Council is thinking...' })}
+                </span>
               </div>
             );
           })()}

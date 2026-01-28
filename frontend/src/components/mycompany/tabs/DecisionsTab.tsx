@@ -320,18 +320,28 @@ export function DecisionsTab({
                 <li
                   key={decision.id}
                   className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                  onClick={!isDeleting && onPromoteDecision ? () => onPromoteDecision(decision) : undefined}
-                  onKeyDown={!isDeleting && onPromoteDecision ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onPromoteDecision(decision);
-                    }
-                  } : undefined}
+                  onClick={
+                    !isDeleting && onPromoteDecision ? () => onPromoteDecision(decision) : undefined
+                  }
+                  onKeyDown={
+                    !isDeleting && onPromoteDecision
+                      ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onPromoteDecision(decision);
+                          }
+                        }
+                      : undefined
+                  }
                   tabIndex={isDeleting ? -1 : 0}
                   aria-label={`${displayTitle}, ${formatDateCompact(decision.created_at)}`}
                 >
                   {/* Status indicator - amber for pending */}
-                  <div className="mc-status-dot draft" aria-label={t('mycompany.pendingDecisionAriaLabel')} title={t('mycompany.pendingDecisionAriaLabel')} />
+                  <div
+                    className="mc-status-dot draft"
+                    aria-label={t('mycompany.pendingDecisionAriaLabel')}
+                    title={t('mycompany.pendingDecisionAriaLabel')}
+                  />
 
                   {/* Main content - title + badges */}
                   <div className="mc-elegant-content">

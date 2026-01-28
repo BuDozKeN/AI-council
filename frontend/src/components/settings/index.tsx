@@ -191,19 +191,34 @@ export default function Settings({
           {/* Tab content */}
           <div className="settings-panel">
             {activeTab === 'profile' && (
-              <div id="profile-panel" className="profile-content" role="tabpanel" aria-labelledby="profile-tab">
+              <div
+                id="profile-panel"
+                className="profile-content"
+                role="tabpanel"
+                aria-labelledby="profile-tab"
+              >
                 <ProfileSection user={user} isOpen={isOpen} />
               </div>
             )}
 
             {activeTab === 'billing' && (
-              <div id="billing-panel" className="billing-content" role="tabpanel" aria-labelledby="billing-tab">
+              <div
+                id="billing-panel"
+                className="billing-content"
+                role="tabpanel"
+                aria-labelledby="billing-tab"
+              >
                 <BillingSection isOpen={isOpen} />
               </div>
             )}
 
             {activeTab === 'team' && companyId && (
-              <div id="team-panel" className="team-content" role="tabpanel" aria-labelledby="team-tab">
+              <div
+                id="team-panel"
+                className="team-content"
+                role="tabpanel"
+                aria-labelledby="team-tab"
+              >
                 <TeamSection
                   user={user}
                   isOpen={isOpen}
@@ -220,7 +235,12 @@ export default function Settings({
             )}
 
             {activeTab === 'developer' && (
-              <div id="developer-panel" className="developer-content" role="tabpanel" aria-labelledby="developer-tab">
+              <div
+                id="developer-panel"
+                className="developer-content"
+                role="tabpanel"
+                aria-labelledby="developer-tab"
+              >
                 <DeveloperSection
                   isOpen={isOpen}
                   {...(onMockModeChange ? { onMockModeChange } : {})}
@@ -229,7 +249,12 @@ export default function Settings({
             )}
 
             {activeTab === 'ai-config' && (
-              <div id="ai-config-panel" className="ai-config-content" role="tabpanel" aria-labelledby="ai-config-tab">
+              <div
+                id="ai-config-panel"
+                className="ai-config-content"
+                role="tabpanel"
+                aria-labelledby="ai-config-tab"
+              >
                 <Suspense
                   fallback={
                     <div className="settings-skeleton">

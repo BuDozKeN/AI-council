@@ -37,12 +37,24 @@ const GoogleIcon = () => (
 const getUserFriendlyError = (error: string, t: any): string => {
   // Map technical error codes/messages to user-friendly translations
   const errorMap: Record<string, string> = {
-    'block_new_signups': t('errors.signupDisabled', 'Sign up is currently unavailable. Please try again later.'),
-    'signups_not_allowed': t('errors.signupDisabled', 'Sign up is currently unavailable. Please try again later.'),
-    'invalid_credentials': t('errors.invalidCredentials', 'Invalid email or password'),
-    'email_not_confirmed': t('errors.emailNotConfirmed', 'Please check your email to confirm your account'),
-    'user_already_registered': t('errors.userExists', 'An account with this email already exists'),
-    'weak_password': t('errors.weakPassword', 'Password must be at least 8 characters with a mix of letters, numbers, and symbols'),
+    block_new_signups: t(
+      'errors.signupDisabled',
+      'Sign up is currently unavailable. Please try again later.'
+    ),
+    signups_not_allowed: t(
+      'errors.signupDisabled',
+      'Sign up is currently unavailable. Please try again later.'
+    ),
+    invalid_credentials: t('errors.invalidCredentials', 'Invalid email or password'),
+    email_not_confirmed: t(
+      'errors.emailNotConfirmed',
+      'Please check your email to confirm your account'
+    ),
+    user_already_registered: t('errors.userExists', 'An account with this email already exists'),
+    weak_password: t(
+      'errors.weakPassword',
+      'Password must be at least 8 characters with a mix of letters, numbers, and symbols'
+    ),
   };
 
   // Check if the error contains any known error codes
