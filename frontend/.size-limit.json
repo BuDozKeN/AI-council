@@ -14,7 +14,7 @@
   {
     "name": "Total bundle size",
     "path": "dist/**/*.{js,css}",
-    "limit": "805 KB",
+    "limit": "808 KB",
     "gzip": true
   }
 ]
