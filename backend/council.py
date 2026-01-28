@@ -492,6 +492,12 @@ Provide a clear, well-reasoned final answer that represents the council's collec
 
     # Get LLM config for Stage 3 (Chairman synthesis)
     effective_dept_id = department_uuid or (department_ids[0] if department_ids else None)
+    log_app_event(
+        "STAGE3_CONFIG_REQUEST",
+        level="INFO",
+        department_id=effective_dept_id,
+        preset_override=preset_override
+    )
     stage3_config = await get_llm_config(
         department_id=effective_dept_id,
         stage="stage3",

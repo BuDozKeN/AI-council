@@ -82,6 +82,9 @@ h3 {
   border: 1px solid var(--color-success-border);
   box-shadow: var(--shadow-md);
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
 }
 
 /* Premium paper effect for chairman synthesis - uses ::after to avoid conflict with noise-overlay::before */

@@ -265,6 +265,7 @@ interface StreamingContext {
   selectedPlaybooks: string[];
   selectedProject: string | null;
   selectedPreset: 'conservative' | 'balanced' | 'creative' | null;
+  departmentPreset: 'conservative' | 'balanced' | 'creative'; // Default from department
   useCompanyContext: boolean;
   useDepartmentContext: boolean;
 }
@@ -303,6 +304,7 @@ export function useMessageStreaming({
     selectedPlaybooks,
     selectedProject,
     selectedPreset,
+    departmentPreset,
     useCompanyContext,
     useDepartmentContext,
   } = context;
@@ -850,6 +852,18 @@ export function useMessageStreaming({
         const effectiveRoles = selectedRoles.length > 0 ? selectedRoles : null;
         const effectivePlaybooks = selectedPlaybooks.length > 0 ? selectedPlaybooks : null;
 
+        // Use selectedPreset if explicitly set, otherwise use departmentPreset
+        const effectivePreset = selectedPreset || departmentPreset;
+
+        // DEBUG: Log what we're sending to the API
+        log.info('[DEBUG_PRESET] Sending message with preset:', {
+          selectedPreset,
+          departmentPreset,
+          effectivePreset,
+          selectedBusiness: effectiveBusinessId,
+          selectedDepartment: effectiveDepartment,
+        });
+
         await api.sendMessageStream(
           conversationId,
           content,
@@ -863,7 +877,7 @@ export function useMessageStreaming({
             playbooks: effectivePlaybooks,
             projectId: selectedProject,
             attachmentIds: attachmentIds,
-            preset: selectedPreset,
+            preset: effectivePreset,
             signal: abortControllerRef.current?.signal,
           }
         );

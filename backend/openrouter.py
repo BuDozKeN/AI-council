@@ -594,10 +594,13 @@ async def query_model(
     # Apply prompt caching if enabled (KILL SWITCH: set ENABLE_PROMPT_CACHING=false to disable)
     cached_messages = convert_to_cached_messages(messages, model)
 
+    # Use configured max_tokens or default to 8192
+    effective_max_tokens = max_tokens if max_tokens is not None else 8192
+
     payload = {
         "model": model,
         "messages": cached_messages,
-        "max_tokens": max_tokens if max_tokens is not None else 4096,
+        "max_tokens": effective_max_tokens,
         "usage": {"include": True},  # Explicitly request token usage data
     }
 
