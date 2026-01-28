@@ -99,12 +99,14 @@ FALLBACK_MODELS = {
         'x-ai/grok-4-fast',                # $0.20/$0.50 - fast variant
         'google/gemini-2.5-flash',         # $0.15/$0.60 - fast & economical Google
         'moonshotai/kimi-k2',              # $0.46/$1.84 - Chinese AI (Moonshot)
+        'moonshotai/kimi-k2.5',            # $0.57/$2.85 - multimodal + agentic
         'deepseek/deepseek-chat-v3-0324',  # $0.28/$0.42 - Chinese AI (DeepSeek) + top reasoning
     ],
     'chairman': [
         'openai/gpt-5.1',
         'google/gemini-3-pro-preview',
         'anthropic/claude-opus-4.5',
+        'moonshotai/kimi-k2.5',            # $0.57/$2.85 - multimodal synthesis
     ],
 
     # CONSOLIDATED: Document Writing - ONE config for all document types
