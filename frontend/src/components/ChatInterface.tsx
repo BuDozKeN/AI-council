@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUp } from 'lucide-react';
+import { toast } from 'sonner';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
 import { Spinner } from './ui/Spinner';
@@ -240,23 +241,39 @@ export default function ChatInterface({
     };
   }, [selectedDepartments, departments]);
 
-  // Handle images change from ImageUpload - detect new images and trigger pre-upload
+  // Handle images change from ImageUpload - detect additions and removals
   const handleImagesChange = useCallback(
     (newImages: UploadedImage[]) => {
-      // Find images that were added (not in current preUploadedImages)
       const currentPreviews = new Set(preUploadedImages.map((img) => img.preview));
+      const newPreviews = new Set(newImages.map((img) => img.preview));
+
+      // Find images that were added
       const addedImages = newImages.filter((img) => !currentPreviews.has(img.preview));
+
+      // Find images that were removed (collect indices in reverse order)
+      const removedIndices: number[] = [];
+      preUploadedImages.forEach((img, index) => {
+        if (!newPreviews.has(img.preview)) {
+          removedIndices.push(index);
+        }
+      });
 
       if (addedImages.length > 0) {
         // New images added - trigger pre-upload
         addImages(addedImages);
       }
-      // Note: Removals are handled by ImageUpload's removeImage which calls our removePreUploadedImage
+
+      // Remove in reverse order to maintain correct indices
+      if (removedIndices.length > 0) {
+        removedIndices.reverse().forEach((index) => {
+          removePreUploadedImage(index);
+        });
+      }
     },
-    [preUploadedImages, addImages]
+    [preUploadedImages, addImages, removePreUploadedImage]
   );
 
-  // Image upload hook - wrap removeImage to use our pre-upload hook's version
+  // Image upload hook
   const imageUpload = ImageUpload({
     images: attachedImages,
     onImagesChange: handleImagesChange,
@@ -425,6 +442,13 @@ export default function ChatInterface({
       // Get pre-uploaded attachment IDs (waits for any pending uploads)
       const attachmentIds = attachedImages.length > 0 ? await getAttachmentIds() : null;
       const idsToSend = attachmentIds && attachmentIds.length > 0 ? attachmentIds : null;
+
+      // Abort if no content to send (empty input AND all uploads failed)
+      if (!input.trim() && !idsToSend) {
+        toast.error('Cannot send empty message. Please add text or upload images.');
+        clearImages();
+        return;
+      }
 
       if (!conversation || conversation.messages.length === 0) {
         onSendMessage(input, idsToSend);
