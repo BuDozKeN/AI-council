@@ -721,7 +721,13 @@ export function useMessageStreaming({
           const analyzed = event.analyzed as number | undefined;
           const failed = event.failed as number | undefined;
           const analysis = event.analysis;
-          log.debug('[IMAGE] Analysis complete:', analyzed, 'images analyzed', failed || 0, 'failed');
+          log.debug(
+            '[IMAGE] Analysis complete:',
+            analyzed,
+            'images analyzed',
+            failed || 0,
+            'failed'
+          );
 
           // Show warning for partial failures
           if (failed && failed > 0) {
