@@ -196,6 +196,7 @@ export default function ChatInterface({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const userHasScrolledUp = useRef(false);
+  const isSubmitting = useRef(false);
 
   // Pre-upload images on selection (not on send)
   const {
@@ -435,31 +436,45 @@ export default function ChatInterface({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevent race condition: block duplicate submissions during async work
+    if (isSubmitting.current) return;
+
     if ((input.trim() || attachedImages.length > 0) && !isLoading) {
-      hapticLight(); // Haptic feedback on send
-      userHasScrolledUp.current = false;
+      // Set guard immediately before any async operations
+      isSubmitting.current = true;
 
-      // Get pre-uploaded attachment IDs (waits for any pending uploads)
-      const attachmentIds = attachedImages.length > 0 ? await getAttachmentIds() : null;
-      const idsToSend = attachmentIds && attachmentIds.length > 0 ? attachmentIds : null;
+      try {
+        hapticLight(); // Haptic feedback on send
+        userHasScrolledUp.current = false;
 
-      // Abort if no content to send (empty input AND all uploads failed)
-      if (!input.trim() && !idsToSend) {
-        toast.error('Cannot send empty message. Please add text or upload images.');
+        // Get pre-uploaded attachment IDs (waits for any pending uploads)
+        const attachmentIds = attachedImages.length > 0 ? await getAttachmentIds() : null;
+        const idsToSend = attachmentIds && attachmentIds.length > 0 ? attachmentIds : null;
+
+        // Abort if no content to send (empty input AND all uploads failed)
+        if (!input.trim() && !idsToSend) {
+          toast.error('Cannot send empty message. Please add text or upload images.');
+          clearImages();
+          return;
+        }
+
+        if (!conversation || conversation.messages.length === 0) {
+          onSendMessage(input, idsToSend);
+        } else if (chatMode === 'council') {
+          onSendMessage(input, idsToSend);
+        } else {
+          onSendChatMessage(input, idsToSend);
+        }
+
+        setInput('');
         clearImages();
-        return;
+      } finally {
+        // Reset guard with small timeout to prevent rapid double-clicks
+        setTimeout(() => {
+          isSubmitting.current = false;
+        }, 100);
       }
-
-      if (!conversation || conversation.messages.length === 0) {
-        onSendMessage(input, idsToSend);
-      } else if (chatMode === 'council') {
-        onSendMessage(input, idsToSend);
-      } else {
-        onSendChatMessage(input, idsToSend);
-      }
-
-      setInput('');
-      clearImages();
     }
   };
 

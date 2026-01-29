@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Literal
 import asyncio
 import json
+import logging
 import uuid
 
 from ..auth import get_current_user, get_effective_user
@@ -49,6 +50,7 @@ from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -90,6 +92,8 @@ class ChatRequest(BaseModel):
     department_ids: Optional[List[str]] = None
     role_ids: Optional[List[str]] = None
     playbook_ids: Optional[List[str]] = None
+    # Image attachments
+    attachment_ids: Optional[List[str]] = None
 
 
 class RenameRequest(BaseModel):
@@ -156,9 +160,18 @@ def _build_council_conversation_history(conversation: dict) -> List[Dict[str, st
 
     for msg in conversation.get("messages", []):
         if msg.get("role") == "user":
+            content = msg.get("content", "")
+
+            # Reconstruct enhanced content from cached image analysis
+            if msg.get("image_analysis"):
+                content = image_analyzer.format_query_with_images(
+                    content,
+                    msg["image_analysis"]
+                )
+
             history.append({
                 "role": "user",
-                "content": msg.get("content", "")
+                "content": content
             })
         elif msg.get("role") == "assistant":
             # Build comprehensive council response summary
@@ -318,11 +331,9 @@ async def send_message(
             if user_api_key:
                 api_key_token = set_request_api_key(user_api_key)
 
-            # Add user message with user_id
-            storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
-
-            # Process image attachments if provided
+            # Process image attachments if provided (before saving to get analysis)
             enhanced_query = body.content
+            image_analysis_result = None
             if body.attachment_ids:
                 yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(body.attachment_ids)})}\n\n"
 
@@ -340,13 +351,45 @@ async def send_message(
                 )
                 images = [img for img in download_results if img and not isinstance(img, Exception)]
 
+                # Check for total failure (user sent attachments but none could be downloaded)
+                if body.attachment_ids and not images:
+                    failed_count = len([r for r in download_results if isinstance(r, Exception)])
+                    error_details = [str(r) for r in download_results if isinstance(r, Exception)]
+
+                    logger.warning(
+                        f"All {failed_count} image downloads failed for user {user_id}",
+                        extra={"attachment_ids": body.attachment_ids, "errors": error_details}
+                    )
+
+                    # Notify frontend of complete failure
+                    yield f"data: {json.dumps({'type': 'image_analysis_error', 'message': 'Unable to process images. Continuing without image context.', 'failed_count': len(body.attachment_ids)})}\n\n"
+
                 # Analyze images with vision model
-                if images:
+                elif images:
                     image_analysis = await image_analyzer.analyze_images(images, body.content)
+                    image_analysis_result = image_analysis  # Cache for database storage
                     enhanced_query = image_analyzer.format_query_with_images(body.content, image_analysis)
-                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'analysis': image_analysis})}\n\n"
+
+                    # Check for partial failure
+                    partial_failures = len(body.attachment_ids) - len(images)
+                    if partial_failures > 0:
+                        logger.warning(f"{partial_failures} of {len(body.attachment_ids)} images failed to download for user {user_id}")
+
+                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'failed': partial_failures, 'analysis': image_analysis})}\n\n"
+
                 else:
+                    # No attachments provided (shouldn't reach here, but defensive)
                     yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': 0})}\n\n"
+
+            # Add user message with attachments and analysis (after processing)
+            storage.add_user_message(
+                conversation_id,
+                body.content,
+                user_id,
+                access_token=access_token,
+                attachment_ids=body.attachment_ids,
+                image_analysis=image_analysis_result
+            )
 
             # Resolve company UUID for knowledge base lookup (needed for title tracking and rate limits)
             company_uuid = None
@@ -816,9 +859,18 @@ async def chat_with_chairman(
             history = []
             for msg in conversation.get("messages", []):
                 if msg.get("role") == "user":
+                    content = msg.get("content", "")
+
+                    # Reconstruct enhanced content from cached image analysis
+                    if msg.get("image_analysis"):
+                        content = image_analyzer.format_query_with_images(
+                            content,
+                            msg["image_analysis"]
+                        )
+
                     history.append({
                         "role": "user",
-                        "content": msg.get("content", "")
+                        "content": content
                     })
                 elif msg.get("role") == "assistant":
                     stage3 = msg.get("stage3", {})
@@ -829,12 +881,70 @@ async def chat_with_chairman(
                             "content": content
                         })
 
+            # Process image attachments if provided (before saving to get analysis)
+            enhanced_content = body.content
+            image_analysis_result = None
+            if body.attachment_ids:
+                yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(body.attachment_ids)})}\n\n"
+
+                # Download all images in parallel for better performance
+                async def download_single(attachment_id):
+                    return await attachments.download_attachment(
+                        user_id=user_id,
+                        access_token=access_token,
+                        attachment_id=attachment_id,
+                    )
+
+                download_results = await asyncio.gather(
+                    *[download_single(aid) for aid in body.attachment_ids],
+                    return_exceptions=True
+                )
+                images = [img for img in download_results if img and not isinstance(img, Exception)]
+
+                # Check for total failure (user sent attachments but none could be downloaded)
+                if body.attachment_ids and not images:
+                    failed_count = len([r for r in download_results if isinstance(r, Exception)])
+                    error_details = [str(r) for r in download_results if isinstance(r, Exception)]
+
+                    logger.warning(
+                        f"All {failed_count} image downloads failed for user {user_id}",
+                        extra={"attachment_ids": body.attachment_ids, "errors": error_details}
+                    )
+
+                    # Notify frontend of complete failure
+                    yield f"data: {json.dumps({'type': 'image_analysis_error', 'message': 'Unable to process images. Continuing without image context.', 'failed_count': len(body.attachment_ids)})}\n\n"
+
+                # Analyze images with vision model
+                elif images:
+                    image_analysis = await image_analyzer.analyze_images(images, body.content)
+                    image_analysis_result = image_analysis  # Cache for database storage
+                    enhanced_content = image_analyzer.format_query_with_images(body.content, image_analysis)
+
+                    # Check for partial failure
+                    partial_failures = len(body.attachment_ids) - len(images)
+                    if partial_failures > 0:
+                        logger.warning(f"{partial_failures} of {len(body.attachment_ids)} images failed to download for user {user_id}")
+
+                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'failed': partial_failures, 'analysis': image_analysis})}\n\n"
+
+                else:
+                    # No attachments provided (shouldn't reach here, but defensive)
+                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': 0})}\n\n"
+
             history.append({
                 "role": "user",
-                "content": body.content
+                "content": enhanced_content
             })
 
-            storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
+            # Add user message with attachments and analysis (after processing)
+            storage.add_user_message(
+                conversation_id,
+                body.content,
+                user_id,
+                access_token=access_token,
+                attachment_ids=body.attachment_ids,
+                image_analysis=image_analysis_result
+            )
 
             yield f"data: {json.dumps({'type': 'chat_start'})}\n\n"
 
@@ -857,7 +967,8 @@ async def chat_with_chairman(
                 company_uuid=company_uuid,
                 department_ids=body.department_ids,
                 role_ids=body.role_ids,
-                playbook_ids=body.playbook_ids
+                playbook_ids=body.playbook_ids,
+                attachment_ids=body.attachment_ids
             ):
                 if event['type'] == 'chat_token':
                     full_content += event['content']

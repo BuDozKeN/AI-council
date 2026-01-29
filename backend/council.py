@@ -1100,7 +1100,9 @@ async def chat_stream_response(
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None,
     role_ids: Optional[List[str]] = None,
-    playbook_ids: Optional[List[str]] = None
+    playbook_ids: Optional[List[str]] = None,
+    # Image attachments (for consistency - processed before calling this function)
+    attachment_ids: Optional[List[str]] = None
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stream a chat response from the Chairman model only.
