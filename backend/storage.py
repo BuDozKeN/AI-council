@@ -390,7 +390,14 @@ def star_conversation(conversation_id: str, starred: bool, access_token: Optiona
     }).eq('id', conversation_id).execute()
 
 
-def add_user_message(conversation_id: str, content: str, user_id: str, access_token: Optional[str] = None):
+def add_user_message(
+    conversation_id: str,
+    content: str,
+    user_id: str,
+    access_token: Optional[str] = None,
+    attachment_ids: Optional[List[str]] = None,
+    image_analysis: Optional[str] = None
+):
     """
     Add a user message to a conversation.
 
@@ -399,18 +406,29 @@ def add_user_message(conversation_id: str, content: str, user_id: str, access_to
         content: User message content
         user_id: ID of the user sending the message
         access_token: User's JWT access token for RLS authentication
+        attachment_ids: Optional list of attachment IDs associated with this message
+        image_analysis: Optional cached image analysis results (for context persistence)
     """
     supabase = _get_client(access_token)
     now = datetime.utcnow().isoformat() + 'Z'
 
-    # Insert message with user_id
-    supabase.table('messages').insert({
+    # Build message data
+    message_data = {
         'conversation_id': conversation_id,
         'role': 'user',
         'content': content,
         'user_id': user_id,
         'created_at': now
-    }).execute()
+    }
+
+    # Add optional fields if provided
+    if attachment_ids:
+        message_data['attachment_ids'] = attachment_ids
+    if image_analysis:
+        message_data['image_analysis'] = image_analysis
+
+    # Insert message with user_id
+    supabase.table('messages').insert(message_data).execute()
 
     # Update conversation last_updated
     supabase.table('conversations').update({

@@ -160,9 +160,18 @@ def _build_council_conversation_history(conversation: dict) -> List[Dict[str, st
 
     for msg in conversation.get("messages", []):
         if msg.get("role") == "user":
+            content = msg.get("content", "")
+
+            # Reconstruct enhanced content from cached image analysis
+            if msg.get("image_analysis"):
+                content = image_analyzer.format_query_with_images(
+                    content,
+                    msg["image_analysis"]
+                )
+
             history.append({
                 "role": "user",
-                "content": msg.get("content", "")
+                "content": content
             })
         elif msg.get("role") == "assistant":
             # Build comprehensive council response summary
@@ -322,11 +331,9 @@ async def send_message(
             if user_api_key:
                 api_key_token = set_request_api_key(user_api_key)
 
-            # Add user message with user_id
-            storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
-
-            # Process image attachments if provided
+            # Process image attachments if provided (before saving to get analysis)
             enhanced_query = body.content
+            image_analysis_result = None
             if body.attachment_ids:
                 yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(body.attachment_ids)})}\n\n"
 
@@ -360,6 +367,7 @@ async def send_message(
                 # Analyze images with vision model
                 elif images:
                     image_analysis = await image_analyzer.analyze_images(images, body.content)
+                    image_analysis_result = image_analysis  # Cache for database storage
                     enhanced_query = image_analyzer.format_query_with_images(body.content, image_analysis)
 
                     # Check for partial failure
@@ -372,6 +380,16 @@ async def send_message(
                 else:
                     # No attachments provided (shouldn't reach here, but defensive)
                     yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': 0})}\n\n"
+
+            # Add user message with attachments and analysis (after processing)
+            storage.add_user_message(
+                conversation_id,
+                body.content,
+                user_id,
+                access_token=access_token,
+                attachment_ids=body.attachment_ids,
+                image_analysis=image_analysis_result
+            )
 
             # Resolve company UUID for knowledge base lookup (needed for title tracking and rate limits)
             company_uuid = None
@@ -841,9 +859,18 @@ async def chat_with_chairman(
             history = []
             for msg in conversation.get("messages", []):
                 if msg.get("role") == "user":
+                    content = msg.get("content", "")
+
+                    # Reconstruct enhanced content from cached image analysis
+                    if msg.get("image_analysis"):
+                        content = image_analyzer.format_query_with_images(
+                            content,
+                            msg["image_analysis"]
+                        )
+
                     history.append({
                         "role": "user",
-                        "content": msg.get("content", "")
+                        "content": content
                     })
                 elif msg.get("role") == "assistant":
                     stage3 = msg.get("stage3", {})
@@ -854,8 +881,9 @@ async def chat_with_chairman(
                             "content": content
                         })
 
-            # Process image attachments if provided
+            # Process image attachments if provided (before saving to get analysis)
             enhanced_content = body.content
+            image_analysis_result = None
             if body.attachment_ids:
                 yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(body.attachment_ids)})}\n\n"
 
@@ -889,6 +917,7 @@ async def chat_with_chairman(
                 # Analyze images with vision model
                 elif images:
                     image_analysis = await image_analyzer.analyze_images(images, body.content)
+                    image_analysis_result = image_analysis  # Cache for database storage
                     enhanced_content = image_analyzer.format_query_with_images(body.content, image_analysis)
 
                     # Check for partial failure
@@ -907,7 +936,15 @@ async def chat_with_chairman(
                 "content": enhanced_content
             })
 
-            storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
+            # Add user message with attachments and analysis (after processing)
+            storage.add_user_message(
+                conversation_id,
+                body.content,
+                user_id,
+                access_token=access_token,
+                attachment_ids=body.attachment_ids,
+                image_analysis=image_analysis_result
+            )
 
             yield f"data: {json.dumps({'type': 'chat_start'})}\n\n"
 
