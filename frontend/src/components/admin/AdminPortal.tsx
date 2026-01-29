@@ -3703,7 +3703,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   'x-ai': '/icons/grok.svg',
   deepseek: '/icons/deepseek.svg',
   meta: '/icons/meta.svg',
-  moonshot: '/icons/moonshot.svg',
+  moonshotai: '/icons/moonshot.svg', // Fixed: was 'moonshot', now 'moonshotai' to match model ID prefix
 };
 
 // Get provider from model ID (e.g., "anthropic/claude-opus-4.5" -> "anthropic")
@@ -3752,6 +3752,7 @@ function formatModelName(model: string): string {
     'x-ai/grok-4-fast': 'Grok 4 Fast',
     'deepseek/deepseek-chat-v3-0324': 'DeepSeek V3',
     'moonshotai/kimi-k2': 'Kimi K2',
+    'moonshotai/kimi-k2.5': 'Kimi K2.5',
   };
 
   // Check for exact match first
