@@ -9,6 +9,7 @@
  */
 
 import { useCallback, useRef, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { toast } from 'sonner';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 import type { Conversation, Message, StreamingState } from '../types/conversation';
@@ -708,10 +709,25 @@ export function useMessageStreaming({
           break;
         }
 
+        case 'image_analysis_error': {
+          const message = event.message as string | undefined;
+          const failedCount = event.failed_count as number | undefined;
+          log.error('[IMAGE] Analysis failed:', message, 'Failed count:', failedCount);
+          toast.error(message || 'Unable to process images. Continuing without image context.');
+          break;
+        }
+
         case 'image_analysis_complete': {
           const analyzed = event.analyzed as number | undefined;
+          const failed = event.failed as number | undefined;
           const analysis = event.analysis;
-          log.debug('[IMAGE] Analysis complete:', analyzed, 'images analyzed');
+          log.debug('[IMAGE] Analysis complete:', analyzed, 'images analyzed', failed || 0, 'failed');
+
+          // Show warning for partial failures
+          if (failed && failed > 0) {
+            toast.warning(`${failed} image${failed > 1 ? 's' : ''} could not be processed`);
+          }
+
           if (analysis) {
             setCurrentConversation((prev) => {
               if (!prev?.messages) return prev;
