@@ -90,6 +90,8 @@ class ChatRequest(BaseModel):
     department_ids: Optional[List[str]] = None
     role_ids: Optional[List[str]] = None
     playbook_ids: Optional[List[str]] = None
+    # Image attachments
+    attachment_ids: Optional[List[str]] = None
 
 
 class RenameRequest(BaseModel):
@@ -829,9 +831,36 @@ async def chat_with_chairman(
                             "content": content
                         })
 
+            # Process image attachments if provided
+            enhanced_content = body.content
+            if body.attachment_ids:
+                yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(body.attachment_ids)})}\n\n"
+
+                # Download all images in parallel for better performance
+                async def download_single(attachment_id):
+                    return await attachments.download_attachment(
+                        user_id=user_id,
+                        access_token=access_token,
+                        attachment_id=attachment_id,
+                    )
+
+                download_results = await asyncio.gather(
+                    *[download_single(aid) for aid in body.attachment_ids],
+                    return_exceptions=True
+                )
+                images = [img for img in download_results if img and not isinstance(img, Exception)]
+
+                # Analyze images with vision model
+                if images:
+                    image_analysis = await image_analyzer.analyze_images(images, body.content)
+                    enhanced_content = image_analyzer.format_query_with_images(body.content, image_analysis)
+                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'analysis': image_analysis})}\n\n"
+                else:
+                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': 0})}\n\n"
+
             history.append({
                 "role": "user",
-                "content": body.content
+                "content": enhanced_content
             })
 
             storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
@@ -857,7 +886,8 @@ async def chat_with_chairman(
                 company_uuid=company_uuid,
                 department_ids=body.department_ids,
                 role_ids=body.role_ids,
-                playbook_ids=body.playbook_ids
+                playbook_ids=body.playbook_ids,
+                attachment_ids=body.attachment_ids
             ):
                 if event['type'] == 'chat_token':
                     full_content += event['content']
