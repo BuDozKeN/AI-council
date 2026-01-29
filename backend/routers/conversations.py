@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Literal
 import asyncio
 import json
+import logging
 import uuid
 
 from ..auth import get_current_user, get_effective_user
@@ -49,6 +50,7 @@ from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -342,12 +344,33 @@ async def send_message(
                 )
                 images = [img for img in download_results if img and not isinstance(img, Exception)]
 
+                # Check for total failure (user sent attachments but none could be downloaded)
+                if body.attachment_ids and not images:
+                    failed_count = len([r for r in download_results if isinstance(r, Exception)])
+                    error_details = [str(r) for r in download_results if isinstance(r, Exception)]
+
+                    logger.warning(
+                        f"All {failed_count} image downloads failed for user {user_id}",
+                        extra={"attachment_ids": body.attachment_ids, "errors": error_details}
+                    )
+
+                    # Notify frontend of complete failure
+                    yield f"data: {json.dumps({'type': 'image_analysis_error', 'message': 'Unable to process images. Continuing without image context.', 'failed_count': len(body.attachment_ids)})}\n\n"
+
                 # Analyze images with vision model
-                if images:
+                elif images:
                     image_analysis = await image_analyzer.analyze_images(images, body.content)
                     enhanced_query = image_analyzer.format_query_with_images(body.content, image_analysis)
-                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'analysis': image_analysis})}\n\n"
+
+                    # Check for partial failure
+                    partial_failures = len(body.attachment_ids) - len(images)
+                    if partial_failures > 0:
+                        logger.warning(f"{partial_failures} of {len(body.attachment_ids)} images failed to download for user {user_id}")
+
+                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'failed': partial_failures, 'analysis': image_analysis})}\n\n"
+
                 else:
+                    # No attachments provided (shouldn't reach here, but defensive)
                     yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': 0})}\n\n"
 
             # Resolve company UUID for knowledge base lookup (needed for title tracking and rate limits)
@@ -850,12 +873,33 @@ async def chat_with_chairman(
                 )
                 images = [img for img in download_results if img and not isinstance(img, Exception)]
 
+                # Check for total failure (user sent attachments but none could be downloaded)
+                if body.attachment_ids and not images:
+                    failed_count = len([r for r in download_results if isinstance(r, Exception)])
+                    error_details = [str(r) for r in download_results if isinstance(r, Exception)]
+
+                    logger.warning(
+                        f"All {failed_count} image downloads failed for user {user_id}",
+                        extra={"attachment_ids": body.attachment_ids, "errors": error_details}
+                    )
+
+                    # Notify frontend of complete failure
+                    yield f"data: {json.dumps({'type': 'image_analysis_error', 'message': 'Unable to process images. Continuing without image context.', 'failed_count': len(body.attachment_ids)})}\n\n"
+
                 # Analyze images with vision model
-                if images:
+                elif images:
                     image_analysis = await image_analyzer.analyze_images(images, body.content)
                     enhanced_content = image_analyzer.format_query_with_images(body.content, image_analysis)
-                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'analysis': image_analysis})}\n\n"
+
+                    # Check for partial failure
+                    partial_failures = len(body.attachment_ids) - len(images)
+                    if partial_failures > 0:
+                        logger.warning(f"{partial_failures} of {len(body.attachment_ids)} images failed to download for user {user_id}")
+
+                    yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'failed': partial_failures, 'analysis': image_analysis})}\n\n"
+
                 else:
+                    # No attachments provided (shouldn't reach here, but defensive)
                     yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': 0})}\n\n"
 
             history.append({
