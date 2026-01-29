@@ -262,7 +262,8 @@ MODEL_PRICING = {
     # Meta (Llama)
     'meta-llama/llama-4-maverick': {'input': 0.15, 'output': 0.60},  # New: Stage 2 reviewer
     # Moonshot (Kimi)
-    'moonshotai/kimi-k2': {'input': 0.456, 'output': 1.84},  # New: Stage 2 reviewer
+    'moonshotai/kimi-k2': {'input': 0.456, 'output': 1.84},  # Stage 2 reviewer
+    'moonshotai/kimi-k2.5': {'input': 0.57, 'output': 2.85},  # Stage 1 analyst - multimodal
 }
 
 DEFAULT_PRICING = {'input': 2.0, 'output': 8.0}

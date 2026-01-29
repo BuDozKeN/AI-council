@@ -244,6 +244,13 @@ export const MODEL_PERSONAS: Record<string, ModelPersona> = {
     tagline: 'Chinese AI Pioneer',
     provider: 'moonshot',
   },
+  'kimi-k2.5': {
+    color: PROVIDER_COLORS.moonshot,
+    shortName: 'Kimi K2.5',
+    fullName: 'Kimi K2.5',
+    tagline: 'Multimodal Agent',
+    provider: 'moonshot',
+  },
 
   // Chairman (synthesis)
   chairman: {

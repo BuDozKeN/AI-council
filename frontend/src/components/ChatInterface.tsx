@@ -282,6 +282,14 @@ export default function ChatInterface({
     maxSizeMB: 10,
   });
 
+  // Override the removeImage from ImageUpload to use our pre-upload hook
+  imageUpload.removeImage = useCallback(
+    (index: number) => {
+      removePreUploadedImage(index);
+    },
+    [removePreUploadedImage]
+  );
+
   // Check if user is near the bottom of the scroll area
   const isNearBottom = () => {
     const container = messagesContainerRef.current;

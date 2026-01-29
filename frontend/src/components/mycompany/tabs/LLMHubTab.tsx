@@ -298,7 +298,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   'x-ai': '/icons/grok.svg',
   deepseek: '/icons/deepseek.svg',
   meta: '/icons/meta.svg',
-  moonshot: '/icons/moonshot.svg',
+  moonshotai: '/icons/moonshot.svg', // Fixed: was 'moonshot', now 'moonshotai' to match model ID prefix
 };
 
 function getProviderIcon(modelId: string): string {
@@ -322,6 +322,7 @@ const MODELS = [
   { id: 'x-ai/grok-4-fast', name: 'Grok 4 Fast' },
   { id: 'deepseek/deepseek-chat-v3-0324', name: 'DeepSeek V3' },
   { id: 'moonshotai/kimi-k2', name: 'Kimi K2' },
+  { id: 'moonshotai/kimi-k2.5', name: 'Kimi K2.5' },
 ];
 
 // Default models for each role when database has no entries

@@ -63,7 +63,11 @@ async def upload_attachment(
         # Read file in chunks to validate size before loading fully into memory
         chunks = []
         total_size = 0
-        async for chunk in file:
+        CHUNK_SIZE = 8192  # Read in 8KB chunks
+        while True:
+            chunk = await file.read(CHUNK_SIZE)
+            if not chunk:
+                break
             total_size += len(chunk)
             if total_size > MAX_FILE_SIZE:
                 raise HTTPException(
