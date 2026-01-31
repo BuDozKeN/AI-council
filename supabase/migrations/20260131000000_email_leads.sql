@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS email_leads (
 
     -- Processing status
     status TEXT NOT NULL DEFAULT 'received' CHECK (
-        status IN ('received', 'processing', 'completed', 'failed', 'non_corporate')
+        status IN ('received', 'processing', 'completed', 'failed', 'non_corporate', 'waiting_list', 'paused_for_maintenance')
     ),
 
     -- Lead enrichment (from Apollo/FreshLink)

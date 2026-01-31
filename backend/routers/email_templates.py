@@ -358,19 +358,21 @@ Have a follow-up question? Simply reply to this email and the council will conti
 
 
 # =============================================================================
-# NON-CORPORATE EMAIL RESPONSE
+# WAITING LIST EMAIL (Non-Corporate Users)
 # =============================================================================
 
-def generate_non_corporate_response_email(
+def generate_waiting_list_email(
     recipient_email: str,
     original_subject: str,
+    waiting_list_position: int,
 ) -> Tuple[str, str, str]:
     """
-    Generate response for non-corporate email addresses.
+    Generate waiting list email for non-corporate email addresses.
 
-    Politely explains the corporate email requirement and offers alternatives.
+    Instead of rejecting, we add them to a waiting list for future public launch.
+    This captures leads for marketing and creates urgency to use work email.
     """
-    subject = f"Re: {original_subject}" if original_subject else f"{APP_NAME} - Corporate Email Required"
+    subject = f"You're on the {APP_NAME} Waiting List (#{waiting_list_position})"
 
     html_body = f"""
 <!DOCTYPE html>
@@ -386,32 +388,141 @@ def generate_non_corporate_response_email(
     </div>
 
     <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
-        <h2 style="color: #111827; margin-top: 0;">Thanks for reaching out!</h2>
+        <h2 style="color: #111827; margin-top: 0;">Thanks for your interest!</h2>
 
-        <p>We received your email, but our email-based council service is currently available for <strong>corporate email addresses only</strong>.</p>
+        <p>We're currently in <strong>exclusive corporate launch</strong>—our AI council is available to verified business email addresses only.</p>
 
-        <p>This helps us provide personalized, context-aware responses by understanding your company and role.</p>
-
-        <div style="background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 20px 0;">
-            <h3 style="color: #166534; margin: 0 0 10px 0;">Here's how to get started:</h3>
-            <ol style="color: #15803d; margin: 0; padding-left: 20px;">
-                <li>Send your question from your <strong>work email address</strong></li>
-                <li>Our AI council will analyze your question</li>
-                <li>You'll receive a personalized response within minutes</li>
-            </ol>
+        <!-- Waiting List Position Badge -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; margin: 25px 0; text-align: center;">
+            <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">You're on the waiting list</p>
+            <p style="margin: 8px 0 0 0; color: white; font-size: 48px; font-weight: bold;">#{waiting_list_position}</p>
         </div>
 
-        <p>Alternatively, you can sign up directly on our website with any email address:</p>
+        <p>When we open to everyone, you'll be <strong>first in line</strong>. Plus, you'll get:</p>
+
+        <div style="background: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <ul style="color: #15803d; margin: 0; padding-left: 20px;">
+                <li><strong>3 free council sessions</strong> (instead of 1)</li>
+                <li><strong>Priority support</strong> when you need help</li>
+                <li><strong>Early access</strong> to new features</li>
+            </ul>
+        </div>
+
+        <!-- Want Immediate Access -->
+        <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 8px; padding: 20px; margin: 25px 0;">
+            <h3 style="color: #92400e; margin: 0 0 10px 0;">Want immediate access?</h3>
+            <p style="color: #78350f; margin: 0;">
+                Send your question from your <strong>work email address</strong> and get your personalized AI council response today.
+            </p>
+        </div>
+
+        <div style="text-align: center; margin: 25px 0;">
+            <a href="mailto:council@axcouncil.com?subject=My%20Business%20Question" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                Use Work Email Instead
+            </a>
+        </div>
+
+        <p style="color: #6b7280; font-size: 14px; text-align: center;">
+            We'll notify you at <strong>{recipient_email}</strong> when public access opens.
+        </p>
+    </div>
+
+    <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
+        <p style="margin: 0;">© {datetime.now().year} {APP_NAME}</p>
+        <p style="margin: 5px 0 0 0;">
+            <a href="{APP_URL}" style="color: #9ca3af;">Website</a> •
+            <a href="mailto:{SUPPORT_EMAIL}" style="color: #9ca3af;">Contact</a>
+        </p>
+    </div>
+</body>
+</html>
+"""
+
+    text_body = f"""
+{APP_NAME} - AI-Powered Decision Council
+======================================
+
+Thanks for your interest!
+
+We're currently in exclusive corporate launch—our AI council is
+available to verified business email addresses only.
+
+GOOD NEWS: You're on our waiting list!
+Position: #{waiting_list_position}
+
+When we open to everyone, you'll be first in line. Plus, you'll get:
+• 3 free council sessions (instead of 1)
+• Priority support
+• Early access to new features
+
+--------------------------------------
+WANT IMMEDIATE ACCESS?
+--------------------------------------
+
+Send your question from your work email address and get your
+personalized AI council response today.
+
+Just reply to: council@axcouncil.com
+
+--------------------------------------
+
+We'll notify you at {recipient_email} when public access opens.
+
+© {datetime.now().year} {APP_NAME}
+{APP_URL}
+"""
+
+    return subject, html_body, text_body
+
+
+# =============================================================================
+# LEGACY: Non-Corporate Response (keeping for backwards compatibility)
+# =============================================================================
+
+def generate_non_corporate_response_email(
+    recipient_email: str,
+    original_subject: str,
+    waiting_list_position: Optional[int] = None,
+) -> Tuple[str, str, str]:
+    """
+    Generate response for non-corporate email addresses.
+
+    Now redirects to waiting list email for better lead capture.
+    """
+    if waiting_list_position:
+        return generate_waiting_list_email(
+            recipient_email=recipient_email,
+            original_subject=original_subject,
+            waiting_list_position=waiting_list_position,
+        )
+
+    # Fallback to simple response if position not provided
+    subject = f"Re: {original_subject}" if original_subject else f"{APP_NAME} - Corporate Email Required"
+
+    html_body = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 28px;">{APP_NAME}</h1>
+    </div>
+
+    <div style="background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+        <h2 style="color: #111827; margin-top: 0;">Thanks for reaching out!</h2>
+
+        <p>Our email-based council service is currently available for <strong>corporate email addresses only</strong>.</p>
+
+        <p>Send your question from your work email address to get started, or sign up on our website:</p>
 
         <div style="text-align: center; margin: 25px 0;">
             <a href="{APP_URL}/signup" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                 Sign Up for Free
             </a>
         </div>
-
-        <p style="color: #6b7280; font-size: 14px;">
-            Questions? Contact us at <a href="mailto:{SUPPORT_EMAIL}" style="color: #667eea;">{SUPPORT_EMAIL}</a>
-        </p>
     </div>
 
     <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
@@ -422,24 +533,15 @@ def generate_non_corporate_response_email(
 """
 
     text_body = f"""
-{APP_NAME} - AI-Powered Decision Council
+{APP_NAME}
 ======================================
 
 Thanks for reaching out!
 
-We received your email, but our email-based council service is currently available for corporate email addresses only.
+Our email-based council service is currently available for corporate email addresses only.
 
-This helps us provide personalized, context-aware responses by understanding your company and role.
-
-HERE'S HOW TO GET STARTED:
-1. Send your question from your work email address
-2. Our AI council will analyze your question
-3. You'll receive a personalized response within minutes
-
-Alternatively, you can sign up directly on our website:
+Send your question from your work email address to get started, or sign up:
 {APP_URL}/signup
-
-Questions? Contact us at {SUPPORT_EMAIL}
 
 © {datetime.now().year} {APP_NAME}
 """

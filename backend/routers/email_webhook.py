@@ -13,7 +13,7 @@ This powers the email-to-council onboarding flow.
 
 import asyncio
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, Any
 
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks, Header
@@ -35,9 +35,117 @@ from ..services.lead_enrichment import (
     EnrichedLead,
     get_mock_lead,
 )
+import re
 
 
 router = APIRouter(prefix="/email-webhook", tags=["email-webhook"])
+
+
+# =============================================================================
+# AUTO-REPLY AND DUPLICATE DETECTION
+# =============================================================================
+
+# Patterns that indicate an auto-reply or out-of-office message
+AUTO_REPLY_PATTERNS = [
+    r"out of (the )?office",
+    r"automatic reply",
+    r"auto-reply",
+    r"autoreply",
+    r"autoresponse",
+    r"auto response",
+    r"i am currently away",
+    r"away from (my )?email",
+    r"on (annual |medical |parental )?leave",
+    r"will respond when i return",
+    r"i('m| am) (on |currently )?vacation",
+    r"limited access to email",
+    r"automated response",
+    r"this is an automated",
+    r"do not reply",
+    r"noreply",
+    r"no-reply",
+    r"mailer-daemon",
+    r"postmaster",
+    r"undeliverable",
+    r"delivery (status )?notification",
+    r"message not delivered",
+]
+
+
+def is_auto_reply(subject: str, body: str, from_email: str) -> bool:
+    """
+    Detect if an email is an auto-reply or out-of-office message.
+
+    Returns True if the email should be skipped (not processed).
+    """
+    # Check from address for common auto-reply patterns
+    from_lower = from_email.lower()
+    if any(pattern in from_lower for pattern in ["noreply", "no-reply", "mailer-daemon", "postmaster"]):
+        return True
+
+    # Check subject and body against patterns
+    combined = f"{subject} {body}".lower()
+    for pattern in AUTO_REPLY_PATTERNS:
+        if re.search(pattern, combined):
+            return True
+
+    return False
+
+
+async def check_duplicate_email(
+    email: str,
+    question: str,
+    window_minutes: int = 5,
+) -> Optional[str]:
+    """
+    Check if this is a duplicate email (same sender + question within time window).
+
+    Returns the existing lead_id if duplicate, None otherwise.
+    """
+    try:
+        supabase = get_supabase_service()
+
+        # Query for recent emails with same sender and question
+        cutoff = datetime.now(timezone.utc) - timedelta(minutes=window_minutes)
+
+        result = supabase.table("email_leads").select(
+            "id"
+        ).eq("email", email.lower()).eq("question", question).gte(
+            "created_at", cutoff.isoformat()
+        ).order("created_at", desc=True).limit(1).execute()
+
+        if result.data and len(result.data) > 0:
+            return result.data[0]["id"]
+
+        return None
+
+    except Exception as e:
+        log_app_event(
+            "EMAIL_DUPLICATE_CHECK: Error",
+            level="WARNING",
+            error=str(e),
+        )
+        return None
+
+
+async def get_next_waiting_list_position() -> int:
+    """Get the next waiting list position number."""
+    try:
+        supabase = get_supabase_service()
+
+        result = supabase.table("email_leads").select(
+            "waiting_list_position"
+        ).not_.is_("waiting_list_position", "null").order(
+            "waiting_list_position", desc=True
+        ).limit(1).execute()
+
+        if result.data and len(result.data) > 0:
+            return result.data[0]["waiting_list_position"] + 1
+
+        return 1  # First person on waiting list
+
+    except Exception:
+        return 1
 
 
 # =============================================================================
@@ -129,6 +237,34 @@ async def handle_agentmail_webhook(
                 message="No sender email found",
             )
 
+        # Check for auto-reply / out-of-office
+        if is_auto_reply(email.subject, email.body_text, sender_email):
+            log_app_event(
+                "EMAIL_WEBHOOK: Auto-reply detected, skipping",
+                email_domain=sender_email.split("@")[-1] if "@" in sender_email else "unknown",
+            )
+            return WebhookResponse(
+                success=True,
+                message="Auto-reply detected - skipped",
+            )
+
+        # Check for duplicate email (same sender + question within 5 min)
+        duplicate_lead_id = await check_duplicate_email(
+            email=sender_email,
+            question=email.question,
+            window_minutes=5,
+        )
+        if duplicate_lead_id:
+            log_app_event(
+                "EMAIL_WEBHOOK: Duplicate email detected",
+                duplicate_of=duplicate_lead_id,
+            )
+            return WebhookResponse(
+                success=True,
+                message="Duplicate email - already processing",
+                lead_id=duplicate_lead_id,
+            )
+
         # Check if corporate email
         is_corporate, reason = is_corporate_email(sender_email)
 
@@ -141,21 +277,21 @@ async def handle_agentmail_webhook(
 
         if not is_corporate:
             log_app_event(
-                "EMAIL_WEBHOOK: Non-corporate email rejected",
+                "EMAIL_WEBHOOK: Non-corporate email - adding to waiting list",
                 email_domain=sender_email.split("@")[-1] if "@" in sender_email else "unknown",
                 reason=reason,
             )
 
-            # Send rejection email
+            # Add to waiting list instead of rejecting
             background_tasks.add_task(
-                _send_non_corporate_response,
+                _add_to_waiting_list,
                 email=email,
                 lead_id=lead_id,
             )
 
             return WebhookResponse(
                 success=True,
-                message="Non-corporate email - sent information response",
+                message="Added to waiting list",
                 lead_id=lead_id,
             )
 
@@ -373,34 +509,83 @@ async def _send_council_response(
     )
 
 
+async def _add_to_waiting_list(
+    email: IncomingEmail,
+    lead_id: str,
+):
+    """
+    Add a non-corporate email user to the waiting list.
+
+    This captures leads for future marketing instead of rejecting them.
+    Sends a waiting list email with their position.
+    """
+    from .email_templates import generate_waiting_list_email
+
+    try:
+        # Get waiting list position
+        position = await get_next_waiting_list_position()
+
+        # Update lead with waiting list info
+        supabase = get_supabase_service()
+        supabase.table("email_leads").update({
+            "waiting_list_status": "pending",
+            "waiting_list_position": position,
+            "waiting_list_joined_at": datetime.now(timezone.utc).isoformat(),
+            "notify_on_public_launch": True,
+        }).eq("id", lead_id).execute()
+
+        # Generate and send waiting list email
+        subject, html_body, text_body = generate_waiting_list_email(
+            recipient_email=email.from_email,
+            original_subject=email.subject,
+            waiting_list_position=position,
+        )
+
+        client = get_agentmail_client()
+        result = await client.send_email(
+            to_email=email.from_email,
+            subject=subject,
+            body_html=html_body,
+            body_text=text_body,
+            reply_to_message_id=email.id,
+        )
+
+        if result.get("success"):
+            await _update_lead_status(lead_id, "waiting_list", response_sent=True)
+
+            log_app_event(
+                "EMAIL_WAITING_LIST: Added",
+                lead_id=lead_id,
+                position=position,
+            )
+        else:
+            log_app_event(
+                "EMAIL_WAITING_LIST: Email send failed",
+                level="WARNING",
+                lead_id=lead_id,
+                error=result.get("error"),
+            )
+
+    except Exception as e:
+        log_app_event(
+            "EMAIL_WAITING_LIST: Error",
+            level="ERROR",
+            lead_id=lead_id,
+            error=str(e),
+        )
+
+
 async def _send_non_corporate_response(
     email: IncomingEmail,
     lead_id: str,
 ):
     """
-    Send response to non-corporate email addresses.
+    DEPRECATED: Use _add_to_waiting_list instead.
 
-    Politely explains that the service is for corporate users
-    and provides alternative options.
+    Kept for backwards compatibility. Now redirects to waiting list flow.
     """
-    from .email_templates import generate_non_corporate_response_email
-
-    subject, html_body, text_body = generate_non_corporate_response_email(
-        recipient_email=email.from_email,
-        original_subject=email.subject,
-    )
-
-    client = get_agentmail_client()
-    result = await client.send_email(
-        to_email=email.from_email,
-        subject=subject,
-        body_html=html_body,
-        body_text=text_body,
-        reply_to_message_id=email.id,
-    )
-
-    if result.get("success"):
-        await _update_lead_status(lead_id, "non_corporate", response_sent=True)
+    # Redirect to waiting list instead
+    await _add_to_waiting_list(email, lead_id)
 
 
 async def _send_error_response(
