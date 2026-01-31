@@ -24,6 +24,8 @@ from .ai_utils import router as ai_utils_router
 from .profile import router as profile_router
 from .admin import router as admin_router
 from .invitations import router as invitations_router
+from .email_webhook import router as email_webhook_router
+from .onboarding import router as onboarding_router
 
 
 # Create v1 router that aggregates all endpoints
@@ -45,6 +47,8 @@ v1_router.include_router(ai_utils_router)
 v1_router.include_router(profile_router)
 v1_router.include_router(admin_router)
 v1_router.include_router(invitations_router)  # Public invitation acceptance endpoints
+v1_router.include_router(email_webhook_router)  # Email-to-council webhook (AgentMail)
+v1_router.include_router(onboarding_router)  # Onboarding flow endpoints
 
 
 # =============================================================================
