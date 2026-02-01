@@ -331,6 +331,8 @@ async def _process_queue_until_complete(
             for task in tasks:
                 if not task.done():
                     task.cancel()
+            # Await cancelled tasks to prevent "Task was destroyed but pending" warnings
+            await asyncio.gather(*tasks, return_exceptions=True)
             yield {
                 "type": "stage1_timeout",
                 "elapsed": elapsed,
