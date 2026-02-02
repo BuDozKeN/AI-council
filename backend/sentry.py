@@ -124,7 +124,22 @@ def before_send_filter(event, hint):
     """
     Filter and sanitize events before sending to Sentry.
     Remove sensitive data like tokens, passwords, API keys.
+    Also filters out known non-actionable errors.
     """
+    # Filter out "aclose(): asynchronous generator is already running" errors
+    # This happens when a client disconnects during streaming - it's normal behavior
+    # and not actionable. The AsyncExitStackMiddleware tries to close generators
+    # that are still yielding, which is expected during client disconnection.
+    if 'exception' in hint:
+        exc = hint['exception']
+        if isinstance(exc, RuntimeError):
+            if "asynchronous generator is already running" in str(exc):
+                return None  # Don't send this error to Sentry
+
+    # Also check event message for this error pattern (logged errors)
+    if event.get('message') and "asynchronous generator is already running" in event.get('message', ''):
+        return None
+
     # List of sensitive keys to redact
     sensitive_keys = {
         'password', 'token', 'secret', 'key', 'api_key', 'apikey',
