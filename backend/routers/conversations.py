@@ -14,6 +14,7 @@ from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Literal
 import asyncio
+from contextlib import asynccontextmanager
 import json
 import logging
 import uuid
@@ -47,6 +48,42 @@ from .company.utils import (
 
 # Import shared rate limiter (ensures limits are tracked globally)
 from ..rate_limit import limiter
+
+
+# =============================================================================
+# ASYNC GENERATOR CLEANUP HELPER
+# =============================================================================
+
+
+@asynccontextmanager
+async def safe_async_generator(gen):
+    """
+    Context manager that ensures proper cleanup of async generators.
+
+    Prevents "aclose(): asynchronous generator is already running" errors
+    when client disconnects mid-stream. The generator is properly closed
+    even if cancellation occurs during iteration.
+
+    Usage:
+        async with safe_async_generator(some_async_gen()) as gen:
+            async for item in gen:
+                yield item
+    """
+    try:
+        yield gen
+    finally:
+        # Only close if generator hasn't been fully consumed
+        # Use asyncio.shield to ensure cleanup completes even during cancellation
+        try:
+            await asyncio.shield(gen.aclose())
+        except (GeneratorExit, asyncio.CancelledError):
+            # Generator already closed or cancellation in progress - ignore
+            pass
+        except RuntimeError as e:
+            # "aclose(): asynchronous generator is already running" - safe to ignore
+            # This happens when cleanup races with iteration
+            if "already running" not in str(e):
+                raise
 
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
@@ -781,6 +818,22 @@ async def send_message(
 
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
+        except (GeneratorExit, asyncio.CancelledError):
+            # Client disconnected mid-stream - this is normal, not an error
+            log_app_event(
+                "STREAM_CLIENT_DISCONNECT",
+                level="INFO",
+                conversation_id=conversation_id
+            )
+            # Cancel title task if still running
+            if title_task and not title_task.done():
+                title_task.cancel()
+                try:
+                    await title_task
+                except (asyncio.CancelledError, Exception):
+                    pass
+            # Don't yield anything - client is gone
+            return
         except Exception as e:
             import traceback
             # Log full error details for debugging (internal only)
@@ -1073,6 +1126,15 @@ async def chat_with_chairman(
 
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
+        except (GeneratorExit, asyncio.CancelledError):
+            # Client disconnected mid-stream - this is normal, not an error
+            log_app_event(
+                "CHAT_STREAM_CLIENT_DISCONNECT",
+                level="INFO",
+                conversation_id=conversation_id
+            )
+            # Don't yield anything - client is gone
+            return
         except Exception as e:
             import traceback
             # Log full error details for debugging (internal only)
