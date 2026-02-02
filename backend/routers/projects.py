@@ -498,6 +498,9 @@ For context_md, use these sections (skip any that don't apply):
                         # Cancel remaining tasks - we have our answer
                         for p in pending:
                             p.cancel()
+                        # Await cancelled tasks to properly close httpx connections
+                        # and prevent "Task was destroyed but pending" warnings
+                        await asyncio.gather(*pending, return_exceptions=True)
 
                         # Track internal LLM usage
                         if structure_request.company_id and result.get('usage'):
