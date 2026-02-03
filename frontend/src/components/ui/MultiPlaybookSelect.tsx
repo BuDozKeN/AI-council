@@ -21,6 +21,7 @@ import * as Popover from '@radix-ui/react-popover';
 import { BookOpen, Check, ChevronDown, FileText, Scale, Cog, type LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
+import './select.css'; // Base select styles - single source of truth
 import './MultiPlaybookSelect.css';
 
 type PlaybookType = 'sop' | 'framework' | 'policy';
@@ -204,7 +205,7 @@ export function MultiPlaybookSelect({
     return (
       <>
         <button
-          className={cn('multi-playbook-trigger', className)}
+          className={cn('select-trigger select-trigger--compact multi-playbook-trigger', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -226,7 +227,7 @@ export function MultiPlaybookSelect({
   // Desktop: use Popover
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger className={cn('multi-playbook-trigger', className)} disabled={disabled}>
+      <Popover.Trigger className={cn('select-trigger select-trigger--compact multi-playbook-trigger', className)} disabled={disabled}>
         {triggerContent}
       </Popover.Trigger>
 
