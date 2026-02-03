@@ -258,10 +258,15 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     setCurrentConversation(null);
     setCurrentConversationId(null);
     setHasMoreConversations(true);
-    // Reset pagination refs to prevent stale offset being used for the new company
+  }
+
+  // Reset pagination refs when company changes to prevent stale offset
+  // being used for the new company's query. Placed in useEffect because
+  // refs cannot be written during render (react-hooks/refs).
+  useEffect(() => {
     isLoadingMoreRef.current = false;
     pendingOffsetRef.current = 0;
-  }
+  }, [selectedBusiness]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Query: Single Conversation
