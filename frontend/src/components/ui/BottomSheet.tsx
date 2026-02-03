@@ -125,13 +125,20 @@ function SheetContent({
     };
 
     // Touch handlers for mobile - manually implement scroll
-    let touchStartY = 0;
+    // Track both axes to distinguish vertical scroll from horizontal swipe-back
+    let lastTouchY = 0;
+    let initialTouchX = 0;
+    let initialTouchY = 0;
+    let gestureDirection: 'horizontal' | 'vertical' | null = null;
     let scrollableElement: HTMLElement | null = null;
 
     const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (touch) {
-        touchStartY = touch.clientY;
+        lastTouchY = touch.clientY;
+        initialTouchX = touch.clientX;
+        initialTouchY = touch.clientY;
+        gestureDirection = null; // Reset for new gesture
       }
       scrollableElement = getScrollable();
     };
@@ -139,15 +146,28 @@ function SheetContent({
     const handleTouchMove = (e: TouchEvent) => {
       if (!scrollableElement) return;
 
-      const canScroll = scrollableElement.scrollHeight > scrollableElement.clientHeight;
-      if (!canScroll) return;
-
       const touch = e.touches[0];
       if (!touch) return;
 
+      // Determine gesture direction on first significant movement
+      if (gestureDirection === null) {
+        const totalDeltaX = Math.abs(touch.clientX - initialTouchX);
+        const totalDeltaY = Math.abs(touch.clientY - initialTouchY);
+        const threshold = 10;
+        if (totalDeltaX > threshold || totalDeltaY > threshold) {
+          gestureDirection = totalDeltaX > totalDeltaY ? 'horizontal' : 'vertical';
+        }
+      }
+
+      // Let horizontal gestures pass through for browser back navigation
+      if (gestureDirection === 'horizontal') return;
+
+      const canScroll = scrollableElement.scrollHeight > scrollableElement.clientHeight;
+      if (!canScroll) return;
+
       const touchY = touch.clientY;
-      const deltaY = touchStartY - touchY; // Positive = scrolling down, negative = scrolling up
-      touchStartY = touchY;
+      const deltaY = lastTouchY - touchY; // Positive = scrolling down, negative = scrolling up
+      lastTouchY = touchY;
 
       const atTop = scrollableElement.scrollTop <= 0;
       const atBottom =

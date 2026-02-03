@@ -100,7 +100,7 @@
     overflow-y: auto;
     padding: var(--space-4) var(--space-5) 24px 16px; /* Top, Right, Bottom, Left - better breathing room */
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-y; /* Ensure touch scrolling works with Framer Motion drag */
+    touch-action: pan-y pan-x; /* Allow vertical scroll + horizontal browser gestures (swipe-back) */
   }
 
   /* Card titles are the HERO - larger than modal title */
@@ -206,8 +206,8 @@
     flex: 1;
     min-height: 0; /* Critical: allow shrinking */
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-y; /* Override Framer Motion's pan-x to allow vertical touch scroll */
-    overscroll-behavior: contain; /* Prevent scroll chaining to parent */
+    touch-action: pan-y pan-x; /* Allow vertical scroll + horizontal browser gestures (swipe-back) */
+    overscroll-behavior-y: contain; /* Prevent vertical scroll chaining; allow horizontal for browser back */
   }
 }
 

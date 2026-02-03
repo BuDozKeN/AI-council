@@ -27,7 +27,7 @@
   box-shadow: var(--shadow-xl);
   overflow: hidden;
   /* stylelint-disable-next-line declaration-no-important */
-  touch-action: pan-y !important; /* Override Framer Motion's pan-x to allow vertical scroll */
+  touch-action: pan-y pan-x !important; /* Override Framer Motion's pan-x; allow vertical scroll + horizontal browser gestures (swipe-back) */
   user-select: none; /* Prevent text selection during drag */
 }
 
