@@ -35,7 +35,7 @@ import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
 import type { Department, Role, Playbook, Project, LLMPresetId } from '../../types/business';
 import { ResponseStyleSelector } from './ResponseStyleSelector';
 import '../ui/Tooltip.css';
-import '../shared/omnibar/popover.css';
+import s from './input/ChatInput.module.css';
 
 // Tooltips are now fetched via i18n - see getTooltips() function below
 
@@ -267,14 +267,14 @@ export function ChatInput({
 
   const projectList = (
     <>
-      <div className="context-popover-list">
+      <div className={s.popoverList}>
         {projects.length === 0 ? (
-          <div className="context-popover-empty">{t('context.noProjects')}</div>
+          <div className={s.popoverEmpty}>{t('context.noProjects')}</div>
         ) : (
           sortedProjects.map((proj) => {
             const isSelected = selectedProject === proj.id;
             return (
-              <label key={proj.id} className={cn('context-popover-item', isSelected && 'selected')}>
+              <label key={proj.id} className={cn(s.popoverItem, isSelected && s.selected)}>
                 <input
                   type="radio"
                   name="project"
@@ -288,13 +288,10 @@ export function ChatInput({
                     // onClick fires even when already checked, enabling deselect
                     if (isSelected) onSelectProject?.(null);
                   }}
-                  className="context-popover-input"
+                  className={s.popoverInput}
                   aria-label={proj.name}
                 />
-                <div
-                  className={cn('context-popover-radio', isSelected && 'checked')}
-                  aria-hidden="true"
-                >
+                <div className={cn(s.popoverRadio, isSelected && s.checked)} aria-hidden="true">
                   {isSelected && <Check />}
                 </div>
                 <span>{proj.name}</span>
@@ -303,7 +300,7 @@ export function ChatInput({
           })
         )}
       </div>
-      <div className="context-help-text">
+      <div className={s.contextHelpText}>
         {t('context.projectHelp', 'Selected project will affect response generation')}
       </div>
     </>
@@ -321,9 +318,9 @@ export function ChatInput({
 
   const departmentList = (
     <>
-      <div className="context-popover-list">
+      <div className={s.popoverList}>
         {departments.length === 0 ? (
-          <div className="context-popover-empty">{t('context.noDepartments')}</div>
+          <div className={s.popoverEmpty}>{t('context.noDepartments')}</div>
         ) : (
           sortedDepartments.map((dept) => (
             <DepartmentCheckboxItem
@@ -336,7 +333,7 @@ export function ChatInput({
           ))
         )}
       </div>
-      <div className="context-help-text">
+      <div className={s.contextHelpText}>
         {t('context.departmentHelp', 'Selected departments will be used to generate responses')}
       </div>
     </>
@@ -354,27 +351,24 @@ export function ChatInput({
 
   const roleList = (
     <>
-      <div className="context-popover-list">
+      <div className={s.popoverList}>
         {roles.length === 0 ? (
-          <div className="context-popover-empty">{t('context.noRoles')}</div>
+          <div className={s.popoverEmpty}>{t('context.noRoles')}</div>
         ) : (
           sortedRoles.map((role) => {
             const isSelected = selectedRoles.includes(role.id);
             return (
-              <label key={role.id} className={cn('context-popover-item', isSelected && 'selected')}>
+              <label key={role.id} className={cn(s.popoverItem, isSelected && s.selected)}>
                 <input
                   type="checkbox"
                   name="role"
                   value={role.id}
                   checked={isSelected}
                   onChange={() => toggleRole(role.id)}
-                  className="context-popover-input"
+                  className={s.popoverInput}
                   aria-label={role.name}
                 />
-                <div
-                  className={cn('context-popover-checkbox', isSelected && 'checked')}
-                  aria-hidden="true"
-                >
+                <div className={cn(s.popoverCheckbox, isSelected && s.checked)} aria-hidden="true">
                   {isSelected && <Check />}
                 </div>
                 <span>{role.name}</span>
@@ -383,7 +377,7 @@ export function ChatInput({
           })
         )}
       </div>
-      <div className="context-help-text">
+      <div className={s.contextHelpText}>
         {t('context.roleHelp', 'Selected roles will be used to generate responses')}
       </div>
     </>
@@ -425,9 +419,9 @@ export function ChatInput({
   // Playbook list content - grouped by type with collapsible sections
   // Sort selected items to top within each group for better UX
   const playbookList = (
-    <div className="context-popover-list">
+    <div className={s.popoverList}>
       {playbooks.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noPlaybooks')}</div>
+        <div className={s.popoverEmpty}>{t('context.noPlaybooks')}</div>
       ) : (
         playbookTypeOrder
           .filter((type) => (groupedPlaybooks[type]?.length ?? 0) > 0)
@@ -445,43 +439,40 @@ export function ChatInput({
             const isExpanded = expandedSections[type] ?? false;
             const selectedCount = getSelectedCount(type);
             return (
-              <div key={type} className="context-popover-group">
+              <div key={type} className={s.popoverGroup}>
                 <button
                   type="button"
-                  className={cn('context-popover-group-header clickable', type)}
+                  className={cn(s.popoverGroupHeader, s.clickable, s[type as keyof typeof s])}
                   onClick={() => toggleSection(type)}
                 >
                   <ChevronRight
                     size={12}
-                    className={cn('section-chevron', isExpanded && 'expanded')}
+                    className={cn(s.sectionChevron, isExpanded && s.expanded)}
                   />
                   {config.icon}
-                  <span className="section-label">{config.label}</span>
-                  <span className="section-count">
-                    {selectedCount > 0 && <span className="selected-count">{selectedCount}/</span>}
+                  <span className={s.sectionLabel}>{config.label}</span>
+                  <span className={s.sectionCount}>
+                    {selectedCount > 0 && <span className={s.selectedCount}>{selectedCount}/</span>}
                     {items.length}
                   </span>
                 </button>
                 {isExpanded && (
-                  <div className="context-popover-group-items">
+                  <div className={s.popoverGroupItems}>
                     {sortedItems.map((pb) => {
                       const isSelected = selectedPlaybooks.includes(pb.id);
                       return (
-                        <label
-                          key={pb.id}
-                          className={cn('context-popover-item', isSelected && 'selected')}
-                        >
+                        <label key={pb.id} className={cn(s.popoverItem, isSelected && s.selected)}>
                           <input
                             type="checkbox"
                             name="playbook"
                             value={pb.id}
                             checked={isSelected}
                             onChange={() => togglePlaybook(pb.id)}
-                            className="context-popover-input"
+                            className={s.popoverInput}
                             aria-label={pb.title || pb.name}
                           />
                           <div
-                            className={cn('context-popover-checkbox', isSelected && 'checked')}
+                            className={cn(s.popoverCheckbox, isSelected && s.checked)}
                             aria-hidden="true"
                           >
                             {isSelected && <Check />}
@@ -502,100 +493,97 @@ export function ChatInput({
   // Mobile unified context menu content (Perplexity-inspired)
   // Shows all categories in accordion style within a single bottom sheet
   const mobileContextMenuContent = (
-    <div className="mobile-context-menu">
+    <div className={s.mobileContextMenu}>
       {/* Project Section */}
       {hasProjects && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.project && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.project && s.expanded)}
             onClick={() => toggleMobileContextSection('project')}
           >
             <FolderKanban size={16} />
-            <span className="context-section-label">
+            <span className={s.contextSectionLabel}>
               {selectedProjectName || t('context.project')}
             </span>
-            {selectedProject && <span className="context-section-badge">1</span>}
+            {selectedProject && <span className={s.contextSectionBadge}>1</span>}
             <ChevronRight
               size={14}
-              className={cn('context-section-chevron', mobileContextSection.project && 'rotated')}
+              className={cn(s.contextSectionChevron, mobileContextSection.project && s.rotated)}
             />
           </button>
           {mobileContextSection.project && (
-            <div className="context-section-content">{projectList}</div>
+            <div className={s.contextSectionContent}>{projectList}</div>
           )}
         </div>
       )}
 
       {/* Departments Section */}
       {hasDepartments && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.departments && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.departments && s.expanded)}
             onClick={() => toggleMobileContextSection('departments')}
           >
             <Building2 size={16} />
-            <span className="context-section-label">{t('departments.title')}</span>
+            <span className={s.contextSectionLabel}>{t('departments.title')}</span>
             {selectedDepartments.length > 0 && (
-              <span className="context-section-badge">{selectedDepartments.length}</span>
+              <span className={s.contextSectionBadge}>{selectedDepartments.length}</span>
             )}
             <ChevronRight
               size={14}
-              className={cn(
-                'context-section-chevron',
-                mobileContextSection.departments && 'rotated'
-              )}
+              className={cn(s.contextSectionChevron, mobileContextSection.departments && s.rotated)}
             />
           </button>
           {mobileContextSection.departments && (
-            <div className="context-section-content">{departmentList}</div>
+            <div className={s.contextSectionContent}>{departmentList}</div>
           )}
         </div>
       )}
 
       {/* Roles Section */}
       {hasRoles && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.roles && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.roles && s.expanded)}
             onClick={() => toggleMobileContextSection('roles')}
           >
             <Users size={16} />
-            <span className="context-section-label">{t('roles.title')}</span>
+            <span className={s.contextSectionLabel}>{t('roles.title')}</span>
             {selectedRoles.length > 0 && (
-              <span className="context-section-badge">{selectedRoles.length}</span>
+              <span className={s.contextSectionBadge}>{selectedRoles.length}</span>
             )}
             <ChevronRight
               size={14}
-              className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')}
+              className={cn(s.contextSectionChevron, mobileContextSection.roles && s.rotated)}
             />
           </button>
-          {mobileContextSection.roles && <div className="context-section-content">{roleList}</div>}
+          {mobileContextSection.roles && <div className={s.contextSectionContent}>{roleList}</div>}
         </div>
       )}
 
       {/* Playbooks Section */}
       {hasPlaybooks && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.playbooks && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.playbooks && s.expanded)}
             onClick={() => toggleMobileContextSection('playbooks')}
           >
             <BookOpen size={16} />
-            <span className="context-section-label">{t('context.playbooks')}</span>
+            <span className={s.contextSectionLabel}>{t('context.playbooks')}</span>
             {selectedPlaybooks.length > 0 && (
-              <span className="context-section-badge">{selectedPlaybooks.length}</span>
+              <span className={s.contextSectionBadge}>{selectedPlaybooks.length}</span>
             )}
             <ChevronRight
               size={14}
-              className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')}
+              className={cn(s.contextSectionChevron, mobileContextSection.playbooks && s.rotated)}
             />
           </button>
           {mobileContextSection.playbooks && (
-            <div className="context-section-content">{playbookList}</div>
+            <div className={s.contextSectionContent}>{playbookList}</div>
           )}
         </div>
       )}
@@ -625,14 +613,14 @@ export function ChatInput({
       {/* Image previews */}
       {imageUpload.previews}
 
-      <div className={cn('omnibar', isCouncilMode && showContextIcons && 'council-mode')}>
+      <div className={cn(s.omnibar, isCouncilMode && showContextIcons && s.councilMode)}>
         {/* Top row: Just the textarea */}
-        <div className="omni-top">
+        <div className={s.omniTop}>
           <textarea
             ref={textareaRef}
             id="chat-message-input"
             name="message"
-            className="omni-input"
+            className={s.omniInput}
             placeholder={placeholder}
             aria-label={placeholder}
             value={input}
@@ -646,9 +634,9 @@ export function ChatInput({
         </div>
 
         {/* Bottom row: Context icons (left) + Attach/Send (right) - Perplexity style */}
-        <div className="omni-bottom">
+        <div className={s.omniBottom}>
           {/* Left side: Context icons */}
-          <div className="omni-left">
+          <div className={s.omniLeft}>
             {showContextIcons && (
               <>
                 {/* MOBILE: Single Context button (Perplexity style) */}
@@ -658,8 +646,8 @@ export function ChatInput({
                       <button
                         type="button"
                         className={cn(
-                          'mobile-context-btn',
-                          totalSelectionCount > 0 && 'has-selection'
+                          s.mobileContextBtn,
+                          totalSelectionCount > 0 && s.hasSelection
                         )}
                         onClick={() => setMobileContextOpen(true)}
                         disabled={disabled}
@@ -670,9 +658,9 @@ export function ChatInput({
                         }
                       >
                         <Settings2 size={16} aria-hidden="true" />
-                        <span className="mobile-context-label">{t('context.context')}</span>
+                        <span className={s.mobileContextLabel}>{t('context.context')}</span>
                         {totalSelectionCount > 0 && (
-                          <span className="mobile-context-badge" aria-hidden="true">
+                          <span className={s.mobileContextBadge} aria-hidden="true">
                             {totalSelectionCount}
                           </span>
                         )}
@@ -687,7 +675,7 @@ export function ChatInput({
                         hasAnySelections && onResetAll ? (
                           <button
                             type="button"
-                            className="context-popover-clear"
+                            className={s.popoverClear}
                             onClick={(e) => {
                               e.stopPropagation();
                               onResetAll();
@@ -713,8 +701,8 @@ export function ChatInput({
                             <button
                               type="button"
                               className={cn(
-                                'context-trigger',
-                                totalSelectionCount > 0 && 'has-selection'
+                                s.contextTrigger,
+                                totalSelectionCount > 0 && s.hasSelection
                               )}
                               disabled={disabled}
                               aria-label={
@@ -725,11 +713,11 @@ export function ChatInput({
                             >
                               <span>{t('context.context')}</span>
                               {totalSelectionCount > 0 && (
-                                <span className="context-trigger-badge">{totalSelectionCount}</span>
+                                <span className={s.contextTriggerBadge}>{totalSelectionCount}</span>
                               )}
                               <ChevronDown
                                 size={14}
-                                className="context-trigger-chevron"
+                                className={s.contextTriggerChevron}
                                 aria-hidden="true"
                               />
                             </button>
@@ -744,23 +732,23 @@ export function ChatInput({
                       </Tooltip.Root>
                       <Popover.Portal>
                         <Popover.Content
-                          className="context-dropdown"
+                          className={s.contextDropdown}
                           side="bottom"
                           align="start"
                           sideOffset={8}
                           collisionPadding={16}
                         >
                           {/* Two-column layout: categories left, options right */}
-                          <div className="context-dropdown-layout">
+                          <div className={s.contextDropdownLayout}>
                             {/* Left: Category menu */}
-                            <div className="context-dropdown-menu">
+                            <div className={s.contextDropdownMenu}>
                               {hasProjects && (
                                 <div
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'project' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'project' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('project')}
                                   onFocus={() => setActiveContextTab('project')}
@@ -768,13 +756,13 @@ export function ChatInput({
                                   <FolderKanban size={16} aria-hidden="true" />
                                   <span>{t('context.project')}</span>
                                   {selectedProject && (
-                                    <span className="context-menu-badge" aria-hidden="true">
+                                    <span className={s.contextMenuBadge} aria-hidden="true">
                                       1
                                     </span>
                                   )}
                                   <ChevronRight
                                     size={14}
-                                    className="context-menu-arrow"
+                                    className={s.contextMenuArrow}
                                     aria-hidden="true"
                                   />
                                 </div>
@@ -784,8 +772,8 @@ export function ChatInput({
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'departments' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'departments' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('departments')}
                                   onFocus={() => setActiveContextTab('departments')}
@@ -793,13 +781,13 @@ export function ChatInput({
                                   <Building2 size={16} aria-hidden="true" />
                                   <span>{t('departments.title')}</span>
                                   {selectedDepartments.length > 0 && (
-                                    <span className="context-menu-badge" aria-hidden="true">
+                                    <span className={s.contextMenuBadge} aria-hidden="true">
                                       {selectedDepartments.length}
                                     </span>
                                   )}
                                   <ChevronRight
                                     size={14}
-                                    className="context-menu-arrow"
+                                    className={s.contextMenuArrow}
                                     aria-hidden="true"
                                   />
                                 </div>
@@ -809,8 +797,8 @@ export function ChatInput({
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'roles' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'roles' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('roles')}
                                   onFocus={() => setActiveContextTab('roles')}
@@ -818,13 +806,13 @@ export function ChatInput({
                                   <Users size={16} aria-hidden="true" />
                                   <span>{t('roles.title')}</span>
                                   {selectedRoles.length > 0 && (
-                                    <span className="context-menu-badge" aria-hidden="true">
+                                    <span className={s.contextMenuBadge} aria-hidden="true">
                                       {selectedRoles.length}
                                     </span>
                                   )}
                                   <ChevronRight
                                     size={14}
-                                    className="context-menu-arrow"
+                                    className={s.contextMenuArrow}
                                     aria-hidden="true"
                                   />
                                 </div>
@@ -834,8 +822,8 @@ export function ChatInput({
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'playbooks' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'playbooks' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('playbooks')}
                                   onFocus={() => setActiveContextTab('playbooks')}
@@ -843,25 +831,25 @@ export function ChatInput({
                                   <BookOpen size={16} aria-hidden="true" />
                                   <span>{t('context.playbooks')}</span>
                                   {selectedPlaybooks.length > 0 && (
-                                    <span className="context-menu-badge" aria-hidden="true">
+                                    <span className={s.contextMenuBadge} aria-hidden="true">
                                       {selectedPlaybooks.length}
                                     </span>
                                   )}
                                   <ChevronRight
                                     size={14}
-                                    className="context-menu-arrow"
+                                    className={s.contextMenuArrow}
                                     aria-hidden="true"
                                   />
                                 </div>
                               )}
                               {/* Clear All button at bottom of menu */}
                               {hasAnySelections && onResetAll && (
-                                <div className="context-menu-divider" />
+                                <div className={s.contextMenuDivider} />
                               )}
                               {hasAnySelections && onResetAll && (
                                 <button
                                   type="button"
-                                  className="context-menu-clear"
+                                  className={s.contextMenuClear}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     onResetAll();
@@ -874,13 +862,13 @@ export function ChatInput({
                             </div>
 
                             {/* Right: Options panel (always visible, content changes on hover) */}
-                            <div className="context-dropdown-panel">
+                            <div className={s.contextDropdownPanel}>
                               {activeContextTab === 'project' && projectList}
                               {activeContextTab === 'departments' && departmentList}
                               {activeContextTab === 'roles' && roleList}
                               {activeContextTab === 'playbooks' && playbookList}
                               {!activeContextTab && (
-                                <div className="context-panel-hint">
+                                <div className={s.contextPanelHint}>
                                   {t('context.hoverToSelect')}
                                 </div>
                               )}
@@ -894,18 +882,15 @@ export function ChatInput({
 
                 {/* Mode toggle - dynamic "1 AI / N AIs" pill based on LLM Hub config */}
                 <Tooltip.Provider delayDuration={400}>
-                  <div
-                    className="omni-inline-mode-toggle"
-                    role="radiogroup"
-                    aria-label="Response mode"
-                  >
+                  <div className={s.inlineModeToggle} role="radiogroup" aria-label="Response mode">
                     <Tooltip.Root>
                       <Tooltip.Trigger asChild>
                         <button
                           type="button"
                           className={cn(
-                            'inline-mode-btn no-touch-target',
-                            chatMode === 'chat' && 'active'
+                            s.inlineModeBtn,
+                            'no-touch-target',
+                            chatMode === 'chat' && s.active
                           )}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -931,8 +916,9 @@ export function ChatInput({
                         <button
                           type="button"
                           className={cn(
-                            'inline-mode-btn no-touch-target',
-                            chatMode === 'council' && 'active'
+                            s.inlineModeBtn,
+                            'no-touch-target',
+                            chatMode === 'council' && s.active
                           )}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -972,12 +958,12 @@ export function ChatInput({
           </div>
 
           {/* Right side: Attach + Send buttons */}
-          <div className="omni-right">
+          <div className={s.omniRight}>
             {/* Attach image button */}
             {withTooltip(
               <button
                 type="button"
-                className={cn('omni-icon-btn attach', hasImages && 'has-images')}
+                className={cn(s.iconBtn, s.attach, hasImages && s.hasImages)}
                 onClick={imageUpload.openFilePicker}
                 disabled={isLoading}
                 aria-label={t('aria.attachImage', 'Attach image')}
@@ -992,18 +978,18 @@ export function ChatInput({
               ? withTooltip(
                   <button
                     type="button"
-                    className="omni-send-btn stop"
+                    className={cn(s.sendBtn, s.stop)}
                     onClick={onStopGeneration}
                     aria-label={t('aria.stopGeneration', 'Stop generation')}
                   >
-                    <span className="stop-icon" aria-hidden="true" />
+                    <span className={s.stopIcon} aria-hidden="true" />
                   </button>,
                   TOOLTIPS.stop
                 )
               : withTooltip(
                   <button
                     type="submit"
-                    className={cn('omni-send-btn', canSend && 'active')}
+                    className={cn(s.sendBtn, canSend && s.active)}
                     disabled={!canSend}
                     onClick={onSubmit}
                     aria-label={t('aria.sendMessage', 'Send message')}

@@ -91,5 +91,17 @@ export default {
         'declaration-no-important': null,
       },
     },
+    {
+      // CSS Modules - allow :global() and :local() pseudo-classes
+      files: ['**/*.module.css'],
+      rules: {
+        'selector-pseudo-class-no-unknown': [
+          true,
+          {
+            ignorePseudoClasses: ['global', 'local'],
+          },
+        ],
+      },
+    },
   ],
 };

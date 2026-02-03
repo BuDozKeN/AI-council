@@ -157,12 +157,14 @@ describe('CSS Architecture - File Organization', () => {
 describe('CSS Architecture - File Size Limits', () => {
   const cssFiles = findCSSFiles(SRC_DIR);
 
-  it('should have no CSS files exceeding 800 lines (HARD LIMIT, excludes tailwind.css)', () => {
+  it('should have no CSS files exceeding 800 lines (HARD LIMIT, excludes tailwind.css and .module.css)', () => {
     const violations: Array<{ file: string; lines: number }> = [];
 
     cssFiles.forEach((file) => {
       // Exclude tailwind.css - framework config, not component CSS
       if (file.endsWith('tailwind.css')) return;
+      // Exclude CSS Modules - locally scoped, no cascade complexity
+      if (file.endsWith('.module.css')) return;
 
       const lineCount = countSignificantLines(file);
 

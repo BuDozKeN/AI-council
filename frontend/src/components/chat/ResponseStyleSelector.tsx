@@ -19,17 +19,18 @@ import { BottomSheet } from '../ui/BottomSheet';
 import { makeClickable } from '../../utils/a11y';
 import type { LLMPresetId } from '../../types/business';
 import '../ui/Tooltip.css';
-import './ResponseStyleSelector.css';
+import styles from './ResponseStyleSelector.module.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
 // Preset configuration with icons
-const PRESET_CONFIG: Record<LLMPresetId, { icon: typeof Target; colorClass: string }> = {
-  conservative: { icon: Target, colorClass: 'preset-conservative' },
-  balanced: { icon: Zap, colorClass: 'preset-balanced' },
-  creative: { icon: Sparkles, colorClass: 'preset-creative' },
-};
+const PRESET_CONFIG: Record<LLMPresetId, { icon: typeof Target; colorClass: string | undefined }> =
+  {
+    conservative: { icon: Target, colorClass: styles.presetConservative },
+    balanced: { icon: Zap, colorClass: styles.presetBalanced },
+    creative: { icon: Sparkles, colorClass: styles.presetCreative },
+  };
 
 // Labels are fetched from i18n
 const PRESET_LABELS: Record<LLMPresetId, string> = {
@@ -102,21 +103,21 @@ export function ResponseStyleSelector({
     <button
       type="button"
       className={cn(
-        'response-style-trigger',
+        styles.trigger,
         config.colorClass,
-        isUsingOverride && 'has-override',
-        disabled && 'disabled',
-        compact && 'compact'
+        isUsingOverride && styles.hasOverride,
+        disabled && styles.disabled,
+        compact && styles.compact
       )}
       disabled={disabled}
       aria-label={t('chat.responseStyle.label', 'Response style')}
       aria-expanded={open}
     >
-      <Icon size={compact ? 14 : 12} className="response-style-icon" />
+      <Icon size={compact ? 14 : 12} className={styles.icon} />
       {!compact && (
         <>
-          <span className="response-style-label">{getLabel(effectivePreset)}</span>
-          <ChevronDown size={10} className={cn('response-style-chevron', open && 'open')} />
+          <span className={styles.label}>{getLabel(effectivePreset)}</span>
+          <ChevronDown size={10} className={cn(styles.chevron, open && styles.open)} />
         </>
       )}
     </button>
@@ -124,10 +125,10 @@ export function ResponseStyleSelector({
 
   // Dropdown content (shared between popover and bottom sheet)
   const dropdownContent = (
-    <div className="response-style-list">
+    <div className={styles.list}>
       {/* Department Default Option */}
       <label
-        className={cn('response-style-item', 'department-default', !isUsingOverride && 'selected')}
+        className={cn(styles.item, styles.departmentDefault, !isUsingOverride && styles.selected)}
       >
         <input
           type="radio"
@@ -135,20 +136,20 @@ export function ResponseStyleSelector({
           value="department-default"
           checked={!isUsingOverride}
           onChange={() => handleSelect(null)}
-          className="response-style-radio"
+          className={styles.radio}
           aria-label={t('chat.responseStyle.departmentDefault', 'Department Default')}
         />
         <div
-          className="response-style-item-icon"
+          className={styles.itemIcon}
           title={t('chat.responseStyle.usesDefault', 'Uses department defaults')}
         >
           <Building2 size={14} aria-hidden="true" />
         </div>
-        <div className="response-style-item-content">
-          <span className="response-style-item-label">
+        <div className={styles.itemContent}>
+          <span className={styles.itemLabel}>
             {t('chat.responseStyle.departmentDefault', 'Department Default')}
           </span>
-          <span className="response-style-item-desc">
+          <span className={styles.itemDesc}>
             {departmentName
               ? t('chat.responseStyle.departmentUsing', '{{dept}}: {{preset}}', {
                   dept: departmentName,
@@ -158,14 +159,14 @@ export function ResponseStyleSelector({
           </span>
         </div>
         {!isUsingOverride && (
-          <div className="response-style-item-check" aria-hidden="true">
+          <div className={styles.itemCheck} aria-hidden="true">
             <Check size={14} />
           </div>
         )}
       </label>
 
       {/* Separator */}
-      <div className="response-style-separator" />
+      <div className={styles.separator} />
 
       {/* Preset Options */}
       {(['conservative', 'balanced', 'creative'] as LLMPresetId[]).map((presetId) => {
@@ -182,7 +183,7 @@ export function ResponseStyleSelector({
         return (
           <label
             key={presetId}
-            className={cn('response-style-item', presetConfig.colorClass, isSelected && 'selected')}
+            className={cn(styles.item, presetConfig.colorClass, isSelected && styles.selected)}
           >
             <input
               type="radio"
@@ -190,20 +191,20 @@ export function ResponseStyleSelector({
               value={presetId}
               checked={isSelected}
               onChange={() => handleSelect(presetId)}
-              className="response-style-radio"
+              className={styles.radio}
               aria-label={getLabel(presetId)}
             />
-            <div className="response-style-item-icon" title={iconTooltips[presetId]}>
+            <div className={styles.itemIcon} title={iconTooltips[presetId]}>
               <PresetIcon size={14} aria-hidden="true" />
             </div>
-            <div className="response-style-item-content">
-              <span className="response-style-item-label">{getLabel(presetId)}</span>
-              <span className="response-style-item-desc">
+            <div className={styles.itemContent}>
+              <span className={styles.itemLabel}>{getLabel(presetId)}</span>
+              <span className={styles.itemDesc}>
                 {t(`chat.responseStyle.descriptions.${presetId}`, '')}
               </span>
             </div>
             {isSelected && (
-              <div className="response-style-item-check" aria-hidden="true">
+              <div className={styles.itemCheck} aria-hidden="true">
                 <Check size={14} />
               </div>
             )}
@@ -214,18 +215,18 @@ export function ResponseStyleSelector({
       {/* LLM Hub Link */}
       {onOpenLLMHub && (
         <>
-          <div className="response-style-separator" />
+          <div className={styles.separator} />
           <button
             type="button"
-            className="response-style-item llm-hub-link"
+            className={cn(styles.item, styles.llmHubLink)}
             onClick={handleOpenLLMHub}
             title={t('chat.responseStyle.llmHubTooltip', 'Configure LLM models and presets')}
           >
-            <div className="response-style-item-icon">
+            <div className={styles.itemIcon}>
               <Settings2 size={14} aria-hidden="true" />
             </div>
-            <div className="response-style-item-content">
-              <span className="response-style-item-label">
+            <div className={styles.itemContent}>
+              <span className={styles.itemLabel}>
                 {t('chat.responseStyle.llmHubLink', 'LLM Hub Settings')}
               </span>
             </div>
@@ -295,7 +296,7 @@ export function ResponseStyleSelector({
       </Tooltip.Provider>
       <Popover.Portal>
         <Popover.Content
-          className="response-style-popover"
+          className={styles.popover}
           align="start"
           sideOffset={8}
           collisionPadding={16}

@@ -43,7 +43,7 @@ import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { ResponseStyleSelector } from '../chat/ResponseStyleSelector';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import '../ui/Tooltip.css';
-import './omnibar/index.css';
+import s from './omnibar/OmniBar.module.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -414,22 +414,22 @@ export function OmniBar({
 
   // Company list content - single select (radio-style)
   const companyList = (
-    <div className="context-popover-list">
+    <div className={s.popoverList}>
       {businesses.length === 0 ? (
-        <div className="context-popover-empty">{t('omnibar.noCompanies')}</div>
+        <div className={s.popoverEmpty}>{t('omnibar.noCompanies')}</div>
       ) : (
         businesses.map((biz) => {
           const isSelected = selectedBusiness === biz.id;
           return (
             <button
               key={biz.id}
-              className={cn('context-popover-item', isSelected && 'selected')}
+              className={cn(s.popoverItem, isSelected && s.selected)}
               onClick={() => {
                 onSelectBusiness?.(isSelected ? null : biz.id);
               }}
               type="button"
             >
-              <div className={cn('context-popover-radio', isSelected && 'checked')}>
+              <div className={cn(s.popoverRadio, isSelected && s.checked)}>
                 {isSelected && <Check />}
               </div>
               <span>{biz.name}</span>
@@ -453,22 +453,22 @@ export function OmniBar({
     });
 
   const projectList = (
-    <div className="context-popover-list">
+    <div className={s.popoverList}>
       {projects.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noProjects')}</div>
+        <div className={s.popoverEmpty}>{t('context.noProjects')}</div>
       ) : (
         sortedProjects.map((proj) => {
           const isSelected = selectedProject === proj.id;
           return (
             <button
               key={proj.id}
-              className={cn('context-popover-item', isSelected && 'selected')}
+              className={cn(s.popoverItem, isSelected && s.selected)}
               onClick={() => {
                 onSelectProject?.(isSelected ? null : proj.id);
               }}
               type="button"
             >
-              <div className={cn('context-popover-radio', isSelected && 'checked')}>
+              <div className={cn(s.popoverRadio, isSelected && s.checked)}>
                 {isSelected && <Check />}
               </div>
               <span>{proj.name}</span>
@@ -490,9 +490,9 @@ export function OmniBar({
   });
 
   const departmentList = (
-    <div className="context-popover-list">
+    <div className={s.popoverList}>
       {departments.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noDepartments')}</div>
+        <div className={s.popoverEmpty}>{t('context.noDepartments')}</div>
       ) : (
         sortedDepartments.map((dept) => (
           <DepartmentCheckboxItem
@@ -518,20 +518,20 @@ export function OmniBar({
   });
 
   const roleList = (
-    <div className="context-popover-list">
+    <div className={s.popoverList}>
       {roles.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noRoles')}</div>
+        <div className={s.popoverEmpty}>{t('context.noRoles')}</div>
       ) : (
         sortedRoles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
           return (
             <button
               key={role.id}
-              className={cn('context-popover-item', isSelected && 'selected')}
+              className={cn(s.popoverItem, isSelected && s.selected)}
               onClick={() => toggleRole(role.id)}
               type="button"
             >
-              <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
+              <div className={cn(s.popoverCheckbox, isSelected && s.checked)}>
                 {isSelected && <Check />}
               </div>
               <span>{role.name}</span>
@@ -567,9 +567,9 @@ export function OmniBar({
   // Playbook list content - grouped by type with collapsible sections
   // Sort selected items to top within each group for better UX
   const playbookList = (
-    <div className="context-popover-list">
+    <div className={s.popoverList}>
       {playbooks.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noPlaybooks')}</div>
+        <div className={s.popoverEmpty}>{t('context.noPlaybooks')}</div>
       ) : (
         playbookTypeOrder
           .filter((type) => (groupedPlaybooks[type]?.length ?? 0) > 0)
@@ -587,35 +587,35 @@ export function OmniBar({
             const isExpanded = expandedSections[type] ?? false;
             const selectedCount = getSelectedCount(type);
             return (
-              <div key={type} className="context-popover-group">
+              <div key={type} className={s.popoverGroup}>
                 <button
                   type="button"
-                  className={cn('context-popover-group-header clickable', type)}
+                  className={cn(s.popoverGroupHeader, s.clickable, s[type as keyof typeof s])}
                   onClick={() => toggleSection(type)}
                 >
                   <ChevronRight
                     size={12}
-                    className={cn('section-chevron', isExpanded && 'expanded')}
+                    className={cn(s.sectionChevron, isExpanded && s.expanded)}
                   />
                   {config.icon}
-                  <span className="section-label">{config.label}</span>
-                  <span className="section-count">
-                    {selectedCount > 0 && <span className="selected-count">{selectedCount}/</span>}
+                  <span className={s.sectionLabel}>{config.label}</span>
+                  <span className={s.sectionCount}>
+                    {selectedCount > 0 && <span>{selectedCount}/</span>}
                     {items.length}
                   </span>
                 </button>
                 {isExpanded && (
-                  <div className="context-popover-group-items">
+                  <div className={s.popoverGroupItems}>
                     {sortedItems.map((pb) => {
                       const isSelected = selectedPlaybooks.includes(pb.id);
                       return (
                         <button
                           key={pb.id}
-                          className={cn('context-popover-item', isSelected && 'selected')}
+                          className={cn(s.popoverItem, isSelected && s.selected)}
                           onClick={() => togglePlaybook(pb.id)}
                           type="button"
                         >
-                          <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
+                          <div className={cn(s.popoverCheckbox, isSelected && s.checked)}>
                             {isSelected && <Check />}
                           </div>
                           <span>{pb.title || pb.name}</span>
@@ -634,120 +634,117 @@ export function OmniBar({
   // Mobile unified context menu content (Perplexity-inspired)
   // Shows all categories in accordion style within a single bottom sheet
   const mobileContextMenuContent = (
-    <div className="mobile-context-menu">
+    <div className={s.mobileContextMenu}>
       {/* Company Section */}
       {hasBusinesses && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.company && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.company && s.expanded)}
             onClick={() => toggleMobileContextSection('company')}
           >
             <Briefcase size={16} />
-            <span className="context-section-label">{t('context.company')}</span>
-            {selectedBusiness && <span className="context-section-badge">1</span>}
+            <span className={s.contextSectionLabel}>{t('context.company')}</span>
+            {selectedBusiness && <span className={s.contextSectionBadge}>1</span>}
             <ChevronRight
               size={14}
-              className={cn('context-section-chevron', mobileContextSection.company && 'rotated')}
+              className={cn(s.contextSectionChevron, mobileContextSection.company && s.rotated)}
             />
           </button>
           {mobileContextSection.company && (
-            <div className="context-section-content">{companyList}</div>
+            <div className={s.contextSectionContent}>{companyList}</div>
           )}
         </div>
       )}
 
       {/* Project Section */}
       {hasProjects && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.project && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.project && s.expanded)}
             onClick={() => toggleMobileContextSection('project')}
           >
             <FolderKanban size={16} />
-            <span className="context-section-label">{t('context.project')}</span>
-            {selectedProject && <span className="context-section-badge">1</span>}
+            <span className={s.contextSectionLabel}>{t('context.project')}</span>
+            {selectedProject && <span className={s.contextSectionBadge}>1</span>}
             <ChevronRight
               size={14}
-              className={cn('context-section-chevron', mobileContextSection.project && 'rotated')}
+              className={cn(s.contextSectionChevron, mobileContextSection.project && s.rotated)}
             />
           </button>
           {mobileContextSection.project && (
-            <div className="context-section-content">{projectList}</div>
+            <div className={s.contextSectionContent}>{projectList}</div>
           )}
         </div>
       )}
 
       {/* Departments Section */}
       {hasDepartments && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.departments && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.departments && s.expanded)}
             onClick={() => toggleMobileContextSection('departments')}
           >
             <Building2 size={16} />
-            <span className="context-section-label">{t('departments.title')}</span>
+            <span className={s.contextSectionLabel}>{t('departments.title')}</span>
             {selectedDepartments.length > 0 && (
-              <span className="context-section-badge">{selectedDepartments.length}</span>
+              <span className={s.contextSectionBadge}>{selectedDepartments.length}</span>
             )}
             <ChevronRight
               size={14}
-              className={cn(
-                'context-section-chevron',
-                mobileContextSection.departments && 'rotated'
-              )}
+              className={cn(s.contextSectionChevron, mobileContextSection.departments && s.rotated)}
             />
           </button>
           {mobileContextSection.departments && (
-            <div className="context-section-content">{departmentList}</div>
+            <div className={s.contextSectionContent}>{departmentList}</div>
           )}
         </div>
       )}
 
       {/* Roles Section */}
       {hasRoles && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.roles && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.roles && s.expanded)}
             onClick={() => toggleMobileContextSection('roles')}
           >
             <Users size={16} />
-            <span className="context-section-label">{t('roles.title')}</span>
+            <span className={s.contextSectionLabel}>{t('roles.title')}</span>
             {selectedRoles.length > 0 && (
-              <span className="context-section-badge">{selectedRoles.length}</span>
+              <span className={s.contextSectionBadge}>{selectedRoles.length}</span>
             )}
             <ChevronRight
               size={14}
-              className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')}
+              className={cn(s.contextSectionChevron, mobileContextSection.roles && s.rotated)}
             />
           </button>
-          {mobileContextSection.roles && <div className="context-section-content">{roleList}</div>}
+          {mobileContextSection.roles && <div className={s.contextSectionContent}>{roleList}</div>}
         </div>
       )}
 
       {/* Playbooks Section */}
       {hasPlaybooks && (
-        <div className="context-section">
+        <div className={s.contextSection}>
           <button
             type="button"
-            className={cn('context-section-header', mobileContextSection.playbooks && 'expanded')}
+            className={cn(s.contextSectionHeader, mobileContextSection.playbooks && s.expanded)}
             onClick={() => toggleMobileContextSection('playbooks')}
           >
             <BookOpen size={16} />
-            <span className="context-section-label">{t('context.playbooks')}</span>
+            <span className={s.contextSectionLabel}>{t('context.playbooks')}</span>
             {selectedPlaybooks.length > 0 && (
-              <span className="context-section-badge">{selectedPlaybooks.length}</span>
+              <span className={s.contextSectionBadge}>{selectedPlaybooks.length}</span>
             )}
             <ChevronRight
               size={14}
-              className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')}
+              className={cn(s.contextSectionChevron, mobileContextSection.playbooks && s.rotated)}
             />
           </button>
           {mobileContextSection.playbooks && (
-            <div className="context-section-content">{playbookList}</div>
+            <div className={s.contextSectionContent}>{playbookList}</div>
           )}
         </div>
       )}
@@ -776,13 +773,13 @@ export function OmniBar({
   );
 
   const containerClasses = cn(
-    'omni-bar-wrapper',
-    variant === 'landing' && 'omni-bar-landing',
-    variant === 'compact' && 'omni-bar-compact',
-    hasContent && 'has-content',
-    isLoading && 'is-loading',
-    hasAnyContextIcons && 'has-context-icons',
-    isCouncilMode && hasAnyContextIcons && 'council-mode',
+    s.wrapper,
+    variant === 'landing' && s.landing,
+    variant === 'compact' && s.compact,
+    hasContent && s.hasContent,
+    isLoading && s.isLoading,
+    hasAnyContextIcons && s.hasContextIcons,
+    isCouncilMode && hasAnyContextIcons && s.councilMode,
     className
   );
 
@@ -790,12 +787,12 @@ export function OmniBar({
     <div className={containerClasses}>
       {/* Mode toggle - only for landing variant when showModeToggle is true */}
       {showModeToggle && variant === 'landing' && onChatModeChange && (
-        <div className="omni-mode-toggle" role="radiogroup" aria-label="Response mode">
+        <div className={s.modeToggle} role="radiogroup" aria-label="Response mode">
           {withTooltip(
             <button
               type="button"
               name="response-mode"
-              className={`omni-mode-btn ${chatMode === 'chat' ? 'active' : ''}`}
+              className={cn(s.modeBtn, chatMode === 'chat' && s.active)}
               onClick={() => onChatModeChange('chat')}
               role="radio"
               aria-checked={chatMode === 'chat'}
@@ -808,7 +805,7 @@ export function OmniBar({
             <button
               type="button"
               name="response-mode"
-              className={`omni-mode-btn ${chatMode === 'council' ? 'active' : ''}`}
+              className={cn(s.modeBtn, chatMode === 'council' && s.active)}
               onClick={() => onChatModeChange('council')}
               role="radio"
               aria-checked={chatMode === 'council'}
@@ -820,9 +817,9 @@ export function OmniBar({
         </div>
       )}
 
-      <div className="omni-bar noise-overlay">
+      <div className={cn(s.bar, 'noise-overlay')}>
         {/* Top row: Textarea */}
-        <div className="omni-bar-top">
+        <div className={s.barTop}>
           <TextareaAutosize
             ref={textareaRef}
             id="omni-bar-input"
@@ -832,7 +829,7 @@ export function OmniBar({
             onKeyDown={handleKeyDown}
             onFocus={handleFocus}
             placeholder={currentPlaceholder}
-            className="omni-bar-input"
+            className={s.barInput}
             minRows={1}
             maxRows={6}
             disabled={isLoading}
@@ -842,7 +839,7 @@ export function OmniBar({
           <AnimatePresence>
             {showShortcutHint && !hasContent && !isLoading && variant === 'landing' && (
               <motion.kbd
-                className="omni-bar-kbd"
+                className={s.barKbd}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -855,9 +852,9 @@ export function OmniBar({
         </div>
 
         {/* Bottom row: Context icons (left) + Actions (right) */}
-        <div className="omni-bar-bottom">
+        <div className={s.barBottom}>
           {/* Left side: Context button (unified for mobile & desktop) */}
-          <div className="omni-bar-left">
+          <div className={s.barLeft}>
             {hasAnyContextIcons && (
               <>
                 {/* MOBILE: Context button opens BottomSheet */}
@@ -865,17 +862,14 @@ export function OmniBar({
                   <>
                     <button
                       type="button"
-                      className={cn(
-                        'mobile-context-btn',
-                        totalSelectionCount > 0 && 'has-selection'
-                      )}
+                      className={cn(s.mobileContextBtn, totalSelectionCount > 0 && s.hasSelection)}
                       onClick={() => setMobileContextOpen(true)}
                       disabled={disabled}
                       aria-label={t('context.configure')}
                     >
-                      <span className="mobile-context-label">{t('context.context')}</span>
+                      <span className={s.mobileContextLabel}>{t('context.context')}</span>
                       {totalSelectionCount > 0 && (
-                        <span className="mobile-context-badge">{totalSelectionCount}</span>
+                        <span className={s.mobileContextBadge}>{totalSelectionCount}</span>
                       )}
                     </button>
                     <BottomSheet
@@ -886,7 +880,7 @@ export function OmniBar({
                         hasAnySelections && onResetAll ? (
                           <button
                             type="button"
-                            className="context-popover-clear"
+                            className={s.popoverClear}
                             onClick={(e) => {
                               e.stopPropagation();
                               onResetAll();
@@ -912,16 +906,16 @@ export function OmniBar({
                             <button
                               type="button"
                               className={cn(
-                                'context-trigger',
-                                totalSelectionCount > 0 && 'has-selection'
+                                s.contextTrigger,
+                                totalSelectionCount > 0 && s.hasSelection
                               )}
                               disabled={disabled}
                             >
                               <span>{t('context.context')}</span>
                               {totalSelectionCount > 0 && (
-                                <span className="context-trigger-badge">{totalSelectionCount}</span>
+                                <span className={s.contextTriggerBadge}>{totalSelectionCount}</span>
                               )}
-                              <ChevronDown size={14} className="context-trigger-chevron" />
+                              <ChevronDown size={14} className={s.contextTriggerChevron} />
                             </button>
                           </Popover.Trigger>
                         </Tooltip.Trigger>
@@ -935,24 +929,24 @@ export function OmniBar({
                     </Tooltip.Provider>
                     <Popover.Portal>
                       <Popover.Content
-                        className="context-dropdown"
+                        className={s.contextDropdown}
                         side="bottom"
                         align="start"
                         sideOffset={8}
                         collisionPadding={16}
                       >
                         {/* Two-column layout: categories left, options right */}
-                        <div className="context-dropdown-layout">
+                        <div className={s.contextDropdownLayout}>
                           {/* Left: Category menu */}
-                          <div className="context-dropdown-menu">
+                          <div className={s.contextDropdownMenu}>
                             {hasBusinesses &&
                               withTooltip(
                                 <div
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'company' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'company' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('company')}
                                   onFocus={() => setActiveContextTab('company')}
@@ -960,9 +954,9 @@ export function OmniBar({
                                   <Briefcase size={16} />
                                   <span>{t('context.company')}</span>
                                   {selectedBusiness && (
-                                    <span className="context-menu-badge">1</span>
+                                    <span className={s.contextMenuBadge}>1</span>
                                   )}
-                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                  <ChevronRight size={14} className={s.contextMenuArrow} />
                                 </div>,
                                 TOOLTIPS.company,
                                 'left'
@@ -973,16 +967,16 @@ export function OmniBar({
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'project' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'project' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('project')}
                                   onFocus={() => setActiveContextTab('project')}
                                 >
                                   <FolderKanban size={16} />
                                   <span>{t('context.project')}</span>
-                                  {selectedProject && <span className="context-menu-badge">1</span>}
-                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                  {selectedProject && <span className={s.contextMenuBadge}>1</span>}
+                                  <ChevronRight size={14} className={s.contextMenuArrow} />
                                 </div>,
                                 TOOLTIPS.projects,
                                 'left'
@@ -993,8 +987,8 @@ export function OmniBar({
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'departments' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'departments' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('departments')}
                                   onFocus={() => setActiveContextTab('departments')}
@@ -1002,11 +996,11 @@ export function OmniBar({
                                   <Building2 size={16} />
                                   <span>{t('departments.title')}</span>
                                   {selectedDepartments.length > 0 && (
-                                    <span className="context-menu-badge">
+                                    <span className={s.contextMenuBadge}>
                                       {selectedDepartments.length}
                                     </span>
                                   )}
-                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                  <ChevronRight size={14} className={s.contextMenuArrow} />
                                 </div>,
                                 TOOLTIPS.departments,
                                 'left'
@@ -1017,8 +1011,8 @@ export function OmniBar({
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'roles' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'roles' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('roles')}
                                   onFocus={() => setActiveContextTab('roles')}
@@ -1026,11 +1020,11 @@ export function OmniBar({
                                   <Users size={16} />
                                   <span>{t('roles.title')}</span>
                                   {selectedRoles.length > 0 && (
-                                    <span className="context-menu-badge">
+                                    <span className={s.contextMenuBadge}>
                                       {selectedRoles.length}
                                     </span>
                                   )}
-                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                  <ChevronRight size={14} className={s.contextMenuArrow} />
                                 </div>,
                                 TOOLTIPS.roles,
                                 'left'
@@ -1041,8 +1035,8 @@ export function OmniBar({
                                   role="menuitem"
                                   tabIndex={0}
                                   className={cn(
-                                    'context-menu-item',
-                                    activeContextTab === 'playbooks' && 'active'
+                                    s.contextMenuItem,
+                                    activeContextTab === 'playbooks' && s.active
                                   )}
                                   onMouseEnter={() => setActiveContextTab('playbooks')}
                                   onFocus={() => setActiveContextTab('playbooks')}
@@ -1050,23 +1044,23 @@ export function OmniBar({
                                   <BookOpen size={16} />
                                   <span>{t('context.playbooks')}</span>
                                   {selectedPlaybooks.length > 0 && (
-                                    <span className="context-menu-badge">
+                                    <span className={s.contextMenuBadge}>
                                       {selectedPlaybooks.length}
                                     </span>
                                   )}
-                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                  <ChevronRight size={14} className={s.contextMenuArrow} />
                                 </div>,
                                 TOOLTIPS.playbooks,
                                 'left'
                               )}
                             {/* Clear All button at bottom of menu */}
                             {hasAnySelections && onResetAll && (
-                              <div className="context-menu-divider" />
+                              <div className={s.contextMenuDivider} />
                             )}
                             {hasAnySelections && onResetAll && (
                               <button
                                 type="button"
-                                className="context-menu-clear"
+                                className={s.contextMenuClear}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onResetAll();
@@ -1079,18 +1073,18 @@ export function OmniBar({
                           </div>
 
                           {/* Right: Options panel (always visible, content changes on hover) */}
-                          <div className="context-dropdown-panel">
+                          <div className={s.contextDropdownPanel}>
                             {/* Panel header with description - helps mum understand */}
                             {activeContextTab && (
-                              <div className="context-panel-header">
-                                <span className="context-panel-title">
+                              <div className={s.contextPanelHeader}>
+                                <span className={s.contextPanelTitle}>
                                   {activeContextTab === 'company' && t('context.company')}
                                   {activeContextTab === 'project' && t('context.project')}
                                   {activeContextTab === 'departments' && t('departments.title')}
                                   {activeContextTab === 'roles' && t('roles.title')}
                                   {activeContextTab === 'playbooks' && t('context.playbooks')}
                                 </span>
-                                <span className="context-panel-desc">
+                                <span className={s.contextPanelDesc}>
                                   {activeContextTab === 'company' && TOOLTIPS.company}
                                   {activeContextTab === 'project' && TOOLTIPS.projects}
                                   {activeContextTab === 'departments' && TOOLTIPS.departments}
@@ -1105,7 +1099,7 @@ export function OmniBar({
                             {activeContextTab === 'roles' && roleList}
                             {activeContextTab === 'playbooks' && playbookList}
                             {!activeContextTab && (
-                              <div className="context-panel-hint">{t('context.hoverToSelect')}</div>
+                              <div className={s.contextPanelHint}>{t('context.hoverToSelect')}</div>
                             )}
                           </div>
                         </div>
@@ -1118,7 +1112,7 @@ export function OmniBar({
             {/* Inline mode toggle - next to Context for consistency */}
             {onChatModeChange && !showModeToggle && (
               <div
-                className="omni-inline-mode-toggle no-touch-target"
+                className={cn(s.inlineModeToggle, 'no-touch-target')}
                 role="radiogroup"
                 aria-label="Response mode"
               >
@@ -1126,8 +1120,9 @@ export function OmniBar({
                   <button
                     type="button"
                     className={cn(
-                      'inline-mode-indicator no-touch-target',
-                      chatMode === 'chat' && 'active'
+                      s.inlineModeIndicator,
+                      'no-touch-target',
+                      chatMode === 'chat' && s.active
                     )}
                     onClick={() => !disabled && onChatModeChange('chat')}
                     disabled={disabled}
@@ -1142,8 +1137,9 @@ export function OmniBar({
                   <button
                     type="button"
                     className={cn(
-                      'inline-mode-indicator no-touch-target',
-                      chatMode === 'council' && 'active'
+                      s.inlineModeIndicator,
+                      'no-touch-target',
+                      chatMode === 'council' && s.active
                     )}
                     onClick={() => !disabled && onChatModeChange('council')}
                     disabled={disabled}
@@ -1170,14 +1166,14 @@ export function OmniBar({
           </div>
 
           {/* Right side: Attach + Send only */}
-          <div className="omni-bar-right">
+          <div className={s.barRight}>
             {/* Image attach button */}
             {showImageButton &&
               onImageClick &&
               withTooltip(
                 <button
                   type="button"
-                  className="omni-icon-btn attach"
+                  className={cn(s.iconBtn, s.attach)}
                   onClick={onImageClick}
                   disabled={isLoading}
                   aria-label="Attach image"
@@ -1194,7 +1190,7 @@ export function OmniBar({
                     <motion.button
                       key="stop"
                       type="button"
-                      className="omni-bar-submit omni-bar-stop"
+                      className={cn(s.barSubmit, s.barStop)}
                       onClick={onStop}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -1210,7 +1206,7 @@ export function OmniBar({
                     <motion.button
                       key="submit"
                       type="submit"
-                      className={cn('omni-bar-submit', hasContent && 'active')}
+                      className={cn(s.barSubmit, hasContent && s.active)}
                       disabled={!hasContent}
                       onClick={handleSubmit}
                       initial={{ opacity: 0, scale: 0.8 }}

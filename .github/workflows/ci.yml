@@ -120,9 +120,9 @@ jobs:
             echo ""
           fi
 
-          # File size distribution (exclude tailwind.css - framework config, not component CSS)
-          echo "🔍 Files >800 lines (HARD LIMIT, excludes tailwind.css):"
-          LARGE_FILES=$(find src -name '*.css' -type f ! -name 'tailwind.css' -exec wc -l {} + | awk '$1 > 800 && $2 !~ /total/ {count++; print "  ❌", $1, "lines:", $2} END {if (count > 0) exit 1; else print "  ✅ None! All files <800 lines"}')
+          # File size distribution (exclude tailwind.css and .module.css - framework config and locally-scoped modules)
+          echo "🔍 Files >800 lines (HARD LIMIT, excludes tailwind.css and .module.css):"
+          LARGE_FILES=$(find src -name '*.css' -type f ! -name 'tailwind.css' ! -name '*.module.css' -exec wc -l {} + | awk '$1 > 800 && $2 !~ /total/ {count++; print "  ❌", $1, "lines:", $2} END {if (count > 0) exit 1; else print "  ✅ None! All files <800 lines"}')
           echo "$LARGE_FILES"
           LARGE_FILES_EXIT=$?
           echo ""

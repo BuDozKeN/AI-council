@@ -1,6 +1,4 @@
-/* ChatInput - Component CSS imports */
+/* ChatInput - Component CSS imports (non-module global styles) */
 
 @import url('./input-row.css');
 @import url('./mobile-input.css');
-@import url('./omnibar.css');
-@import url('./omnibar-mobile.css');
