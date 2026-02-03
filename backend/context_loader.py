@@ -279,7 +279,7 @@ def load_role_prompt_from_db(role_id: str, access_token: Optional[str] = None) -
         return None
 
 
-def load_role_prompts_batch(role_ids: List[str], access_token: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_role_prompts_batch(role_ids: List[str], access_token: Optional[str] = None) -> Optional[List[Dict[str, Any]]]:
     """
     Load role prompts for multiple roles in a single query.
 
@@ -288,7 +288,7 @@ def load_role_prompts_batch(role_ids: List[str], access_token: Optional[str] = N
         access_token: Optional JWT token for RLS-authenticated access
 
     Returns:
-        List of role info dicts (id, name, description, system_prompt, slug)
+        List of role info dicts, or None on error (to prevent caching failures)
     """
     if not role_ids:
         return []
@@ -296,9 +296,9 @@ def load_role_prompts_batch(role_ids: List[str], access_token: Optional[str] = N
     try:
         client = get_secure_client(access_token, "load_role_prompts_batch")
     except ValueError:
-        return []
+        return None
     if not client:
-        return []
+        return None
 
     try:
         uuid_ids = [rid for rid in role_ids if is_valid_uuid(rid)]
@@ -321,7 +321,7 @@ def load_role_prompts_batch(role_ids: List[str], access_token: Optional[str] = N
         return results
     except Exception as e:
         log_error("load_role_prompts_batch", e, resource_id=str(role_ids[:3]))
-        return []
+        return None
 
 
 def get_company_departments(company_id: str, access_token: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -1357,6 +1357,10 @@ async def get_system_prompt_with_context(
         company_context = await company_cache.get_or_fetch(
             company_cache_key, _fetch_company_context, ttl=300
         )
+        role_infos = []
+
+    # Coalesce None (DB error) to empty list to avoid downstream failures
+    if role_infos is None:
         role_infos = []
 
     if not company_context:
