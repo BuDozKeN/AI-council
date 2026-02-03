@@ -155,15 +155,11 @@
     height: 44px;
     min-width: 44px;
     min-height: 44px;
-    gap: var(--space-1);
   }
 
-  .swipeable-action span {
-    display: inline;
-    font-size: var(--text-xs);
-    font-weight: 500;
-    white-space: nowrap;
-  }
+  /* Labels stay hidden on mobile - icons are self-explanatory,
+     aria-label provides accessibility. Showing text caused overflow
+     into conversation titles due to fixed 44px button width. */
 
   .swipeable-action svg {
     width: 20px;

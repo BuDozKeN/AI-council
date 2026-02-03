@@ -34,9 +34,13 @@ export function SwipeableRow({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
 
-  // Calculate action area width based on number of actions
-  // 36px button + 4px gap = 40px per action, plus 24px padding
-  const actionWidth = actions.length * 40 + 24;
+  // Calculate action area width based on number of actions.
+  // Mobile (<=640px): 44px button + 8px gap = 52px per action, 16px padding
+  // Desktop (>640px):  36px button + 4px gap = 40px per action, 24px padding
+  const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 640;
+  const actionWidth = isMobileView
+    ? actions.length * 52 + 16
+    : actions.length * 40 + 24;
   const threshold = actionWidth * 0.5; // 50% of action width to snap open
 
   // Transform for action button opacity
