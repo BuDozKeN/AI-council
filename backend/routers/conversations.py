@@ -433,8 +433,8 @@ async def send_message(
             if body.business_id:
                 try:
                     company_uuid = storage.resolve_company_id(body.business_id, access_token)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"Failed to resolve company_id for {body.business_id}: {e}")
 
             # Start title generation in parallel (don't await yet)
             # Pass company_uuid for internal LLM usage tracking
@@ -567,8 +567,8 @@ async def send_message(
                             title = await title_task
                             storage.update_conversation_title(conversation_id, title, access_token=access_token)
                             yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.warning(f"Title generation failed for {conversation_id}: {e}")
 
                     # Update department on first message
                     if is_first_message and body.department:
@@ -738,8 +738,8 @@ async def send_message(
                         model_used="council",
                         session_id=conversation_id
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"Failed to log usage event for {conversation_id}: {e}")
 
                 # Save detailed session usage for LLM ops dashboard
                 try:
@@ -749,8 +749,8 @@ async def send_message(
                         usage_data=total_usage,
                         session_type='council'
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"Failed to save session usage for {conversation_id}: {e}")
 
                 # Log activity for the Activity tab
                 try:
@@ -764,8 +764,8 @@ async def send_message(
                         conversation_id=conversation_id,
                         department_id=body.department
                     )
-                except Exception:
-                    pass  # Don't fail if activity logging fails
+                except Exception as e:
+                    logger.warning(f"Failed to log activity for {conversation_id}: {e}")
 
                 # Increment rate limit counters and check for budget alerts
                 try:
@@ -788,8 +788,8 @@ async def send_message(
                                 current_value=details.get('current', 0),
                                 limit_value=details.get('limit', 0)
                             )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"Failed to increment rate counters for {company_uuid}: {e}")
 
             # Log token usage summary
             if total_usage['total_tokens'] > 0:
@@ -1005,8 +1005,8 @@ async def chat_with_chairman(
             if body.business_id:
                 try:
                     company_uuid = storage.resolve_company_id(body.business_id, access_token)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"Failed to resolve company_id for {body.business_id}: {e}")
 
             full_content = ""
             chat_usage = None
@@ -1450,8 +1450,9 @@ async def export_all_user_data(request: Request, user: dict = Depends(get_curren
                 "created_at": profile.get("created_at"),
                 "updated_at": profile.get("updated_at"),
             }
-    except Exception:
+    except Exception as e:
         # Profile table might not exist or user might not have profile
+        logger.warning(f"GDPR export: failed to load user profile for {user_id}: {e}")
         export_data["user"] = {"id": user_id, "email": user.get("email")}
 
     # 2. Export companies the user owns
@@ -1474,28 +1475,28 @@ async def export_all_user_data(request: Request, user: dict = Depends(get_curren
                     dept_result = supabase.table("departments").select("*").eq("company_id", company.get("id")).execute()
                     if dept_result.data:
                         company_export["departments"] = dept_result.data
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"GDPR export: failed to load departments for company {company.get('id')}: {e}")
 
                 # Get roles for this company
                 try:
                     roles_result = supabase.table("roles").select("*").eq("company_id", company.get("id")).execute()
                     if roles_result.data:
                         company_export["roles"] = roles_result.data
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"GDPR export: failed to load roles for company {company.get('id')}: {e}")
 
                 # Get playbooks (org_documents) for this company
                 try:
                     playbooks_result = supabase.table("org_documents").select("*").eq("company_id", company.get("id")).execute()
                     if playbooks_result.data:
                         company_export["playbooks"] = playbooks_result.data
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning(f"GDPR export: failed to load playbooks for company {company.get('id')}: {e}")
 
                 export_data["companies"].append(company_export)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"GDPR export: failed to load companies for user {user_id}: {e}")
 
     # 3. Export all conversations
     try:
@@ -1514,16 +1515,16 @@ async def export_all_user_data(request: Request, user: dict = Depends(get_curren
                     "messages": conv.get("messages", []),
                 }
                 export_data["conversations"].append(conv_export)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"GDPR export: failed to load conversations for user {user_id}: {e}")
 
     # 4. Export knowledge entries
     try:
         knowledge_result = supabase.table("knowledge_entries").select("*").eq("user_id", user_id).execute()
         if knowledge_result.data:
             export_data["knowledge_entries"] = knowledge_result.data
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"GDPR export: failed to load knowledge entries for user {user_id}: {e}")
 
     # Log the export for audit purposes
     log_app_event(
