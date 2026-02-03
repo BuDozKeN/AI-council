@@ -147,8 +147,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install pip-audit
-        run: pip install pip-audit
+      - name: Upgrade pip & install pip-audit
+        run: pip install --upgrade pip pip-audit
 
       - name: Install dependencies
         run: pip install -e .
