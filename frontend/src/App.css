@@ -1,21 +1,8 @@
+@import url('./AppSidebar.css');
+@import url('./AppTouchTargets.css');
+
 * {
   box-sizing: border-box;
-}
-
-/* =============================================================================
-   GLOBAL DISABLED STATE STYLING (ISSUE-014)
-   Ensure disabled buttons are clearly visually distinct
-   ============================================================================= */
-
-button:disabled,
-button[disabled],
-[role='button'][aria-disabled='true'],
-.btn:disabled,
-.btn[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-  filter: grayscale(20%);
 }
 
 .app-wrapper {
@@ -42,112 +29,10 @@ button[disabled],
   background: var(--color-bg-secondary);
 }
 
-/* Sidebar edge indicator - subtle arrow hint to open sidebar */
-.sidebar-edge-indicator {
-  display: none;
-  position: fixed;
-  inset-block-start: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  z-index: var(--z-modal);
-  width: 20px;
-  height: 60px;
-  border: none;
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-  background: var(--overlay-black-8);
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.25s ease;
-  padding: 0;
-}
-
-.sidebar-edge-indicator:hover {
-  width: 28px;
-  background: var(--overlay-black-15);
-}
-
-.sidebar-edge-indicator:active {
-  background: var(--overlay-black-20);
-}
-
 /* Keyboard focus for accessibility - WCAG AAA visible focus ring */
 :focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
-}
-
-.sidebar-edge-indicator:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
-.sidebar-edge-indicator svg {
-  width: 16px;
-  height: 16px;
-  color: var(--color-text-secondary);
-  opacity: 0.6;
-  transition: all 0.25s ease;
-}
-
-.sidebar-edge-indicator:hover svg {
-  opacity: 1;
-  color: var(--color-text-primary);
-}
-
-/* Dark mode edge indicator */
-.dark .sidebar-edge-indicator,
-[data-theme='dark'] .sidebar-edge-indicator {
-  background: var(--overlay-white-8);
-}
-
-.dark .sidebar-edge-indicator:hover,
-[data-theme='dark'] .sidebar-edge-indicator:hover {
-  background: var(--overlay-white-15);
-}
-
-.dark .sidebar-edge-indicator:active,
-[data-theme='dark'] .sidebar-edge-indicator:active {
-  background: var(--overlay-white-20);
-}
-
-/* Mobile overlay backdrop */
-.sidebar-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: var(--overlay-black-50);
-
-  /* Must be just below sidebar (z-modal) but above everything else */
-  z-index: calc(var(--z-modal) - 1);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.sidebar-overlay.visible {
-  opacity: 1;
-}
-
-/* Mobile responsive styles */
-@media (width <= 640px) {
-  .sidebar-edge-indicator {
-    display: flex;
-  }
-
-  /* Hide edge indicator when sidebar is open */
-  .sidebar-edge-indicator.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .sidebar-overlay {
-    display: block;
-    pointer-events: none;
-  }
-
-  .sidebar-overlay.visible {
-    pointer-events: auto;
-  }
 }
 
 /* Tablet adjustments */
@@ -279,72 +164,4 @@ button[disabled],
   background: transparent;
   backdrop-filter: none;
   pointer-events: auto; /* Spinner itself blocks interaction */
-}
-
-/* =============================================================================
-   MOBILE TOUCH TARGETS - WCAG 2.1 AA Compliance (44px minimum)
-   Phase 3 fixes for ISSUE-016, 017, 021, 025, 026, 031, 032
-   ============================================================================= */
-
-@media (width <= 640px) {
-  /* All icon-only buttons get 44px touch target */
-  button:not([class*='nav-item']):has(svg:only-child),
-  [role='button']:has(svg:only-child) {
-    min-width: 44px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Theme toggle - ensure touch target (ISSUE-016) */
-  [aria-label*='theme' i],
-  [aria-label*='dark' i],
-  [aria-label*='light' i] {
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  /* Radio buttons and checkboxes - larger touch area (ISSUE-021) */
-  input[type='radio'],
-  input[type='checkbox'] {
-    min-width: 24px;
-    min-height: 24px;
-  }
-
-  /* Radio/checkbox labels - extend touch area */
-  label:has(input[type='radio']),
-  label:has(input[type='checkbox']) {
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2);
-    cursor: pointer;
-  }
-
-  /* Active/tap feedback for interactive elements (ISSUE-023) */
-  button:active,
-  [role='button']:active,
-  a:active {
-    transform: scale(0.98);
-    opacity: 0.9;
-  }
-
-  /* Tap feedback for list items and cards */
-  .conversation-item:active,
-  .settings-tab:active,
-  .mobile-nav-item:active,
-  [class*='list-item']:active,
-  [class*='card']:active:not(.no-tap-feedback) {
-    background: var(--overlay-black-5);
-    transform: scale(0.99);
-  }
-
-  .dark .conversation-item:active,
-  .dark .settings-tab:active,
-  .dark [class*='list-item']:active,
-  .dark [class*='card']:active:not(.no-tap-feedback) {
-    background: var(--overlay-white-5);
-  }
 }

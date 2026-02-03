@@ -7,6 +7,7 @@ Now uses Supabase database for all context:
 """
 
 from typing import Optional, List, Dict, Any
+import asyncio
 import re
 
 from . import storage
@@ -275,6 +276,51 @@ def load_role_prompt_from_db(role_id: str, access_token: Optional[str] = None) -
         return None
     except Exception as e:
         log_error("get_role_by_id", e, resource_id=role_id)
+        return None
+
+
+def load_role_prompts_batch(role_ids: List[str], access_token: Optional[str] = None) -> Optional[List[Dict[str, Any]]]:
+    """
+    Load role prompts for multiple roles in a single query.
+
+    Args:
+        role_ids: List of role UUIDs
+        access_token: Optional JWT token for RLS-authenticated access
+
+    Returns:
+        List of role info dicts, or None on error (to prevent caching failures)
+    """
+    if not role_ids:
+        return []
+
+    try:
+        client = get_secure_client(access_token, "load_role_prompts_batch")
+    except ValueError:
+        return None
+    if not client:
+        return None
+
+    try:
+        uuid_ids = [rid for rid in role_ids if is_valid_uuid(rid)]
+        slug_ids = [rid for rid in role_ids if not is_valid_uuid(rid)]
+
+        results = []
+
+        if uuid_ids:
+            result = client.table("roles").select(
+                "id, name, description, system_prompt, slug"
+            ).in_("id", uuid_ids).execute()
+            results.extend(result.data or [])
+
+        if slug_ids:
+            result = client.table("roles").select(
+                "id, name, description, system_prompt, slug"
+            ).in_("slug", slug_ids).execute()
+            results.extend(result.data or [])
+
+        return results
+    except Exception as e:
+        log_error("load_role_prompts_batch", e, resource_id=str(role_ids[:3]))
         return None
 
 
@@ -1222,7 +1268,7 @@ def format_decisions_for_prompt(decisions: List[Dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def get_system_prompt_with_context(
+async def get_system_prompt_with_context(
     business_id: Optional[str] = None,
     department_id: Optional[str] = None,
     channel_id: Optional[str] = None,
@@ -1247,6 +1293,7 @@ def get_system_prompt_with_context(
     Automatically injects token limit instruction when max_tokens is provided.
 
     Refactored to use helper functions for better maintainability.
+    Async with batched queries to avoid blocking the event loop.
 
     Args:
         business_id: The business slug or UUID (used to lookup company context)
@@ -1285,21 +1332,41 @@ def get_system_prompt_with_context(
     )
 
     # 2. Resolve company UUID if we only have business_id (slug)
-    company_uuid = _resolve_company_uuid(business_id, company_uuid, get_supabase_service)
+    company_uuid = await asyncio.to_thread(
+        _resolve_company_uuid, business_id, company_uuid, get_supabase_service
+    )
 
-    # 3. Load company context from database
-    company_context = load_company_context_from_db(company_uuid or business_id)
+    # 3. Load company context + role info in parallel (batched, not N+1)
+    # M8: Use TTL cache to avoid repeated DB lookups for context/prompts
+    resolved_company = company_uuid or business_id
+    company_cache_key = cache_key("ctx", resolved_company)
+    role_cache_key = cache_key("roles", *sorted(all_role_ids)) if all_role_ids else None
+
+    async def _fetch_company_context():
+        return await asyncio.to_thread(load_company_context_from_db, resolved_company)
+
+    async def _fetch_role_prompts():
+        return await asyncio.to_thread(load_role_prompts_batch, all_role_ids)
+
+    if role_cache_key:
+        company_context, role_infos = await asyncio.gather(
+            company_cache.get_or_fetch(company_cache_key, _fetch_company_context, ttl=300),
+            company_cache.get_or_fetch(role_cache_key, _fetch_role_prompts, ttl=300),
+        )
+    else:
+        company_context = await company_cache.get_or_fetch(
+            company_cache_key, _fetch_company_context, ttl=300
+        )
+        role_infos = []
+
+    # Coalesce None (DB error) to empty list to avoid downstream failures
+    if role_infos is None:
+        role_infos = []
+
     if not company_context:
         return None
 
-    # 4. Load role info from database for all selected roles
-    role_infos = []
-    for rid in all_role_ids:
-        info = load_role_prompt_from_db(rid)
-        if info:
-            role_infos.append(info)
-
-    # 5. Build the system prompt header with token limit instruction
+    # 4. Build the system prompt header with token limit instruction
     # Token limit instruction comes FIRST so it's the highest priority for the LLM
     system_prompt = ""
 
@@ -1311,13 +1378,14 @@ def get_system_prompt_with_context(
     # Add role header after token instruction
     system_prompt += _build_role_header_prompt(role_infos)
 
-    # 6. Add company context
+    # 5. Add company context
     company_context = truncate_to_limit(company_context, MAX_SECTION_CHARS, "company context")
     system_prompt += company_context
     system_prompt += "\n\n=== END COMPANY CONTEXT ===\n"
 
-    # 7. Inject project context if provided
-    system_prompt = _inject_project_context(
+    # 6. Inject project context if provided
+    system_prompt = await asyncio.to_thread(
+        _inject_project_context,
         system_prompt,
         project_id,
         access_token,
@@ -1326,8 +1394,9 @@ def get_system_prompt_with_context(
         MAX_SECTION_CHARS
     )
 
-    # 8. Inject department-specific contexts (only if explicitly selected)
-    system_prompt = _inject_department_contexts(
+    # 7. Inject department-specific contexts (only if explicitly selected)
+    system_prompt = await asyncio.to_thread(
+        _inject_department_contexts,
         system_prompt,
         all_department_ids,
         get_supabase_service,
@@ -1336,8 +1405,9 @@ def get_system_prompt_with_context(
         is_valid_uuid
     )
 
-    # 9. Inject explicitly selected playbooks
-    system_prompt = _inject_playbooks(
+    # 8. Inject explicitly selected playbooks
+    system_prompt = await asyncio.to_thread(
+        _inject_playbooks,
         system_prompt,
         playbook_ids,
         get_supabase_service,
@@ -1345,7 +1415,7 @@ def get_system_prompt_with_context(
         MAX_SECTION_CHARS
     )
 
-    # 10. Add general response guidance and role-specific instructions
+    # 9. Add general response guidance and role-specific instructions
     system_prompt = _add_response_guidance(
         system_prompt,
         role_infos,
@@ -1354,7 +1424,7 @@ def get_system_prompt_with_context(
         is_valid_uuid
     )
 
-    # 11. Final length check - ensure total context doesn't exceed safe limits
+    # 10. Final length check - ensure total context doesn't exceed safe limits
     if len(system_prompt) > MAX_CONTEXT_CHARS:
         system_prompt = truncate_to_limit(system_prompt, MAX_CONTEXT_CHARS, "total context")
 

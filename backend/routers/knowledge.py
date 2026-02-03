@@ -25,6 +25,9 @@ from ..i18n import t, get_locale_from_request
 # Note: The shared limiter already handles user-based rate limiting via token hash
 from ..rate_limit import limiter
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
 
@@ -204,8 +207,8 @@ Today's date: {today_date}"""
                                 usage=result['usage'],
                                 related_id=project_id
                             )
-                        except Exception:
-                            pass  # Don't fail if tracking fails
+                        except Exception as e:
+                            logger.warning("Failed to save LLM usage tracking for auto-synthesis of project %s: %s", project_id, e)
 
                     content = result['content']
                     if content.startswith('```'):
@@ -234,8 +237,8 @@ Today's date: {today_date}"""
             except Exception:
                 continue
 
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error("Failed to auto-synthesize project context for project %s: %s", project_id, e)
 
 
 # =============================================================================
@@ -489,8 +492,8 @@ async def get_conversation_decision(request: Request, conversation_id: str,
 
                 if legacy_result.data and legacy_result.data[0]:
                     return {"decision": legacy_result.data[0]}
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("Failed to query legacy fallback decision for conversation %s: %s", conversation_id, e)
 
         return {"decision": None}
     except ValueError as e:
@@ -656,8 +659,8 @@ RULES:
                     model=summarizer_model,
                     usage=result['usage']
                 )
-            except Exception:
-                pass  # Don't fail if tracking fails
+            except Exception as e:
+                logger.warning("Failed to save LLM usage tracking for knowledge extraction: %s", e)
 
         if result and result.get('content'):
             content = result['content'].strip()

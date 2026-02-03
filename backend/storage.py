@@ -1,6 +1,6 @@
 """Supabase-based storage for conversations."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from .database import get_supabase, get_supabase_with_auth, get_supabase_service
 from .security import log_app_event, escape_sql_like_pattern, verify_user_company_access, log_security_event
@@ -119,7 +119,7 @@ def create_conversation(conversation_id: str, user_id: str, access_token: Option
         New conversation dict
     """
     supabase = _get_client(access_token)
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(tz=timezone.utc).isoformat()
     # Use provided company_id or fall back to default
     if not company_id:
         company_id = get_default_company_id(access_token)
@@ -263,7 +263,7 @@ def save_conversation(conversation: Dict[str, Any], access_token: Optional[str] 
 
     supabase.table('conversations').update({
         'title': conversation.get('title', 'New Conversation'),
-        'updated_at': conversation.get('updated_at', datetime.utcnow().isoformat() + 'Z'),
+        'updated_at': conversation.get('updated_at', datetime.now(tz=timezone.utc).isoformat()),
         'archived': conversation.get('archived', False),
         'curator_history': conversation.get('curator_history')
     }).eq('id', conversation['id']).execute()
@@ -382,7 +382,7 @@ def star_conversation(conversation_id: str, starred: bool, access_token: Optiona
         access_token: User's JWT access token for RLS authentication
     """
     supabase = _get_client(access_token)
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(tz=timezone.utc).isoformat()
 
     supabase.table('conversations').update({
         'is_starred': starred,
@@ -410,7 +410,7 @@ def add_user_message(
         image_analysis: Optional cached image analysis results (for context persistence)
     """
     supabase = _get_client(access_token)
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(tz=timezone.utc).isoformat()
 
     # Build message data
     message_data = {
@@ -460,7 +460,7 @@ def add_assistant_message(
         access_token: User's JWT access token for RLS authentication
     """
     supabase = _get_client(access_token)
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(tz=timezone.utc).isoformat()
 
     # Build message data with user_id
     message_data = {
@@ -497,7 +497,7 @@ def update_conversation_title(conversation_id: str, title: str, access_token: Op
         access_token: User's JWT access token for RLS authentication
     """
     supabase = _get_client(access_token)
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(tz=timezone.utc).isoformat()
 
     supabase.table('conversations').update({
         'title': title,
@@ -515,7 +515,7 @@ def archive_conversation(conversation_id: str, archived: bool = True, access_tok
         access_token: User's JWT access token for RLS authentication
     """
     supabase = _get_client(access_token)
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(tz=timezone.utc).isoformat()
 
     supabase.table('conversations').update({
         'archived': archived,
@@ -533,7 +533,7 @@ def update_conversation_department(conversation_id: str, department: str, access
         access_token: User's JWT access token for RLS authentication
     """
     supabase = _get_client(access_token)
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(tz=timezone.utc).isoformat()
 
     supabase.table('conversations').update({
         'department': department,
@@ -795,7 +795,7 @@ def update_project(
     # The update will simply return no rows if access is denied
 
     # Build update payload with only provided fields
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(tz=timezone.utc).isoformat()
     update_data = {"updated_at": now}
     if name is not None:
         update_data["name"] = name
@@ -840,7 +840,7 @@ def touch_project_last_accessed(project_id: str, access_token: str) -> bool:
         client = _get_client(access_token) if access_token else get_supabase_service()
         if not client:
             return False
-        now = datetime.utcnow().isoformat() + 'Z'
+        now = datetime.now(tz=timezone.utc).isoformat()
         client.table("projects")\
             .update({"last_accessed_at": now})\
             .eq("id", project_id)\
@@ -1014,7 +1014,7 @@ def update_user_profile(user_id: str, profile_data: Dict[str, Any], access_token
         # Check if profile exists
         existing = supabase.table('user_profiles').select('id').eq('user_id', user_id).execute()
 
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(tz=timezone.utc).isoformat()
 
         if existing.data:
             # Update existing profile

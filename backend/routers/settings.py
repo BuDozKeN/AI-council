@@ -7,6 +7,7 @@ Endpoints for managing user preferences and BYOK (Bring Your Own Key):
 - Council mode preferences (quick vs full_council)
 """
 
+import logging
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -23,6 +24,7 @@ from ..i18n import t, get_locale_from_request
 # Import shared rate limiter (ensures limits are tracked globally)
 from ..rate_limit import limiter
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 
@@ -84,7 +86,8 @@ async def validate_openrouter_key(key: str) -> bool:
                 headers={"Authorization": f"Bearer {key}"}
             )
             result = response.status_code == 200
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to validate OpenRouter API key via HTTP request: %s", e)
         result = False
 
     # SECURITY: Ensure minimum response time to prevent timing attacks
@@ -115,7 +118,8 @@ async def get_openrouter_key_status(request: Request, current_user=Depends(get_c
         result = db.table("user_api_keys").select(
             "encrypted_key, key_suffix, is_valid, is_active, expires_at, revoked_at, rotation_count"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to query API key status for user %s: %s", current_user["id"], e)
         return OpenRouterKeyResponse(
             status="not_connected",
             is_valid=False,
@@ -142,7 +146,8 @@ async def get_openrouter_key_status(request: Request, current_user=Depends(get_c
     try:
         raw_key = decrypt_api_key(result.data["encrypted_key"], user_id=current_user["id"])
         masked = mask_api_key(raw_key)
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to decrypt API key for masking (user %s): %s", current_user["id"], e)
         masked = f"sk-or-v1-••••••••{result.data.get('key_suffix', '****')}"
 
     is_active = result.data.get("is_active", True)
@@ -305,7 +310,8 @@ async def test_openrouter_key(request: Request, current_user=Depends(get_current
         result = db.table("user_api_keys").select(
             "encrypted_key, key_suffix, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception:
+    except Exception as e:
+        logger.error("Database error fetching API key for testing (user %s): %s", current_user["id"], e)
         raise HTTPException(status_code=500, detail=t("errors.database_error", locale))
 
     if not result or not result.data:
@@ -367,7 +373,8 @@ async def toggle_openrouter_key(request: Request, current_user=Depends(get_curre
         result = db.table("user_api_keys").select(
             "encrypted_key, key_suffix, is_valid, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception:
+    except Exception as e:
+        logger.error("Database error fetching API key for toggle (user %s): %s", current_user["id"], e)
         raise HTTPException(status_code=500, detail=t("errors.database_error", locale))
 
     if not result or not result.data:
@@ -391,7 +398,8 @@ async def toggle_openrouter_key(request: Request, current_user=Depends(get_curre
     try:
         raw_key = decrypt_api_key(result.data["encrypted_key"], user_id=current_user["id"])
         masked = mask_api_key(raw_key)
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to decrypt API key for masking during toggle (user %s): %s", current_user["id"], e)
         masked = f"sk-or-v1-••••••••{result.data.get('key_suffix', '****')}"
 
     is_valid = result.data["is_valid"]
@@ -442,7 +450,8 @@ async def rotate_openrouter_key(request: Request, key_request: OpenRouterKeyRequ
         current_key = db.table("user_api_keys").select(
             "rotation_count, key_suffix"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to fetch current API key info for rotation (user %s): %s", current_user["id"], e)
         current_key = None
 
     current_rotation_count = 0
@@ -564,7 +573,8 @@ async def get_user_settings(request: Request, current_user=Depends(get_current_u
         settings_result = db.table("user_settings").select(
             "default_mode"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to query user settings for user %s: %s", current_user["id"], e)
         settings_result = None
 
     default_mode = "full_council"
@@ -576,7 +586,8 @@ async def get_user_settings(request: Request, current_user=Depends(get_current_u
         key_result = db.table("user_api_keys").select(
             "encrypted_key, key_suffix, is_valid, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to query API key in user settings for user %s: %s", current_user["id"], e)
         key_result = None
 
     api_key_status = None
@@ -588,7 +599,8 @@ async def get_user_settings(request: Request, current_user=Depends(get_current_u
         try:
             raw_key = decrypt_api_key(key_result.data["encrypted_key"], user_id=current_user["id"])
             masked = mask_api_key(raw_key)
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to decrypt API key for masking in user settings (user %s): %s", current_user["id"], e)
             masked = f"sk-or-v1-••••••••{key_result.data.get('key_suffix', '****')}"
 
         is_active = key_result.data.get("is_active", True)
