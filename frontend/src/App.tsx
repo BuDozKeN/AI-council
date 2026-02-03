@@ -658,13 +658,8 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSendMessage has dependencies that would cause loops
   }, [currentConversation, selectedBusiness]);
 
-  // Load conversations when authenticated and business is selected
-  useEffect(() => {
-    if (isAuthenticated && selectedBusiness) {
-      loadConversations({ company_id: selectedBusiness });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only reload when business changes
-  }, [isAuthenticated, selectedBusiness]);
+  // Conversations are now auto-loaded by ConversationContext via TanStack Query
+  // with company_id scoping. No manual loadConversations call needed here.
 
   // Load conversation details when selected (skip temp conversations)
   useEffect(() => {

@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
+import { useBusinessState } from './BusinessContext';
 import { logger } from '../utils/logger';
 import { toast } from '../components/ui/sonner';
 import { PAGINATION } from '../constants';
@@ -114,6 +115,7 @@ interface ConversationProviderProps {
 export function ConversationProvider({ children }: ConversationProviderProps) {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
+  const { selectedBusiness } = useBusinessState();
   const queryClient = useQueryClient();
 
   // Local UI state (not server state)
@@ -141,7 +143,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
   // Note: Query key does NOT include offset - we use a single cache entry for the list
   // and manage pagination via local state to avoid race conditions during invalidation
-  const listQueryKey = conversationKeys.list({ sortBy: conversationSortBy });
+  const listQueryKey = conversationKeys.list({ sortBy: conversationSortBy, companyId: selectedBusiness });
 
   // Conversation list state - managed outside TanStack Query to support pagination
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -169,6 +171,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         limit,
         sortBy: apiSortBy,
         offset: currentOffset,
+        companyId: selectedBusiness,
       });
 
       // Reset the loading more flag after fetch completes
@@ -184,7 +187,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         isAppend: wasLoadingMore && currentOffset > 0, // Flag to indicate this should append
       };
     },
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!selectedBusiness,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
@@ -241,6 +244,18 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       log.error('Failed to load conversations:', listError);
     }
   }, [listError]);
+
+  // Reset local state when company changes — "adjusting state during render"
+  // pattern per React docs. TanStack Query auto-refetches via the new query key;
+  // this clears the local mirrors so stale cross-company data is never shown.
+  const [prevBusiness, setPrevBusiness] = useState<string | null>(selectedBusiness);
+  if (prevBusiness !== selectedBusiness) {
+    setPrevBusiness(selectedBusiness);
+    setConversations([]);
+    setCurrentConversation(null);
+    setCurrentConversationId(null);
+    setHasMoreConversations(true);
+  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Query: Single Conversation
