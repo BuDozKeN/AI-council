@@ -33,6 +33,7 @@
     gap: var(--gap-sm);
     flex-shrink: 0;
     align-self: stretch;
+    overflow: hidden; /* Prevent tab labels from overflowing into content panel */
   }
 
   /* Mobile tabs - iOS tab bar style with icon + label stacked vertically */
@@ -218,6 +219,8 @@
     max-width: 100%;
     height: 100vh;
     max-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
     border-radius: 0;
   }
 
@@ -225,17 +228,24 @@
     /* Full height minus header, fixed to prevent tab-switch resize */
     height: calc(100vh - 60px);
     min-height: calc(100vh - 60px);
+    height: calc(100dvh - 60px);
+    min-height: calc(100dvh - 60px);
   }
 
   .settings-sidebar {
     padding: var(--space-2) var(--space-1-5);
-    gap: var(--gap-sm-plus);
+    gap: var(--gap-sm);
   }
 
+  /* Icon-only mode: hide labels, use touch-friendly icon buttons */
   .settings-sidebar .settings-tab {
-    width: 28px;
-    height: 28px;
-    min-height: 28px;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .settings-sidebar .settings-tab .tab-label {
+    display: none; /* Hide labels - icon-only on small phones */
   }
 
   .settings-sidebar .settings-tab .tab-icon {
@@ -271,13 +281,14 @@
 @media (width <= 360px) {
   .settings-sidebar {
     padding: var(--space-1-5) var(--space-1);
-    gap: var(--gap-sm);
+    gap: var(--gap-xs);
   }
 
+  /* Icon-only mode: labels already hidden from ≤400px */
   .settings-sidebar .settings-tab {
-    width: 24px;
-    height: 24px;
-    min-height: 24px;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
   }
 
   .settings-sidebar .settings-tab .tab-icon {

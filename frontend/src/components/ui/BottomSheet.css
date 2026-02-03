@@ -179,12 +179,17 @@
   }
 }
 
-/* Very small phones - full screen sheet */
+/* Full screen sheet on mobile - use dvh to avoid content hiding behind browser bar */
 @media (width <= 640px) {
   .bottom-sheet-content {
+    /* Fallback for browsers without dvh support */
     min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
+    /* Dynamic viewport height: accounts for mobile browser chrome (URL bar) */
+    min-height: 100dvh;
+    max-height: 100dvh;
+    height: 100dvh;
     border-radius: 0;
   }
 }
@@ -195,6 +200,9 @@
     min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    height: 100dvh;
     border-radius: 0;
   }
 
