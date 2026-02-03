@@ -37,7 +37,7 @@ const prefersReducedMotion = (): boolean => {
 export function celebrateSuccess(): void {
   if (prefersReducedMotion()) return;
 
-  getConfetti().then(confetti => {
+  getConfetti().then((confetti) => {
     confetti({
       particleCount: 50,
       spread: 60,
@@ -58,7 +58,7 @@ export function celebrateSuccess(): void {
 export function celebrateMilestone(): void {
   if (prefersReducedMotion()) return;
 
-  getConfetti().then(confetti => {
+  getConfetti().then((confetti) => {
     const duration = 2000;
     const end = Date.now() + duration;
     const colors = ['#6366f1', '#818cf8', '#a5b4fc', '#10b981', '#fbbf24'];
@@ -99,7 +99,7 @@ export function celebrateMilestone(): void {
 export function celebrateCouncilComplete(): void {
   if (prefersReducedMotion()) return;
 
-  getConfetti().then(confetti => {
+  getConfetti().then((confetti) => {
     // First burst - council colors
     confetti({
       particleCount: 80,
@@ -140,7 +140,7 @@ export function celebrateCouncilComplete(): void {
 export function celebrateWinner(): void {
   if (prefersReducedMotion()) return;
 
-  getConfetti().then(confetti => {
+  getConfetti().then((confetti) => {
     // Trophy gold burst
     confetti({
       particleCount: 60,
@@ -162,7 +162,7 @@ export function celebrateWinner(): void {
 export function celebrateFireworks(): void {
   if (prefersReducedMotion()) return;
 
-  getConfetti().then(confetti => {
+  getConfetti().then((confetti) => {
     const duration = 3000;
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
@@ -204,7 +204,7 @@ export function celebrateFireworks(): void {
 export function celebrateSparkle(): void {
   if (prefersReducedMotion()) return;
 
-  getConfetti().then(confetti => {
+  getConfetti().then((confetti) => {
     confetti({
       particleCount: 20,
       spread: 40,
