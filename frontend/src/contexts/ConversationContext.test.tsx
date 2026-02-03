@@ -40,6 +40,11 @@ vi.mock('../AuthContext', () => ({
   useAuth: vi.fn(() => ({ isAuthenticated: true })),
 }));
 
+// Mock BusinessContext - provide a selectedBusiness so queries are enabled
+vi.mock('./BusinessContext', () => ({
+  useBusinessState: vi.fn(() => ({ selectedBusiness: 'company-1' })),
+}));
+
 // Mock logger
 vi.mock('../utils/logger', () => ({
   logger: {
