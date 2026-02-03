@@ -217,19 +217,22 @@
   .settings-modal {
     width: 100%;
     max-width: 100%;
+    /* stylelint-disable declaration-block-no-duplicate-properties -- dvh progressive enhancement */
     height: 100vh;
     max-height: 100vh;
     height: 100dvh;
     max-height: 100dvh;
+    /* stylelint-enable declaration-block-no-duplicate-properties */
     border-radius: 0;
   }
 
   .settings-content {
-    /* Full height minus header, fixed to prevent tab-switch resize */
+    /* stylelint-disable declaration-block-no-duplicate-properties -- dvh progressive enhancement */
     height: calc(100vh - 60px);
     min-height: calc(100vh - 60px);
     height: calc(100dvh - 60px);
     min-height: calc(100dvh - 60px);
+    /* stylelint-enable declaration-block-no-duplicate-properties */
   }
 
   .settings-sidebar {

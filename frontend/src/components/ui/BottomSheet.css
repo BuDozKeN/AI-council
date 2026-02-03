@@ -182,14 +182,14 @@
 /* Full screen sheet on mobile - use dvh to avoid content hiding behind browser bar */
 @media (width <= 640px) {
   .bottom-sheet-content {
-    /* Fallback for browsers without dvh support */
+    /* stylelint-disable declaration-block-no-duplicate-properties -- dvh progressive enhancement: vh fallback then dvh override */
     min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
-    /* Dynamic viewport height: accounts for mobile browser chrome (URL bar) */
     min-height: 100dvh;
     max-height: 100dvh;
     height: 100dvh;
+    /* stylelint-enable declaration-block-no-duplicate-properties */
     border-radius: 0;
   }
 }
@@ -197,12 +197,14 @@
 /* Landscape mode */
 @media (width <= 1024px) and (orientation: landscape) {
   .bottom-sheet-content {
+    /* stylelint-disable declaration-block-no-duplicate-properties -- dvh progressive enhancement */
     min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
     min-height: 100dvh;
     max-height: 100dvh;
     height: 100dvh;
+    /* stylelint-enable declaration-block-no-duplicate-properties */
     border-radius: 0;
   }
 
