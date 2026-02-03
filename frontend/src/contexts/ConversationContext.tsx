@@ -258,6 +258,9 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     setCurrentConversation(null);
     setCurrentConversationId(null);
     setHasMoreConversations(true);
+    // Reset pagination refs to prevent stale offset being used for the new company
+    isLoadingMoreRef.current = false;
+    pendingOffsetRef.current = 0;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
