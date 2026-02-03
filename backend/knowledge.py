@@ -468,11 +468,11 @@ The decisions cover the following areas:
 
         exec_summary += "\nEach decision includes the rationale and recommended approach based on thorough analysis and industry best practices."
 
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     return {
         "project_name": project_name,
-        "generated_at": datetime.utcnow().isoformat() + 'Z',
+        "generated_at": datetime.now(tz=timezone.utc).isoformat(),
         "entry_count": len(entries),
         "categories": categories,
         "timeline": timeline_items,

@@ -1239,6 +1239,7 @@ function App() {
               initialPlaybookId={myCompanyInitialPlaybookId}
               initialProjectId={myCompanyInitialProjectId}
               initialProjectDecisionId={myCompanyInitialProjectDecisionId}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type mismatch: useModalState vs MyCompany PromoteDecision shapes (TODO: unify)
               initialPromoteDecision={myCompanyPromoteDecision as any}
               onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
               onOpenLLMHub={handleOpenLLMHub}

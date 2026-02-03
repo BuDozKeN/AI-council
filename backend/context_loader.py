@@ -1337,10 +1337,27 @@ async def get_system_prompt_with_context(
     )
 
     # 3. Load company context + role info in parallel (batched, not N+1)
-    company_context, role_infos = await asyncio.gather(
-        asyncio.to_thread(load_company_context_from_db, company_uuid or business_id),
-        asyncio.to_thread(load_role_prompts_batch, all_role_ids),
-    )
+    # M8: Use TTL cache to avoid repeated DB lookups for context/prompts
+    resolved_company = company_uuid or business_id
+    company_cache_key = cache_key("ctx", resolved_company)
+    role_cache_key = cache_key("roles", *sorted(all_role_ids)) if all_role_ids else None
+
+    async def _fetch_company_context():
+        return await asyncio.to_thread(load_company_context_from_db, resolved_company)
+
+    async def _fetch_role_prompts():
+        return await asyncio.to_thread(load_role_prompts_batch, all_role_ids)
+
+    if role_cache_key:
+        company_context, role_infos = await asyncio.gather(
+            company_cache.get_or_fetch(company_cache_key, _fetch_company_context, ttl=300),
+            company_cache.get_or_fetch(role_cache_key, _fetch_role_prompts, ttl=300),
+        )
+    else:
+        company_context = await company_cache.get_or_fetch(
+            company_cache_key, _fetch_company_context, ttl=300
+        )
+        role_infos = []
 
     if not company_context:
         return None

@@ -1455,45 +1455,54 @@ async def export_all_user_data(request: Request, user: dict = Depends(get_curren
         logger.warning(f"GDPR export: failed to load user profile for {user_id}: {e}")
         export_data["user"] = {"id": user_id, "email": user.get("email")}
 
-    # 2. Export companies the user owns
+    # 2. Export companies the user owns (M9: batched queries instead of N+1)
     try:
         companies_result = supabase.table("companies").select("*").eq("user_id", user_id).execute()
         if companies_result.data:
+            company_ids = [c["id"] for c in companies_result.data]
+
+            # Batch-fetch all related data in 3 queries (not N*3)
+            all_depts = []
+            all_roles = []
+            all_playbooks = []
+            try:
+                dept_result = supabase.table("departments").select("*").in_("company_id", company_ids).execute()
+                all_depts = dept_result.data or []
+            except Exception as e:
+                logger.warning(f"GDPR export: failed to load departments: {e}")
+            try:
+                roles_result = supabase.table("roles").select("*").in_("company_id", company_ids).execute()
+                all_roles = roles_result.data or []
+            except Exception as e:
+                logger.warning(f"GDPR export: failed to load roles: {e}")
+            try:
+                playbooks_result = supabase.table("org_documents").select("*").in_("company_id", company_ids).execute()
+                all_playbooks = playbooks_result.data or []
+            except Exception as e:
+                logger.warning(f"GDPR export: failed to load playbooks: {e}")
+
+            # Group by company_id
+            depts_by_company: Dict[str, list] = {}
+            for d in all_depts:
+                depts_by_company.setdefault(d.get("company_id"), []).append(d)
+            roles_by_company: Dict[str, list] = {}
+            for r in all_roles:
+                roles_by_company.setdefault(r.get("company_id"), []).append(r)
+            playbooks_by_company: Dict[str, list] = {}
+            for p in all_playbooks:
+                playbooks_by_company.setdefault(p.get("company_id"), []).append(p)
+
             for company in companies_result.data:
+                cid = company.get("id")
                 company_export = {
-                    "id": company.get("id"),
+                    "id": cid,
                     "name": company.get("name"),
                     "context": company.get("context"),
                     "created_at": company.get("created_at"),
-                    "departments": [],
-                    "roles": [],
-                    "playbooks": [],
+                    "departments": depts_by_company.get(cid, []),
+                    "roles": roles_by_company.get(cid, []),
+                    "playbooks": playbooks_by_company.get(cid, []),
                 }
-
-                # Get departments for this company
-                try:
-                    dept_result = supabase.table("departments").select("*").eq("company_id", company.get("id")).execute()
-                    if dept_result.data:
-                        company_export["departments"] = dept_result.data
-                except Exception as e:
-                    logger.warning(f"GDPR export: failed to load departments for company {company.get('id')}: {e}")
-
-                # Get roles for this company
-                try:
-                    roles_result = supabase.table("roles").select("*").eq("company_id", company.get("id")).execute()
-                    if roles_result.data:
-                        company_export["roles"] = roles_result.data
-                except Exception as e:
-                    logger.warning(f"GDPR export: failed to load roles for company {company.get('id')}: {e}")
-
-                # Get playbooks (org_documents) for this company
-                try:
-                    playbooks_result = supabase.table("org_documents").select("*").eq("company_id", company.get("id")).execute()
-                    if playbooks_result.data:
-                        company_export["playbooks"] = playbooks_result.data
-                except Exception as e:
-                    logger.warning(f"GDPR export: failed to load playbooks for company {company.get('id')}: {e}")
-
                 export_data["companies"].append(company_export)
     except Exception as e:
         logger.error(f"GDPR export: failed to load companies for user {user_id}: {e}")

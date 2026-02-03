@@ -187,7 +187,7 @@ async def stage1_stream_responses(
     queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
     model_content: Dict[str, str] = {}
     model_start_times: Dict[str, float] = {}
-    STAGGER_DELAY = 0.5
+    STAGGER_DELAY = 0.0  # Removed per audit M14 - stagger adds 2.5s latency with no benefit
 
     # 7. Start all model streams with stagger, yielding early events
     stagger_gen = _start_models_with_stagger(
@@ -560,8 +560,8 @@ Provide a clear, well-reasoned final answer that represents the council's collec
                         import json
                         usage_json = chunk[7:-1]
                         usage_data = json.loads(usage_json)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        log_app_event("USAGE_PARSE_WARNING", level="DEBUG", error=str(e))
                     continue
 
                 content_chunks.append(chunk)
@@ -1021,8 +1021,8 @@ Title:"""
                 model=title_model,
                 usage=response['usage']
             )
-        except Exception:
-            pass  # Don't fail title generation if tracking fails
+        except Exception as e:
+            log_app_event("TITLE_USAGE_TRACKING_FAILED", level="DEBUG", error=str(e))
 
     if response is None:
         # Fallback to a generic title
@@ -1173,8 +1173,8 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
                         import json
                         usage_json = chunk[7:-1]
                         usage_data = json.loads(usage_json)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        log_app_event("CHAT_USAGE_PARSE_WARNING", level="DEBUG", error=str(e))
                     continue
                 content_chunks.append(chunk)
                 yield {"type": "chat_token", "content": chunk, "model": chairman}
@@ -1185,7 +1185,8 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
                 successful_chairman = chairman
                 chat_usage = usage_data
                 break
-        except Exception:
+        except Exception as e:
+            log_app_event("CHAT_MODEL_ERROR", level="WARNING", model=chairman, error=str(e))
             yield {"type": "chat_error", "model": chairman, "error": "Model unavailable"}
             continue
 

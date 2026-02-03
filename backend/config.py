@@ -174,8 +174,8 @@ STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman sy
 
 # Per-model timeout - individual models that hang get marked as error
 # This catches truly stuck models without cancelling healthy ones
-# NOTE: 120s gives slower models like GPT-5.1 (with adaptive reasoning) sufficient time
-PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "120"))  # 120s per individual model
+# Reduced from 120s to 90s per audit M13 - 99th percentile latency is ~60s
+PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "90"))  # 90s per individual model
 
 # Require access_token for RLS-protected queries (recommended: true in production)
 # When false, falls back to service client (bypasses RLS) - only for backwards compat

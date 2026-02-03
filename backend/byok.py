@@ -12,11 +12,14 @@ Security features:
 """
 
 import os
+import logging
 from datetime import datetime, timezone
 from typing import Optional, Tuple, Dict, Any
 from .database import get_supabase_service
 from .utils.encryption import decrypt_api_key, DecryptionError
 from .security import log_app_event, log_error
+
+logger = logging.getLogger(__name__)
 
 
 # System fallback key from environment
@@ -54,8 +57,8 @@ def _log_key_usage(user_id: str, db) -> None:
         db.table("user_api_keys").update({
             "last_used_at": datetime.now(timezone.utc).isoformat()
         }).eq("user_id", user_id).execute()
-    except Exception:
-        pass  # Non-critical, don't fail the request
+    except Exception as e:
+        logger.debug("Failed to update key last_used_at for user %s: %s", user_id, e)
 
 
 async def get_user_api_key(user_id: str, log_usage: bool = True) -> Optional[str]:
@@ -114,8 +117,8 @@ async def get_user_api_key(user_id: str, log_usage: bool = True) -> Optional[str
             db.table("user_api_keys").update({
                 "is_valid": False
             }).eq("user_id", user_id).execute()
-        except Exception:
-            pass  # Best effort - don't fail if we can't update
+        except Exception as e2:
+            logger.warning("Failed to mark key as invalid for user %s: %s", user_id, e2)
         return None
     except Exception as e:
         log_error("get_user_api_key", e, user_id=user_id)
@@ -254,7 +257,8 @@ def has_byok_configured(user_id: str) -> bool:
             result.data.get("is_active", True)
         )
 
-    except Exception:
+    except Exception as e:
+        logger.debug("Failed to check BYOK config for user %s: %s", user_id, e)
         return False
 
 

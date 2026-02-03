@@ -11,7 +11,10 @@ Endpoints for managing saved council decisions:
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional, List
+import logging
 import re
+
+logger = logging.getLogger(__name__)
 
 from ...auth import get_current_user, get_effective_user
 from ...security import escape_sql_like_pattern, log_app_event
@@ -211,8 +214,8 @@ async def create_decision(request: Request, company_id: ValidCompanyId, data: De
         )
         if summary_result.get("title"):
             ai_title = summary_result["title"]
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning("Decision summary generation failed for %s: %s", decision_id, e)
 
     decision = {
         "id": decision_id,
@@ -247,8 +250,8 @@ async def create_decision(request: Request, company_id: ValidCompanyId, data: De
     if data.project_id:
         try:
             context_updated = await auto_regenerate_project_context(data.project_id, user)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Auto-regenerate project context failed for %s: %s", data.project_id, e)
 
     return {"decision": decision, "context_updated": context_updated}
 
@@ -268,7 +271,8 @@ async def get_decision(request: Request, company_id: ValidCompanyId, decision_id
             .eq("company_id", company_uuid) \
             .eq("is_active", True) \
             .execute()
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to fetch decision %s: %s", decision_id, e)
         raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     if not result.data or len(result.data) == 0:
@@ -652,8 +656,8 @@ Use sections: ## Objective, ## Key Insights, ## Deliverables, ## Success Criteri
                                     usage=result['usage'],
                                     related_id=decision_id
                                 )
-                            except Exception:
-                                pass  # Don't fail if tracking fails
+                            except Exception as e:
+                                logger.debug("Failed to track project_from_decision usage: %s", e)
 
                         content = result['content']
                         if content.startswith('```'):
@@ -669,9 +673,11 @@ Use sections: ## Objective, ## Key Insights, ## Deliverables, ## Success Criteri
                         if structured.get('description'):
                             description = structured['description']
                         break
-                except Exception:
+                except Exception as e:
+                    logger.debug("LLM model %s failed for project creation: %s", model, e)
                     continue
-    except Exception:
+    except Exception as e:
+        logger.warning("AI project context generation failed: %s", e)
         if decision_content:
             context_md = f"## Overview\n\n{decision_content[:2000]}"
 

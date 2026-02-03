@@ -128,8 +128,9 @@ def optimize_image(file_data: bytes, file_type: str) -> Tuple[bytes, str]:
 
         return output.getvalue(), file_type
 
-    except Exception:
+    except Exception as e:
         # If optimization fails, return original data
+        logger.warning("Image optimization failed, using original: %s", e)
         return file_data, file_type
 
 
@@ -240,8 +241,8 @@ async def upload_attachment(
         # If DB insert fails, try to clean up the uploaded file
         try:
             storage_client.storage.from_(BUCKET_NAME).remove([storage_path])
-        except Exception:
-            pass  # Cleanup failure is non-critical, continue with main error handling
+        except Exception as e:
+            logger.debug("Storage cleanup failed (non-critical): %s", e)
         # SECURITY: Log internal error but don't expose details to client
         log_security_event(
             "ATTACHMENT_RECORD_FAILED",
@@ -261,7 +262,8 @@ async def upload_attachment(
             expires_in=3600  # 1 hour
         )
         signed_url = signed_url_response.get("signedURL") or signed_url_response.get("signed_url")
-    except Exception:
+    except Exception as e:
+        logger.warning("Signed URL generation failed for %s: %s", storage_path, e)
         signed_url = None  # Fallback if signed URL generation fails
 
     return {
@@ -312,8 +314,9 @@ async def get_attachment_url(
             expires_in=3600  # 1 hour
         )
         return signed_url_response.get("signedURL") or signed_url_response.get("signed_url")
-    except Exception:
-        return None  # Return None if signed URL generation fails
+    except Exception as e:
+        logger.warning("Signed URL generation failed for attachment %s: %s", attachment_id, e)
+        return None
 
 
 async def delete_attachment(
@@ -349,15 +352,16 @@ async def delete_attachment(
     # Delete from storage
     try:
         storage_client.storage.from_(BUCKET_NAME).remove([storage_path])
-    except Exception:
-        pass  # Continue even if storage delete fails (DB cleanup is more important)
+    except Exception as e:
+        logger.debug("Storage delete failed for %s (non-critical): %s", attachment_id, e)
 
     # Delete from database
     try:
         client.table("attachments").delete().eq("id", attachment_id).execute()
         return True
-    except Exception:
-        return False  # Return False if DB delete fails
+    except Exception as e:
+        logger.error("Failed to delete attachment %s from DB: %s", attachment_id, e)
+        return False
 
 
 async def download_attachment(
@@ -400,7 +404,8 @@ async def download_attachment(
             "name": attachment["file_name"],
             "id": attachment["id"],
         }
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to download attachment %s: %s", attachment_id, e)
         return None
 
 
@@ -443,7 +448,8 @@ async def get_attachment_data(
             expires_in=3600
         )
         signed_url = signed_url_response.get("signedURL") or signed_url_response.get("signed_url")
-    except Exception:
+    except Exception as e:
+        logger.warning("Signed URL generation failed for attachment %s: %s", attachment_id, e)
         signed_url = None  # Return attachment data even if signed URL fails
 
     return {
