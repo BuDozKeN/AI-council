@@ -68,7 +68,7 @@ async def stage1_collect_responses(
     messages = []
 
     # Add system prompt with business context if specified
-    system_prompt = get_system_prompt_with_context(business_id)
+    system_prompt = await get_system_prompt_with_context(business_id)
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
 
@@ -161,7 +161,7 @@ async def stage1_stream_responses(
     )
 
     # 3. Build system prompt with context and token limit from config
-    system_prompt = get_system_prompt_with_context(
+    system_prompt = await get_system_prompt_with_context(
         business_id=business_id,
         department_id=department_id,
         role_id=role_id,
@@ -276,7 +276,7 @@ async def stage2_stream_rankings(
 
     # 4. Build messages with system prompt
     messages = []
-    system_prompt = get_system_prompt_with_context(
+    system_prompt = await get_system_prompt_with_context(
         business_id=business_id,
         department_id=department_id,
         channel_id=channel_id,
@@ -480,7 +480,7 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     )
 
     # Build system prompt with context and token limit from config
-    system_prompt = get_system_prompt_with_context(
+    system_prompt = await get_system_prompt_with_context(
         business_id=business_id,
         department_id=department_id,
         channel_id=channel_id,
@@ -690,7 +690,7 @@ Now provide your evaluation and ranking:"""
     # Build messages with optional business context
     messages = []
 
-    system_prompt = get_system_prompt_with_context(business_id)
+    system_prompt = await get_system_prompt_with_context(business_id)
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
 
@@ -792,7 +792,7 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     # Build messages with optional business context
     messages = []
 
-    system_prompt = get_system_prompt_with_context(business_id)
+    system_prompt = await get_system_prompt_with_context(business_id)
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
 
@@ -1126,7 +1126,7 @@ async def chat_stream_response(
     # Build messages with optional contexts
     messages = []
 
-    system_prompt = get_system_prompt_with_context(
+    system_prompt = await get_system_prompt_with_context(
         business_id=business_id,
         department_id=department_id,
         project_id=project_id,
