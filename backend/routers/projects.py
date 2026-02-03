@@ -467,8 +467,9 @@ For context_md, use these sections (skip any that don't apply):
             if structured:
                 return {"structured": structured}
 
-    # Query all models in parallel - first valid response wins
-    MODEL_TIMEOUT = 8.0  # Uniform timeout for parallel queries
+    # Query models in parallel - first valid response wins immediately
+    # Uses asyncio.wait with FIRST_COMPLETED to avoid waiting for slow/failing models
+    MODEL_TIMEOUT = 8.0
 
     async def query_with_model(model: str):
         """Query a single model and return (model, result) tuple."""
@@ -480,48 +481,52 @@ For context_md, use these sections (skip any that don't apply):
             pass
         return (model, None)
 
-    # Run all model queries in parallel
-    results = await asyncio.gather(
-        *[query_with_model(model) for model in models],
-        return_exceptions=True
-    )
+    # Create tasks for all models
+    tasks = {asyncio.create_task(query_with_model(model)): model for model in models}
+    pending = set(tasks.keys())
 
-    # Find first successful result
-    successful_model = None
-    successful_result = None
-    for item in results:
-        if isinstance(item, Exception):
-            continue
-        model, result = item
-        if result and result.get('content'):
-            structured = _parse_structured_response(result['content'], free_text)
-            if structured:
-                successful_model = model
-                successful_result = result
+    # Wait for first successful result (not all results)
+    while pending:
+        done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
 
-                # Track internal LLM usage
-                if structure_request.company_id and result.get('usage'):
-                    try:
-                        from .company.utils import save_internal_llm_usage
-                        await save_internal_llm_usage(
-                            company_id=structure_request.company_id,
-                            operation_type='context_structuring',
-                            model=model,
-                            usage=result['usage']
-                        )
-                    except Exception:
-                        pass
+        for task in done:
+            try:
+                model, result = task.result()
+                if result and result.get('content'):
+                    structured = _parse_structured_response(result['content'], free_text)
+                    if structured:
+                        # Cancel remaining tasks - we have our answer
+                        for p in pending:
+                            p.cancel()
+                        # Await cancelled tasks to properly close httpx connections
+                        # and prevent "Task was destroyed but pending" warnings
+                        await asyncio.gather(*pending, return_exceptions=True)
 
-                # Cache the successful response
-                if structure_request.company_id:
-                    await cache_llm_response(
-                        company_id=structure_request.company_id,
-                        model=model,
-                        messages=messages,
-                        response=result
-                    )
+                        # Track internal LLM usage
+                        if structure_request.company_id and result.get('usage'):
+                            try:
+                                from .company.utils import save_internal_llm_usage
+                                await save_internal_llm_usage(
+                                    company_id=structure_request.company_id,
+                                    operation_type='context_structuring',
+                                    model=model,
+                                    usage=result['usage']
+                                )
+                            except Exception:
+                                pass
 
-                return {"structured": structured}
+                        # Cache the successful response
+                        if structure_request.company_id:
+                            await cache_llm_response(
+                                company_id=structure_request.company_id,
+                                model=model,
+                                messages=messages,
+                                response=result
+                            )
+
+                        return {"structured": structured}
+            except Exception:
+                continue
 
     # All models failed - return fallback
     from ..knowledge_fallback import _short_title
