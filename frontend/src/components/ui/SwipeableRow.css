@@ -157,9 +157,7 @@
     min-height: 44px;
   }
 
-  /* Labels stay hidden on mobile - icons are self-explanatory,
-     aria-label provides accessibility. Showing text caused overflow
-     into conversation titles due to fixed 44px button width. */
+  /* Icons-only on mobile; aria-label for a11y */
 
   .swipeable-action svg {
     width: 20px;
