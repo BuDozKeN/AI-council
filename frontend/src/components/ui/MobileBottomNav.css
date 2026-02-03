@@ -100,36 +100,14 @@
   text-align: center;
 }
 
-/* Medium mobile screens - use abbreviations or slightly smaller font */
-@media (width <= 480px) {
+/* Mobile - merged into standard breakpoint */
+@media (width <= 640px) {
   .mobile-nav-label {
-    font-size: 11px; /* 11px - balance between readability and fit */
-  }
-}
-
-/* Very small screens - hide labels to show icons only */
-@media (width <= 375px) {
-  .mobile-nav-label {
-    display: none; /* Hide text labels, show only icons */
+    font-size: 11px;
   }
 
   .mobile-nav-item {
-    gap: 0; /* Remove gap when no label shown */
-    min-height: 48px; /* Maintain touch target */
-    padding: var(--space-3);
-  }
-}
-
-/* Extra small screens (iPhone SE - 320px width) */
-@media (width <= 360px) {
-  .mobile-nav-label {
-    display: none; /* Hide text labels, show only icons */
-  }
-
-  .mobile-nav-item {
-    gap: 0;
-    min-height: 44px; /* Maintain WCAG 44px touch target */
-    padding: var(--space-2);
+    min-height: 44px; /* WCAG 44px touch target */
     flex: 1;
   }
 

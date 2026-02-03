@@ -1,6 +1,7 @@
 /* ChatInput - Mobile responsive for input */
 
 /* Extracted from ChatInput.css lines 445-728 */
+@import url('./mobile-input-selectors.css');
 
 /* ==========================================
    MOBILE RESPONSIVE STYLES
@@ -12,7 +13,7 @@
      to ensure it's above the bottom nav on all screens */
 
   .messages-container {
-    padding: 0 var(--space-4) 16px;
+    padding: 0 var(--space-3) 12px;
   }
 
   /* Remove max-width constraint on tablet - content fills available space */
@@ -21,8 +22,9 @@
   }
 
   .input-form {
-    padding: var(--space-2) var(--space-4) 12px;
-    gap: var(--gap-sm);
+    padding: var(--space-3);
+    gap: var(--gap-sm-plus);
+    background: var(--color-bg-primary);
   }
 
   /* Remove max-width constraint on input form children */
@@ -31,69 +33,29 @@
   }
 
   .input-row {
-    padding: var(--space-1) var(--space-1) 4px 12px;
-  }
-
-  .message-input {
-    min-height: 24px;
-    padding: var(--space-2) 0;
-    font-size: var(--text-base); /* Prevents iOS zoom on focus */
-  }
-
-  /* Action buttons on mobile */
-  .input-action-btn {
-    width: 44px;
-    height: 44px;
-    min-width: 44px; /* Touch-friendly */
-  }
-
-  .input-action-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .message-group {
-    margin-bottom: var(--space-6);
-  }
-
-  .user-message .message-content {
-    padding: var(--space-4);
-  }
-
-  /* Context bar becomes more compact */
-  .context-bar {
-    gap: var(--space-2);
-  }
-
-  .context-bar button.context-select-trigger,
-  button.context-select-trigger {
-    padding: var(--space-1) var(--space-2);
-    min-height: 44px;
-    font-size: var(--text-xs);
-  }
-}
-
-/* Small phones */
-@media (width <= 640px) {
-  .messages-container {
-    padding: 0 var(--space-3) 12px;
-  }
-
-  .input-form {
-    padding: var(--space-3);
-    gap: var(--gap-sm-plus);
+    padding: var(--space-1) var(--space-1) 4px var(--space-2-5);
   }
 
   .message-input {
     min-height: 44px;
     padding: var(--space-2-5) 0;
+    font-size: var(--text-base); /* Prevents iOS zoom on focus */
   }
 
-  /* Slightly larger touch targets on small phones */
+  /* Action buttons on mobile - WCAG 44px touch targets */
   .input-action-btn {
     width: 44px;
     height: 44px;
     min-width: 44px;
+  }
+
+  .input-action-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .message-group {
+    margin-bottom: var(--space-6);
   }
 
   .user-message .message-content {
@@ -104,17 +66,22 @@
     font-size: var(--text-xs);
   }
 
-  /* Stack context bar vertically on very small screens */
+  /* Context bar - stacked vertically */
   .context-bar {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
   }
 
   .context-bar button.context-select-trigger,
   button.context-select-trigger {
     width: 100%;
     justify-content: space-between;
+    padding: var(--space-1) var(--space-2);
+    min-height: 44px;
+    font-size: var(--text-xs);
   }
 
   /* Mode toggle adjustments */
@@ -131,8 +98,9 @@
   .mode-btn-compact {
     flex: 1;
     text-align: center;
-    padding: var(--space-2-5) var(--space-3);
-    min-height: 44px; /* Touch-friendly */
+    padding: var(--space-2) var(--space-2);
+    min-height: 44px;
+    font-size: var(--text-xs);
   }
 
   .mode-buttons {
@@ -156,7 +124,8 @@
 
   .dept-pill-compact {
     min-height: 44px;
-    padding: var(--space-2) var(--space-3);
+    padding: var(--space-1-5) var(--space-2);
+    font-size: var(--text-xs);
   }
 
   .role-pills-compact {
@@ -166,79 +135,15 @@
   }
 
   .role-pill-compact {
-    min-height: 32px;
-    padding: var(--space-1-5) var(--space-2-5);
-  }
-}
-
-/* Very small phones (iPhone SE - 320px width) */
-@media (width <= 360px) {
-  .messages-container {
-    padding: 0 var(--space-2) 8px;
-  }
-
-  .input-form {
-    padding: var(--space-2);
-    gap: var(--gap-xs);
-  }
-
-  .input-row {
-    padding: var(--space-1) var(--space-1) 4px var(--space-2-5);
-  }
-
-  .message-input {
-    min-height: 40px;
-    padding: var(--space-1-5) 0;
-  }
-
-  /* Maintain WCAG 44px touch targets even at 320px */
-  .input-action-btn {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-  }
-
-  .input-action-btn svg {
-    width: 16px;
-    height: 16px;
+    min-height: 44px;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-2xs);
   }
 
   .send-button,
   .stop-button {
     padding: var(--space-2) var(--space-3);
     font-size: var(--text-xs);
-  }
-
-  /* Compact context bar */
-  .context-bar {
-    gap: var(--gap-xs);
-    padding: var(--space-1-5) var(--space-2);
-  }
-
-  .context-bar button.context-select-trigger,
-  button.context-select-trigger {
-    font-size: var(--text-2xs);
-    padding: var(--space-1) var(--space-1-5);
-    min-height: 44px;
-  }
-
-  /* Mode toggle compact - maintain 44px touch targets */
-  .mode-btn-compact {
-    padding: var(--space-2) var(--space-2);
-    min-height: 44px;
-    font-size: var(--text-xs);
-  }
-
-  .dept-pill-compact {
-    min-height: 44px;
-    padding: var(--space-1-5) var(--space-2);
-    font-size: var(--text-xs);
-  }
-
-  .role-pill-compact {
-    min-height: 44px;
-    padding: var(--space-1) var(--space-2);
-    font-size: var(--text-2xs);
   }
 
   /* Mobile selectors - compact but touch-friendly */
@@ -250,85 +155,6 @@
     padding: var(--space-2-5);
     font-size: var(--text-xs);
     min-height: 44px;
-  }
-}
-
-/* ==========================================
-   MOBILE MODE TOGGLE DROPDOWNS (Radix Select)
-   ========================================== */
-
-.mode-toggle-bar.mobile {
-  flex-direction: column;
-  gap: var(--gap-sm-plus);
-  align-items: stretch;
-}
-
-/* Multi-select selectors on mobile */
-.mode-toggle-bar.mobile .mode-toggle-selectors {
-  width: 100%;
-  gap: var(--gap-sm);
-}
-
-.mode-toggle-bar.mobile .mode-toggle-select {
-  flex: 1;
-  min-width: calc(50% - 4px);
-  max-width: none;
-}
-
-.mobile-selectors {
-  display: flex;
-  gap: var(--gap-sm);
-  flex-wrap: wrap;
-}
-
-/* Radix Select triggers for mobile */
-.mobile-selectors button.mobile-dept-select,
-.mobile-selectors button.mobile-role-select,
-button.mobile-dept-select,
-button.mobile-role-select {
-  flex: 1;
-  min-width: 120px;
-  padding: var(--space-3);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-full);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  min-height: 44px;
-  background: var(--color-bg-base);
-}
-
-.mobile-selectors button.mobile-dept-select.has-selection,
-.mobile-selectors button.mobile-role-select.has-selection {
-  border-radius: var(--radius-full);
-}
-
-.mobile-selectors button.mobile-dept-select:focus,
-.mobile-selectors button.mobile-role-select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-focus);
-}
-
-.mobile-dept-select[data-disabled],
-.mobile-role-select[data-disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ==========================================
-   MOBILE INPUT FORM - Clean background
-   ========================================== */
-
-@media (width <= 640px) {
-  /* Clean background on mobile - omnibar has its own shadow */
-  .input-form {
-    background: var(--color-bg-primary);
-  }
-
-  /* Context bar styling for new conversations */
-  .context-bar {
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-lg);
   }
 }
 
