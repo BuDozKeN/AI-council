@@ -143,7 +143,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
   // Note: Query key does NOT include offset - we use a single cache entry for the list
   // and manage pagination via local state to avoid race conditions during invalidation
-  const listQueryKey = conversationKeys.list({ sortBy: conversationSortBy, companyId: selectedBusiness });
+  const listQueryKey = conversationKeys.list({
+    sortBy: conversationSortBy,
+    companyId: selectedBusiness,
+  });
 
   // Conversation list state - managed outside TanStack Query to support pagination
   const [conversations, setConversations] = useState<Conversation[]>([]);
