@@ -17,6 +17,7 @@ GRACEFUL DEGRADATION:
 import hashlib
 import json
 import logging
+import time
 from typing import Optional, Any, Dict, Callable
 from functools import wraps
 
@@ -57,7 +58,6 @@ async def get_redis() -> Optional[redis.Redis]:
         return None
 
     if _redis_client is not None:
-        import time
         now = time.monotonic()
         # Skip ping if we pinged recently
         if now - _redis_last_ping < _REDIS_PING_INTERVAL:
@@ -73,7 +73,6 @@ async def get_redis() -> Optional[redis.Redis]:
             _redis_pool = None
 
     try:
-        import time
         if _redis_pool is None:
             _redis_pool = ConnectionPool.from_url(
                 REDIS_URL,

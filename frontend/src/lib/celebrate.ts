@@ -6,13 +6,22 @@
  * canvas-confetti is lazily imported to reduce initial bundle size (H8).
  */
 
+import type confettiType from 'canvas-confetti';
+
 // Lazy-load canvas-confetti to keep it out of the initial bundle (H8 fix)
-let confettiPromise: Promise<typeof import('canvas-confetti')> | null = null;
-const getConfetti = async () => {
-  if (!confettiPromise) {
-    confettiPromise = import('canvas-confetti');
+// Only the type is imported at compile time; the runtime module is loaded on first use
+let confettiFn: typeof confettiType | null = null;
+let loadingPromise: Promise<void> | null = null;
+
+const getConfetti = async (): Promise<typeof confettiType> => {
+  if (confettiFn) return confettiFn;
+  if (!loadingPromise) {
+    loadingPromise = import('canvas-confetti').then((mod) => {
+      confettiFn = mod.default;
+    });
   }
-  return (await confettiPromise).default;
+  await loadingPromise;
+  return confettiFn!;
 };
 
 // Check if user prefers reduced motion
