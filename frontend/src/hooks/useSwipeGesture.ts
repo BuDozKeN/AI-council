@@ -88,8 +88,13 @@ export function useSwipeGesture({
           }
         }
       } else if (!isHorizontal && absY >= threshold && deltaY > 0) {
-        // Swipe down
-        onSwipeDown?.();
+        // Swipe down - respect edgeOnly by checking top edge of element
+        const isFromTopEdge = elementRef.current
+          ? startData.y <= elementRef.current.getBoundingClientRect().top + edgeWidth
+          : false;
+        if (!edgeOnly || isFromTopEdge) {
+          onSwipeDown?.();
+        }
       }
 
       touchStartRef.current = null;
