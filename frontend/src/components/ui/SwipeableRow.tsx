@@ -34,10 +34,22 @@ export function SwipeableRow({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
 
-  // Calculate action area width based on number of actions
-  // 36px button + 4px gap = 40px per action, plus 24px padding
-  const actionWidth = actions.length * 40 + 24;
-  const threshold = actionWidth * 0.5; // 50% of action width to snap open
+  // Track mobile breakpoint reactively so actionWidth updates on resize/rotation
+  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 640px)').matches);
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 640px)');
+    const onChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+
+  // Calculate actual flexbox width: (N buttons) + (N-1 gaps) + padding
+  // Mobile: 44px button, 8px gap, 16px padding (8px left + 8px right)
+  // Desktop: 36px button, 4px gap, 24px padding (12px left + 12px right)
+  const actionWidth = isMobile
+    ? actions.length * 44 + Math.max(0, actions.length - 1) * 8 + 16
+    : actions.length * 36 + Math.max(0, actions.length - 1) * 4 + 24;
+  const threshold = actionWidth * 0.5;
 
   // Transform for action button opacity
   const actionOpacity = useTransform(x, [-actionWidth, -threshold, 0], [1, 0.8, 0]);
