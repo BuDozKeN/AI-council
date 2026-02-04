@@ -11,6 +11,7 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
+import './select.css';
 import './SortSelect.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
@@ -72,7 +73,7 @@ export function SortSelect({
     return (
       <>
         <button
-          className={cn('sort-select-trigger', className)}
+          className={cn('select-trigger select-trigger--compact sort-select-trigger', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -109,7 +110,7 @@ export function SortSelect({
   // Desktop: use Radix Select
   return (
     <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
-      <SelectPrimitive.Trigger className={cn('sort-select-trigger', className)}>
+      <SelectPrimitive.Trigger className={cn('select-trigger select-trigger--compact sort-select-trigger', className)}>
         <ArrowUpDown className="h-3.5 w-3.5" />
         <SelectPrimitive.Value>{t(selectedOption.labelKey)}</SelectPrimitive.Value>
         <SelectPrimitive.Icon asChild>

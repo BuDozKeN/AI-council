@@ -1,44 +1,8 @@
-/* SortSelect - matches DepartmentSelect/StatusSelect design */
+/* SortSelect - inherits base from select-trigger select-trigger--compact */
 
+/* Component-specific: tighter gap for sort icon */
 .sort-select-trigger {
-  display: inline-flex;
-  align-items: center;
   gap: var(--gap-xs-plus);
-  padding: var(--space-2) var(--space-3);
-  min-height: 36px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-lg);
-  font-family: inherit;
-  font-size: var(--text-xs-plus);
-  font-weight: 500;
-  color: var(--color-slate-600);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  outline: none;
-  white-space: nowrap;
-}
-
-/* Ensure Radix Value component inherits font styles */
-.sort-select-trigger span {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-.sort-select-trigger:hover {
-  background: var(--color-slate-50);
-  border-color: var(--color-slate-300);
-}
-
-.sort-select-trigger:focus {
-  border-color: var(--color-indigo-400);
-  box-shadow: 0 0 0 2px var(--overlay-indigo-10);
-}
-
-.sort-select-trigger[data-disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .sort-select-content {
@@ -152,30 +116,13 @@
   font-weight: 500;
 }
 
-/* Mobile trigger improvements - WCAG 44px touch target */
-@media (width <= 640px) {
-  .sort-select-trigger {
-    min-height: 44px;
-    padding: var(--space-2) var(--space-3);
-    font-size: var(--text-xs-plus);
-    border-radius: var(--radius-lg);
-  }
-}
+/* Mobile trigger: base sizing handled by select-mobile.css */
 
 /* =============================================================================
    DARK MODE
    ============================================================================= */
 
-.dark .sort-select-trigger {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-gray-400);
-}
-
-.dark .sort-select-trigger:hover {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border-dark);
-}
+/* Dark mode trigger: handled by select-dark.css */
 
 .dark .sort-select-content {
   background: var(--color-bg-secondary);

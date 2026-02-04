@@ -21,6 +21,7 @@ import { User, Check, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
 import type { Role } from '../../types/business';
+import './select.css';
 import './MultiRoleSelect.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
@@ -121,7 +122,7 @@ export function MultiRoleSelect({
     return (
       <>
         <button
-          className={cn('multi-role-trigger', className)}
+          className={cn('select-trigger select-trigger--compact multi-role-trigger', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -139,7 +140,7 @@ export function MultiRoleSelect({
   // Desktop: use Popover
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger className={cn('multi-role-trigger', className)} disabled={disabled}>
+      <Popover.Trigger className={cn('select-trigger select-trigger--compact multi-role-trigger', className)} disabled={disabled}>
         {triggerContent}
       </Popover.Trigger>
 
