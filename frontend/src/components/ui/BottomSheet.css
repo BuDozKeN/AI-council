@@ -27,7 +27,7 @@
   box-shadow: var(--shadow-xl);
   overflow: hidden;
   /* stylelint-disable-next-line declaration-no-important */
-  touch-action: pan-y !important; /* Override Framer Motion's pan-x to allow vertical scroll */
+  touch-action: pan-y pan-x !important; /* Override Framer Motion's pan-x; allow vertical scroll + horizontal browser gestures (swipe-back) */
   user-select: none; /* Prevent text selection during drag */
 }
 
@@ -179,17 +179,12 @@
   }
 }
 
-/* Full screen sheet on mobile - use dvh to avoid content hiding behind browser bar */
+/* Very small phones - full screen sheet */
 @media (width <= 640px) {
   .bottom-sheet-content {
-    /* stylelint-disable declaration-block-no-duplicate-properties -- dvh progressive enhancement: vh fallback then dvh override */
     min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
-    min-height: 100dvh;
-    max-height: 100dvh;
-    height: 100dvh;
-    /* stylelint-enable declaration-block-no-duplicate-properties */
     border-radius: 0;
   }
 }
@@ -197,14 +192,9 @@
 /* Landscape mode */
 @media (width <= 1024px) and (orientation: landscape) {
   .bottom-sheet-content {
-    /* stylelint-disable declaration-block-no-duplicate-properties -- dvh progressive enhancement */
     min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
-    min-height: 100dvh;
-    max-height: 100dvh;
-    height: 100dvh;
-    /* stylelint-enable declaration-block-no-duplicate-properties */
     border-radius: 0;
   }
 

@@ -9,7 +9,6 @@ SECURITY: Uses per-user derived keys via HKDF to ensure that:
 
 import os
 import base64
-from typing import Optional
 
 # Cache for per-user ciphers (keyed by user_id)
 _cipher_cache = {}
@@ -121,84 +120,66 @@ def get_cipher_for_user(user_id: str):
     return _cipher_cache[user_id]
 
 
-# Legacy function for backward compatibility (uses a default user context)
-def get_cipher():
-    """
-    DEPRECATED: Use get_cipher_for_user(user_id) instead.
-
-    This function exists for backward compatibility during migration.
-    It uses a legacy derivation path.
-    """
-    return get_cipher_for_user("_legacy_global_")
-
-
-def encrypt_api_key(raw_key: str, user_id: Optional[str] = None) -> str:
+def encrypt_api_key(raw_key: str, user_id: str) -> str:
     """
     Encrypt an API key for secure storage.
 
-    SECURITY: Uses per-user derived keys when user_id is provided.
+    SECURITY: Uses per-user derived keys via HKDF.
 
     Args:
         raw_key: The plaintext OpenRouter API key
-        user_id: The user's ID for per-user key derivation (recommended)
+        user_id: The user's ID for per-user key derivation (required)
 
     Returns:
         Base64-encoded encrypted key string
     """
     if not raw_key:
         raise ValueError("API key cannot be empty")
+    if not user_id:
+        raise ValueError("user_id is required for encryption")
 
-    if user_id:
-        cipher = get_cipher_for_user(user_id)
-    else:
-        # Fallback to legacy behavior (not recommended)
-        cipher = get_cipher()
-
+    cipher = get_cipher_for_user(user_id)
     encrypted = cipher.encrypt(raw_key.encode())
     return encrypted.decode()
 
 
-def decrypt_api_key(encrypted_key: str, user_id: Optional[str] = None) -> str:
+def decrypt_api_key(encrypted_key: str, user_id: str) -> str:
     """
     Decrypt an API key for use.
 
-    SECURITY: Uses per-user derived keys when user_id is provided.
+    SECURITY: Uses per-user derived keys via HKDF.
 
     Args:
         encrypted_key: The encrypted key from storage
-        user_id: The user's ID for per-user key derivation (recommended)
+        user_id: The user's ID for per-user key derivation (required)
 
     Returns:
         The plaintext API key
 
     Raises:
-        ValueError: If the encrypted key is empty or malformed
+        ValueError: If the encrypted key is empty or user_id is missing
         DecryptionError: If the key cannot be decrypted (wrong cipher, corrupted data)
     """
     if not encrypted_key:
         raise ValueError("Encrypted key cannot be empty")
+    if not user_id:
+        raise ValueError("user_id is required for decryption")
 
     try:
         from cryptography.fernet import InvalidToken
     except ImportError:
         InvalidToken = Exception
 
-    if user_id:
-        cipher = get_cipher_for_user(user_id)
-    else:
-        # Fallback to legacy behavior (not recommended)
-        cipher = get_cipher()
+    cipher = get_cipher_for_user(user_id)
 
     try:
         decrypted = cipher.decrypt(encrypted_key.encode())
         return decrypted.decode()
     except InvalidToken as e:
-        # Fernet raises InvalidToken for bad padding, wrong key, or corrupted data
         raise DecryptionError(
             "Failed to decrypt API key: data is corrupted or was encrypted with a different key"
         ) from e
     except Exception as e:
-        # Catch base64 decoding errors ("Incorrect padding") and other issues
         error_msg = str(e)
         if "padding" in error_msg.lower() or "base64" in error_msg.lower():
             raise DecryptionError(

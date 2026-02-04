@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
+import logging
 import re
 import json
 
@@ -24,6 +25,8 @@ from ..i18n import t, get_locale_from_request
 # Import shared rate limiter (ensures limits are tracked globally)
 from ..rate_limit import limiter
 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="", tags=["projects"])
 
@@ -361,8 +364,8 @@ Respond ONLY with this JSON (no markdown code blocks):
                     model=model_used,
                     usage=result['usage']
                 )
-            except Exception:
-                pass  # Don't fail extraction if tracking fails
+            except Exception as e:
+                logger.warning("Failed to track LLM usage for project extraction: %s", e)
 
         if result and result.get('content'):
             content = result['content'].strip()
@@ -477,8 +480,8 @@ For context_md, use these sections (skip any that don't apply):
             result = await query_model(model=model, messages=messages, timeout=MODEL_TIMEOUT)
             if result and result.get('content'):
                 return (model, result)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed to query model %s for context structuring: %s", model, e)
         return (model, None)
 
     # Create tasks for all models
@@ -512,8 +515,8 @@ For context_md, use these sections (skip any that don't apply):
                                     model=model,
                                     usage=result['usage']
                                 )
-                            except Exception:
-                                pass
+                            except Exception as e:
+                                logger.warning("Failed to track LLM usage for context structuring: %s", e)
 
                         # Cache the successful response
                         if structure_request.company_id:
@@ -928,8 +931,8 @@ Today's date: {today_date}"""
                         usage=result['usage'],
                         related_id=project_id
                     )
-                except Exception:
-                    pass  # Don't fail regeneration if tracking fails
+                except Exception as e:
+                    logger.warning("Failed to track LLM usage for context regeneration: %s", e)
 
             if result and result.get('content'):
                 content = result['content']

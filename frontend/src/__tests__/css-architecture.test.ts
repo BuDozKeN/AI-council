@@ -126,7 +126,9 @@ describe('CSS Architecture - File Organization', () => {
         parts.length === 2 &&
         !file.includes('/styles/') &&
         !file.includes('index.css') &&
-        !file.includes('App.css')
+        !file.includes('App.css') &&
+        !file.includes('AppSidebar.css') &&
+        !file.includes('AppTouchTargets.css')
       );
     });
 

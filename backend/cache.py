@@ -16,8 +16,12 @@ GRACEFUL DEGRADATION:
 
 import hashlib
 import json
+import logging
+import time
 from typing import Optional, Any, Dict, Callable
 from functools import wraps
+
+logger = logging.getLogger(__name__)
 
 import redis.asyncio as redis
 from redis.asyncio.connection import ConnectionPool
@@ -37,6 +41,8 @@ except ImportError:
 
 _redis_pool: Optional[ConnectionPool] = None
 _redis_client: Optional[redis.Redis] = None
+_redis_last_ping: float = 0.0
+_REDIS_PING_INTERVAL = 30.0  # Only ping every 30 seconds, not on every call
 
 
 async def get_redis() -> Optional[redis.Redis]:
@@ -44,18 +50,25 @@ async def get_redis() -> Optional[redis.Redis]:
     Get or create Redis client with connection pooling.
 
     Returns None if Redis is disabled or unavailable (graceful degradation).
+    Pings at most once per 30 seconds to avoid per-call overhead (M10 fix).
     """
-    global _redis_pool, _redis_client
+    global _redis_pool, _redis_client, _redis_last_ping
 
     if not REDIS_ENABLED:
         return None
 
     if _redis_client is not None:
+        now = time.monotonic()
+        # Skip ping if we pinged recently
+        if now - _redis_last_ping < _REDIS_PING_INTERVAL:
+            return _redis_client
         try:
             await _redis_client.ping()
+            _redis_last_ping = now
             return _redis_client
-        except Exception:
+        except Exception as e:
             # Connection lost, recreate
+            logger.debug("Redis connection lost, reconnecting: %s", e)
             _redis_client = None
             _redis_pool = None
 
@@ -70,7 +83,8 @@ async def get_redis() -> Optional[redis.Redis]:
             )
 
         _redis_client = redis.Redis(connection_pool=_redis_pool)
-        await _redis_client.ping()  # Verify connection
+        await _redis_client.ping()  # Verify connection on first create
+        _redis_last_ping = time.monotonic()
         return _redis_client
 
     except Exception as e:
@@ -313,7 +327,8 @@ async def get_rate_limit_status(key: str) -> Dict[str, Any]:
             "count": count,
             "ttl": ttl,
         }
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to get rate limit status: %s", e)
         return {"available": False, "count": 0, "ttl": 0}
 
 
@@ -340,7 +355,8 @@ async def cache_session(
             json.dumps(user_data, default=str),
         )
         return True
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to cache session %s: %s", session_id, e)
         return False
 
 
@@ -357,7 +373,8 @@ async def get_cached_session(session_id: str) -> Optional[Dict[str, Any]]:
         if data:
             return json.loads(data)
         return None
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to get cached session %s: %s", session_id, e)
         return None
 
 
@@ -372,7 +389,8 @@ async def invalidate_session(session_id: str) -> bool:
     try:
         await client.delete(session_key)
         return True
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to invalidate session %s: %s", session_id, e)
         return False
 
 
@@ -460,8 +478,8 @@ def cached(
                     cached_result = await client.get(cache_key)
                     if cached_result:
                         return json.loads(cached_result)
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("Cache read failed for %s: %s", cache_key, e)
 
             # Call function
             result = await func(*args, **kwargs)
@@ -474,8 +492,8 @@ def cached(
                         ttl or REDIS_DEFAULT_TTL,
                         json.dumps(result, default=str),
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("Cache write failed for %s: %s", cache_key, e)
 
             return result
 

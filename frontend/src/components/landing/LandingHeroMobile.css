@@ -74,8 +74,8 @@
   }
 }
 
-/* Small phones (400px and below) */
-@media (width <= 400px) {
+/* Small phones - merged into standard mobile breakpoint */
+@media (width <= 640px) {
   .landing-hero {
     padding: var(--space-3);
   }
@@ -108,35 +108,6 @@
 
   .landing-logo-text {
     font-size: var(--text-2xl);
-  }
-}
-
-/* Very small phones (360px and below) */
-@media (width <= 360px) {
-  .landing-hero {
-    padding: var(--space-2-5);
-    gap: var(--gap-md);
-  }
-
-  .landing-headline {
-    font-size: var(--text-2xl);
-  }
-
-  .landing-stats {
-    gap: var(--gap-xs);
-  }
-
-  .stat-pill {
-    padding: var(--space-1) var(--space-2);
-  }
-
-  .stat-number {
-    font-size: var(--text-sm-plus);
-  }
-
-  .stat-arrow {
-    width: 12px;
-    height: 12px;
   }
 }
 

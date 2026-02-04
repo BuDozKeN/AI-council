@@ -30,6 +30,7 @@ export function usePullToRefresh({
   const containerRef = useRef<HTMLElement | null>(null);
   const touchStartY = useRef<number | null>(null);
   const touchStartScrollTop = useRef<number | null>(null);
+  const scrollableElRef = useRef<HTMLElement | null>(null);
 
   const handleTouchStart = useCallback(
     (e: TouchEvent): void => {
@@ -38,12 +39,31 @@ export function usePullToRefresh({
       const container = containerRef.current;
       if (!container) return;
 
+      // Find the actual scrollable element from the touch target upward.
+      // When the container itself has overflow:hidden, its scrollTop is always 0,
+      // so we need to check the inner scrollable child instead.
+      let scrollEl: HTMLElement | null = e.target as HTMLElement;
+      let foundScrollable: HTMLElement | null = null;
+      while (scrollEl && scrollEl !== container) {
+        const overflowY = window.getComputedStyle(scrollEl).overflowY;
+        if (
+          (overflowY === 'auto' || overflowY === 'scroll') &&
+          scrollEl.scrollHeight > scrollEl.clientHeight
+        ) {
+          foundScrollable = scrollEl;
+          break;
+        }
+        scrollEl = scrollEl.parentElement;
+      }
+      const checkEl = foundScrollable || container;
+      scrollableElRef.current = checkEl;
+
       // Only track if at top of scroll
-      if (container.scrollTop <= 0) {
+      if (checkEl.scrollTop <= 0) {
         const touch = e.touches[0];
         if (touch) {
           touchStartY.current = touch.clientY;
-          touchStartScrollTop.current = container.scrollTop;
+          touchStartScrollTop.current = checkEl.scrollTop;
         }
       }
     },
@@ -57,8 +77,11 @@ export function usePullToRefresh({
       const container = containerRef.current;
       if (!container) return;
 
+      // Check the actual scrollable element found during touchstart
+      const checkEl = scrollableElRef.current || container;
+
       // Only allow pull when at top
-      if (container.scrollTop > 0) {
+      if (checkEl.scrollTop > 0) {
         touchStartY.current = null;
         setPullDistance(0);
         setIsPulling(false);

@@ -11,9 +11,12 @@ from datetime import datetime, timezone
 import re
 import time
 import json
+import logging
 
 from ...database import get_supabase_with_auth, get_supabase_service
 from ...security import SecureHTTPException, log_app_event
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
@@ -188,8 +191,8 @@ async def log_activity(
 
     try:
         client.table("activity_logs").insert(data).execute()
-    except Exception:
-        pass  # Don't fail the main operation if logging fails
+    except Exception as e:
+        logger.debug("Activity log insert failed: %s", e)
 
 
 async def log_usage_event(
@@ -226,8 +229,8 @@ async def log_usage_event(
 
     try:
         client.table("usage_events").insert(data).execute()
-    except Exception:
-        pass  # Don't fail the main operation if logging fails
+    except Exception as e:
+        logger.debug("Usage event insert failed: %s", e)
 
 
 # =============================================================================
@@ -588,8 +591,8 @@ async def get_rate_limit_config(company_id: str) -> dict:
         result = client.table('rate_limits').select('*').eq('company_id', company_id).single().execute()
         if result.data:
             return result.data
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Failed to fetch rate limit config for %s: %s", company_id, e)
 
     # Return defaults
     return {
@@ -761,8 +764,8 @@ Today's date: {today_date}"""
                         usage=result['usage'],
                         related_id=project_id
                     )
-                except Exception:
-                    pass  # Don't fail regeneration if tracking fails
+                except Exception as e:
+                    logger.debug("Failed to track regeneration usage: %s", e)
 
             if result and result.get('content'):
                 content = result['content']
@@ -894,7 +897,8 @@ async def generate_decision_summary_internal(
         else:
             return _get_fallback_summary(user_question, council_response, decision.get("title"))
 
-    except Exception:
+    except Exception as e:
+        logger.warning("Decision summary LLM call failed for %s: %s", decision_id, e)
         return _get_fallback_summary(user_question, council_response, decision.get("title"))
 
 

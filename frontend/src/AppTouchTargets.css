@@ -1,0 +1,83 @@
+/* =============================================================================
+   GLOBAL DISABLED STATE STYLING (ISSUE-014)
+   Ensure disabled buttons are clearly visually distinct
+   ============================================================================= */
+
+button:disabled,
+button[disabled],
+[role='button'][aria-disabled='true'],
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(20%);
+}
+
+/* =============================================================================
+   MOBILE TOUCH TARGETS - WCAG 2.1 AA Compliance (44px minimum)
+   Phase 3 fixes for ISSUE-016, 017, 021, 025, 026, 031, 032
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* All icon-only buttons get 44px touch target */
+  button:not([class*='nav-item']):has(svg:only-child),
+  [role='button']:has(svg:only-child) {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Theme toggle - ensure touch target (ISSUE-016) */
+  [aria-label*='theme' i],
+  [aria-label*='dark' i],
+  [aria-label*='light' i] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Radio buttons and checkboxes - larger touch area (ISSUE-021) */
+  input[type='radio'],
+  input[type='checkbox'] {
+    min-width: 24px;
+    min-height: 24px;
+  }
+
+  /* Radio/checkbox labels - extend touch area */
+  label:has(input[type='radio']),
+  label:has(input[type='checkbox']) {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2);
+    cursor: pointer;
+  }
+
+  /* Active/tap feedback for interactive elements (ISSUE-023) */
+  button:active,
+  [role='button']:active,
+  a:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  /* Tap feedback for list items and cards */
+  .conversation-item:active,
+  .settings-tab:active,
+  .mobile-nav-item:active,
+  [class*='list-item']:active,
+  [class*='card']:active:not(.no-tap-feedback) {
+    background: var(--overlay-black-5);
+    transform: scale(0.99);
+  }
+
+  .dark .conversation-item:active,
+  .dark .settings-tab:active,
+  .dark [class*='list-item']:active,
+  .dark [class*='card']:active:not(.no-tap-feedback) {
+    background: var(--overlay-white-5);
+  }
+}

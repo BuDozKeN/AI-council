@@ -25,6 +25,10 @@ from ..i18n import t, get_locale_from_request
 # Import shared rate limiter
 from ..rate_limit import limiter
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -535,8 +539,8 @@ async def list_deleted_users(
                     user_resp = supabase.auth.admin.get_user_by_id(record["user_id"])
                     if user_resp.user:
                         email = user_resp.user.email
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning("Failed to fetch email for deleted user %s: %s", record["user_id"], e)
 
             deleted_users.append(DeletedUser(
                 user_id=record["user_id"],
@@ -1279,8 +1283,8 @@ async def list_companies(
                 try:
                     user_response = supabase.auth.admin.get_user_by_id(company["user_id"])
                     owner_email = user_response.user.email if user_response.user else None
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning("Failed to fetch owner email for company %s: %s", company["id"], e)
 
             companies_list.append(CompanyInfo(
                 id=company["id"],
@@ -1704,8 +1708,8 @@ async def create_invitation(
                 page += 1
         except HTTPException:
             raise
-        except Exception:
-            pass  # Continue if we can't check existing users
+        except Exception as e:
+            logger.warning("Failed to check existing users for duplicate email %s: %s", invitation_data.email, e)
 
         # Check for existing pending invitation
         existing = supabase.table("platform_invitations").select(
@@ -1871,8 +1875,8 @@ async def list_invitations(
                     ).eq("id", inv["target_company_id"]).maybe_single().execute()
                     if company_result and company_result.data:
                         target_company_name = company_result.data.get("name")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.warning("Failed to fetch company name for invitation target_company_id %s: %s", inv["target_company_id"], e)
 
             invitations.append(InvitationInfo(
                 id=inv["id"],

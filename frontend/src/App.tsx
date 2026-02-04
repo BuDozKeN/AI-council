@@ -266,6 +266,19 @@ function App() {
   // Command palette state (Cmd+K)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
+  // Register Cmd+K keyboard shortcut at App level so it works even when
+  // CommandPalette is conditionally unmounted for performance
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Theme state from next-themes
   const { theme, setTheme } = useTheme();
 
@@ -583,6 +596,92 @@ function App() {
     setMockModeEnabled(enabled);
   }, []);
 
+  // Stabilized callbacks for Sidebar - prevent re-renders from new arrow refs
+  const handleArchiveConversationStable = useCallback(
+    (id: string, archived?: boolean) => handleArchiveConversation(id, archived ?? true),
+    [handleArchiveConversation]
+  );
+
+  const handleStarConversationStable = useCallback(
+    (id: string, starred?: boolean) => handleStarConversation(id, starred ?? true),
+    [handleStarConversation]
+  );
+
+  // Stabilized callbacks for ChatInterface - prevent re-renders from new arrow refs
+  const handleSelectProjectWithTouch = useCallback(
+    (projectId: string | null) => {
+      setSelectedProject(projectId);
+      if (projectId) {
+        api.touchProject(projectId).catch((err: unknown) => {
+          log.error('Failed to touch project:', err);
+        });
+      }
+    },
+    [setSelectedProject]
+  );
+
+  const handleOpenProjectModalStable = useCallback(
+    (context: ProjectModalContext) => {
+      openProjectModal(context);
+    },
+    [openProjectModal]
+  );
+
+  const handleProjectCreated = useCallback(
+    (newProject: Project) => {
+      setProjects((prev) => [...prev, newProject]);
+    },
+    [setProjects]
+  );
+
+  const handleViewKnowledgeBase = useCallback(() => {
+    openMyCompany({ clearPromoteDecision: true });
+  }, [openMyCompany]);
+
+  const handleScrollToStage3Complete = useCallback(() => {
+    clearScrollState();
+  }, [clearScrollState]);
+
+  const handleViewDecision = useCallback(
+    (decisionId: string, type = 'decision', targetId: string | null = null) => {
+      if (type === 'playbook' && targetId) {
+        openMyCompany({
+          tab: 'playbooks',
+          playbookId: targetId,
+          clearPromoteDecision: true,
+        });
+      } else if (type === 'project' && targetId) {
+        openMyCompany({
+          tab: 'projects',
+          projectId: targetId,
+          clearPromoteDecision: true,
+        });
+        setSelectedProject(targetId);
+      } else {
+        openMyCompany({ tab: 'decisions', decisionId, clearPromoteDecision: true });
+      }
+    },
+    [openMyCompany, setSelectedProject]
+  );
+
+  const handleReturnToMyCompany = useCallback(
+    (tab: MyCompanyTab, projectId: string | null, decisionId: string | null) => {
+      openMyCompany({ tab, projectId, projectDecisionId: decisionId });
+    },
+    [openMyCompany]
+  );
+
+  const handleOpenSidebar = useCallback(() => setIsMobileSidebarOpen(true), []);
+
+  // ProjectModal: add to list AND select
+  const handleProjectModalCreated = useCallback(
+    (newProject: Project) => {
+      setProjects((prev) => [...prev, newProject]);
+      setSelectedProject(newProject.id);
+    },
+    [setProjects, setSelectedProject]
+  );
+
   // Reset all context selections (company, project, departments, roles, playbooks)
   const handleResetAllSelections = useCallback(() => {
     setSelectedBusiness(null);
@@ -658,13 +757,8 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSendMessage has dependencies that would cause loops
   }, [currentConversation, selectedBusiness]);
 
-  // Load conversations when authenticated and business is selected
-  useEffect(() => {
-    if (isAuthenticated && selectedBusiness) {
-      loadConversations({ company_id: selectedBusiness });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only reload when business changes
-  }, [isAuthenticated, selectedBusiness]);
+  // Conversations are now auto-loaded by ConversationContext via TanStack Query
+  // with company_id scoping. No manual loadConversations call needed here.
 
   // Load conversation details when selected (skip temp conversations)
   useEffect(() => {
@@ -855,12 +949,8 @@ function App() {
             onOpenSettings={handleOpenSettings}
             onOpenMyCompany={handleOpenMyCompany}
             onPreloadMyCompany={preloadMyCompany}
-            onArchiveConversation={(id: string, archived?: boolean) =>
-              handleArchiveConversation(id, archived ?? true)
-            }
-            onStarConversation={(id: string, starred?: boolean) =>
-              handleStarConversation(id, starred ?? true)
-            }
+            onArchiveConversation={handleArchiveConversationStable}
+            onStarConversation={handleStarConversationStable}
             onDeleteConversation={handleDeleteConversation}
             onBulkDeleteConversations={handleBulkDeleteConversations}
             onRenameConversation={handleRenameConversation}
@@ -980,22 +1070,9 @@ function App() {
                     // Projects
                     projects={projects}
                     selectedProject={selectedProject}
-                    onSelectProject={(projectId: string | null) => {
-                      setSelectedProject(projectId);
-                      // Touch project to update last_accessed_at for sorting
-                      if (projectId) {
-                        api.touchProject(projectId).catch((err: unknown) => {
-                          log.error('Failed to touch project:', err);
-                        });
-                      }
-                    }}
-                    onOpenProjectModal={(context: ProjectModalContext) => {
-                      openProjectModal(context);
-                    }}
-                    onProjectCreated={(newProject: Project) => {
-                      // Add to projects list so it appears in dropdown immediately
-                      setProjects((prev) => [...prev, newProject]);
-                    }}
+                    onSelectProject={handleSelectProjectWithTouch}
+                    onOpenProjectModal={handleOpenProjectModalStable}
+                    onProjectCreated={handleProjectCreated}
                     // Independent context toggles
                     useCompanyContext={useCompanyContext}
                     onToggleCompanyContext={setUseCompanyContext}
@@ -1004,57 +1081,23 @@ function App() {
                     // Upload progress
                     isUploading={isUploading}
                     // Knowledge Base navigation (now part of My Company)
-                    onViewKnowledgeBase={() => {
-                      openMyCompany({ clearPromoteDecision: true });
-                    }}
+                    onViewKnowledgeBase={handleViewKnowledgeBase}
                     // Scroll target - for navigating from decision source
                     scrollToStage3={scrollToStage3}
                     scrollToResponseIndex={scrollToResponseIndex}
-                    onScrollToStage3Complete={() => {
-                      clearScrollState();
-                    }}
+                    onScrollToStage3Complete={handleScrollToStage3Complete}
                     // Decision/Playbook/Project navigation - open My Company to appropriate tab
-                    onViewDecision={(
-                      decisionId: string,
-                      type = 'decision',
-                      targetId: string | null = null
-                    ) => {
-                      if (type === 'playbook' && targetId) {
-                        openMyCompany({
-                          tab: 'playbooks',
-                          playbookId: targetId,
-                          clearPromoteDecision: true,
-                        });
-                      } else if (type === 'project' && targetId) {
-                        openMyCompany({
-                          tab: 'projects',
-                          projectId: targetId,
-                          clearPromoteDecision: true,
-                        });
-                        // Also select the project in the main app for context
-                        setSelectedProject(targetId);
-                      } else {
-                        openMyCompany({ tab: 'decisions', decisionId, clearPromoteDecision: true });
-                      }
-                    }}
+                    onViewDecision={handleViewDecision}
                     // Return to My Company button (after navigating from source)
                     returnToMyCompanyTab={returnToMyCompanyTab}
                     returnToProjectId={returnToProjectId}
                     returnToDecisionId={returnToDecisionId}
                     returnPromoteDecision={myCompanyPromoteDecision}
-                    onReturnToMyCompany={(
-                      tab: MyCompanyTab,
-                      projectId: string | null,
-                      decisionId: string | null
-                    ) => {
-                      // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
-                      // If returning to a specific project/decision, pass those IDs
-                      openMyCompany({ tab, projectId, projectDecisionId: decisionId });
-                    }}
+                    onReturnToMyCompany={handleReturnToMyCompany}
                     // Loading state for conversation fetch
                     isLoadingConversation={isLoadingConversation}
                     // Mobile sidebar toggle
-                    onOpenSidebar={() => setIsMobileSidebarOpen(true)}
+                    onOpenSidebar={handleOpenSidebar}
                     // Response style selector
                     selectedPreset={selectedPreset}
                     onSelectPreset={setSelectedPreset}
@@ -1142,11 +1185,7 @@ function App() {
                 }
                 closeProjectModal();
               }}
-              onProjectCreated={(newProject: Project) => {
-                // Add to projects list and select it
-                setProjects((prev) => [...prev, newProject]);
-                setSelectedProject(newProject.id);
-              }}
+              onProjectCreated={handleProjectModalCreated}
             />
           </Suspense>
         )}
@@ -1195,32 +1234,35 @@ function App() {
               initialPlaybookId={myCompanyInitialPlaybookId}
               initialProjectId={myCompanyInitialProjectId}
               initialProjectDecisionId={myCompanyInitialProjectDecisionId}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Type mismatch: useModalState vs MyCompany PromoteDecision shapes (TODO: unify)
               initialPromoteDecision={myCompanyPromoteDecision as any}
               onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
               onOpenLLMHub={handleOpenLLMHub}
             />
           </Suspense>
         )}
-        {/* Command Palette - Cmd+K quick actions */}
-        <CommandPalette
-          isOpen={isCommandPaletteOpen}
-          onOpenChange={setIsCommandPaletteOpen}
-          onOpenSettings={handleOpenSettings}
-          onOpenMyCompany={handleOpenMyCompany}
-          onOpenLeaderboard={handleOpenLeaderboard}
-          onOpenLLMHub={handleOpenLLMHub}
-          onNewConversation={handleNewConversation}
-          onSelectConversation={handleSelectConversation}
-          conversations={conversations}
-          currentConversationId={currentConversationId}
-          projects={projects}
-          onSelectProject={setSelectedProject}
-          selectedProject={selectedProject}
-          departments={availableDepartments}
-          playbooks={availablePlaybooks}
-          theme={(theme as 'light' | 'dark' | 'system') || 'system'}
-          onThemeChange={setTheme}
-        />
+        {/* Command Palette - Cmd+K quick actions (only mount when open) */}
+        {isCommandPaletteOpen && (
+          <CommandPalette
+            isOpen={isCommandPaletteOpen}
+            onOpenChange={setIsCommandPaletteOpen}
+            onOpenSettings={handleOpenSettings}
+            onOpenMyCompany={handleOpenMyCompany}
+            onOpenLeaderboard={handleOpenLeaderboard}
+            onOpenLLMHub={handleOpenLLMHub}
+            onNewConversation={handleNewConversation}
+            onSelectConversation={handleSelectConversation}
+            conversations={conversations}
+            currentConversationId={currentConversationId}
+            projects={projects}
+            onSelectProject={setSelectedProject}
+            selectedProject={selectedProject}
+            departments={availableDepartments}
+            playbooks={availablePlaybooks}
+            theme={(theme as 'light' | 'dark' | 'system') || 'system'}
+            onThemeChange={setTheme}
+          />
+        )}
 
         {/* Toast notifications for undo actions */}
         <Toaster />
@@ -1229,7 +1271,7 @@ function App() {
         {!isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && (
           <MobileBottomNav
             onNewChat={handleNewConversation}
-            onOpenHistory={() => setIsMobileSidebarOpen(true)}
+            onOpenHistory={handleOpenSidebar}
             onOpenMyCompany={handleOpenMyCompany}
             onOpenSettings={handleOpenSettings}
             activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
