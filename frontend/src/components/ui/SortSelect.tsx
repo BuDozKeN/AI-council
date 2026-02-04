@@ -78,9 +78,9 @@ export function SortSelect({
           onClick={() => setOpen(true)}
           type="button"
         >
-          <ArrowUpDown className="h-3.5 w-3.5" />
+          <ArrowUpDown className="h-3.5 w-3.5 shrink-0" />
           <span>{t(selectedOption.labelKey)}</span>
-          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-auto" />
         </button>
 
         <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('common.sortBy')}>
@@ -113,10 +113,10 @@ export function SortSelect({
       <SelectPrimitive.Trigger
         className={cn('select-trigger select-trigger--compact sort-select-trigger', className)}
       >
-        <ArrowUpDown className="h-3.5 w-3.5" />
+        <ArrowUpDown className="h-3.5 w-3.5 shrink-0" />
         <SelectPrimitive.Value>{t(selectedOption.labelKey)}</SelectPrimitive.Value>
         <SelectPrimitive.Icon asChild>
-          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-auto" />
         </SelectPrimitive.Icon>
       </SelectPrimitive.Trigger>
       <SelectPrimitive.Portal>

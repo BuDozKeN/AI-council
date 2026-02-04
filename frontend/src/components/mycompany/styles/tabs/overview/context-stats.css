@@ -119,3 +119,36 @@
 .mc-stat-card.clickable {
   cursor: pointer;
 }
+
+/* Button element reset - ensure <button> cards match <div> cards */
+button.mc-stat-card {
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  appearance: none;
+}
+
+/* ============================================================================
+   MOBILE - 2x2 grid for portrait phones
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .mc-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap-sm);
+    margin-bottom: var(--gap);
+  }
+
+  .mc-stat-card {
+    min-height: var(--space-14);
+    padding: var(--space-2-5) var(--space-3);
+  }
+
+  .mc-stat-value {
+    font-size: var(--text-xl);
+  }
+
+  .mc-stat-label {
+    font-size: var(--text-xs);
+  }
+}
