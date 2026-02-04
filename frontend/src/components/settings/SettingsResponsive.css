@@ -33,6 +33,7 @@
     gap: var(--gap-sm);
     flex-shrink: 0;
     align-self: stretch;
+    overflow: hidden; /* Prevent tab labels from overflowing into content panel */
   }
 
   /* Mobile tabs - iOS tab bar style with icon + label stacked vertically */
@@ -211,42 +212,27 @@
   }
 }
 
-/* Small phones - merged into standard mobile breakpoint */
+/* Full-screen modal on all mobile — dvh for proper viewport height */
 @media (width <= 640px) {
   .settings-modal {
     width: 100%;
     max-width: 100%;
+    /* stylelint-disable declaration-block-no-duplicate-properties -- dvh progressive enhancement */
     height: 100vh;
     max-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
+    /* stylelint-enable declaration-block-no-duplicate-properties */
     border-radius: 0;
   }
 
   .settings-content {
+    /* stylelint-disable declaration-block-no-duplicate-properties -- dvh progressive enhancement */
     height: calc(100vh - 60px);
     min-height: calc(100vh - 60px);
-  }
-
-  .settings-sidebar {
-    padding: var(--space-2) var(--space-1-5);
-    gap: var(--gap-sm-plus);
-  }
-
-  .settings-sidebar .settings-tab {
-    width: 28px;
-    height: 28px;
-    min-height: 28px;
-  }
-
-  .settings-sidebar .settings-tab .tab-icon {
-    font-size: var(--text-sm);
-  }
-
-  .settings-tab.active::before {
-    height: 16px;
-  }
-
-  .settings-panel {
-    padding: var(--space-4) var(--space-4) 20px 14px;
+    height: calc(100dvh - 60px);
+    min-height: calc(100dvh - 60px);
+    /* stylelint-enable declaration-block-no-duplicate-properties */
   }
 
   .settings-section h3 {
@@ -264,7 +250,65 @@
     width: 100%;
     font-size: var(--text-base); /* Prevent iOS zoom */
   }
+}
 
+/* Small phones — icon-only sidebar, tighter spacing */
+@media (width <= 400px) {
+  .settings-sidebar {
+    padding: var(--space-2) var(--space-1-5);
+    gap: var(--gap-sm);
+  }
+
+  .settings-sidebar .settings-tab {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .settings-sidebar .settings-tab .tab-label {
+    display: none; /* Icon-only on small phones */
+  }
+
+  .settings-sidebar .settings-tab .tab-icon {
+    font-size: var(--text-sm);
+  }
+
+  .settings-tab.active::before {
+    height: 16px;
+  }
+
+  .settings-panel {
+    padding: var(--space-4) var(--space-4) 20px 14px;
+  }
+}
+
+/* Very small phones (360px and below) */
+@media (width <= 360px) {
+  .settings-sidebar {
+    padding: var(--space-1-5) var(--space-1);
+    gap: var(--gap-xs);
+  }
+
+  /* Icon-only mode: labels already hidden from ≤400px */
+  .settings-sidebar .settings-tab {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+  }
+
+  .settings-sidebar .settings-tab .tab-icon {
+    font-size: var(--text-xs-plus);
+  }
+
+  .settings-tab.active::before {
+    height: 14px;
+  }
+
+  .settings-panel {
+    padding: var(--space-3) var(--space-3) 16px 10px;
+  }
+
+  /* Tighter form spacing on very small screens */
   .settings-panel .form-group {
     margin-bottom: var(--space-4);
   }
