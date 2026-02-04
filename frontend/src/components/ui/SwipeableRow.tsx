@@ -43,9 +43,12 @@ export function SwipeableRow({
     return () => mql.removeEventListener('change', onChange);
   }, []);
 
-  // Mobile: 44px button + 8px gap = 52px per action, 16px padding
-  // Desktop: 36px button + 4px gap = 40px per action, 24px padding
-  const actionWidth = isMobile ? actions.length * 52 + 16 : actions.length * 40 + 24;
+  // Calculate actual flexbox width: (N buttons) + (N-1 gaps) + padding
+  // Mobile: 44px button, 8px gap, 16px padding (8px left + 8px right)
+  // Desktop: 36px button, 4px gap, 24px padding (12px left + 12px right)
+  const actionWidth = isMobile
+    ? actions.length * 44 + Math.max(0, actions.length - 1) * 8 + 16
+    : actions.length * 36 + Math.max(0, actions.length - 1) * 4 + 24;
   const threshold = actionWidth * 0.5;
 
   // Transform for action button opacity
