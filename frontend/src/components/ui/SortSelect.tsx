@@ -110,7 +110,9 @@ export function SortSelect({
   // Desktop: use Radix Select
   return (
     <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
-      <SelectPrimitive.Trigger className={cn('select-trigger select-trigger--compact sort-select-trigger', className)}>
+      <SelectPrimitive.Trigger
+        className={cn('select-trigger select-trigger--compact sort-select-trigger', className)}
+      >
         <ArrowUpDown className="h-3.5 w-3.5" />
         <SelectPrimitive.Value>{t(selectedOption.labelKey)}</SelectPrimitive.Value>
         <SelectPrimitive.Icon asChild>

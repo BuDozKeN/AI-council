@@ -227,7 +227,10 @@ export function MultiPlaybookSelect({
   // Desktop: use Popover
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger className={cn('select-trigger select-trigger--compact multi-playbook-trigger', className)} disabled={disabled}>
+      <Popover.Trigger
+        className={cn('select-trigger select-trigger--compact multi-playbook-trigger', className)}
+        disabled={disabled}
+      >
         {triggerContent}
       </Popover.Trigger>
 

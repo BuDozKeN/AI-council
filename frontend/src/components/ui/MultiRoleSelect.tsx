@@ -140,7 +140,10 @@ export function MultiRoleSelect({
   // Desktop: use Popover
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger className={cn('select-trigger select-trigger--compact multi-role-trigger', className)} disabled={disabled}>
+      <Popover.Trigger
+        className={cn('select-trigger select-trigger--compact multi-role-trigger', className)}
+        disabled={disabled}
+      >
         {triggerContent}
       </Popover.Trigger>
 
