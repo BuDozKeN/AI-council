@@ -1,0 +1,41 @@
+/* =============================================================================
+   AcceptInvite - Dark Mode & Responsive
+   Extracted from AcceptInvite.css for CSS budget compliance (300 line limit)
+   ============================================================================= */
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .accept-invite-page {
+  background: var(--color-bg-primary);
+  background-image: radial-gradient(
+    ellipse 80% 50% at 50% -20%,
+    var(--overlay-indigo-10),
+    transparent
+  );
+}
+
+.dark .accept-invite-card {
+  background: var(--color-bg-secondary);
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .accept-invite-page {
+    padding: var(--space-4);
+    align-items: flex-start;
+    padding-top: var(--space-12);
+  }
+
+  .accept-invite-card {
+    padding: var(--space-5);
+  }
+
+  .accept-invite-logo {
+    font-size: var(--font-size-2xl);
+  }
+}

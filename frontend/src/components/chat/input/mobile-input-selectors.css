@@ -1,0 +1,62 @@
+/* ==========================================
+   MOBILE MODE TOGGLE DROPDOWNS (Radix Select)
+   Extracted from mobile-input.css for CSS budget compliance
+   ========================================== */
+
+.mode-toggle-bar.mobile {
+  flex-direction: column;
+  gap: var(--gap-sm-plus);
+  align-items: stretch;
+}
+
+/* Multi-select selectors on mobile */
+.mode-toggle-bar.mobile .mode-toggle-selectors {
+  width: 100%;
+  gap: var(--gap-sm);
+}
+
+.mode-toggle-bar.mobile .mode-toggle-select {
+  flex: 1;
+  min-width: calc(50% - 4px);
+  max-width: none;
+}
+
+.mobile-selectors {
+  display: flex;
+  gap: var(--gap-sm);
+  flex-wrap: wrap;
+}
+
+/* Radix Select triggers for mobile */
+.mobile-selectors button.mobile-dept-select,
+.mobile-selectors button.mobile-role-select,
+button.mobile-dept-select,
+button.mobile-role-select {
+  flex: 1;
+  min-width: 120px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  min-height: 44px;
+  background: var(--color-bg-base);
+}
+
+.mobile-selectors button.mobile-dept-select.has-selection,
+.mobile-selectors button.mobile-role-select.has-selection {
+  border-radius: var(--radius-full);
+}
+
+.mobile-selectors button.mobile-dept-select:focus,
+.mobile-selectors button.mobile-role-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.mobile-dept-select[data-disabled],
+.mobile-role-select[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

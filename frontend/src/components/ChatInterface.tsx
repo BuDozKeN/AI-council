@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowUp } from 'lucide-react';
 import { toast } from 'sonner';
@@ -121,7 +121,7 @@ interface ChatInterfaceProps {
   onOpenLLMHub?: () => void;
 }
 
-export default function ChatInterface({
+function ChatInterface({
   conversation,
   onSendMessage,
   onSendChatMessage,
@@ -748,3 +748,5 @@ export default function ChatInterface({
     </div>
   );
 }
+
+export default memo(ChatInterface);

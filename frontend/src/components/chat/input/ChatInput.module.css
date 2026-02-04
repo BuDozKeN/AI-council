@@ -1384,36 +1384,10 @@
   }
 }
 
-/* Very small phones */
-@media (width <= 480px) {
+/* Small phones - merged into standard mobile breakpoint */
+@media (width <= 640px) {
   .omnibar {
     padding: var(--space-2) var(--space-3-5);
-  }
-
-  .iconBtn {
-    width: 44px;
-    height: 44px;
-  }
-
-  .sendBtn {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-  }
-
-  .omniLeft {
-    gap: var(--gap-2xs);
-  }
-
-  .omniRight {
-    gap: var(--gap-2xs);
-  }
-}
-
-/* Extra small phones (iPhone SE - 320px width) */
-@media (width <= 360px) {
-  .omnibar {
-    padding: var(--space-2) var(--space-2-5);
   }
 
   .iconBtn {

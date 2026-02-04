@@ -8,15 +8,20 @@ Manages free trial runs for the onboarding flow:
 """
 
 import os
+import logging
 from typing import Optional
 from datetime import datetime, timezone
 
 try:
     from ..database import get_supabase_service
     from ..security import log_app_event
+    from ..utils.encryption import decrypt_api_key, DecryptionError
 except ImportError:
     from backend.database import get_supabase_service
     from backend.security import log_app_event
+    from backend.utils.encryption import decrypt_api_key, DecryptionError
+
+logger = logging.getLogger(__name__)
 
 
 class TrialService:
@@ -185,14 +190,18 @@ class TrialService:
                 .execute()
 
             if result.data and len(result.data) > 0:
-                # TODO: Decrypt the key if using encryption
-                # For now, assume key is stored encrypted and needs decryption
                 encrypted_key = result.data[0].get("encrypted_key")
                 if encrypted_key:
-                    # Decrypt key (implement based on your encryption scheme)
-                    decrypted_key = await self._decrypt_api_key(encrypted_key)
+                    decrypted_key = decrypt_api_key(encrypted_key, user_id=user_id)
                     return decrypted_key, False
 
+        except DecryptionError as e:
+            logger.error(f"Failed to decrypt API key for user {user_id[:8]}...: {e}")
+            log_app_event(
+                "USER_API_KEY_DECRYPT_FAILED",
+                level="ERROR",
+                user_id=user_id[:8] + "..." if user_id else None
+            )
         except Exception as e:
             log_app_event(
                 "USER_API_KEY_FETCH_FAILED",
@@ -201,17 +210,6 @@ class TrialService:
             )
 
         return None, False
-
-    async def _decrypt_api_key(self, encrypted_key: str) -> str:
-        """
-        Decrypt a user's API key.
-
-        TODO: Implement actual decryption based on your security scheme.
-        Currently returns the key as-is (assuming it's not actually encrypted yet).
-        """
-        # If using Supabase Vault or similar, implement decryption here
-        # For now, return as-is (development mode)
-        return encrypted_key
 
     async def can_run_council(self, user_id: str) -> tuple[bool, str]:
         """

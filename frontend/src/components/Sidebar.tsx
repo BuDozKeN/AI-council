@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { User } from '@supabase/supabase-js';
 import { Button } from './ui/button';
@@ -92,7 +92,7 @@ interface SidebarProps {
  * - hovered: temporarily expanded on hover
  * - pinned: permanently expanded
  */
-export default function Sidebar({
+function Sidebar({
   conversations,
   currentConversationId,
   onSelectConversation,
@@ -881,3 +881,5 @@ export default function Sidebar({
     </aside>
   );
 }
+
+export default memo(Sidebar);
