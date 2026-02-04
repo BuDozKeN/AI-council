@@ -212,7 +212,7 @@
   }
 }
 
-/* Small phones - merged into standard mobile breakpoint */
+/* Full-screen modal on all mobile — dvh for proper viewport height */
 @media (width <= 640px) {
   .settings-modal {
     width: 100%;
@@ -235,34 +235,6 @@
     /* stylelint-enable declaration-block-no-duplicate-properties */
   }
 
-  .settings-sidebar {
-    padding: var(--space-2) var(--space-1-5);
-    gap: var(--gap-sm);
-  }
-
-  /* Icon-only mode: hide labels, use touch-friendly icon buttons */
-  .settings-sidebar .settings-tab {
-    width: 40px;
-    height: 40px;
-    min-height: 40px;
-  }
-
-  .settings-sidebar .settings-tab .tab-label {
-    display: none; /* Hide labels - icon-only on small phones */
-  }
-
-  .settings-sidebar .settings-tab .tab-icon {
-    font-size: var(--text-sm);
-  }
-
-  .settings-tab.active::before {
-    height: 16px;
-  }
-
-  .settings-panel {
-    padding: var(--space-4) var(--space-4) 20px 14px;
-  }
-
   .settings-section h3 {
     font-size: var(--text-base);
   }
@@ -280,6 +252,36 @@
   }
 }
 
+/* Small phones — icon-only sidebar, tighter spacing */
+@media (width <= 400px) {
+  .settings-sidebar {
+    padding: var(--space-2) var(--space-1-5);
+    gap: var(--gap-sm);
+  }
+
+  .settings-sidebar .settings-tab {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .settings-sidebar .settings-tab .tab-label {
+    display: none; /* Icon-only on small phones */
+  }
+
+  .settings-sidebar .settings-tab .tab-icon {
+    font-size: var(--text-sm);
+  }
+
+  .settings-tab.active::before {
+    height: 16px;
+  }
+
+  .settings-panel {
+    padding: var(--space-4) var(--space-4) 20px 14px;
+  }
+}
+
 /* Very small phones (360px and below) */
 @media (width <= 360px) {
   .settings-sidebar {
@@ -287,7 +289,7 @@
     gap: var(--gap-xs);
   }
 
-  /* Icon-only mode: labels already hidden from ≤640px */
+  /* Icon-only mode: labels already hidden from ≤400px */
   .settings-sidebar .settings-tab {
     width: 36px;
     height: 36px;
