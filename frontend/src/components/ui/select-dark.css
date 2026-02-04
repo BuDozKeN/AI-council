@@ -27,6 +27,7 @@
 }
 
 .dark .select-trigger--compact {
+  background: transparent;
   color: var(--color-gray-400);
 }
 
