@@ -255,14 +255,32 @@ export function TableOfContents({
       const el = document.getElementById(id);
       if (!el) return;
 
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       // Close sheet first, then scroll after animation
       if (variant === 'sheet') {
         setIsSheetOpen(false);
         setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Use containerRef for scrolling when available - scrollIntoView doesn't work
+          // properly when the scroll container is a custom element (not document)
+          if (containerRef?.current) {
+            const container = containerRef.current;
+            const containerRect = container.getBoundingClientRect();
+            const elementRect = el.getBoundingClientRect();
+            const offsetTop = elementRect.top - containerRect.top + container.scrollTop;
+            container.scrollTo({
+              top: Math.max(0, offsetTop - 16), // 16px padding from top
+              behavior: prefersReducedMotion ? 'auto' : 'smooth',
+            });
+          } else {
+            // Fallback to scrollIntoView when no containerRef
+            el.scrollIntoView({
+              behavior: prefersReducedMotion ? 'auto' : 'smooth',
+              block: 'start',
+            });
+          }
         }, 150);
       } else {
-        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         el.scrollIntoView({
           behavior: prefersReducedMotion ? 'auto' : 'smooth',
           block: 'start',
@@ -276,7 +294,7 @@ export function TableOfContents({
         setIsCollapsed(true);
       }
     },
-    [variant]
+    [variant, containerRef]
   );
 
   // Don't render if not enough headings

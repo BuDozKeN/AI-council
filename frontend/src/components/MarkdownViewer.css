@@ -165,10 +165,12 @@
   transition: opacity 0.2s ease;
 }
 
-/* Show fade when table has horizontal overflow on mobile */
+/* On mobile: hide the permanent fade indicator - it causes visual artifacts
+   when the gradient background doesn't perfectly match the context card.
+   Users can still see the scrollbar to know there's more content. */
 @media (width <= 640px) {
   .prose .table-scroll-wrapper::after {
-    opacity: 1;
+    display: none;
   }
 }
 
