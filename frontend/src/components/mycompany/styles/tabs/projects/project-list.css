@@ -123,12 +123,18 @@
   flex-shrink: 0;
 }
 
-.mc-project-row-compact:hover .mc-project-actions {
-  display: flex;
-}
+/* Only show actions on hover for devices with a true pointer hover (mouse/trackpad).
+   On touch devices, :hover is applied on tap, which causes action buttons to appear
+   at the tap coordinates and intercept the click — triggering Complete/Archive/Delete
+   instead of opening the project detail view. See Issue: mobile ghost-click. */
+@media (hover: hover) {
+  .mc-project-row-compact:hover .mc-project-actions {
+    display: flex;
+  }
 
-.mc-project-row-compact:hover .mc-project-meta {
-  display: none;
+  .mc-project-row-compact:hover .mc-project-meta {
+    display: none;
+  }
 }
 
 .mc-project-action {
