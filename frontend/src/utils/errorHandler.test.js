@@ -9,6 +9,7 @@ import { handleError, handleApiError, createErrorHandler } from './errorHandler'
 vi.mock('./logger', () => ({
   logger: {
     error: vi.fn(),
+    debug: vi.fn(),
   },
 }));
 
@@ -81,6 +82,17 @@ describe('errorHandler', () => {
       const result = handleError(null, 'Test');
 
       expect(result.message).toBe('An unexpected error occurred');
+    });
+
+    it('should suppress GitHub resource errors from external sources', () => {
+      const error = new Error('The requested GitHub resource was not found');
+      const result = handleError(error, 'Test');
+
+      // Should not show toast or log error for suppressed errors
+      expect(toast.error).not.toHaveBeenCalled();
+      expect(logger.error).not.toHaveBeenCalled();
+      // Should still return the error result
+      expect(result).toEqual({ error: true, message: 'The requested GitHub resource was not found' });
     });
   });
 
