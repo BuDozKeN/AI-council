@@ -114,13 +114,13 @@
 | 047 | P2 | Mobile | Tables in AI responses rendered as plain text, not structured | Chat mobile | ✅ Already Implemented (table-scroll-wrapper) |
 | 048 | P3 | UX | "AI can make mistakes" disclaimer appears after every council response | Chat | By Design |
 | 049 | P2 | Mobile | Long code blocks may overflow horizontally on mobile | Chat mobile | ✅ Already Implemented (overflow-x: auto) |
-| 050 | P2 | Mobile | Admin Portal tab labels cramped/small on mobile | Admin Portal | Needs Fix |
+| 050 | P2 | Mobile | Admin Portal tab labels cramped/small on mobile | Admin Portal | ✅ Fixed (11px font) |
 | 051 | P3 | UX | Admin download button disabled with no explanation | Admin Analytics | Needs Fix |
 | 052 | P2 | Data | Rankings show incorrect order (#1, #2, #3, #4, #6, #5) instead of sequential | Admin Analytics | Needs Fix |
 | 053 | P3 | UI | Model names split across multiple elements in charts (accessibility) | Admin Analytics | Needs Fix |
 | 054 | P3 | UX | "LIVE" badge meaning unclear on charts | Admin Analytics | Needs Fix |
-| 055 | P2 | Mobile | No hamburger menu alternative for Admin Portal mobile nav | Admin Portal | Needs Fix |
-| 056 | P2 | Tablet | Email addresses truncated at tablet width making users unidentifiable | Admin Users | Needs Fix |
+| 055 | P2 | Mobile | No hamburger menu alternative for Admin Portal mobile nav | Admin Portal | 🔧 By Design (horizontal scroll tabs) |
+| 056 | P2 | Tablet | Email addresses truncated at tablet width making users unidentifiable | Admin Users | ✅ Fixed (180px max-width) |
 | 057 | P3 | UI | Palm tree/beach emoji in bottom right corner - purpose unclear | Admin Portal | Needs Fix |
 | 058 | P3 | Data | Two users with identical name "Alfredo Landa" - confusing | Admin Users | Data Issue |
 | 059 | P3 | UX | "Never signed in" status combined with "Active" badge - confusing state | Admin Users | Needs Fix |
@@ -131,7 +131,7 @@
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
 | 061 | P3 | UI | Mail icon redundant with EMAIL column header | Admin Users | Needs Fix |
-| 062 | P2 | Mobile | Settings modal tab text very small on mobile sidebar | Settings mobile | Needs Fix |
+| 062 | P2 | Mobile | Settings modal tab text very small on mobile sidebar | Settings mobile | ✅ Fixed (11px font) |
 | 063 | P3 | UX | Conversation content visible behind Settings modal on mobile | Settings mobile | By Design |
 | 064 | P2 | a11y | Duplicate heading "Model Leaderboard" appears as h2 AND h1 in dialog | Leaderboard | Needs Fix |
 | 065 | P3 | a11y | Dialog description "Model Leaderboard dialog" redundant with heading | Leaderboard | Needs Fix |

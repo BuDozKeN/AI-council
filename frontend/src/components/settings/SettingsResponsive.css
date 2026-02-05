@@ -89,7 +89,7 @@
   /* Show small labels below icons like iOS tab bar */
   .settings-tab .tab-label {
     display: block;
-    font-size: var(--text-2xs); /* 10px - smallest token size */
+    font-size: 11px; /* Increased from text-2xs (10px) for better readability (ISS-062) */
     line-height: 1;
     margin-top: 2px;
     white-space: nowrap;

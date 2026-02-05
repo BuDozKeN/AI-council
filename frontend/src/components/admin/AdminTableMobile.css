@@ -30,12 +30,12 @@
 
   /* Constrain table cell widths on tablet */
   .admin-table td {
-    max-width: 150px;
+    max-width: 200px; /* Increased from 150px for better content visibility */
   }
 
   .admin-user-cell,
   .admin-company-cell {
-    max-width: 130px;
+    max-width: 180px; /* Increased from 130px for better email visibility (ISS-056) */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
