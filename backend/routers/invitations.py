@@ -27,6 +27,28 @@ router = APIRouter(prefix="/invitations", tags=["invitations"])
 
 
 # =============================================================================
+# SECURITY HELPERS
+# =============================================================================
+
+def sanitize_company_role(role: str | None) -> str:
+    """
+    Sanitize company role from invitation.
+
+    SECURITY: Owner role cannot be granted via invitation.
+    Owner is assigned only when creating a company (companies.user_id).
+    This is defense-in-depth - DB constraint also enforces this.
+    """
+    if role == "owner":
+        log_app_event(
+            "SECURITY: Attempted to grant owner role via invitation - downgraded to admin",
+            level="WARNING",
+            attempted_role=role,
+        )
+        return "admin"
+    return role if role in ("admin", "member") else "member"
+
+
+# =============================================================================
 # PYDANTIC MODELS
 # =============================================================================
 
@@ -241,11 +263,12 @@ async def accept_invitation(
                     company_name = company_result.data.get("name")
 
                 # Add as company member
+                # SECURITY: Sanitize role - owner cannot be granted via invitation
+                effective_role = sanitize_company_role(invitation.get("target_company_role"))
                 supabase.table("company_members").upsert({
                     "company_id": invitation["target_company_id"],
                     "user_id": data.user_id,
-                    "role": invitation.get("target_company_role", "member"),
-                    "status": "active",
+                    "role": effective_role,
                 }).execute()
 
                 added_to_company = True
@@ -254,7 +277,7 @@ async def accept_invitation(
                     "INVITATION: User added to company",
                     user_id=data.user_id,
                     company_id=invitation["target_company_id"],
-                    role=invitation.get("target_company_role", "member"),
+                    role=effective_role,
                 )
 
             except Exception as e:
@@ -416,10 +439,12 @@ async def accept_company_invitation(
         }).eq("id", invitation["id"]).execute()
 
         # Add to company_members
+        # SECURITY: Sanitize role - owner cannot be granted via invitation
+        effective_role = sanitize_company_role(invitation.get("target_company_role"))
         supabase.table("company_members").insert({
             "company_id": invitation["target_company_id"],
             "user_id": user_id,
-            "role": invitation.get("target_company_role", "member"),
+            "role": effective_role,
             "joined_at": datetime.now(timezone.utc).isoformat(),
         }).execute()
 
@@ -434,7 +459,7 @@ async def accept_company_invitation(
             user_id=user_id,
             invitation_id=invitation["id"],
             company_id=invitation["target_company_id"],
-            role=invitation.get("target_company_role", "member"),
+            role=effective_role,
         )
 
         return AcceptCompanyInvitationResponse(
