@@ -80,7 +80,9 @@
     /* Use specific properties to preserve padding-bottom for mobile nav */
     padding-inline: var(--space-3);
     padding-top: var(--space-3);
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); /* Re-apply for mobile nav clearance */
+    padding-bottom: calc(
+      72px + env(safe-area-inset-bottom, 0px)
+    ); /* Re-apply for mobile nav clearance */
   }
 
   .landing-headline {

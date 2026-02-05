@@ -75,7 +75,9 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     const isUuidLike = (str: string): boolean =>
       /^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$/.test(str);
 
-    const deptKeys = Object.keys(leaderboardData.departments ?? {}).filter((dept) => !isUuidLike(dept));
+    const deptKeys = Object.keys(leaderboardData.departments ?? {}).filter(
+      (dept) => !isUuidLike(dept)
+    );
 
     // Deduplicate by lowercase name (fixes ISS-019: duplicate tabs)
     const seen = new Set<string>();

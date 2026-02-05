@@ -557,7 +557,9 @@ function App() {
 
   // Sign out with confirmation (ISS-045)
   const handleSignOut = useCallback(() => {
-    const confirmed = window.confirm(t('auth.signOutConfirm', 'Are you sure you want to sign out?'));
+    const confirmed = window.confirm(
+      t('auth.signOutConfirm', 'Are you sure you want to sign out?')
+    );
     if (confirmed) {
       signOut();
     }
