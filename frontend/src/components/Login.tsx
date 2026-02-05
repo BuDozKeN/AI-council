@@ -357,11 +357,33 @@ export default function Login() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {/* Password requirements hint (ISS-010) */}
+              {/* Password requirements hint (ISS-010) and strength indicator (ISS-161) */}
               {(mode === 'signUp' || mode === 'resetPassword') && (
-                <p className="password-requirements">
-                  {t('auth.passwordRequirements', 'Password must be at least 6 characters')}
-                </p>
+                <>
+                  <p className="password-requirements">
+                    {t('auth.passwordRequirements', 'Password must be at least 6 characters')}
+                  </p>
+                  {password.length > 0 && (
+                    <div className="password-strength" aria-live="polite">
+                      <div
+                        className={`password-strength-bar ${
+                          password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)
+                            ? 'strong'
+                            : password.length >= 8 && (/[A-Z]/.test(password) || /[0-9]/.test(password))
+                              ? 'fair'
+                              : 'weak'
+                        }`}
+                      />
+                      <span className="password-strength-text">
+                        {password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)
+                          ? t('auth.passwordStrong', 'Strong')
+                          : password.length >= 8 && (/[A-Z]/.test(password) || /[0-9]/.test(password))
+                            ? t('auth.passwordFair', 'Fair')
+                            : t('auth.passwordWeak', 'Weak')}
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
