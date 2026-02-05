@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronLeft, Building2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { makeClickable, handleKeyPress } from '../../utils/a11y';
+import { handleKeyPress } from '../../utils/a11y';
 
 interface Company {
   id: string;
@@ -66,7 +66,9 @@ export function MyCompanyHeader({
             <span className="mc-title-suffix">Command Center</span>
           </div>
           {/* Company switcher - always show on mobile for clear company display, only show dropdown if multiple companies */}
-          <div className="mc-company-switcher" {...makeClickable((e) => e.stopPropagation())}>
+          {/* ISS-075: Stop propagation to prevent dismissing modal when interacting with company switcher */}
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+          <div className="mc-company-switcher" onClick={(e) => e.stopPropagation()}>
             {allCompanies.length > 1 ? (
               <Select
                 value={companyId}

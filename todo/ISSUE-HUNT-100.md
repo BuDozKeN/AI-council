@@ -18,16 +18,23 @@
 | 003 | /privacy shows login | **FIXED** - Privacy page loads correctly with full policy |
 | 010 | Skip link skipped | **FIXED** - Tab reaches skip link first (autoFocus disabled) |
 | 015 | No 404 page | **FIXED** - 404 page shows with helpful navigation options |
-| 073 | Response style opens My Company | **FIXED** - Response style bottom sheet opens correctly |
-| 103 | Conversation clicks trigger selection | **WORKS** - Clicking content area navigates correctly; Chrome DevTools MCP clicks first button child |
-| 162 | GAP text visible | **FIXED** - cleanGapMarkers function strips [GAP:...] markers |
-| 183 | Admin Portal not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-183) |
-| 185 | Sign Out not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-185) |
 | 033 | Project dialog title generic | **FIXED** - AppModal now receives project name as title prop |
 | 036 | Playbook dialog title generic | **FIXED** - AppModal now receives playbook title as title prop |
 | 043 | Leaderboard not in mobile nav | **FIXED** - Added Trophy icon Leaderboard button to MobileBottomNav |
 | 047 | Tables plain text on mobile | **ALREADY IMPLEMENTED** - table-scroll-wrapper in MarkdownViewer |
 | 049 | Code blocks overflow mobile | **ALREADY IMPLEMENTED** - overflow-x: auto in prose pre |
+| 050 | Admin Portal tab labels cramped | **FIXED** - Increased font size to 11px |
+| 056 | Email addresses truncated tablet | **FIXED** - Increased max-width to 180px |
+| 062 | Settings tab text small mobile | **FIXED** - Increased font size to 11px |
+| 071 | Model names wrap on mobile | **FIXED** - Added white-space: nowrap |
+| 073 | Response style opens My Company | **FIXED** - Response style bottom sheet opens correctly |
+| 075 | Nested buttons My Company header | **FIXED** - Removed makeClickable, use plain onClick |
+| 077 | Response style no title | **FIXED** - Added "Response Style" heading |
+| 078 | Department Default confusion | **FIXED** - Shows "Auto: uses department settings" |
+| 103 | Conversation clicks trigger selection | **WORKS** - Clicking content area navigates correctly |
+| 162 | GAP text visible | **FIXED** - cleanGapMarkers function strips [GAP:...] markers |
+| 183 | Admin Portal not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-183) |
+| 185 | Sign Out not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-185) |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -35,10 +42,14 @@
 |---|-------|-------------------|
 | 031-038 | Duplicate headings | **FALSE POSITIVE** - Uses `asChild` pattern correctly |
 | 041 | Language selector missing mobile | **BY DESIGN** - Available in Settings > Profile |
+| 064-065 | Leaderboard duplicate headings | **FALSE POSITIVE** - Radix VisuallyHidden pattern |
+| 092-094 | Column headers missing role | **FALSE POSITIVE** - `<th>` has implicit columnheader role |
+| 112-114 | i18n keys missing | **FALSE POSITIVE** - Keys exist or browser-controlled |
 | 143 | Model count inconsistency | **BACKEND DATA** - useCouncilStats fetches dynamically |
 | 191-194 | Missing i18n keys | **FALSE POSITIVE** - All keys exist in en.json/es.json |
 | 195-206 | Duplicate API calls | **FIXED** - hasFetchedRef pattern applied |
 | 222 | TOC in button | **FALSE POSITIVE** - Uses proper semantic pattern |
+| 321 | No global error boundary | **FALSE POSITIVE** - ErrorBoundary component exists with Sentry integration |
 
 ### Issues Requiring Backend Investigation 🔧
 
@@ -143,11 +154,11 @@
 | 071 | P2 | Mobile | Model names wrap awkwardly with hyphens on mobile | Leaderboard mobile | ✅ Fixed (white-space: nowrap) |
 | 072 | P3 | UI | "AxCouncil" text cut off/faded at top of leaderboard mobile | Leaderboard mobile | Needs Fix |
 | 073 | P1 | Mobile | Response style button click opens My Company modal instead | Mobile chat input | ✅ Verified Fixed |
-| 074 | P2 | a11y | Nested button structure on mobile (button > button) causes click issues | Mobile chat input | Needs Fix |
-| 075 | P2 | a11y | My Company header has deeply nested buttons (button > button > combobox) | My Company | Needs Fix |
-| 076 | P3 | UX | Response style dropdown descriptions truncated ("best fo...", "reliable...") | Response style | Needs Fix |
-| 077 | P3 | UX | Response style dropdown has no title/heading | Response style | Needs Fix |
-| 078 | P3 | UX | "Department Default" shows "Balanced" underneath - confusing with Balanced option | Response style | Needs Fix |
+| 074 | P2 | a11y | Nested button structure on mobile (button > button) causes click issues | Mobile chat input | ✅ Fixed (mobile uses direct button) |
+| 075 | P2 | a11y | My Company header has deeply nested buttons (button > button > combobox) | My Company | ✅ Fixed (removed makeClickable) |
+| 076 | P3 | UX | Response style dropdown descriptions truncated ("best fo...", "reliable...") | Response style | ✅ Fixed (full descriptions on mobile) |
+| 077 | P3 | UX | Response style dropdown has no title/heading | Response style | ✅ Fixed (added "Response Style" heading) |
+| 078 | P3 | UX | "Department Default" shows "Balanced" underneath - confusing with Balanced option | Response style | ✅ Fixed (shows "Auto: uses dept settings") |
 
 ## Issue Tracker (081-100) - Context Selector & Advanced
 

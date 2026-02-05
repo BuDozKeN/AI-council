@@ -121,7 +121,10 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                 <div className="plan-header">
                   <h4>{plan.name}</h4>
                   <div className="plan-price">
-                    {plan.is_free ? (
+                    {/* ISS-144: Enterprise plan should show "Contact Us" not "Free" */}
+                    {plan.id === 'enterprise' ? (
+                      <span className="price">{t('settings.contactUs', 'Contact Us')}</span>
+                    ) : plan.is_free ? (
                       <span className="price">{t('settings.free')}</span>
                     ) : (
                       <>
