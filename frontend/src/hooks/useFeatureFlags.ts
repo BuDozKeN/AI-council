@@ -27,8 +27,6 @@ const DEFAULT_FLAGS: Record<string, boolean> = {
   command_palette: true,
   dark_mode: true,
   advanced_search: false,
-  multi_company: false,
-  export_pdf: false,
   gpt5_model: true,
   claude_opus: true,
 };

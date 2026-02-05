@@ -4,7 +4,7 @@ Handles subscriptions, checkout sessions, and usage tracking.
 """
 
 import stripe
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List, Callable
 from .config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUBSCRIPTION_TIERS
 from .database import get_supabase, get_supabase_with_auth, get_supabase_service
@@ -117,7 +117,7 @@ def get_or_create_stripe_customer(user_id: str, email: str, access_token: Option
     supabase.table('user_profiles').upsert({
         'user_id': user_id,
         'stripe_customer_id': customer_id,
-        'updated_at': datetime.utcnow().isoformat() + 'Z'
+        'updated_at': datetime.now(timezone.utc).isoformat()
     }, on_conflict='user_id').execute()
 
     return customer_id
@@ -362,7 +362,7 @@ def _handle_checkout_completed(supabase, data: Dict[str, Any], event_id: str) ->
             'subscription_status': 'active',
             'stripe_subscription_id': data.get("subscription"),
             'queries_used_this_period': 0,
-            'updated_at': datetime.utcnow().isoformat() + 'Z'
+            'updated_at': datetime.now(timezone.utc).isoformat()
         }, on_conflict='user_id').execute()
         log_billing_event("Subscription started", user_id=user_id, tier=tier_id, status="active")
 
@@ -378,12 +378,12 @@ def _handle_subscription_updated(supabase, data: Dict[str, Any], event_id: str) 
         update_data: Dict[str, Any] = {
             'user_id': user_id,
             'subscription_status': status,
-            'updated_at': datetime.utcnow().isoformat() + 'Z'
+            'updated_at': datetime.now(timezone.utc).isoformat()
         }
         if tier_id:
             update_data['subscription_tier'] = tier_id
         if period_end:
-            update_data['subscription_period_end'] = datetime.fromtimestamp(period_end).isoformat() + 'Z'
+            update_data['subscription_period_end'] = datetime.fromtimestamp(period_end, tz=timezone.utc).isoformat()
 
         supabase.table('user_profiles').upsert(update_data, on_conflict='user_id').execute()
         log_billing_event("Subscription updated", user_id=user_id, tier=tier_id, status=status)
@@ -399,7 +399,7 @@ def _handle_subscription_deleted(supabase, data: Dict[str, Any], event_id: str) 
             'subscription_tier': 'free',
             'subscription_status': 'cancelled',
             'stripe_subscription_id': None,
-            'updated_at': datetime.utcnow().isoformat() + 'Z'
+            'updated_at': datetime.now(timezone.utc).isoformat()
         }, on_conflict='user_id').execute()
         log_billing_event("Subscription cancelled", user_id=user_id, tier="free", status="cancelled")
 
@@ -416,9 +416,9 @@ def _handle_invoice_paid(supabase, data: Dict[str, Any], event_id: str) -> None:
                 'user_id': user_id,
                 'queries_used_this_period': 0,
                 'subscription_period_end': datetime.fromtimestamp(
-                    subscription.current_period_end
-                ).isoformat() + 'Z',
-                'updated_at': datetime.utcnow().isoformat() + 'Z'
+                    subscription.current_period_end, tz=timezone.utc
+                ).isoformat(),
+                'updated_at': datetime.now(timezone.utc).isoformat()
             }, on_conflict='user_id').execute()
             log_billing_event("Usage reset on invoice payment", user_id=user_id)
 
@@ -434,7 +434,7 @@ def _handle_invoice_payment_failed(supabase, data: Dict[str, Any], event_id: str
             supabase.table('user_profiles').upsert({
                 'user_id': user_id,
                 'subscription_status': 'past_due',
-                'updated_at': datetime.utcnow().isoformat() + 'Z'
+                'updated_at': datetime.now(timezone.utc).isoformat()
             }, on_conflict='user_id').execute()
             log_billing_event("Payment failed", user_id=user_id, status="past_due")
 
@@ -496,7 +496,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
         supabase.table('processed_webhook_events').insert({
             'event_id': event_id,
             'event_type': event_type,
-            'processed_at': datetime.utcnow().isoformat() + 'Z'
+            'processed_at': datetime.now(timezone.utc).isoformat()
         }).execute()
     except Exception as idempotency_err:
         # Continue gracefully if idempotency table doesn't exist

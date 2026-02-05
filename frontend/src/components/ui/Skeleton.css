@@ -5,6 +5,9 @@
    Shows users the shape of content before it loads.
    ============================================================================= */
 
+/* Conversation skeleton: See SkeletonConversation.css */
+@import url('./SkeletonConversation.css');
+
 .skeleton {
   background: linear-gradient(
     90deg,
@@ -232,13 +235,6 @@
     height: 44px;
   }
 
-  .skeleton-conversation {
-    min-height: 52px;
-    padding: var(--space-2-5) var(--space-3);
-  }
-}
-
-@media (width <= 640px) {
   .skeleton-message-content {
     max-width: 95%;
   }
@@ -252,64 +248,4 @@
 .dark .skeleton-message.user .skeleton-message-content,
 [data-theme='dark'] .skeleton-message.user .skeleton-message-content {
   background: var(--overlay-blue-15);
-}
-
-/* =============================================================================
-   Conversation Skeleton - Sidebar loading placeholders
-   ============================================================================= */
-
-.skeleton-conversation {
-  display: flex;
-  align-items: center;
-  padding: var(--space-2) var(--space-3);
-  margin: var(--space-0-5) 0;
-  gap: var(--gap-sm);
-  animation: skeleton-message-fade 0.3s ease-out;
-}
-
-.skeleton-conversation-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--gap-xs-plus);
-  min-width: 0;
-}
-
-.skeleton-conversation-title {
-  height: 14px;
-  width: 80%;
-  border-radius: var(--radius-sm, 4px);
-}
-
-.skeleton-conversation-meta {
-  height: 10px;
-  width: 50%;
-  border-radius: var(--radius-sm, 4px);
-}
-
-.skeleton-conversation-group {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-2) var(--space-1);
-}
-
-/* Staggered animation for multiple skeletons */
-.skeleton-conversation:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.skeleton-conversation:nth-child(2) {
-  animation-delay: 0.05s;
-}
-
-.skeleton-conversation:nth-child(3) {
-  animation-delay: 0.1s;
-}
-
-.skeleton-conversation:nth-child(4) {
-  animation-delay: 0.15s;
-}
-
-.skeleton-conversation:nth-child(5) {
-  animation-delay: 0.2s;
 }

@@ -316,7 +316,6 @@ export function DecisionsTab({
               const displayTitle = getDecisionDisplayTitle(decision);
 
               return (
-                // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex
                 <li
                   key={decision.id}
                   className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}

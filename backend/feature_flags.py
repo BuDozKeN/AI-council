@@ -78,16 +78,6 @@ FEATURE_FLAG_DEFINITIONS: Dict[str, tuple[str, bool, str]] = {
         False,
         "Enable semantic search in knowledge base"
     ),
-    "multi_company": (
-        "FLAG_MULTI_COMPANY",
-        False,
-        "Enable multi-company switching for users"
-    ),
-    "export_pdf": (
-        "FLAG_EXPORT_PDF",
-        False,
-        "Enable PDF export of council conversations"
-    ),
 
     # Model Features
     "gpt5_model": (

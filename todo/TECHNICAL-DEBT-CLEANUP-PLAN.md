@@ -403,10 +403,21 @@ Use this checklist to track progress:
 - [x] Move CORS URLs to environment (CORS_ORIGINS env var, production URL removed from defaults)
 - [x] Move pricing to environment (SUBSCRIPTION_*_PRICE/QUERIES env vars in config.py)
 
-### Phase 4 (Higher Risk)
-- [ ] Standardize variable naming
-- [ ] Clean up dead feature flags
-- [ ] Implement dynamic model pricing
+### Phase 4 (Higher Risk) - PARTIALLY COMPLETED 2026-02-05
+- [ ] Standardize variable naming (assessed: 25+ files, 472 refs — needs dedicated PR with API response transformer)
+- [x] Clean up dead feature flags (removed multi_company, export_pdf from backend + frontend)
+- [x] Implement dynamic model pricing (OpenRouter API fetch at startup, Redis cache, fallback to hardcoded)
+- [x] Remove dead code: webShare.ts (entire file unused), seo/ogImageConfig.ts (entire dir unused)
+
+### Cross-Phase: Type Safety & Code Quality - COMPLETED 2026-02-05
+- [x] Eliminate all `: any` type annotations (2→0: a11y.ts EventHandler<SyntheticEvent>, Login.tsx TFunction)
+- [x] Eliminate all `as any` casts (1→0: unified PromoteDecision types in useModalState + MyCompany)
+- [x] Fix billing.py datetime bugs (2x `fromtimestamp()` local-time-as-UTC → `tz=timezone.utc`)
+- [x] Reduce eslint-disable comments (63→59: removed 3 with any fixes + 1 unused directive)
+- [x] Split 7 CSS files over 300-line budget (15→8 violators)
+- [x] Upgrade supabase 2.16.0→2.18.1 (supafunc deprecation → supabase_functions)
+- [x] Fix datetime.utcnow() deprecation (all instances → datetime.now(timezone.utc))
+- [x] Fix bare exception handlers (47→1 test-only)
 
 ---
 
@@ -417,7 +428,8 @@ Use this checklist to track progress:
 |-------|------|--------|
 | ~~Unused celebrate functions~~ | `frontend/src/lib/celebrate.ts` | **REMOVED** |
 | ~~Unused OG image functions~~ | `frontend/src/lib/seo/ogImageConfig.ts` | **REMOVED** |
-| Unused webShare functions | `frontend/src/lib/webShare.ts` | Pending (Phase 2) |
+| ~~Unused webShare functions~~ | `frontend/src/lib/webShare.ts` | **DELETED** (Phase 4) |
+| ~~Unused OG image config~~ | `frontend/src/lib/seo/ogImageConfig.ts` | **DELETED** (Phase 4, entire dir) |
 | ~~Debug console.logs~~ | `frontend/src/hooks/useImpersonation.ts` | **REMOVED** |
 | ~~Backend print statements~~ | `backend/ai_i18n.py`, `backend/services/email.py`, `backend/i18n.py` | **CONVERTED TO LOGGER** |
 | ~~Root utility scripts~~ | `main.py`, `check_context.py`, `create_project.py`, `fix_selects.py` | **DELETED** |
@@ -427,10 +439,10 @@ Use this checklist to track progress:
 |-------|------|--------|
 | ~~CORS origins~~ | `backend/main.py` | **ENV VAR (CORS_ORIGINS)** |
 | ~~Subscription pricing~~ | `backend/config.py` | **ENV VARS (SUBSCRIPTION_*)** |
-| Model pricing | `backend/routers/company/utils.py` | Pending (Phase 4) |
-| Circuit breaker config | `backend/openrouter.py` | Low priority |
-| Rate limits | `backend/routers/council.py` | Low priority |
-| Timeouts | `backend/openrouter.py` | Low priority |
+| ~~Model pricing~~ | `backend/routers/company/utils.py` | **DYNAMIC** (Phase 4, OpenRouter API + Redis cache) |
+| ~~Circuit breaker config~~ | `backend/openrouter.py` | **ENV VARS** (CIRCUIT_BREAKER_*) |
+| ~~Rate limits~~ | `backend/cache.py` | **PARAMETERIZED** (passed at call site, not hardcoded) |
+| ~~Timeouts~~ | `backend/openrouter.py` | **ENV VARS** (HTTP_REQUEST_TIMEOUT, HTTP_CONNECT_TIMEOUT) |
 
 ### Deprecated Code Locations - **MIGRATED (Phase 3)**
 | Issue | File | Status |

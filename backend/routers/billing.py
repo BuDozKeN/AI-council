@@ -10,10 +10,13 @@ Endpoints for subscription management:
 - Handle Stripe webhooks
 """
 
+import logging
 import os
 from urllib.parse import urlparse
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, field_validator
+
+logger = logging.getLogger(__name__)
 
 from ..auth import get_current_user
 from .. import billing
@@ -106,7 +109,8 @@ def validate_redirect_url(url: str) -> bool:
 
         return False
 
-    except Exception:
+    except Exception as e:
+        logger.debug("URL validation failed for %s: %s", url if 'url' in dir() else 'unknown', e)
         return False
 
 # Import shared rate limiter (ensures limits are tracked globally)

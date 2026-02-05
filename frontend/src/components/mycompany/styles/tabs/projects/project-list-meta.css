@@ -1,0 +1,66 @@
+/* =============================================================================
+   Project Modal - Meta & Layout
+   Extracted from project-list.css for CSS budget compliance
+   ============================================================================= */
+
+.mc-project-meta-row {
+  display: flex;
+  gap: var(--gap);
+  margin-bottom: var(--space-4);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Project description */
+.mc-project-description {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+/* Source question - what question created this project */
+.mc-source-question {
+  margin-bottom: var(--space-4);
+  padding: var(--space-2-5) var(--space-3-5);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-blue-500);
+  font-size: var(--text-xs-plus);
+  line-height: 1.4;
+}
+
+.mc-source-question-label {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-right: var(--space-1-5);
+}
+
+.mc-source-question-text {
+  color: var(--color-text-primary);
+  font-style: italic;
+}
+
+/* Timestamps row */
+.mc-project-timestamps {
+  display: inline-flex;
+  gap: var(--gap-sm);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  margin-left: auto;
+}
+
+.mc-timestamp {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.mc-timestamp::before {
+  content: '•';
+  margin-right: var(--space-2);
+  color: var(--color-text-tertiary);
+}
+
+.mc-timestamp:first-child::before {
+  display: none;
+}

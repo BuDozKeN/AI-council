@@ -41,14 +41,9 @@ import {
 import type { MyCompanyTab, ActivityLog } from './mycompany/hooks';
 import type { Business, Department, Project, Playbook, Role } from '../types/business';
 import type { Decision } from '../types/conversation';
+import type { PromoteDecision } from '../hooks/useModalState';
 
 const log = logger.scope('MyCompany');
-
-interface PromoteDecision {
-  decision: Decision;
-  title: string;
-  summary?: string;
-}
 
 type AddFormType =
   | 'department'
@@ -706,7 +701,6 @@ export default function MyCompany({
   );
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
     <div
       className="mc-overlay"
       onClick={handleOverlayClick}
@@ -714,7 +708,7 @@ export default function MyCompany({
       role="presentation"
       aria-label="Close panel"
     >
-      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         className="mc-panel"
         ref={panelSwipeRef as React.RefObject<HTMLDivElement>}

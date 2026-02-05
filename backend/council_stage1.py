@@ -12,7 +12,10 @@ These functions support Stage 1 council orchestration by handling:
 
 import asyncio
 import json
+import logging
 import time
+
+logger = logging.getLogger(__name__)
 from typing import Optional, List, Dict, Any, AsyncGenerator
 
 
@@ -201,8 +204,8 @@ def _create_stream_single_model_task(
                     try:
                         usage_json = chunk[7:-1]
                         usage_data = json.loads(usage_json)
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug("Failed to parse usage data for model %s: %s", model, e)
                     continue
 
                 content_chunks.append(chunk)

@@ -13,7 +13,7 @@ To integrate Resend:
 import logging
 import os
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..security import log_app_event
 
@@ -181,7 +181,7 @@ async def send_email(
 
         return {
             "success": True,
-            "message_id": f"preview-{datetime.utcnow().isoformat()}",
+            "message_id": f"preview-{datetime.now(timezone.utc).isoformat()}",
             "preview_mode": True,
         }
 
@@ -230,7 +230,7 @@ async def send_email(
 
     return {
         "success": True,
-        "message_id": f"placeholder-{datetime.utcnow().isoformat()}",
+        "message_id": f"placeholder-{datetime.now(timezone.utc).isoformat()}",
     }
 
 

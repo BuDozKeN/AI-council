@@ -9,7 +9,7 @@ Platform administration endpoints for super admins:
 - Platform invitations
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Path
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List, Literal
@@ -518,12 +518,12 @@ async def list_deleted_users(
         result = query.order("deleted_at", desc=True).execute()
 
         deleted_users = []
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         for record in (result.data or []):
             restoration_deadline = datetime.fromisoformat(
                 record["restoration_deadline"].replace("Z", "+00:00")
-            ).replace(tzinfo=None)
+            )
             can_restore = restoration_deadline > now and record.get("anonymized_at") is None
 
             days_until = None
@@ -604,7 +604,8 @@ async def get_user_details(
         try:
             user_response = supabase.auth.admin.get_user_by_id(target_user_id)
             target_user = user_response.user
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to look up user %s: %s", target_user_id, e)
             raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         if not target_user:
@@ -697,7 +698,8 @@ async def update_user(
         try:
             user_response = supabase.auth.admin.get_user_by_id(target_user_id)
             target_user = user_response.user
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to look up user %s for suspension: %s", target_user_id, e)
             raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         if not target_user:
@@ -715,7 +717,7 @@ async def update_user(
         if update_data.is_suspended is not None:
             current_metadata = getattr(target_user, "user_metadata", {}) or {}
             current_metadata["is_suspended"] = update_data.is_suspended
-            current_metadata["suspended_at"] = datetime.utcnow().isoformat() if update_data.is_suspended else None
+            current_metadata["suspended_at"] = datetime.now(timezone.utc).isoformat() if update_data.is_suspended else None
             current_metadata["suspended_by"] = admin_user_id if update_data.is_suspended else None
             # Store suspend/unsuspend reason
             if update_data.suspend_reason:
@@ -837,7 +839,8 @@ async def delete_user(
         try:
             user_response = supabase.auth.admin.get_user_by_id(target_user_id)
             target_user = user_response.user
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to look up user %s for deletion: %s", target_user_id, e)
             raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         if not target_user:
@@ -1103,9 +1106,9 @@ async def restore_user(
 
         restoration_deadline = datetime.fromisoformat(
             deletion["restoration_deadline"].replace("Z", "+00:00")
-        ).replace(tzinfo=None)
+        )
 
-        if datetime.utcnow() > restoration_deadline:
+        if datetime.now(timezone.utc) > restoration_deadline:
             raise HTTPException(
                 status_code=400,
                 detail="Restoration deadline has passed"
@@ -1144,7 +1147,7 @@ async def restore_user(
             resource_name=target_email,
             ip_address=client_ip,
             metadata={
-                "days_remaining": (restoration_deadline - datetime.utcnow()).days,
+                "days_remaining": (restoration_deadline - datetime.now(timezone.utc)).days,
             },
             is_sensitive=True,
         )
@@ -1205,7 +1208,8 @@ async def list_admins(request: Request, user: dict = Depends(get_current_user)):
             try:
                 user_response = supabase.auth.admin.get_user_by_id(admin["user_id"])
                 email = user_response.user.email if user_response.user else "Unknown"
-            except Exception:
+            except Exception as e:
+                logger.debug("Failed to look up email for admin %s: %s", admin.get("user_id"), e)
                 email = "Unknown"
 
             enriched_admins.append(AdminUser(
@@ -1632,7 +1636,7 @@ async def export_audit_logs(
         return {
             "success": True,
             "count": len(logs),
-            "exported_at": datetime.utcnow().isoformat(),
+            "exported_at": datetime.now(timezone.utc).isoformat(),
             "logs": logs
         }
 
@@ -1724,7 +1728,7 @@ async def create_invitation(
 
         # Generate token and expiry
         invitation_token = str(uuid.uuid4())
-        expires_at = datetime.utcnow() + timedelta(days=7)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
 
         # Get company name if target company specified
         target_company_name = None
@@ -1767,7 +1771,7 @@ async def create_invitation(
         # Update email sent timestamp
         if email_result.get("success"):
             supabase.table("platform_invitations").update({
-                "email_sent_at": datetime.utcnow().isoformat(),
+                "email_sent_at": datetime.now(timezone.utc).isoformat(),
                 "email_message_id": email_result.get("message_id"),
             }).eq("id", invitation_id).execute()
 
@@ -2036,7 +2040,7 @@ async def resend_invitation(
             )
 
         # Extend expiration
-        new_expires_at = datetime.utcnow() + timedelta(days=7)
+        new_expires_at = datetime.now(timezone.utc) + timedelta(days=7)
 
         # Send email
         inviter_name = user_email.split("@")[0] if user_email else "An admin"
@@ -2051,8 +2055,8 @@ async def resend_invitation(
         supabase.table("platform_invitations").update({
             "expires_at": new_expires_at.isoformat(),
             "resend_count": (inv_result.data.get("resend_count") or 0) + 1,
-            "last_resent_at": datetime.utcnow().isoformat(),
-            "email_sent_at": datetime.utcnow().isoformat() if email_result.get("success") else None,
+            "last_resent_at": datetime.now(timezone.utc).isoformat(),
+            "email_sent_at": datetime.now(timezone.utc).isoformat() if email_result.get("success") else None,
             "email_message_id": email_result.get("message_id"),
         }).eq("id", invitation_id).execute()
 
@@ -2270,7 +2274,8 @@ async def start_impersonation(
         try:
             user_response = supabase.auth.admin.get_user_by_id(target_user_id)
             target_user = user_response.user
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to look up user %s for impersonation: %s", target_user_id, e)
             raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         if not target_user:
@@ -2294,7 +2299,7 @@ async def start_impersonation(
 
         # Generate session ID and timestamps
         session_id = f"{IMPERSONATION_TOKEN_PREFIX}{uuid.uuid4().hex}"
-        started_at = datetime.utcnow()
+        started_at = datetime.now(timezone.utc)
         expires_at = started_at + timedelta(minutes=IMPERSONATION_MAX_DURATION_MINUTES)
 
         # Store impersonation session in database
@@ -2414,7 +2419,7 @@ async def end_impersonation(
         for session in sessions:
             supabase.table("impersonation_sessions").update({
                 "is_active": False,
-                "ended_at": datetime.utcnow().isoformat(),
+                "ended_at": datetime.now(timezone.utc).isoformat(),
                 "ended_reason": "manual",
             }).eq("id", session["id"]).execute()
 
@@ -2503,13 +2508,13 @@ async def get_impersonation_status(
 
         # Check if session has expired
         expires_at = datetime.fromisoformat(session_data["expires_at"].replace("Z", "+00:00"))
-        now = datetime.utcnow().replace(tzinfo=expires_at.tzinfo)
+        now = datetime.now(timezone.utc).replace(tzinfo=expires_at.tzinfo)
 
         if now > expires_at:
             # Session expired - mark as inactive
             supabase.table("impersonation_sessions").update({
                 "is_active": False,
-                "ended_at": datetime.utcnow().isoformat(),
+                "ended_at": datetime.now(timezone.utc).isoformat(),
                 "ended_reason": "expired",
             }).eq("id", session_data["id"]).execute()
 
@@ -2643,10 +2648,11 @@ def _calculate_duration_minutes(started_at_str: str) -> float:
     """Calculate duration in minutes from start time to now."""
     try:
         started_at = datetime.fromisoformat(started_at_str.replace("Z", "+00:00"))
-        now = datetime.utcnow().replace(tzinfo=started_at.tzinfo)
+        now = datetime.now(timezone.utc).replace(tzinfo=started_at.tzinfo)
         duration = now - started_at
         return round(duration.total_seconds() / 60, 1)
-    except Exception:
+    except Exception as e:
+        logger.debug("Failed to calculate duration from %s: %s", started_at_str, e)
         return 0.0
 
 

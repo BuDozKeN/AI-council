@@ -6,6 +6,9 @@ This module extracts helper functions to reduce cyclomatic complexity from E (44
 
 from typing import Dict, List, Optional, Tuple
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def _fetch_decision_data(service_client, decision_id: str, company_uuid: str) -> Optional[Dict]:
@@ -82,7 +85,8 @@ def _fetch_prior_context(
 
         return "\n\n".join(prior_items) if prior_items else ""
 
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to fetch prior decisions for summary: %s", e)
         return ""
 
 
@@ -272,5 +276,5 @@ async def _track_summary_llm_usage(
             usage=response['usage'],
             related_id=decision_id
         )
-    except Exception:
-        pass  # Don't fail summary generation if tracking fails
+    except Exception as e:
+        logger.debug("Failed to track LLM usage for decision_summary: %s", e)

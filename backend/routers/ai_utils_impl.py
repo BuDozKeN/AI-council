@@ -318,6 +318,5 @@ async def _track_write_assist_usage(
             model=model,
             usage=usage
         )
-    except Exception:
-        # Don't fail the request if tracking fails
-        pass
+    except Exception as e:
+        logger.debug("Failed to track write assist LLM usage: %s", e)

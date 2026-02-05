@@ -14,8 +14,8 @@ import type { UsageData } from '../../types/conversation';
 // Import shared prose styling for consistent rendering with playbooks/SOPs
 import '../MarkdownViewer.css';
 
-// Model pricing (per 1M tokens) - must match backend utils.py
-// Last verified: 2025-01-02 via OpenRouter/official docs
+// Model pricing (per 1M tokens) - display estimates only.
+// Backend fetches live pricing from OpenRouter; these are fallback values for the UI.
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   // Anthropic
   'anthropic/claude-opus-4.5': { input: 5, output: 25 },

@@ -199,8 +199,8 @@ async def get_department_preset(department_id: str) -> str:
 
             if result.data:
                 return result.data.get("llm_preset", "balanced")
-    except Exception:
-        pass
+    except Exception as e:
+        _logger.debug("Failed to get department preset for %s: %s", department_id, e)
 
     return "balanced"
 
@@ -230,8 +230,8 @@ async def set_department_preset(department_id: str, preset: str) -> bool:
                 .execute()
 
             return len(result.data) > 0
-    except Exception:
-        pass
+    except Exception as e:
+        _logger.warning("Failed to set department preset for %s: %s", department_id, e)
 
     return False
 
@@ -265,8 +265,8 @@ async def set_department_custom_config(
                 .execute()
 
             return len(result.data) > 0
-    except Exception:
-        pass
+    except Exception as e:
+        _logger.warning("Failed to set custom LLM config for department %s: %s", department_id, e)
 
     return False
 

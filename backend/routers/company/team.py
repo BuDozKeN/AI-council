@@ -191,8 +191,8 @@ async def _query_with_fallback(
                         model=model,
                         usage=result['usage']
                     )
-                except Exception:
-                    pass  # Don't fail if tracking fails
+                except Exception as e:
+                    logger.debug("Failed to track LLM usage for %s: %s", operation_type, e)
 
             if result and result.get('content'):
                 content = result['content']

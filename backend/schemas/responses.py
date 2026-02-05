@@ -27,7 +27,7 @@ Usage:
 
 from typing import Any, Optional, List, TypeVar
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 
 # API Version constant
 API_VERSION = "v1"
@@ -51,7 +51,7 @@ class ResponseMeta(BaseModel):
     """Metadata included in all API responses."""
     api_version: str = Field(default=API_VERSION, description="API version")
     timestamp: str = Field(
-        default_factory=lambda: datetime.utcnow().isoformat() + "Z",
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
         description="Response timestamp in ISO 8601 format"
     )
     pagination: Optional[PaginationMeta] = Field(None, description="Pagination info for list endpoints")
@@ -158,7 +158,7 @@ def success_response(data: Any, **extra_meta) -> dict:
     """
     meta = {
         "api_version": API_VERSION,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         **extra_meta
     }
     return {"data": data, "meta": meta}
@@ -192,7 +192,7 @@ def paginated_response(
 
     meta = {
         "api_version": API_VERSION,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "pagination": {
             "limit": limit,
             "offset": offset,
@@ -237,7 +237,7 @@ def error_response(
 
     meta = {
         "api_version": API_VERSION,
-        "timestamp": datetime.utcnow().isoformat() + "Z"
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
     return {"error": error, "meta": meta}

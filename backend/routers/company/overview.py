@@ -12,6 +12,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ...auth import get_current_user, get_effective_user
 from ... import model_registry
@@ -244,7 +247,8 @@ Do not include any explanation or commentary - just the document."""
                 model_used = model
                 usage_data = result.get('usage')
                 break
-        except Exception:
+        except Exception as e:
+            logger.warning("Context merge model attempt failed: %s", e)
             continue
 
     # Track usage if successful
@@ -256,8 +260,8 @@ Do not include any explanation or commentary - just the document."""
                 model=model_used,
                 usage=usage_data
             )
-        except Exception:
-            pass  # Don't fail if tracking fails
+        except Exception as e:
+            logger.debug("Failed to track LLM usage for context_merge: %s", e)
 
     if merged is None:
         merged = existing + f"\n\n## Additional Information\n\n**{question}**\n{answer}"
@@ -465,8 +469,8 @@ Return ONLY the markdown document, no explanations or commentary."""
                         model=model,
                         usage=result['usage']
                     )
-                except Exception:
-                    pass  # Don't fail if tracking fails
+                except Exception as e:
+                    logger.debug("Failed to track LLM usage for context_structuring: %s", e)
 
             if result and result.get('content'):
                 content = result['content'].strip()

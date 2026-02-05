@@ -5,7 +5,7 @@
  * when semantic button elements can't be used due to styling/layout constraints.
  */
 
-import type { KeyboardEvent, MouseEvent, SyntheticEvent } from 'react';
+import type { EventHandler, KeyboardEvent, MouseEvent, SyntheticEvent } from 'react';
 
 /**
  * Flexible callback type that accepts various event handler signatures.
@@ -15,8 +15,7 @@ import type { KeyboardEvent, MouseEvent, SyntheticEvent } from 'react';
  * - Take KeyboardEvent: (e: KeyboardEvent) => void
  * - Take either: (e: MouseEvent | KeyboardEvent) => void
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type InteractiveCallback = ((e: any) => void) | (() => void) | undefined;
+type InteractiveCallback = EventHandler<SyntheticEvent> | (() => void) | undefined;
 
 /**
  * Creates keyboard-accessible props for clickable divs/spans

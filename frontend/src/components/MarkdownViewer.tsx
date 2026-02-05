@@ -117,10 +117,10 @@ export default function MarkdownViewer({
   const displayContent = skipCleanup ? processedContent : cleanContent(processedContent);
 
   return (
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     <div
       ref={containerRef}
       className={`prose prose-slate prose-sm max-w-none ${className}`}
+      // eslint-disable-next-line react-hooks/refs -- handleClick uses containerRef in an event handler, not during render
       {...makeClickable(handleClick)}
     >
       <ReactMarkdown

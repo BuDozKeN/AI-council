@@ -1,9 +1,12 @@
 """Supabase-based storage for conversations."""
 
+import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from .database import get_supabase, get_supabase_with_auth, get_supabase_service
 from .security import log_app_event, escape_sql_like_pattern, verify_user_company_access, log_security_event
+
+logger = logging.getLogger(__name__)
 
 # Default company ID for AxCouncil (cached after first lookup)
 _default_company_id: Optional[str] = None
@@ -630,21 +633,18 @@ def bulk_delete_conversations(
 
 def get_projects(company_id_or_slug: str, access_token: str) -> List[Dict[str, Any]]:
     """Get all active projects for a company."""
-    try:
-        # Resolve slug to UUID if needed
-        company_uuid = resolve_company_id(company_id_or_slug, access_token)
+    # Resolve slug to UUID if needed
+    company_uuid = resolve_company_id(company_id_or_slug, access_token)
 
-        client = _get_client(access_token)
-        # Include context_md so frontend can merge decisions without extra API call
-        result = client.table("projects")\
-            .select("id, name, description, status, created_at, context_md")\
-            .eq("company_id", company_uuid)\
-            .eq("status", "active")\
-            .order("created_at", desc=True)\
-            .execute()
-        return result.data if result.data else []
-    except Exception:
-        raise
+    client = _get_client(access_token)
+    # Include context_md so frontend can merge decisions without extra API call
+    result = client.table("projects")\
+        .select("id, name, description, status, created_at, context_md")\
+        .eq("company_id", company_uuid)\
+        .eq("status", "active")\
+        .order("created_at", desc=True)\
+        .execute()
+    return result.data if result.data else []
 
 
 def get_project(project_id: str, access_token: str) -> Optional[Dict[str, Any]]:
@@ -902,71 +902,69 @@ def get_projects_with_stats(
         status_filter: Filter by specific status ('active', 'completed', 'archived')
         include_archived: If True, include archived projects (default: False)
     """
-    try:
-        company_uuid = resolve_company_id(company_id_or_slug, access_token)
-        client = _get_client(access_token)
+    company_uuid = resolve_company_id(company_id_or_slug, access_token)
+    client = _get_client(access_token)
 
-        query = client.table("projects")\
-            .select("id, name, description, status, created_at, updated_at, last_accessed_at, context_md, department_ids")\
-            .eq("company_id", company_uuid)
+    query = client.table("projects")\
+        .select("id, name, description, status, created_at, updated_at, last_accessed_at, context_md, department_ids")\
+        .eq("company_id", company_uuid)
 
-        if status_filter:
-            query = query.eq("status", status_filter)
-        elif not include_archived:
-            query = query.neq("status", "archived")
+    if status_filter:
+        query = query.eq("status", status_filter)
+    elif not include_archived:
+        query = query.neq("status", "archived")
 
-        # Order by last_accessed_at for recently used first
-        result = query.order("last_accessed_at", desc=True).execute()
+    # Order by last_accessed_at for recently used first
+    result = query.order("last_accessed_at", desc=True).execute()
 
-        projects = result.data if result.data else []
+    projects = result.data if result.data else []
 
-        # Get departments for name lookup
-        dept_result = client.table("departments")\
-            .select("id, name, slug")\
-            .eq("company_id", company_uuid)\
-            .execute()
-        dept_map = {d["id"]: d for d in (dept_result.data or [])}
+    # Get departments for name lookup
+    dept_result = client.table("departments")\
+        .select("id, name, slug")\
+        .eq("company_id", company_uuid)\
+        .execute()
+    dept_map = {d["id"]: d for d in (dept_result.data or [])}
 
-        # Enrich projects with decision counts and department names
-        for project in projects:
-            dept_ids = project.get("department_ids") or []
+    # Enrich projects with decision counts and department names
+    for project in projects:
+        dept_ids = project.get("department_ids") or []
 
-            # Build list of department names from department_ids array
-            project["department_names"] = [
-                dept_map[did].get("name") for did in dept_ids
-                if did in dept_map
-            ]
-            # Set department_name to first one for backwards compat
-            project["department_name"] = project["department_names"][0] if project["department_names"] else None
+        # Build list of department names from department_ids array
+        project["department_names"] = [
+            dept_map[did].get("name") for did in dept_ids
+            if did in dept_map
+        ]
+        # Set department_name to first one for backwards compat
+        project["department_name"] = project["department_names"][0] if project["department_names"] else None
 
-            # Get decision count and first decision's user question (for "what was asked")
-            try:
-                count_result = client.table("knowledge_entries")\
-                    .select("id", count="exact")\
-                    .eq("project_id", project["id"])\
-                    .eq("is_active", True)\
-                    .execute()
-                project["decision_count"] = count_result.count or 0
+        # Get decision count and first decision's user question (for "what was asked")
+        try:
+            count_result = client.table("knowledge_entries")\
+                .select("id", count="exact")\
+                .eq("project_id", project["id"])\
+                .eq("is_active", True)\
+                .execute()
+            project["decision_count"] = count_result.count or 0
 
-                # Get the first decision's question (the question that created this project)
-                first_decision = client.table("knowledge_entries")\
-                    .select("question")\
-                    .eq("project_id", project["id"])\
-                    .eq("is_active", True)\
-                    .order("created_at", desc=False)\
-                    .limit(1)\
-                    .execute()
-                if first_decision.data and len(first_decision.data) > 0:
-                    project["source_question"] = first_decision.data[0].get("question")
-                else:
-                    project["source_question"] = None
-            except Exception:
-                project["decision_count"] = 0
+            # Get the first decision's question (the question that created this project)
+            first_decision = client.table("knowledge_entries")\
+                .select("question")\
+                .eq("project_id", project["id"])\
+                .eq("is_active", True)\
+                .order("created_at", desc=False)\
+                .limit(1)\
+                .execute()
+            if first_decision.data and len(first_decision.data) > 0:
+                project["source_question"] = first_decision.data[0].get("question")
+            else:
                 project["source_question"] = None
+        except Exception as e:
+            logger.warning("Failed to get decision stats for project %s: %s", project.get("id"), e)
+            project["decision_count"] = 0
+            project["source_question"] = None
 
-        return projects
-    except Exception:
-        raise
+    return projects
 
 
 # ============================================

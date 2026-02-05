@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { AuroraBackground } from './ui/aurora-background';
@@ -33,8 +34,7 @@ const GoogleIcon = () => (
 );
 
 // Transform backend error messages into user-friendly ones
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getUserFriendlyError = (error: string, t: any): string => {
+const getUserFriendlyError = (error: string, t: TFunction): string => {
   // Map technical error codes/messages to user-friendly translations
   const errorMap: Record<string, string> = {
     block_new_signups: t(
