@@ -140,7 +140,7 @@
 | 068 | P2 | Data | kimi-k2.5 model missing from Technology tab (only 5 models shown) | Leaderboard | Needs Fix |
 | 069 | P3 | UX | Tab categories (Operations/Standard/Technology) not explained | Leaderboard | Needs Fix |
 | 070 | P3 | UX | "0%" win rate could say "No wins yet" for clarity | Leaderboard | Needs Fix |
-| 071 | P2 | Mobile | Model names wrap awkwardly with hyphens on mobile | Leaderboard mobile | Needs Fix |
+| 071 | P2 | Mobile | Model names wrap awkwardly with hyphens on mobile | Leaderboard mobile | ✅ Fixed (white-space: nowrap) |
 | 072 | P3 | UI | "AxCouncil" text cut off/faded at top of leaderboard mobile | Leaderboard mobile | Needs Fix |
 | 073 | P1 | Mobile | Response style button click opens My Company modal instead | Mobile chat input | ✅ Verified Fixed |
 | 074 | P2 | a11y | Nested button structure on mobile (button > button) causes click issues | Mobile chat input | Needs Fix |
@@ -166,9 +166,9 @@
 | 089 | P3 | UX | No edit/view/delete actions on company rows | Admin Companies | Needs Fix |
 | 090 | P3 | UX | No "Add Company" button for creating new companies | Admin Companies | Needs Fix |
 | 091 | P3 | UX | No export/download option on Companies page | Admin Companies | Needs Fix |
-| 092 | P2 | a11y | ACTION column header missing columnheader markup | Admin Audit Logs | Needs Fix |
-| 093 | P2 | a11y | RESOURCE column header missing columnheader markup | Admin Audit Logs | Needs Fix |
-| 094 | P2 | a11y | IP column header missing columnheader markup | Admin Audit Logs | Needs Fix |
+| 092 | P2 | a11y | ACTION column header missing columnheader markup | Admin Audit Logs | ❌ False Positive (<th> has implicit columnheader role) |
+| 093 | P2 | a11y | RESOURCE column header missing columnheader markup | Admin Audit Logs | ❌ False Positive (<th> has implicit columnheader role) |
+| 094 | P2 | a11y | IP column header missing columnheader markup | Admin Audit Logs | ❌ False Positive (<th> has implicit columnheader role) |
 | 095 | P3 | Data | All audit log entries are "Viewed audit logs" - no diverse actions | Admin Audit Logs | Data Issue |
 | 096 | P3 | Data | Resource column shows "-" for all entries | Admin Audit Logs | Data Issue |
 | 097 | P3 | Data | Audit logs all from Jan 21 - no recent logs (stale data) | Admin Audit Logs | Investigate |
@@ -183,7 +183,7 @@
 | 101 | P3 | Feature | Admin Settings shows "Coming Soon" - feature not implemented | Admin Settings | Planned |
 | 102 | P3 | a11y | Duplicate text: "Platform Settings" h2 AND "Platform Settings Coming Soon" h3 | Admin Settings | Needs Fix |
 | 103 | P1 | UX | Cannot navigate to view conversations - clicking only triggers bulk selection | History sidebar | ✅ Works (test tooling issue) |
-| 104 | P2 | UX | "Select conversation" button label confusing - it's for bulk selection not navigation | History sidebar | Needs Fix |
+| 104 | P2 | UX | "Select conversation" button label confusing - it's for bulk selection not navigation | History sidebar | ✅ Already Clear (aria-label: "Add to bulk selection") |
 | 105 | P3 | UX | "All Conversati..." truncated in dropdown | History sidebar | Needs Fix |
 | 106 | P3 | UX | Conversation titles truncated with no tooltip or expand option | History sidebar | Needs Fix |
 | 107 | P3 | UX | No date/time shown for conversations | History sidebar | Needs Fix |

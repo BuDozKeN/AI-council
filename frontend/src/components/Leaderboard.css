@@ -118,6 +118,18 @@
 
 .model-col {
   font-weight: 500;
+  white-space: nowrap; /* Prevent model names from wrapping at hyphens (ISS-071) */
+}
+
+/* Mobile: Allow model names to use available width without wrapping */
+@media (width <= 640px) {
+  .leaderboard-table {
+    overflow-x: auto;
+  }
+
+  .leaderboard-table table {
+    min-width: max-content;
+  }
 }
 
 .leaderboard-table .score-col,
