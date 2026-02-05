@@ -33,8 +33,11 @@
 | 078 | Department Default confusion | **FIXED** - Shows "Auto: uses department settings" |
 | 103 | Conversation clicks trigger selection | **WORKS** - Clicking content area navigates correctly |
 | 162 | GAP text visible | **FIXED** - cleanGapMarkers function strips [GAP:...] markers |
+| 144 | Enterprise plan shows "Free" | **FIXED** - Now shows "Contact Us" for Enterprise plan |
+| 154 | Radio buttons no group label | **ALREADY FIXED** - Has aria-label + sr-only label |
 | 183 | Admin Portal not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-183) |
 | 185 | Sign Out not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-185) |
+| 281 | Skip link doesn't move focus | **ALREADY FIXED** - main has tabIndex={-1} |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -219,7 +222,7 @@
 | 126 | P3 | Tablet | Uses mobile bottom nav instead of sidebar at tablet width | Tablet nav | By Design? |
 | 127 | P3 | a11y | Conversation action buttons appear before option in DOM (odd structure) | History sidebar | Needs Review |
 | 128 | P3 | UX | "Pin sidebar open" button - unclear what "pinning" means | Sidebar mobile | Needs Fix |
-| 129 | P2 | a11y | ACTIONS column header missing columnheader markup | Admin Users | Needs Fix |
+| 129 | P2 | a11y | ACTIONS column header missing columnheader markup | Admin Users | ❌ False Positive (<th> has implicit columnheader role) |
 | 130 | P3 | Data | Users with "-" for name instead of email-derived fallback | Admin Users | Needs Fix |
 | 131 | P3 | UX | User names wrap to two lines at tablet ("Alfredo\nLanda") | Admin Users tablet | Needs Fix |
 | 132 | P2 | Tablet | All emails truncated at tablet width with "..." | Admin Users tablet | Confirmed #056 |
@@ -228,7 +231,7 @@
 | 135 | P3 | UX | No tooltip on truncated emails to show full address | Admin Users | Needs Fix |
 | 136 | P3 | UX | "View and manage all users across the platform" wraps awkwardly | Admin Users | Needs Fix |
 | 137 | P2 | Bug | Search doesn't reset results when cleared - requires page reload | Admin Users | Needs Fix |
-| 138 | P2 | a11y | ACTIVITY column header missing columnheader markup | Admin Users | Needs Fix |
+| 138 | P2 | a11y | ACTIVITY column header missing columnheader markup | Admin Users | ❌ False Positive (<th> has implicit columnheader role) |
 | 139 | P3 | UX | "No users found" empty state could suggest inviting a user | Admin Users | Needs Fix |
 | 140 | P3 | Data | Current user row shows "-" for Actions instead of disabled state | Admin Users | Needs Fix |
 
@@ -239,7 +242,7 @@
 | 141 | P2 | a11y | Analytics charts have empty group elements with no accessible names | Admin Analytics | Needs Fix |
 | 142 | P3 | Data | Company Growth chart y-axis shows 0.5 - doesn't make sense for whole companies | Admin Analytics | Needs Fix |
 | 143 | P1 | Data | Model count inconsistent: "6 AIs" (main) vs "5 AI models" (Billing) vs "15 models" (LLM Hub) | Multiple | 🔧 Backend Data Issue |
-| 144 | P2 | UX | Enterprise plan shows "Free" as price - should be "Custom" or "Contact Us" | Settings > Billing | Needs Fix |
+| 144 | P2 | UX | Enterprise plan shows "Free" as price - should be "Custom" or "Contact Us" | Settings > Billing | ✅ Fixed (shows "Contact Us") |
 | 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | Needs Fix |
 | 146 | P2 | UX | Team members shown as truncated UUIDs instead of names/emails | Settings > Team | Needs Fix |
 | 147 | P3 | UX | "You" in Team tab doesn't show actual user name or email | Settings > Team | Needs Fix |
@@ -249,7 +252,7 @@
 | 151 | P2 | a11y | Revenue Dashboard disclosure triangle - purpose unclear | Admin Analytics | Needs Review |
 | 152 | P3 | UX | "Data refreshes hourly" but no manual refresh button | Admin Analytics | Needs Fix |
 | 153 | P3 | UX | Last updated time format inconsistent (06:06:16 vs dates elsewhere) | Admin Analytics | Needs Fix |
-| 154 | P2 | a11y | Radio buttons "1 AI" / "6 AIs" have no visible group label | Chat input | Needs Fix |
+| 154 | P2 | a11y | Radio buttons "1 AI" / "6 AIs" have no visible group label | Chat input | ✅ Fixed (has aria-label + sr-only label) |
 | 155 | P3 | UX | "Choose files" button shows "No file chosen" as value - confusing UI | Chat input | Needs Fix |
 | 156 | P3 | UX | Phone field in Profile doesn't use tel input type | Settings > Profile | Needs Fix |
 | 157 | P3 | UX | No validation indicators for required fields in Profile form | Settings > Profile | Needs Fix |
@@ -401,8 +404,8 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 281 | P2 | a11y | Skip to main content link doesn't move focus to target element | Global | Needs Fix |
-| 282 | P3 | a11y | Main content area (#main-content) not focusable | Global | Needs Fix |
+| 281 | P2 | a11y | Skip to main content link doesn't move focus to target element | Global | ✅ Fixed (tabIndex={-1} on main) |
+| 282 | P3 | a11y | Main content area (#main-content) not focusable | Global | ✅ Fixed (tabIndex={-1} on main) |
 | 283 | P3 | a11y | No focus indicator visible on some interactive elements | Global | Needs Fix |
 | 284 | P3 | a11y | Tab order skips some elements in conversation view | Conversation | Needs Review |
 | 285 | P3 | a11y | Model chips in response not keyboard accessible | Conversation view | Needs Fix |
