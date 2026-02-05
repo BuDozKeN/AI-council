@@ -19,6 +19,21 @@
 import { logger } from './logger';
 import { toast } from '../components/ui/sonner';
 
+/**
+ * Error messages to suppress (not from our application).
+ * These are filtered out to avoid confusing users with irrelevant errors.
+ */
+const SUPPRESSED_ERROR_PATTERNS = [
+  /github\s+resource\s+was\s+not\s+found/i, // External MCP/extension errors
+];
+
+/**
+ * Check if an error message should be suppressed.
+ */
+function shouldSuppressError(message: string): boolean {
+  return SUPPRESSED_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+
 interface ErrorLike {
   message?: string;
   error?: string;
@@ -86,6 +101,12 @@ export function handleError(
   const { showToast = true, userMessage = null, silent = false } = options;
 
   const message = userMessage || extractErrorMessage(error);
+
+  // Suppress external/irrelevant errors (e.g., from browser extensions, MCP servers)
+  if (shouldSuppressError(message)) {
+    logger.debug(`[${context}] Suppressed external error:`, message);
+    return { error: true, message };
+  }
 
   if (!silent) {
     // Log the error
