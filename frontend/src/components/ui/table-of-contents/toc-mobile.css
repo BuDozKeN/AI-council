@@ -41,7 +41,9 @@
 }
 
 .stage3-mobile-toc-trigger:active {
-  transform: scale(0.97);
+  /* No transform on active - the scale(0.97) caused a visual "flick down"
+     on mobile that felt like a bug rather than feedback */
+  opacity: 0.85;
   transition-duration: 0.1s;
 }
 
