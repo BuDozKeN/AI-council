@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "mcp__chrome-devtools__*",
+      "mcp__playwright__*",
       "Bash(npm *)",
       "Bash(npx *)",
       "Bash(pytest *)",
@@ -15,7 +16,9 @@
       "Bash(wc *)",
       "Bash(find *)",
       "Bash(du *)",
-      "Bash(ls *)"
+      "Bash(ls *)",
+      "Bash(pip install*)",
+      "Bash(playwright install*)"
     ],
     "deny": [
       "Bash(git push --force*)",
