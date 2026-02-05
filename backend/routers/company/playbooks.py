@@ -12,7 +12,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional, Any
 from datetime import datetime, timezone
+import logging
 import uuid
+
+logger = logging.getLogger(__name__)
 import json
 
 from ...auth import get_current_user, get_effective_user
@@ -497,8 +500,8 @@ Return ONLY one word: sop, framework, or policy"""
                         model=model,
                         usage=result['usage']
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("Failed to track LLM usage for playbook_type_detection: %s", e)
 
             if result and result.get('content'):
                 doc_type = result['content'].strip().lower()
@@ -587,8 +590,8 @@ Write comprehensive, production-ready content following your expertise as a {typ
                         model=model,
                         usage=result['usage']
                     )
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("Failed to track LLM usage for playbook_generation: %s", e)
 
             if result and result.get('content'):
                 content = result['content']

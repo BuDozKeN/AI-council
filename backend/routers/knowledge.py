@@ -234,7 +234,8 @@ Today's date: {today_date}"""
                 else:
                     continue
 
-            except Exception:
+            except Exception as e:
+                logger.warning("Auto-synthesis model attempt failed, trying next: %s", e)
                 continue
 
     except Exception as e:
@@ -459,7 +460,8 @@ async def get_conversation_decision(request: Request, conversation_id: str,
 
         try:
             company_uuid = storage.resolve_company_id(company_id, access_token)
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to resolve company ID for decision lookup: %s", e)
             return {"decision": None}
 
         try:
@@ -471,7 +473,8 @@ async def get_conversation_decision(request: Request, conversation_id: str,
                 .eq("is_active", True) \
                 .limit(1) \
                 .execute()
-        except Exception:
+        except Exception as e:
+            logger.warning("Failed to query knowledge entries for conversation %s: %s", conversation_id, e)
             return {"decision": None}
 
         if result.data and result.data[0]:
@@ -562,7 +565,8 @@ async def _get_user_company_id(user: dict) -> str:
         if result.data and len(result.data) > 0:
             return result.data[0]["id"]
         return None
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to resolve company ID for user %s: %s", user_id, e)
         return None
 
 
@@ -683,6 +687,7 @@ RULES:
             fallback = extract_knowledge_fallback(extract_request.user_question, extract_request.council_response)
             return {"success": True, "extracted": fallback}
 
-    except Exception:
+    except Exception as e:
+        logger.warning("AI knowledge extraction failed, using fallback: %s", e)
         fallback = extract_knowledge_fallback(extract_request.user_question, extract_request.council_response)
         return {"success": True, "extracted": fallback}

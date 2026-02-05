@@ -16,11 +16,14 @@ This middleware complements existing security measures:
 - SlowAPI rate limiting - DoS protection
 """
 
+import logging
 import re
 import html
 from typing import Optional, List
 from fastapi import Request, HTTPException
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 try:
     from ..i18n import t, get_locale_from_header
@@ -392,8 +395,8 @@ class InputSanitizationMiddleware:
                         "body": f'{{"detail":"{error_msg}"}}'.encode('utf-8'),
                     })
                     return
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Request body sanitization check failed: %s", e)
 
         # Validate query string
         query_string = scope.get("query_string", b"").decode('utf-8', errors='replace')

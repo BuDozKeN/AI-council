@@ -4,7 +4,10 @@ Refactored context_loader.py - Breaking down the F-grade get_system_prompt_with_
 This module extracts helper functions to reduce cyclomatic complexity from F (56) to manageable levels.
 """
 
+import logging
 from typing import Optional, List, Dict, Any
+
+logger = logging.getLogger(__name__)
 
 
 def _normalize_role_and_department_ids(
@@ -58,8 +61,8 @@ def _resolve_company_uuid(
         result = client.table("companies").select("id").eq("slug", business_id).execute()
         if result.data:
             return result.data[0]["id"]
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Failed to resolve business slug %s: %s", business_id, e)
 
     return None
 
@@ -244,8 +247,8 @@ def _get_department_name(client, dept_id: str) -> str:
             result = client.table("departments").select("name, description").eq("slug", dept_id).execute()
         if result.data:
             return result.data[0].get("name", "Department")
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Failed to resolve department name for %s: %s", dept_id, e)
 
     return "Department"
 
@@ -296,8 +299,8 @@ def _inject_playbooks(
                 system_prompt += f"\n=== {doc_type}: {doc_title.upper()} ===\n\n"
                 system_prompt += content
                 system_prompt += f"\n\n=== END {doc_type} ===\n"
-        except Exception:
-            pass  # Skip failed playbook loads silently
+        except Exception as e:
+            logger.warning("Failed to load playbook %s: %s", playbook_id, e)
 
     return system_prompt
 

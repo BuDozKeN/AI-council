@@ -5,8 +5,11 @@ This module extracts helper functions to reduce cyclomatic complexity from F (46
 """
 
 import json
+import logging
 import re
 from typing import Optional, Dict, Any, List, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 def _extract_json_from_llm_response(content: str) -> Optional[Dict[str, Any]]:
@@ -127,12 +130,9 @@ async def _save_decision_to_knowledge(
         "tags": []
     }
 
-    try:
-        result = client.table("knowledge_entries").insert(insert_data).execute()
-        if result.data and len(result.data) > 0:
-            return result.data[0].get("id")
-    except Exception:
-        raise
+    result = client.table("knowledge_entries").insert(insert_data).execute()
+    if result.data and len(result.data) > 0:
+        return result.data[0].get("id")
 
     return None
 
@@ -160,8 +160,8 @@ def _sync_departments_to_project(client, project_id: str, dept_ids: List[str]) -
         if not new_dept_ids.issubset(current_dept_ids):
             updated_dept_ids = list(current_dept_ids | new_dept_ids)
             client.table("projects").update({"department_ids": updated_dept_ids}).eq("id", project_id).execute()
-    except Exception:
-        pass  # Non-critical - don't fail if sync fails
+    except Exception as e:
+        logger.debug("Failed to sync departments to project %s: %s", project_id, e)
 
 
 async def _track_merge_llm_usage(
@@ -191,8 +191,8 @@ async def _track_merge_llm_usage(
             usage=usage,
             related_id=project_id
         )
-    except Exception:
-        pass  # Don't fail merge if tracking fails
+    except Exception as e:
+        logger.debug("Failed to track LLM usage for project %s: %s", project_id, e)
 
 
 def _trigger_summary_generation(decision_id: str, company_uuid: str) -> None:
@@ -207,5 +207,5 @@ def _trigger_summary_generation(decision_id: str, company_uuid: str) -> None:
         import asyncio
         from .company import generate_decision_summary_internal
         asyncio.create_task(generate_decision_summary_internal(decision_id, company_uuid))
-    except Exception:
-        pass  # Non-critical background task
+    except Exception as e:
+        logger.debug("Failed to trigger summary generation for decision %s: %s", decision_id, e)

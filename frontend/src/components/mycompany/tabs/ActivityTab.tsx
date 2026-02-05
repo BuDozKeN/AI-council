@@ -260,7 +260,6 @@ export function ActivityTab({
                     log.event_type.slice(1).replace(/_/g, ' ');
 
                 return (
-                  // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-noninteractive-tabindex
                   <li
                     key={log.id}
                     className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}

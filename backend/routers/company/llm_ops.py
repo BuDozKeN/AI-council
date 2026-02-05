@@ -11,6 +11,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timezone
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ...auth import get_current_user, get_effective_user
 from .utils import (
@@ -274,8 +277,8 @@ async def get_llm_usage(request: Request, company_id: ValidCompanyId,
             "created_at", f"now() - interval '{days} days'"
         ).execute()
         parse_failures = pf_result.count or 0
-    except Exception:
-        pass  # Table might not exist yet (migration pending)
+    except Exception as e:
+        logger.debug("Failed to query parse_failures table: %s", e)
 
     # Calculate parse success rate
     # Estimate total rankings: council_sessions * 6 (6 Stage 2 reviewers per session)

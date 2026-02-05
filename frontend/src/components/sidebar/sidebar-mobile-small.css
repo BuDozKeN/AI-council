@@ -1,0 +1,109 @@
+/* =============================================================================
+   VERY SMALL SCREENS (iPhone SE - 320px width)
+   Extracted from sidebar-mobile.css for CSS budget compliance
+   ============================================================================= */
+
+@media (width <= 360px) {
+  /* More compact header */
+  .sidebar .sidebar-header {
+    padding: var(--space-2-5) var(--space-3);
+  }
+
+  .sidebar .sidebar-new-btn {
+    min-height: 40px;
+    height: 40px;
+    font-size: var(--text-xs);
+  }
+
+  /* Compact conversation items */
+  .conversation-item-inner {
+    padding: var(--space-1-5) var(--space-2-5);
+    min-height: 40px;
+    gap: var(--gap-xs);
+  }
+
+  .conversation-item {
+    padding: var(--space-2) var(--space-2-5);
+  }
+
+  /* Smaller search */
+  .search-input {
+    min-height: 40px;
+    padding: var(--space-2-5) var(--space-6) var(--space-2-5) var(--space-8);
+    font-size: var(--text-sm);
+  }
+
+  .search-icon {
+    left: 12px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .sidebar-search {
+    padding: var(--space-2-5) var(--space-3);
+  }
+
+  /* Compact filter row */
+  .sidebar-filter {
+    padding: var(--space-1-5) var(--space-3);
+  }
+
+  /* Compact group headers */
+  .group-header {
+    min-height: 36px;
+    padding: var(--space-2) var(--space-2-5);
+    margin: var(--space-2) var(--space-1-5) var(--space-1);
+  }
+
+  /* Compact footer */
+  .sidebar .sidebar-footer {
+    padding: var(--space-2-5) var(--space-3);
+  }
+
+  .sidebar .sidebar-footer-btn,
+  .sidebar .sign-out-btn {
+    min-height: 40px;
+    padding: var(--space-2) var(--space-2-5);
+    font-size: var(--text-xs);
+  }
+
+  .sidebar .sidebar-footer .company-btn,
+  .sidebar .sidebar-footer .settings-btn {
+    min-height: 40px;
+    padding: var(--space-2) var(--space-2-5);
+  }
+
+  /* Load more button */
+  .load-more-btn {
+    min-height: 40px;
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-xs);
+  }
+
+  /* Bulk action bar */
+  .sidebar .bulk-action-bar {
+    margin: 0 var(--space-3) var(--space-3);
+    padding: var(--space-2-5) var(--space-3);
+  }
+
+  .sidebar .bulk-cancel-btn,
+  .sidebar .bulk-delete-btn {
+    min-height: 40px;
+    padding: var(--space-1-5) var(--space-3);
+    font-size: var(--text-xs);
+  }
+}
+
+/* =============================================================================
+   LANDSCAPE ORIENTATION SUPPORT
+   ============================================================================= */
+
+@media (width <= 1024px) and (orientation: landscape) {
+  .sidebar.sidebar--collapsed,
+  .sidebar.sidebar--hovered,
+  .sidebar.sidebar--pinned,
+  .sidebar {
+    width: 240px;
+    max-width: 240px;
+  }
+}

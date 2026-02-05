@@ -11,7 +11,7 @@ These tests verify:
 
 import pytest
 import re
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, AsyncMock, patch
 
 # Import the module under test
 from backend.routers.company.utils import (
@@ -22,6 +22,9 @@ from backend.routers.company.utils import (
     get_model_pricing,
     calculate_cost_cents,
     DEFAULT_PRICING,
+    MODEL_PRICING,
+    _FALLBACK_PRICING,
+    refresh_model_pricing,
     _company_uuid_cache,
 )
 
@@ -225,6 +228,67 @@ class TestCalculateCostCents:
         # Total = ~230 cents (may vary slightly due to floating point)
         cost = calculate_cost_cents(usage)
         assert 228 <= cost <= 231  # Allow for floating point rounding
+
+
+# =============================================================================
+# Dynamic Pricing Refresh Tests
+# =============================================================================
+
+class TestRefreshModelPricing:
+    """Test OpenRouter pricing refresh."""
+
+    def test_fallback_pricing_loaded_at_init(self):
+        """MODEL_PRICING should start with fallback values."""
+        assert "anthropic/claude-sonnet-4" in MODEL_PRICING
+        assert MODEL_PRICING["anthropic/claude-sonnet-4"] == _FALLBACK_PRICING["anthropic/claude-sonnet-4"]
+
+    @pytest.mark.asyncio
+    async def test_refresh_updates_pricing(self):
+        """Should update MODEL_PRICING from OpenRouter API response."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.raise_for_status = MagicMock()
+        mock_response.json.return_value = {
+            "data": [
+                {
+                    "id": "test/model-1",
+                    "pricing": {"prompt": "0.000005", "completion": "0.000020"},
+                },
+            ]
+        }
+
+        mock_client = AsyncMock()
+        mock_client.get.return_value = mock_response
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=False)
+
+        with patch("httpx.AsyncClient", return_value=mock_client), \
+             patch("backend.cache.get_redis", new_callable=AsyncMock, return_value=None):
+            count = await refresh_model_pricing()
+
+        assert count == 1
+        assert "test/model-1" in MODEL_PRICING
+        assert MODEL_PRICING["test/model-1"]["input"] == 5.0  # 0.000005 * 1M
+        assert MODEL_PRICING["test/model-1"]["output"] == 20.0
+
+        # Clean up test model
+        MODEL_PRICING.pop("test/model-1", None)
+
+    @pytest.mark.asyncio
+    async def test_refresh_fails_gracefully(self):
+        """Should return 0 and keep fallback pricing on API failure."""
+        mock_client = AsyncMock()
+        mock_client.get.side_effect = Exception("Network error")
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=False)
+
+        with patch("httpx.AsyncClient", return_value=mock_client), \
+             patch("backend.cache.get_redis", new_callable=AsyncMock, return_value=None):
+            count = await refresh_model_pricing()
+
+        assert count == 0
+        # Fallback pricing should still be intact
+        assert "anthropic/claude-sonnet-4" in MODEL_PRICING
 
 
 # =============================================================================

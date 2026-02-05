@@ -77,8 +77,8 @@ def close_qdrant():
     if _qdrant_client is not None:
         try:
             _qdrant_client.close()
-        except Exception:
-            pass
+        except Exception as e:
+            log_app_event("qdrant_close_error", level="WARNING", error=str(e))
         _qdrant_client = None
         log_app_event("qdrant_closed", level="INFO")
 

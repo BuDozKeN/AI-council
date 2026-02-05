@@ -12,7 +12,10 @@ import sys
 import uuid
 import signal
 import asyncio
+import logging
 import contextvars
+
+logger = logging.getLogger(__name__)
 from datetime import datetime, timezone
 
 # =============================================================================
@@ -207,6 +210,15 @@ async def lifespan(app: FastAPI):
     """
     # === STARTUP ===
     log_app_event("APP_STARTUP", level="INFO", service="LLM Council API")
+
+    # Load live model pricing from OpenRouter (falls back to hardcoded on failure)
+    try:
+        from .routers.company.utils import refresh_model_pricing
+        count = await refresh_model_pricing()
+        if count:
+            log_app_event("MODEL_PRICING_LOADED", level="INFO", model_count=count)
+    except Exception as e:
+        log_app_event("MODEL_PRICING_LOAD_FAILED", level="WARNING", error=str(e))
 
     # Set up signal handlers for graceful shutdown (Unix only)
     if sys.platform != "win32":
@@ -979,7 +991,8 @@ async def readiness_check():
             operation="readiness_check"
         )
         return {"status": "ready"}
-    except Exception:
+    except Exception as e:
+        logger.debug("Readiness check failed: %s", e)
         return JSONResponse(
             status_code=503,
             content={"status": "not_ready", "reason": "database_unavailable"}

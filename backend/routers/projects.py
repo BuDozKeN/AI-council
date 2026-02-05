@@ -116,7 +116,8 @@ async def list_projects(request: Request, company_id: str, user: dict = Depends(
     try:
         projects = storage.get_projects(company_id, access_token)
         return {"projects": projects}
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to list projects for company %s: %s", company_id, e)
         return {"projects": []}
 
 
@@ -264,7 +265,8 @@ async def list_projects_with_stats(request: Request, company_id: str,
             include_archived=include_archived
         )
         return {"projects": projects}
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to list projects with stats for company %s: %s", company_id, e)
         return {"projects": []}
 
 
@@ -388,7 +390,8 @@ Respond ONLY with this JSON (no markdown code blocks):
             fallback = extract_project_fallback(extract_request.user_question, extract_request.council_response)
             return {"success": True, "extracted": fallback}
 
-    except Exception:
+    except Exception as e:
+        logger.warning("Project extraction failed, using fallback: %s", e)
         fallback = extract_project_fallback(extract_request.user_question, extract_request.council_response)
         return {"success": True, "extracted": fallback}
 
@@ -528,7 +531,8 @@ For context_md, use these sections (skip any that don't apply):
                             )
 
                         return {"structured": structured}
-            except Exception:
+            except Exception as e:
+                logger.warning("Context structuring failed for model, trying next: %s", e)
                 continue
 
     # All models failed - return fallback
@@ -677,7 +681,8 @@ Return valid JSON with exactly these fields:
                 merged = _extract_json_from_llm_response(result['content'])
                 if merged:
                     break
-        except Exception:
+        except Exception as e:
+            logger.warning("Decision merge attempt failed, trying next model: %s", e)
             continue
 
     # 5. Handle merge failure
@@ -741,7 +746,8 @@ async def _handle_decision_save(
         from ..routers.company import resolve_company_id
         try:
             company_uuid = resolve_company_id(client, merge_request.company_id)
-        except Exception:
+        except Exception as e:
+            logger.debug("Company ID resolution failed, using raw ID: %s", e)
             company_uuid = merge_request.company_id
 
         # Generate decision title

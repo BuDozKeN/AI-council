@@ -10,6 +10,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ..auth import get_current_user
 from ..security import SecureHTTPException
@@ -40,7 +43,8 @@ async def _get_user_company_id(user: dict) -> Optional[str]:
         if result.data and len(result.data) > 0:
             return result.data[0]["id"]
         return None
-    except Exception:
+    except Exception as e:
+        logger.debug("Failed to resolve company ID for user %s: %s", user_id, e)
         return None
 
 
@@ -125,8 +129,8 @@ MARKDOWN:"""
                         model=polish_model,
                         usage=result['usage']
                     )
-                except Exception:
-                    pass  # Don't fail the request if tracking fails
+                except Exception as e:
+                    logger.debug("Failed to track LLM usage for text_polish_markdown: %s", e)
 
             if result and result.get('content'):
                 return {"polished": result['content'].strip()}
@@ -182,8 +186,8 @@ Polished version:"""
                     model=polish_model,
                     usage=result['usage']
                 )
-            except Exception:
-                pass  # Don't fail the request if tracking fails
+            except Exception as e:
+                logger.debug("Failed to track LLM usage for text_polish: %s", e)
 
         if result and result.get('content'):
             return {"polished": result['content'].strip()}
@@ -293,7 +297,8 @@ async def ai_write_assist(
                     else:
                         return _format_non_playbook_response(raw_content)
 
-            except Exception:
+            except Exception as e:
+                logger.warning("Write assist model attempt failed: %s", e)
                 continue  # Try next model
 
         raise SecureHTTPException.internal_error("All AI models failed")

@@ -3,7 +3,10 @@
 import base64
 import httpx
 import asyncio
+import logging
 import random
+
+logger = logging.getLogger(__name__)
 from typing import List, Dict, Any, Optional
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from . import openrouter  # Import to check MOCK_LLM at runtime
@@ -184,7 +187,8 @@ async def analyze_image(
             content = data['choices'][0]['message'].get('content', '')
             return content
 
-    except Exception:
+    except Exception as e:
+        logger.warning("Image analysis failed for model %s: %s", model, e)
         return None
 
 

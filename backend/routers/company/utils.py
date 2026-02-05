@@ -237,39 +237,117 @@ async def log_usage_event(
 # LLM OPS: SESSION USAGE & RATE LIMITING
 # =============================================================================
 
-# Model pricing (per 1M tokens) - must match frontend Stage3Content.tsx
-# Last verified: 2025-01-02 via OpenRouter/official docs
-MODEL_PRICING = {
-    # Anthropic
+# Fallback pricing (per 1M tokens) used when OpenRouter API is unreachable.
+# Kept as a safety net only — live pricing is fetched via refresh_model_pricing().
+_FALLBACK_PRICING = {
     'anthropic/claude-opus-4.5': {'input': 5.0, 'output': 25.0},
     'anthropic/claude-opus-4': {'input': 15.0, 'output': 75.0},
     'anthropic/claude-sonnet-4': {'input': 3.0, 'output': 15.0},
     'anthropic/claude-3-5-sonnet-20241022': {'input': 3.0, 'output': 15.0},
-    'anthropic/claude-3-5-haiku-20241022': {'input': 0.80, 'output': 4.0},  # Fixed: was 1.0/5.0
-    # OpenAI
+    'anthropic/claude-3-5-haiku-20241022': {'input': 0.80, 'output': 4.0},
     'openai/gpt-4o': {'input': 5.0, 'output': 15.0},
     'openai/gpt-4o-mini': {'input': 0.15, 'output': 0.60},
-    'openai/gpt-5.1': {'input': 1.25, 'output': 10.0},  # Fixed: was 5.0/20.0
-    # Google
+    'openai/gpt-5.1': {'input': 1.25, 'output': 10.0},
     'google/gemini-3-pro-preview': {'input': 2.0, 'output': 12.0},
     'google/gemini-2.5-pro-preview': {'input': 1.25, 'output': 10.0},
-    'google/gemini-2.5-flash': {'input': 0.30, 'output': 2.50},  # Fixed: was 0.075/0.30
+    'google/gemini-2.5-flash': {'input': 0.30, 'output': 2.50},
     'google/gemini-2.0-flash-001': {'input': 0.10, 'output': 0.40},
-    # xAI
     'x-ai/grok-3': {'input': 3.0, 'output': 15.0},
     'x-ai/grok-4': {'input': 3.0, 'output': 15.0},
-    'x-ai/grok-4-fast': {'input': 0.20, 'output': 0.50},  # New: Stage 2 reviewer
-    # DeepSeek
+    'x-ai/grok-4-fast': {'input': 0.20, 'output': 0.50},
     'deepseek/deepseek-chat': {'input': 0.28, 'output': 0.42},
     'deepseek/deepseek-chat-v3-0324': {'input': 0.28, 'output': 0.42},
-    # Meta (Llama)
-    'meta-llama/llama-4-maverick': {'input': 0.15, 'output': 0.60},  # New: Stage 2 reviewer
-    # Moonshot (Kimi)
-    'moonshotai/kimi-k2': {'input': 0.456, 'output': 1.84},  # Stage 2 reviewer
-    'moonshotai/kimi-k2.5': {'input': 0.57, 'output': 2.85},  # Stage 1 analyst - multimodal
+    'meta-llama/llama-4-maverick': {'input': 0.15, 'output': 0.60},
+    'moonshotai/kimi-k2': {'input': 0.456, 'output': 1.84},
+    'moonshotai/kimi-k2.5': {'input': 0.57, 'output': 2.85},
 }
 
 DEFAULT_PRICING = {'input': 2.0, 'output': 8.0}
+
+# Live pricing dict — populated by refresh_model_pricing() at startup,
+# falls back to _FALLBACK_PRICING if the fetch fails.
+MODEL_PRICING: dict = {**_FALLBACK_PRICING}
+
+# Redis cache key and TTL for pricing data
+_PRICING_CACHE_KEY = "axcouncil:model_pricing"
+_PRICING_CACHE_TTL = 86400  # 24 hours
+
+
+async def refresh_model_pricing() -> int:
+    """
+    Fetch current model pricing from OpenRouter and update MODEL_PRICING.
+
+    Pricing is cached in Redis for 24h so restarts don't re-fetch immediately.
+    Falls back silently to _FALLBACK_PRICING on any failure.
+
+    Returns:
+        Number of models with pricing loaded (0 if fetch failed).
+    """
+    import httpx
+
+    # Try Redis cache first
+    try:
+        from ...cache import get_redis
+        redis_client = await get_redis()
+        if redis_client:
+            cached = await redis_client.get(_PRICING_CACHE_KEY)
+            if cached:
+                pricing_data = json.loads(cached)
+                MODEL_PRICING.update(pricing_data)
+                logger.info("Loaded model pricing from Redis cache (%d models)", len(pricing_data))
+                return len(pricing_data)
+    except Exception as e:
+        logger.debug("Redis pricing cache miss: %s", e)
+
+    # Fetch from OpenRouter API
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get("https://openrouter.ai/api/v1/models")
+            resp.raise_for_status()
+            models = resp.json().get("data", [])
+
+        pricing_data = {}
+        for model in models:
+            model_id = model.get("id", "")
+            pricing = model.get("pricing")
+            if not pricing or not model_id:
+                continue
+            prompt_str = pricing.get("prompt", "0")
+            completion_str = pricing.get("completion", "0")
+            try:
+                input_per_m = float(prompt_str) * 1_000_000
+                output_per_m = float(completion_str) * 1_000_000
+            except (ValueError, TypeError):
+                continue
+            if input_per_m > 0 or output_per_m > 0:
+                pricing_data[model_id] = {
+                    "input": round(input_per_m, 4),
+                    "output": round(output_per_m, 4),
+                }
+
+        if pricing_data:
+            MODEL_PRICING.update(pricing_data)
+            logger.info("Refreshed model pricing from OpenRouter (%d models)", len(pricing_data))
+
+            # Cache in Redis
+            try:
+                from ...cache import get_redis
+                redis_client = await get_redis()
+                if redis_client:
+                    await redis_client.setex(
+                        _PRICING_CACHE_KEY,
+                        _PRICING_CACHE_TTL,
+                        json.dumps(pricing_data),
+                    )
+            except Exception as e:
+                logger.debug("Failed to cache pricing in Redis: %s", e)
+
+            return len(pricing_data)
+
+    except Exception as e:
+        logger.warning("Failed to fetch OpenRouter pricing, using fallback: %s", e)
+
+    return 0
 
 
 def get_model_pricing(model: str) -> dict:

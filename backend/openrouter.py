@@ -4,13 +4,23 @@ import httpx
 import json
 import asyncio
 import contextvars
+import logging
 import time
 import random
+
+logger = logging.getLogger(__name__)
 from typing import List, Dict, Any, Optional, AsyncGenerator
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from .config import MOCK_LLM as _MOCK_LLM_INITIAL
 from .config import CACHE_SUPPORTED_MODELS
 from .config import REDIS_ENABLED, REDIS_LLM_CACHE_TTL
+from .config import (
+    CIRCUIT_BREAKER_FAILURE_THRESHOLD,
+    CIRCUIT_BREAKER_RECOVERY_TIMEOUT,
+    CIRCUIT_BREAKER_HALF_OPEN_MAX_CALLS,
+    HTTP_REQUEST_TIMEOUT,
+    HTTP_CONNECT_TIMEOUT,
+)
 
 
 # =============================================================================
@@ -268,9 +278,9 @@ class CircuitBreakerRegistry:
 
 # Global circuit breaker registry for per-model breakers
 _circuit_breaker_registry = CircuitBreakerRegistry(
-    failure_threshold=5,      # Open after 5 consecutive failures per model
-    recovery_timeout=60.0,    # Wait 60s before trying again
-    half_open_max_calls=3     # Allow 3 test calls in half-open
+    failure_threshold=CIRCUIT_BREAKER_FAILURE_THRESHOLD,
+    recovery_timeout=CIRCUIT_BREAKER_RECOVERY_TIMEOUT,
+    half_open_max_calls=CIRCUIT_BREAKER_HALF_OPEN_MAX_CALLS,
 )
 
 
@@ -441,7 +451,7 @@ MOCK_LLM = _MOCK_LLM_INITIAL
 # This prevents connection exhaustion when making multiple parallel requests
 _http_client: Optional[httpx.AsyncClient] = None
 
-def get_http_client(timeout: float = 120.0) -> httpx.AsyncClient:
+def get_http_client(timeout: float = HTTP_REQUEST_TIMEOUT) -> httpx.AsyncClient:
     """Get or create a shared HTTP client with connection pooling."""
     global _http_client
     if _http_client is None or _http_client.is_closed:
@@ -449,7 +459,7 @@ def get_http_client(timeout: float = 120.0) -> httpx.AsyncClient:
         # Increased from 20 to 100 to support 20 concurrent council queries
         # (each council query uses 5 models in parallel)
         _http_client = httpx.AsyncClient(
-            timeout=httpx.Timeout(timeout, connect=30.0),  # 30s connect timeout
+            timeout=httpx.Timeout(timeout, connect=HTTP_CONNECT_TIMEOUT),
             limits=httpx.Limits(
                 max_connections=100,           # Support 20 concurrent councils
                 max_keepalive_connections=50,  # Keep 50 warm connections
@@ -545,7 +555,7 @@ def convert_to_cached_messages(
 async def query_model(
     model: str,
     messages: List[Dict[str, str]],
-    timeout: float = 120.0,
+    timeout: float = HTTP_REQUEST_TIMEOUT,
     api_key: Optional[str] = None,
     # LLM parameters for department-specific behavior
     temperature: Optional[float] = None,
@@ -674,14 +684,15 @@ async def query_model(
         # Connection errors indicate service issues
         await breaker.record_failure()
         return None
-    except Exception:
+    except Exception as e:
+        logger.warning("Unexpected error querying model %s: %s", model, e)
         return None
 
 
 async def query_model_stream(
     model: str,
     messages: List[Dict[str, str]],
-    timeout: float = 120.0,
+    timeout: float = HTTP_REQUEST_TIMEOUT,
     max_retries: int = 3,
     api_key: Optional[str] = None,
     # LLM parameters for department-specific behavior
@@ -755,8 +766,8 @@ async def query_model_stream(
                     try:
                         raw_body = await response.aread()
                         error_body = raw_body.decode('utf-8')[:500]  # Limit to 500 chars
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        logger.debug("Failed to read error body: %s", e)
 
                     # Log detailed error for debugging
                     from .security import log_app_event
@@ -805,7 +816,8 @@ async def query_model_stream(
             await breaker.record_failure()
             yield "[Error: Connection failed]"
             return
-        except Exception:
+        except Exception as e:
+            logger.warning("Unexpected error streaming model %s: %s", model, e)
             yield "[Error: Request failed]"
             return
 

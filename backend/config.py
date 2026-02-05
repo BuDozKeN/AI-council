@@ -177,6 +177,32 @@ STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman sy
 # Reduced from 120s to 90s per audit M13 - 99th percentile latency is ~60s
 PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "90"))  # 90s per individual model
 
+# =============================================================================
+# CIRCUIT BREAKER CONFIGURATION
+# =============================================================================
+# Circuit breaker protects against cascading failures when OpenRouter is down.
+# Each LLM model gets its own breaker so one failing model doesn't block others.
+
+# Number of consecutive failures before opening circuit (blocking requests)
+CIRCUIT_BREAKER_FAILURE_THRESHOLD = int(os.getenv("CIRCUIT_BREAKER_FAILURE_THRESHOLD", "5"))
+
+# Seconds to wait before attempting recovery after circuit opens
+CIRCUIT_BREAKER_RECOVERY_TIMEOUT = float(os.getenv("CIRCUIT_BREAKER_RECOVERY_TIMEOUT", "60.0"))
+
+# Max test calls allowed in half-open state before full recovery
+CIRCUIT_BREAKER_HALF_OPEN_MAX_CALLS = int(os.getenv("CIRCUIT_BREAKER_HALF_OPEN_MAX_CALLS", "3"))
+
+# =============================================================================
+# HTTP CLIENT TIMEOUT CONFIGURATION
+# =============================================================================
+# Timeouts for OpenRouter API calls
+
+# Total request timeout (read + write)
+HTTP_REQUEST_TIMEOUT = float(os.getenv("HTTP_REQUEST_TIMEOUT", "120.0"))
+
+# Connection establishment timeout
+HTTP_CONNECT_TIMEOUT = float(os.getenv("HTTP_CONNECT_TIMEOUT", "30.0"))
+
 # Require access_token for RLS-protected queries (recommended: true in production)
 # When false, falls back to service client (bypasses RLS) - only for backwards compat
 REQUIRE_ACCESS_TOKEN = os.getenv("REQUIRE_ACCESS_TOKEN", "false").lower() == "true"

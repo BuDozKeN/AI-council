@@ -7,6 +7,7 @@
 
 import { useReducer, useCallback } from 'react';
 import type { MyCompanyTab } from '../components/mycompany/hooks';
+import type { Decision } from '../types/conversation';
 
 export interface ProjectModalContext {
   userQuestion?: string;
@@ -15,10 +16,9 @@ export interface ProjectModalContext {
 }
 
 export interface PromoteDecision {
-  id: string;
-  title?: string;
-  content?: string;
-  [key: string]: unknown;
+  decision: Decision;
+  title: string;
+  summary?: string;
 }
 
 export interface OpenMyCompanyPayload {

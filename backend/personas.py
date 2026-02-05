@@ -19,9 +19,12 @@ Categories:
     - DB_PERSONAS: Personas stored in Supabase (sarah, sop_writer, etc.)
 """
 
+import logging
 import time
 from typing import Optional, Dict, Any, List
 from .model_registry import get_models
+
+logger = logging.getLogger(__name__)
 
 # Cache for database personas: {persona_key: (data, timestamp)}
 _db_persona_cache: Dict[str, tuple] = {}
@@ -589,8 +592,8 @@ async def get_db_persona(
                 persona = result.data[0]
                 _db_persona_cache[cache_key] = (persona, now)
                 return persona
-        except Exception:
-            pass  # Fall through to direct query
+        except Exception as e:
+            logger.debug("Persona RPC lookup failed for %s, trying direct query: %s", persona_key, e)
 
         # Fallback: Direct query if RPC fails
         if company_id:
@@ -622,7 +625,8 @@ async def get_db_persona(
 
         return None
 
-    except Exception:
+    except Exception as e:
+        logger.warning("Failed to fetch persona %s from database: %s", persona_key, e)
         return None
 
 
@@ -723,7 +727,8 @@ async def query_with_persona(
             if result and result.get('content'):
                 return result
 
-        except Exception:
+        except Exception as e:
+            logger.debug("Persona model attempt failed with %s: %s", model, e)
             continue
 
     return None

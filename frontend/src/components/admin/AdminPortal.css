@@ -12,10 +12,14 @@
  * - AdminModals.css - Modal dialogs and forms
  * - AdminAuditLog.css - Audit log specific styles
  * - AdminPortalStates.css - Loading and error states
+ * - AdminPortalPlaceholder.css - Search box and placeholder styles
  */
 
 /* Loading and error states: See AdminPortalStates.css */
 @import url('./AdminPortalStates.css');
+
+/* Search box and placeholder: See AdminPortalPlaceholder.css */
+@import url('./AdminPortalPlaceholder.css');
 
 /* =============================================================================
    ACCESSIBILITY UTILITIES
@@ -231,82 +235,6 @@
   color: var(--color-text-secondary);
   margin: 0;
   font-size: var(--font-size-sm);
-}
-
-/* =============================================================================
-   SEARCH BOX
-   ============================================================================= */
-
-.admin-search-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.admin-search-icon {
-  position: absolute;
-  left: 10px;
-  width: 16px;
-  height: 16px;
-  color: var(--color-text-muted);
-  pointer-events: none;
-}
-
-.admin-search-input {
-  width: 280px;
-  height: 36px;
-  padding: var(--space-2) var(--space-3) var(--space-2) 36px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-primary);
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-}
-
-.admin-search-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-subtle);
-}
-
-.admin-search-input::placeholder {
-  color: var(--color-text-muted);
-}
-
-/* =============================================================================
-   PLACEHOLDER
-   ============================================================================= */
-
-.admin-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  padding: var(--space-12);
-  text-align: center;
-}
-
-.admin-placeholder-icon {
-  width: 48px;
-  height: 48px;
-  color: var(--color-text-muted);
-}
-
-.admin-placeholder h3 {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  margin: 0;
-}
-
-.admin-placeholder p {
-  color: var(--color-text-secondary);
-  margin: 0;
-  max-width: 400px;
 }
 
 /* Mobile responsive and dark mode - see AdminPortalMobile.css */

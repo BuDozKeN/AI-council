@@ -1,6 +1,6 @@
 """Model performance leaderboard storage and analytics using Supabase."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 from .database import get_supabase_service
 from .security import log_error
@@ -36,7 +36,7 @@ def record_session_rankings(
             "model": ranking["model"],
             "average_rank": ranking["average_rank"],
             "rankings_count": ranking.get("rankings_count", 1),
-            "created_at": datetime.utcnow().isoformat() + "Z"
+            "created_at": datetime.now(timezone.utc).isoformat()
         })
 
     try:

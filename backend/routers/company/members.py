@@ -11,7 +11,10 @@ Endpoints for team member management:
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from datetime import datetime, timedelta, timezone
+import logging
 import uuid
+
+logger = logging.getLogger(__name__)
 
 from ...auth import get_current_user, get_effective_user
 from ...security import log_security_event, log_app_event, log_error
@@ -687,7 +690,8 @@ async def get_company_usage(request: Request, company_id: ValidCompanyId,
             raise HTTPException(status_code=403, detail=t('errors.admin_access_required', locale))
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
+        logger.debug("company_members lookup failed, falling back to owner check: %s", e)
         # company_members table might not exist yet, fall back to owner check
         try:
             company_check = client.table("companies") \
