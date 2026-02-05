@@ -24,6 +24,11 @@ dependencies = [
     "protobuf>=5.29.0,<6.33.4",  # Pin to avoid CVE-2026-0994 (DoS in ParseDict)
     "sentry-sdk[fastapi]>=2.0.0",  # Error monitoring
     "cryptography>=42.0.0",  # Secure token generation
+    # Autonomous UI Testing & Browser Automation
+    "browser-use>=0.2.0",  # AI agent web automation framework
+    "langchain-anthropic>=0.3.0",  # Claude integration for browser-use
+    "langchain-openai>=0.3.0",  # OpenAI integration for browser-use
+    "playwright>=1.49.0",  # Browser automation (browser-use dependency)
 ]
 
 [project.optional-dependencies]
@@ -41,6 +46,9 @@ dev = [
     "types-Pillow>=10.2.0",
     # Staging/testing utilities
     "faker>=26.0.0",  # Test data generation for staging environment
+    # Autonomous Testing Tools
+    "pytest-playwright>=0.5.0",  # Playwright pytest integration
+    "allure-pytest>=2.13.0",  # Rich test reporting
 ]
 
 [build-system]
