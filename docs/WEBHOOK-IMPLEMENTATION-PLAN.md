@@ -1,9 +1,9 @@
-# AxCouncil Webhook System - Implementation Plan
+# AxCouncil Webhook System - Implementation Plan v2.0
 
-> **Version:** 1.0
+> **Version:** 2.0
 > **Created:** 2026-01-29
-> **Status:** Ready for Implementation
-> **Estimated Effort:** 5-7 days
+> **Updated:** 2026-02-05
+> **Status:** Specialist-Reviewed, Ready for Implementation
 
 ---
 
@@ -13,14 +13,20 @@
 2. [Architecture](#architecture)
 3. [Progress Tracker](#progress-tracker)
 4. [Phase 1: Database Schema](#phase-1-database-schema)
-5. [Phase 2: Backend Services](#phase-2-backend-services)
-6. [Phase 3: API Endpoints](#phase-3-api-endpoints)
-7. [Phase 4: Event Integration](#phase-4-event-integration)
-8. [Phase 5: Frontend UI](#phase-5-frontend-ui)
-9. [Phase 6: Testing](#phase-6-testing)
-10. [Phase 7: Deployment](#phase-7-deployment)
-11. [Rollback Procedures](#rollback-procedures)
-12. [API Reference](#api-reference)
+5. [Phase 2: Core Security](#phase-2-core-security)
+6. [Phase 3: Delivery Infrastructure](#phase-3-delivery-infrastructure)
+7. [Phase 4: API Endpoints](#phase-4-api-endpoints)
+8. [Phase 5: Event Registry & Emitters](#phase-5-event-registry--emitters)
+9. [Phase 6: Access Control & Feature Gating](#phase-6-access-control--feature-gating)
+10. [Phase 7: Frontend UI](#phase-7-frontend-ui)
+11. [Phase 8: Delivery Inspector UI](#phase-8-delivery-inspector-ui)
+12. [Phase 9: Documentation & Developer Portal](#phase-9-documentation--developer-portal)
+13. [Phase 10: Testing](#phase-10-testing)
+14. [Phase 11: Monitoring & Alerting](#phase-11-monitoring--alerting)
+15. [Phase 12: Deployment & Rollout](#phase-12-deployment--rollout)
+16. [Phase 13: MCP Server (Future)](#phase-13-mcp-server-future)
+17. [Rollback Procedures](#rollback-procedures)
+18. [API Reference](#api-reference)
 
 ---
 
@@ -28,74 +34,105 @@
 
 ### What We're Building
 
-A universal outgoing webhook system that enables AxCouncil to send events to:
-- Zapier
+A universal, enterprise-grade outgoing webhook system that enables AxCouncil to send events to:
+- Zapier (with native REST Hooks support)
 - Make (Integromat)
 - n8n
 - Custom endpoints
+- Any HTTP endpoint
 
 ### Key Principles
 
-1. **Multi-tenant**: Each company manages their own webhooks
-2. **Secure**: HMAC-SHA256 signed payloads, encrypted secrets
-3. **Reliable**: Automatic retries with exponential backoff
-4. **Auditable**: All deliveries logged for debugging
+1. **Multi-tenant**: Each company manages their own webhooks with RLS isolation
+2. **Secure**: HMAC-SHA256 with timestamp (replay-safe), SSRF protection, header injection prevention
+3. **Reliable**: Redis-backed queue, circuit breakers, exponential backoff with jitter
+4. **Configurable**: All limits database-driven, not hardcoded. White-label ready.
+5. **GDPR Compliant**: Reference IDs by default, configurable PII enrichment with consent
+6. **Documented**: Full developer portal with examples in 5+ languages
 
-### Webhook Events
+### Changes from v1.0
 
-| Event | Trigger | Use Case |
-|-------|---------|----------|
-| `decision.saved` | Council decision saved | Send to CRM, Notion, Sheets |
-| `decision.promoted` | Decision → Playbook | Update documentation systems |
-| `conversation.completed` | Council deliberation done | Post to Slack, create tasks |
-| `conversation.exported` | Export triggered | Backup to cloud storage |
-| `member.invited` | Team invite sent | HR system sync |
-| `member.joined` | Invite accepted | Onboarding automation |
+| Area | v1.0 | v2.0 |
+|------|------|------|
+| RLS Pattern | Owner-only (broken) | `is_company_member()` / `is_company_admin()` |
+| Events | 6 | 40+ across all features |
+| Security | Basic HMAC | HMAC + timestamp + SSRF + header validation |
+| Delivery | `asyncio.create_task` (lost on restart) | Redis queue (persistent) |
+| Retries | Fixed delays | Exponential backoff with jitter |
+| Connection | New client per request | Shared pooled client |
+| Circuit Breaker | None | Per-endpoint breakers |
+| Access Control | None | Configurable per company |
+| GDPR | PII in payloads | Reference IDs + opt-in enrichment |
+| Phases | 7 | 13 |
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                              AxCouncil                                  │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  User Action (Save Decision, Complete Council, etc.)                   │
-│         │                                                               │
-│         ▼                                                               │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                 Webhook Dispatcher                               │   │
-│  │  ─────────────────────────────────────────────────────────────  │   │
-│  │  1. Query company_webhooks for matching event                   │   │
-│  │  2. Build payload with event data                               │   │
-│  │  3. Sign payload with HMAC-SHA256                               │   │
-│  │  4. Queue async delivery                                        │   │
-│  │  5. Log to webhook_deliveries                                   │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│         │                                                               │
-│         ▼                                                               │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                 Delivery Worker                                  │   │
-│  │  ─────────────────────────────────────────────────────────────  │   │
-│  │  • POST to webhook URL with signed payload                      │   │
-│  │  • Retry on failure (3 attempts: 1min, 5min, 15min)            │   │
-│  │  • Update delivery status                                       │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│         │                                                               │
-│         ▼                                                               │
-│  External Services (Zapier, Make, n8n, Custom)                         │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              AxCouncil                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  User Action (Save Decision, Complete Council, etc.)                        │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    Event Emitter                                     │    │
+│  │  • Validates company has webhook feature enabled                     │    │
+│  │  • Builds payload (IDs by default, enriched if opted-in)            │    │
+│  │  • Queues to Redis sorted set                                        │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    Redis Delivery Queue                              │    │
+│  │  • ZADD with score = delivery timestamp                              │    │
+│  │  • Survives server restarts                                          │    │
+│  │  • Supports delayed retries                                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │                    Delivery Worker                                   │    │
+│  │  • Polls Redis for due deliveries                                    │    │
+│  │  • Checks circuit breaker state                                      │    │
+│  │  • Validates URL (SSRF protection)                                   │    │
+│  │  • Signs payload with HMAC-SHA256 (timestamp in signature)           │    │
+│  │  • Sends via shared httpx client (connection pooling)                │    │
+│  │  • Records result, schedules retry if needed                         │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│         │                                                                    │
+│         ▼                                                                    │
+│  External Services (Zapier, Make, n8n, Custom)                              │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Payload Structure
+### Payload Structure (GDPR-Safe Default)
 
 ```json
 {
   "event": "decision.saved",
   "event_id": "evt_abc123",
   "timestamp": "2026-01-29T10:30:00Z",
+  "api_version": "2026-01",
+  "data": {
+    "decision_id": "dec_xyz",
+    "company_id": "cmp_123",
+    "user_id": "usr_456"
+  }
+}
+```
+
+### Payload Structure (Enriched - Opt-in)
+
+```json
+{
+  "event": "decision.saved",
+  "event_id": "evt_abc123",
+  "timestamp": "2026-01-29T10:30:00Z",
+  "api_version": "2026-01",
   "data": {
     "decision": {
       "id": "dec_xyz",
@@ -105,8 +142,9 @@ A universal outgoing webhook system that enables AxCouncil to send events to:
       "tags": ["strategy", "q1-2026"]
     },
     "user": {
-      "id": "usr_123",
-      "email": "user@company.com"
+      "id": "usr_456",
+      "email": "user@company.com",
+      "name": "John Smith"
     }
   }
 }
@@ -116,98 +154,192 @@ A universal outgoing webhook system that enables AxCouncil to send events to:
 
 ```
 Content-Type: application/json
-User-Agent: AxCouncil-Webhooks/1.0
+User-Agent: AxCouncil-Webhooks/2.0
 X-AxCouncil-Event: decision.saved
-X-AxCouncil-Signature: sha256=abc123...
+X-AxCouncil-Signature: t=1706522400,v1=abc123...
 X-AxCouncil-Delivery: dlv_xyz789
 X-AxCouncil-Timestamp: 2026-01-29T10:30:00Z
 ```
+
+**Signature format**: `t={unix_timestamp},v1={hmac_hex}`
+
+The signature is computed over: `{timestamp}.{payload_json}`
 
 ---
 
 ## Progress Tracker
 
-Use this checklist to track implementation progress. Mark each item when complete.
-
 ### Phase 1: Database Schema
-- [ ] **1.1** Create migration file
-- [ ] **1.2** Apply migration to development
-- [ ] **1.3** Verify tables created
-- [ ] **1.4** Verify RLS policies active
-- [ ] **1.5** Verify helper functions work
+- [ ] 1.1 Create migration file
+- [ ] 1.2 Apply migration to development
+- [ ] 1.3 Verify tables created
+- [ ] 1.4 Verify RLS policies active
+- [ ] 1.5 Verify helper functions work
+- [ ] 1.6 Verify event types seeded
 - [ ] **CHECKPOINT 1**: Database ready ✓
 
-### Phase 2: Backend Services
-- [ ] **2.1** Create webhook encryption module
-- [ ] **2.2** Test encryption/decryption
-- [ ] **2.3** Create webhook service
-- [ ] **2.4** Test service instantiation
-- [ ] **CHECKPOINT 2**: Services ready ✓
+### Phase 2: Core Security
+- [ ] 2.1 Create SSRF validator module
+- [ ] 2.2 Create replay-safe signing module
+- [ ] 2.3 Create header validator
+- [ ] 2.4 Test security functions
+- [ ] **CHECKPOINT 2**: Security layer ready ✓
 
-### Phase 3: API Endpoints
-- [ ] **3.1** Create webhook router
-- [ ] **3.2** Register router in v1.py
-- [ ] **3.3** Test endpoints with curl
-- [ ] **3.4** Add to API client (frontend)
-- [ ] **CHECKPOINT 3**: API ready ✓
+### Phase 3: Delivery Infrastructure
+- [ ] 3.1 Create Redis queue module
+- [ ] 3.2 Create shared HTTP client
+- [ ] 3.3 Create circuit breaker
+- [ ] 3.4 Create delivery worker
+- [ ] 3.5 Test delivery pipeline
+- [ ] **CHECKPOINT 3**: Delivery infrastructure ready ✓
 
-### Phase 4: Event Integration
-- [ ] **4.1** Hook into decision saving
-- [ ] **4.2** Hook into decision promotion
-- [ ] **4.3** Hook into conversation completion
-- [ ] **4.4** Test event emission
-- [ ] **CHECKPOINT 4**: Events firing ✓
+### Phase 4: API Endpoints
+- [ ] 4.1 Create webhook router
+- [ ] 4.2 Add Zapier REST Hooks endpoints
+- [ ] 4.3 Register router
+- [ ] 4.4 Test endpoints
+- [ ] 4.5 Add frontend API client methods
+- [ ] **CHECKPOINT 4**: API ready ✓
 
-### Phase 5: Frontend UI
-- [ ] **5.1** Create WebhooksSection component
-- [ ] **5.2** Create useWebhooks hook
-- [ ] **5.3** Create CSS files
-- [ ] **5.4** Add Webhooks tab to Settings
-- [ ] **5.5** Test UI functionality
-- [ ] **CHECKPOINT 5**: UI complete ✓
+### Phase 5: Event Registry & Emitters
+- [ ] 5.1 Create event emitter module
+- [ ] 5.2 Hook into conversations
+- [ ] 5.3 Hook into decisions/knowledge
+- [ ] 5.4 Hook into projects
+- [ ] 5.5 Hook into team/members
+- [ ] 5.6 Hook into remaining features
+- [ ] 5.7 Test all events fire correctly
+- [ ] **CHECKPOINT 5**: Events firing ✓
 
-### Phase 6: Testing
-- [ ] **6.1** Write backend unit tests
-- [ ] **6.2** Write frontend tests
-- [ ] **6.3** Manual integration test
-- [ ] **6.4** Test with real Zapier webhook
-- [ ] **CHECKPOINT 6**: Tests passing ✓
+### Phase 6: Access Control & Feature Gating
+- [ ] 6.1 Create feature check functions
+- [ ] 6.2 Add middleware for webhook endpoints
+- [ ] 6.3 Create admin override capability
+- [ ] 6.4 Test access control
+- [ ] **CHECKPOINT 6**: Access control ready ✓
 
-### Phase 7: Deployment
-- [ ] **7.1** Set environment variables
-- [ ] **7.2** Apply migration to production
-- [ ] **7.3** Deploy backend
-- [ ] **7.4** Deploy frontend
-- [ ] **7.5** Smoke test in production
-- [ ] **CHECKPOINT 7**: Live ✓
+### Phase 7: Frontend UI
+- [ ] 7.1 Create WebhooksSection component
+- [ ] 7.2 Create useWebhooks hook
+- [ ] 7.3 Create WebhookForm component
+- [ ] 7.4 Add to Settings modal
+- [ ] 7.5 Test UI functionality
+- [ ] **CHECKPOINT 7**: UI ready ✓
+
+### Phase 8: Delivery Inspector UI
+- [ ] 8.1 Create DeliveryInspector component
+- [ ] 8.2 Add request/response viewer
+- [ ] 8.3 Add retry functionality
+- [ ] 8.4 Test inspector
+- [ ] **CHECKPOINT 8**: Inspector ready ✓
+
+### Phase 9: Documentation
+- [ ] 9.1 Create signature verification examples
+- [ ] 9.2 Create event catalog
+- [ ] 9.3 Create admin guide
+- [ ] 9.4 Generate OpenAPI spec
+- [ ] **CHECKPOINT 9**: Docs ready ✓
+
+### Phase 10: Testing
+- [ ] 10.1 Write unit tests
+- [ ] 10.2 Write integration tests
+- [ ] 10.3 Write E2E tests
+- [ ] 10.4 All tests passing
+- [ ] **CHECKPOINT 10**: Tests passing ✓
+
+### Phase 11: Monitoring & Alerting
+- [ ] 11.1 Add failure tracking
+- [ ] 11.2 Add auto-disable logic
+- [ ] 11.3 Add health endpoint
+- [ ] 11.4 Test monitoring
+- [ ] **CHECKPOINT 11**: Monitoring ready ✓
+
+### Phase 12: Deployment
+- [ ] 12.1 Set environment variables
+- [ ] 12.2 Apply migration to production
+- [ ] 12.3 Deploy with feature flag
+- [ ] 12.4 Gradual rollout
+- [ ] 12.5 Full release
+- [ ] **CHECKPOINT 12**: Live ✓
+
+### Phase 13: MCP Server (Future)
+- [ ] 13.1 Architecture documented
+- [ ] 13.2 Implementation (future sprint)
 
 ---
 
 ## Phase 1: Database Schema
 
-### Stage 1.1: Create Migration File
+### 1.1 Create Migration File
 
-**File:** `supabase/migrations/20260129000000_webhook_system.sql`
+**File:** `supabase/migrations/20260205000000_webhook_system_v2.sql`
 
 ```sql
 -- ============================================================================
--- WEBHOOK SYSTEM SCHEMA
+-- WEBHOOK SYSTEM v2.0 SCHEMA
 -- ============================================================================
--- Purpose: Enable outgoing webhooks for AxCouncil events
--- Scope: Company-level (each company manages their own webhooks)
--- Security: Encrypted secrets, signed payloads, RLS isolation
+-- Purpose: Enterprise-grade outgoing webhooks with multi-tenant isolation
+-- Security: RLS via is_company_member()/is_company_admin(), encrypted secrets
+-- GDPR: Reference IDs by default, configurable enrichment
 -- ============================================================================
 
 -- ============================================================================
--- 1. COMPANY WEBHOOKS TABLE
+-- 1. WEBHOOK FEATURES TABLE (Configurable per company)
 -- ============================================================================
--- Stores webhook endpoint configurations per company
 
-DROP TABLE IF EXISTS public.webhook_deliveries CASCADE;
-DROP TABLE IF EXISTS public.company_webhooks CASCADE;
-DROP TABLE IF EXISTS public.webhook_event_types CASCADE;
+CREATE TABLE IF NOT EXISTS public.webhook_features (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
 
-CREATE TABLE public.company_webhooks (
+    -- Feature toggles (all configurable, not hardcoded)
+    is_enabled BOOLEAN DEFAULT false,
+    max_endpoints INTEGER DEFAULT 10,
+    max_events_per_day INTEGER DEFAULT 10000,
+
+    -- GDPR settings
+    allow_pii_enrichment BOOLEAN DEFAULT false,
+    pii_consent_accepted_at TIMESTAMPTZ,
+    pii_consent_accepted_by UUID REFERENCES auth.users(id),
+
+    -- Rate limiting
+    rate_limit_per_minute INTEGER DEFAULT 60,
+
+    -- White-label settings
+    custom_user_agent TEXT,
+    custom_header_prefix TEXT DEFAULT 'X-AxCouncil',
+
+    -- Audit
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now(),
+
+    CONSTRAINT webhook_features_company_unique UNIQUE (company_id)
+);
+
+-- Index for quick lookup
+CREATE INDEX IF NOT EXISTS idx_webhook_features_company
+    ON public.webhook_features(company_id);
+
+-- ============================================================================
+-- 2. WEBHOOK EVENT TYPES TABLE (Reference catalog)
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.webhook_event_types (
+    id VARCHAR(100) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    payload_schema JSONB,
+    payload_example JSONB,
+    is_active BOOLEAN DEFAULT true,
+    version VARCHAR(20) DEFAULT '2026-01',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================================================
+-- 3. COMPANY WEBHOOKS TABLE
+-- ============================================================================
+
+CREATE TABLE IF NOT EXISTS public.company_webhooks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
 
@@ -216,26 +348,36 @@ CREATE TABLE public.company_webhooks (
     url TEXT NOT NULL,
     description TEXT,
 
-    -- Event subscriptions (PostgreSQL array)
-    event_types TEXT[] NOT NULL DEFAULT '{}',
+    -- Event subscriptions
+    event_types TEXT[] NOT NULL,
 
     -- Security (encrypted with company-derived key)
     secret_encrypted BYTEA NOT NULL,
     secret_suffix VARCHAR(8) NOT NULL,
+    secret_version INTEGER DEFAULT 1,
+
+    -- GDPR: Override company setting per endpoint
+    include_enriched_data BOOLEAN DEFAULT false,
 
     -- Optional filtering
-    filter_department_ids UUID[] DEFAULT NULL,
-    filter_tags TEXT[] DEFAULT NULL,
+    filter_department_ids UUID[],
+    filter_tags TEXT[],
 
-    -- Custom headers (stored as JSONB)
+    -- Custom headers (validated - no dangerous headers)
     custom_headers JSONB DEFAULT '{}',
 
     -- Status
     is_active BOOLEAN DEFAULT true,
     is_verified BOOLEAN DEFAULT false,
 
-    -- Rate limiting
-    rate_limit_per_minute INTEGER DEFAULT 60,
+    -- Circuit breaker state
+    consecutive_failures INTEGER DEFAULT 0,
+    disabled_reason TEXT,
+    last_success_at TIMESTAMPTZ,
+    last_failure_at TIMESTAMPTZ,
+
+    -- Zapier REST Hooks support
+    zapier_subscription_id TEXT,
 
     -- Audit
     created_at TIMESTAMPTZ DEFAULT now(),
@@ -243,30 +385,28 @@ CREATE TABLE public.company_webhooks (
     created_by UUID REFERENCES auth.users(id),
 
     -- Constraints
-    CONSTRAINT valid_webhook_url CHECK (url ~ '^https?://'),
-    CONSTRAINT valid_event_types CHECK (array_length(event_types, 1) > 0)
+    CONSTRAINT valid_webhook_url CHECK (url ~ '^https://'),
+    CONSTRAINT valid_event_types CHECK (array_length(event_types, 1) > 0),
+    CONSTRAINT valid_custom_headers CHECK (
+        NOT (custom_headers ?| ARRAY['host', 'authorization', 'content-length', 'transfer-encoding'])
+    )
 );
 
 -- Indexes
-CREATE INDEX idx_company_webhooks_company_id
+CREATE INDEX IF NOT EXISTS idx_company_webhooks_company
     ON public.company_webhooks(company_id);
-CREATE INDEX idx_company_webhooks_active
-    ON public.company_webhooks(company_id, is_active)
-    WHERE is_active = true;
-CREATE INDEX idx_company_webhooks_events
+CREATE INDEX IF NOT EXISTS idx_company_webhooks_active
+    ON public.company_webhooks(company_id, is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_company_webhooks_events
     ON public.company_webhooks USING GIN(event_types);
-
--- Comments
-COMMENT ON TABLE public.company_webhooks IS 'Outgoing webhook configurations per company';
-COMMENT ON COLUMN public.company_webhooks.event_types IS 'Array of subscribed event types';
-COMMENT ON COLUMN public.company_webhooks.secret_encrypted IS 'HMAC signing secret, encrypted with company-derived key';
+CREATE INDEX IF NOT EXISTS idx_company_webhooks_zapier
+    ON public.company_webhooks(zapier_subscription_id) WHERE zapier_subscription_id IS NOT NULL;
 
 -- ============================================================================
--- 2. WEBHOOK DELIVERIES TABLE
+-- 4. WEBHOOK DELIVERIES TABLE
 -- ============================================================================
--- Audit log of all webhook delivery attempts
 
-CREATE TABLE public.webhook_deliveries (
+CREATE TABLE IF NOT EXISTS public.webhook_deliveries (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     company_id UUID NOT NULL REFERENCES public.companies(id) ON DELETE CASCADE,
     webhook_id UUID NOT NULL REFERENCES public.company_webhooks(id) ON DELETE CASCADE,
@@ -279,150 +419,114 @@ CREATE TABLE public.webhook_deliveries (
     -- Delivery status
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
     attempt_count INTEGER DEFAULT 0,
-    max_attempts INTEGER DEFAULT 3,
+    max_attempts INTEGER DEFAULT 8,
 
     -- Response details
     response_status INTEGER,
     response_body TEXT,
+    response_headers JSONB,
     response_time_ms INTEGER,
 
     -- Error tracking
     error_message TEXT,
+    error_code VARCHAR(50),
 
     -- Timing
     created_at TIMESTAMPTZ DEFAULT now(),
     next_retry_at TIMESTAMPTZ,
     completed_at TIMESTAMPTZ,
 
-    -- Constraints
+    -- Idempotency
+    idempotency_key VARCHAR(100),
+
     CONSTRAINT valid_delivery_status CHECK (
-        status IN ('pending', 'success', 'failed', 'retrying')
+        status IN ('pending', 'queued', 'success', 'failed', 'retrying', 'dead_letter')
     )
 );
 
 -- Indexes
-CREATE INDEX idx_webhook_deliveries_webhook_id
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_company
+    ON public.webhook_deliveries(company_id);
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_webhook
     ON public.webhook_deliveries(webhook_id, created_at DESC);
-CREATE INDEX idx_webhook_deliveries_status
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_status
     ON public.webhook_deliveries(status, next_retry_at)
-    WHERE status IN ('pending', 'retrying');
-CREATE INDEX idx_webhook_deliveries_event_id
+    WHERE status IN ('pending', 'queued', 'retrying');
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_event
     ON public.webhook_deliveries(event_id);
-CREATE INDEX idx_webhook_deliveries_cleanup
-    ON public.webhook_deliveries(created_at)
-    WHERE created_at < now() - INTERVAL '30 days';
-
--- Comments
-COMMENT ON TABLE public.webhook_deliveries IS 'Audit log of all webhook delivery attempts';
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_idempotency
+    ON public.webhook_deliveries(idempotency_key) WHERE idempotency_key IS NOT NULL;
 
 -- ============================================================================
--- 3. WEBHOOK EVENT TYPES TABLE (Reference)
--- ============================================================================
--- Documents available event types for UI and validation
-
-CREATE TABLE public.webhook_event_types (
-    id VARCHAR(100) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    payload_example JSONB,
-    is_active BOOLEAN DEFAULT true,
-    created_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Insert event types
-INSERT INTO public.webhook_event_types (id, name, description, category, payload_example) VALUES
-(
-    'decision.saved',
-    'Decision Saved',
-    'Triggered when a council decision is saved to the knowledge base',
-    'decisions',
-    '{"decision": {"id": "uuid", "title": "string", "content": "string", "tags": ["string"]}}'
-),
-(
-    'decision.promoted',
-    'Decision Promoted',
-    'Triggered when a decision is promoted to a playbook or project',
-    'decisions',
-    '{"decision": {"id": "uuid", "title": "string"}, "promoted_to": {"type": "string", "id": "uuid"}}'
-),
-(
-    'conversation.completed',
-    'Conversation Completed',
-    'Triggered when a council deliberation completes all 3 stages',
-    'conversations',
-    '{"conversation": {"id": "uuid", "title": "string", "synthesis": "string"}}'
-),
-(
-    'conversation.exported',
-    'Conversation Exported',
-    'Triggered when a conversation is exported',
-    'conversations',
-    '{"conversation_id": "uuid", "format": "markdown", "export_url": "string"}'
-),
-(
-    'member.invited',
-    'Team Member Invited',
-    'Triggered when a new team member is invited',
-    'team',
-    '{"member": {"email": "string", "role": "string", "invited_by": "string"}}'
-),
-(
-    'member.joined',
-    'Team Member Joined',
-    'Triggered when an invited member accepts and joins',
-    'team',
-    '{"member": {"id": "uuid", "email": "string", "name": "string"}}'
-)
-ON CONFLICT (id) DO UPDATE SET
-    name = EXCLUDED.name,
-    description = EXCLUDED.description,
-    payload_example = EXCLUDED.payload_example;
-
--- Comments
-COMMENT ON TABLE public.webhook_event_types IS 'Reference table of available webhook events';
-
--- ============================================================================
--- 4. ROW LEVEL SECURITY
+-- 5. ROW LEVEL SECURITY
 -- ============================================================================
 
--- Enable RLS
+ALTER TABLE public.webhook_features ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.webhook_event_types ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.company_webhooks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.webhook_deliveries ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.webhook_event_types ENABLE ROW LEVEL SECURITY;
 
--- Company webhooks: Company members can manage their webhooks
-CREATE POLICY "company_webhooks_company_isolation" ON public.company_webhooks
-    FOR ALL USING (
-        company_id IN (
-            SELECT id FROM public.companies WHERE user_id = auth.uid()
-        )
-    );
+-- webhook_features: Admins can manage, members can view
+CREATE POLICY "webhook_features_select" ON public.webhook_features
+    FOR SELECT USING (public.is_company_member(company_id));
 
--- Webhook deliveries: Company members can view their deliveries
-CREATE POLICY "webhook_deliveries_company_isolation" ON public.webhook_deliveries
-    FOR ALL USING (
-        company_id IN (
-            SELECT id FROM public.companies WHERE user_id = auth.uid()
-        )
-    );
+CREATE POLICY "webhook_features_insert" ON public.webhook_features
+    FOR INSERT WITH CHECK (public.is_company_admin(company_id));
 
--- Event types: All authenticated users can read
-CREATE POLICY "webhook_event_types_readable" ON public.webhook_event_types
-    FOR SELECT USING (auth.role() = 'authenticated');
+CREATE POLICY "webhook_features_update" ON public.webhook_features
+    FOR UPDATE USING (public.is_company_admin(company_id));
+
+CREATE POLICY "webhook_features_delete" ON public.webhook_features
+    FOR DELETE USING (public.is_company_admin(company_id));
+
+-- webhook_event_types: All authenticated users can read
+CREATE POLICY "webhook_event_types_select" ON public.webhook_event_types
+    FOR SELECT USING ((SELECT auth.uid()) IS NOT NULL);
+
+-- company_webhooks: Admins can manage, members can view
+CREATE POLICY "company_webhooks_select" ON public.company_webhooks
+    FOR SELECT USING (public.is_company_member(company_id));
+
+CREATE POLICY "company_webhooks_insert" ON public.company_webhooks
+    FOR INSERT WITH CHECK (public.is_company_admin(company_id));
+
+CREATE POLICY "company_webhooks_update" ON public.company_webhooks
+    FOR UPDATE USING (public.is_company_admin(company_id));
+
+CREATE POLICY "company_webhooks_delete" ON public.company_webhooks
+    FOR DELETE USING (public.is_company_admin(company_id));
+
+-- webhook_deliveries: Members can view their company's deliveries
+CREATE POLICY "webhook_deliveries_select" ON public.webhook_deliveries
+    FOR SELECT USING (public.is_company_member(company_id));
 
 -- Service role bypass for backend operations
-CREATE POLICY "company_webhooks_service_role" ON public.company_webhooks
+CREATE POLICY "webhook_features_service" ON public.webhook_features
     FOR ALL TO service_role USING (true) WITH CHECK (true);
 
-CREATE POLICY "webhook_deliveries_service_role" ON public.webhook_deliveries
+CREATE POLICY "company_webhooks_service" ON public.company_webhooks
+    FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY "webhook_deliveries_service" ON public.webhook_deliveries
     FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- ============================================================================
--- 5. HELPER FUNCTIONS
+-- 6. HELPER FUNCTIONS
 -- ============================================================================
 
--- Get active webhooks for an event
+-- Check if company has webhooks enabled
+CREATE OR REPLACE FUNCTION public.company_webhooks_enabled(p_company_id UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1 FROM public.webhook_features
+        WHERE company_id = p_company_id AND is_enabled = true
+    );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE
+SET search_path = '';
+
+-- Get active webhooks for an event (used by backend service role)
 CREATE OR REPLACE FUNCTION public.get_webhooks_for_event(
     p_company_id UUID,
     p_event_type TEXT,
@@ -433,156 +537,477 @@ RETURNS TABLE (
     webhook_id UUID,
     url TEXT,
     secret_encrypted BYTEA,
-    custom_headers JSONB
-)
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
+    custom_headers JSONB,
+    include_enriched_data BOOLEAN,
+    custom_header_prefix TEXT
+) AS $$
 BEGIN
     RETURN QUERY
     SELECT
         cw.id AS webhook_id,
         cw.url,
         cw.secret_encrypted,
-        cw.custom_headers
+        cw.custom_headers,
+        cw.include_enriched_data,
+        COALESCE(wf.custom_header_prefix, 'X-AxCouncil') AS custom_header_prefix
     FROM public.company_webhooks cw
+    LEFT JOIN public.webhook_features wf ON wf.company_id = cw.company_id
     WHERE cw.company_id = p_company_id
       AND cw.is_active = true
+      AND cw.consecutive_failures < 10
       AND p_event_type = ANY(cw.event_types)
-      AND (cw.filter_department_ids IS NULL
-           OR p_department_id = ANY(cw.filter_department_ids))
-      AND (cw.filter_tags IS NULL
-           OR cw.filter_tags && p_tags);
+      AND (cw.filter_department_ids IS NULL OR p_department_id = ANY(cw.filter_department_ids))
+      AND (cw.filter_tags IS NULL OR cw.filter_tags && p_tags);
 END;
-$$;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = '';
 
--- Update delivery status
-CREATE OR REPLACE FUNCTION public.update_webhook_delivery(
-    p_delivery_id UUID,
-    p_status VARCHAR(20),
-    p_response_status INTEGER DEFAULT NULL,
-    p_response_body TEXT DEFAULT NULL,
-    p_response_time_ms INTEGER DEFAULT NULL,
-    p_error_message TEXT DEFAULT NULL
+-- Restrict to service role only
+REVOKE EXECUTE ON FUNCTION public.get_webhooks_for_event FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_webhooks_for_event TO service_role;
+
+-- Update webhook failure count
+CREATE OR REPLACE FUNCTION public.record_webhook_failure(
+    p_webhook_id UUID,
+    p_error_message TEXT
 )
-RETURNS void
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
+RETURNS void AS $$
 BEGIN
-    UPDATE public.webhook_deliveries
+    UPDATE public.company_webhooks
     SET
-        status = p_status,
-        response_status = COALESCE(p_response_status, response_status),
-        response_body = COALESCE(LEFT(p_response_body, 1000), response_body),
-        response_time_ms = COALESCE(p_response_time_ms, response_time_ms),
-        error_message = COALESCE(p_error_message, error_message),
-        attempt_count = attempt_count + 1,
-        completed_at = CASE
-            WHEN p_status IN ('success', 'failed') THEN now()
+        consecutive_failures = consecutive_failures + 1,
+        last_failure_at = now(),
+        disabled_reason = CASE
+            WHEN consecutive_failures >= 9 THEN 'Auto-disabled: 10 consecutive failures'
             ELSE NULL
         END,
-        next_retry_at = CASE
-            WHEN p_status = 'retrying' THEN
-                now() + (POWER(2, attempt_count) * INTERVAL '1 minute')
-            ELSE NULL
-        END
-    WHERE id = p_delivery_id;
+        is_active = CASE
+            WHEN consecutive_failures >= 9 THEN false
+            ELSE is_active
+        END,
+        updated_at = now()
+    WHERE id = p_webhook_id;
 END;
-$$;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = '';
+
+REVOKE EXECUTE ON FUNCTION public.record_webhook_failure FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.record_webhook_failure TO service_role;
+
+-- Reset webhook failure count on success
+CREATE OR REPLACE FUNCTION public.record_webhook_success(p_webhook_id UUID)
+RETURNS void AS $$
+BEGIN
+    UPDATE public.company_webhooks
+    SET
+        consecutive_failures = 0,
+        last_success_at = now(),
+        is_verified = true,
+        updated_at = now()
+    WHERE id = p_webhook_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = '';
+
+REVOKE EXECUTE ON FUNCTION public.record_webhook_success FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.record_webhook_success TO service_role;
 
 -- ============================================================================
--- 6. VERIFICATION
+-- 7. TRIGGERS
+-- ============================================================================
+
+-- Auto-update updated_at
+CREATE OR REPLACE FUNCTION update_webhook_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql
+SET search_path = '';
+
+CREATE TRIGGER webhook_features_updated_at
+    BEFORE UPDATE ON public.webhook_features
+    FOR EACH ROW EXECUTE FUNCTION update_webhook_updated_at();
+
+CREATE TRIGGER company_webhooks_updated_at
+    BEFORE UPDATE ON public.company_webhooks
+    FOR EACH ROW EXECUTE FUNCTION update_webhook_updated_at();
+
+-- ============================================================================
+-- 8. SEED EVENT TYPES (40+ events)
+-- ============================================================================
+
+INSERT INTO public.webhook_event_types (id, name, description, category, payload_example) VALUES
+-- Conversations
+('conversation.created', 'Conversation Created', 'New council session started', 'conversations', '{"conversation_id": "uuid"}'),
+('conversation.message.sent', 'Message Sent', 'Question sent to the council', 'conversations', '{"conversation_id": "uuid", "message_id": "uuid"}'),
+('conversation.stage1.completed', 'Stage 1 Completed', 'All 5 LLMs responded', 'conversations', '{"conversation_id": "uuid"}'),
+('conversation.stage2.completed', 'Stage 2 Completed', 'Peer review completed', 'conversations', '{"conversation_id": "uuid"}'),
+('conversation.stage3.completed', 'Stage 3 Completed', 'Chairman synthesis completed', 'conversations', '{"conversation_id": "uuid", "synthesis_preview": "string"}'),
+('conversation.renamed', 'Conversation Renamed', 'Conversation title changed', 'conversations', '{"conversation_id": "uuid", "new_title": "string"}'),
+('conversation.archived', 'Conversation Archived', 'Conversation moved to archive', 'conversations', '{"conversation_id": "uuid"}'),
+('conversation.deleted', 'Conversation Deleted', 'Conversation permanently deleted', 'conversations', '{"conversation_id": "uuid"}'),
+('conversation.exported', 'Conversation Exported', 'Conversation exported to file', 'conversations', '{"conversation_id": "uuid", "format": "markdown"}'),
+
+-- Decisions
+('decision.created', 'Decision Created', 'New decision added to company', 'decisions', '{"decision_id": "uuid"}'),
+('decision.saved', 'Decision Saved', 'Council decision saved to knowledge base', 'decisions', '{"decision_id": "uuid", "conversation_id": "uuid"}'),
+('decision.updated', 'Decision Updated', 'Decision content modified', 'decisions', '{"decision_id": "uuid"}'),
+('decision.archived', 'Decision Archived', 'Decision moved to archive', 'decisions', '{"decision_id": "uuid"}'),
+('decision.deleted', 'Decision Deleted', 'Decision permanently deleted', 'decisions', '{"decision_id": "uuid"}'),
+('decision.promoted', 'Decision Promoted', 'Decision promoted to playbook/project', 'decisions', '{"decision_id": "uuid", "promoted_to": {"type": "string", "id": "uuid"}}'),
+('decision.linked', 'Decision Linked', 'Decision linked to project', 'decisions', '{"decision_id": "uuid", "project_id": "uuid"}'),
+
+-- Projects
+('project.created', 'Project Created', 'New project created', 'projects', '{"project_id": "uuid"}'),
+('project.updated', 'Project Updated', 'Project details modified', 'projects', '{"project_id": "uuid"}'),
+('project.deleted', 'Project Deleted', 'Project permanently deleted', 'projects', '{"project_id": "uuid"}'),
+('project.context.updated', 'Project Context Updated', 'Project context regenerated', 'projects', '{"project_id": "uuid"}'),
+('project.decision.merged', 'Decision Merged to Project', 'Decision content merged into project', 'projects', '{"project_id": "uuid", "decision_id": "uuid"}'),
+
+-- Playbooks
+('playbook.created', 'Playbook Created', 'New playbook created', 'playbooks', '{"playbook_id": "uuid"}'),
+('playbook.updated', 'Playbook Updated', 'Playbook content modified', 'playbooks', '{"playbook_id": "uuid"}'),
+('playbook.deleted', 'Playbook Deleted', 'Playbook permanently deleted', 'playbooks', '{"playbook_id": "uuid"}'),
+
+-- Team
+('team.member.invited', 'Member Invited', 'New team member invitation sent', 'team', '{"invitation_id": "uuid", "email": "string"}'),
+('team.member.joined', 'Member Joined', 'Invited member accepted and joined', 'team', '{"member_id": "uuid"}'),
+('team.member.removed', 'Member Removed', 'Team member removed from company', 'team', '{"member_id": "uuid"}'),
+('team.member.role.changed', 'Member Role Changed', 'Team member role updated', 'team', '{"member_id": "uuid", "new_role": "string"}'),
+
+-- Departments
+('department.created', 'Department Created', 'New department added', 'departments', '{"department_id": "uuid"}'),
+('department.updated', 'Department Updated', 'Department settings changed', 'departments', '{"department_id": "uuid"}'),
+('department.deleted', 'Department Deleted', 'Department removed', 'departments', '{"department_id": "uuid"}'),
+
+-- Roles
+('role.created', 'Role Created', 'New AI persona role created', 'roles', '{"role_id": "uuid"}'),
+('role.updated', 'Role Updated', 'AI persona role modified', 'roles', '{"role_id": "uuid"}'),
+('role.deleted', 'Role Deleted', 'AI persona role removed', 'roles', '{"role_id": "uuid"}'),
+
+-- Company
+('company.context.updated', 'Company Context Updated', 'Company context modified', 'company', '{"company_id": "uuid"}'),
+('company.settings.updated', 'Company Settings Updated', 'Company settings changed', 'company', '{"company_id": "uuid"}'),
+
+-- Billing
+('subscription.created', 'Subscription Created', 'New subscription started', 'billing', '{"subscription_id": "string"}'),
+('subscription.updated', 'Subscription Updated', 'Subscription plan changed', 'billing', '{"subscription_id": "string", "new_plan": "string"}'),
+('subscription.cancelled', 'Subscription Cancelled', 'Subscription cancelled', 'billing', '{"subscription_id": "string"}'),
+('payment.succeeded', 'Payment Succeeded', 'Payment processed successfully', 'billing', '{"payment_id": "string"}'),
+('payment.failed', 'Payment Failed', 'Payment processing failed', 'billing', '{"payment_id": "string"}'),
+
+-- Attachments
+('attachment.uploaded', 'Attachment Uploaded', 'File uploaded to conversation', 'attachments', '{"attachment_id": "uuid", "conversation_id": "uuid"}'),
+('attachment.deleted', 'Attachment Deleted', 'File removed from conversation', 'attachments', '{"attachment_id": "uuid"}'),
+
+-- Webhooks (meta)
+('webhook.test', 'Webhook Test', 'Test ping from AxCouncil', 'system', '{"message": "Test webhook"}'),
+('webhook.disabled', 'Webhook Disabled', 'Webhook auto-disabled due to failures', 'system', '{"webhook_id": "uuid", "reason": "string"}')
+
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    payload_example = EXCLUDED.payload_example;
+
+-- ============================================================================
+-- 9. VERIFICATION
 -- ============================================================================
 
 DO $$
+DECLARE
+    table_count INTEGER;
+    event_count INTEGER;
 BEGIN
-    -- Verify tables exist
-    IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'company_webhooks') THEN
-        RAISE EXCEPTION 'company_webhooks table was not created';
+    -- Count tables
+    SELECT COUNT(*) INTO table_count FROM pg_tables
+    WHERE schemaname = 'public'
+    AND tablename IN ('webhook_features', 'webhook_event_types', 'company_webhooks', 'webhook_deliveries');
+
+    IF table_count != 4 THEN
+        RAISE EXCEPTION 'Expected 4 webhook tables, found %', table_count;
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'webhook_deliveries') THEN
-        RAISE EXCEPTION 'webhook_deliveries table was not created';
-    END IF;
+    -- Count event types
+    SELECT COUNT(*) INTO event_count FROM public.webhook_event_types;
 
-    IF NOT EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'webhook_event_types') THEN
-        RAISE EXCEPTION 'webhook_event_types table was not created';
+    IF event_count < 40 THEN
+        RAISE EXCEPTION 'Expected 40+ event types, found %', event_count;
     END IF;
 
     -- Verify RLS enabled
     IF NOT EXISTS (
-        SELECT 1 FROM pg_tables
-        WHERE tablename = 'company_webhooks'
-        AND rowsecurity = true
+        SELECT 1 FROM pg_tables WHERE tablename = 'company_webhooks' AND rowsecurity = true
     ) THEN
         RAISE EXCEPTION 'RLS not enabled on company_webhooks';
     END IF;
 
-    -- Verify event types populated
-    IF (SELECT COUNT(*) FROM public.webhook_event_types) < 6 THEN
-        RAISE EXCEPTION 'webhook_event_types not fully populated';
-    END IF;
-
-    RAISE NOTICE '✓ Webhook system schema verified successfully';
+    RAISE NOTICE '✓ Webhook v2.0 schema verified: % tables, % event types', table_count, event_count;
 END;
 $$;
 ```
 
-### Stage 1.2: Apply Migration
+### 1.2-1.6 Verification Commands
 
 ```bash
-# From project root
-cd supabase
+# Apply migration
+cd supabase && supabase db push
 
-# Apply to development
-supabase db push
+# Verify tables
+psql -c "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name LIKE 'webhook%';"
 
-# Or if using direct connection
-psql -h your-db-host -U postgres -d postgres -f migrations/20260129000000_webhook_system.sql
-```
+# Verify event types count
+psql -c "SELECT COUNT(*) FROM webhook_event_types;"
 
-### Stage 1.3-1.5: Verification Commands
-
-```sql
--- 1.3: Verify tables exist
-SELECT table_name FROM information_schema.tables
-WHERE table_schema = 'public'
-AND table_name IN ('company_webhooks', 'webhook_deliveries', 'webhook_event_types');
--- Expected: 3 rows
-
--- 1.4: Verify RLS enabled
-SELECT tablename, rowsecurity FROM pg_tables
-WHERE tablename IN ('company_webhooks', 'webhook_deliveries');
--- Expected: rowsecurity = true for both
-
--- 1.5: Verify event types
-SELECT COUNT(*) FROM webhook_event_types;
--- Expected: 6
-
--- 1.5: Test helper function (should return empty, that's OK)
-SELECT * FROM get_webhooks_for_event(
-    '00000000-0000-0000-0000-000000000000'::uuid,
-    'decision.saved'
-);
--- Expected: 0 rows (no webhooks configured yet)
+# Verify RLS
+psql -c "SELECT tablename, rowsecurity FROM pg_tables WHERE tablename LIKE '%webhook%';"
 ```
 
 ### ✅ CHECKPOINT 1: Database Ready
 
-Before proceeding, verify:
-- [ ] All 3 tables created
-- [ ] RLS enabled on company_webhooks and webhook_deliveries
-- [ ] 6 event types in webhook_event_types
-- [ ] Helper functions created without errors
+- [ ] 4 tables created
+- [ ] RLS enabled with correct policies
+- [ ] 40+ event types seeded
+- [ ] Helper functions created and restricted to service_role
+- [ ] Triggers working
 
 ---
 
-## Phase 2: Backend Services
+## Phase 2: Core Security
 
-### Stage 2.1: Webhook Encryption Module
+### 2.1 SSRF Validator Module
+
+**File:** `backend/webhooks/security.py`
+
+```python
+"""
+Webhook Security Module
+
+SSRF protection, header validation, replay-safe signing.
+"""
+
+import hmac
+import hashlib
+import ipaddress
+import re
+import socket
+import time
+from typing import Optional, Tuple, Set
+from urllib.parse import urlparse
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Blocked IP ranges (SSRF protection)
+BLOCKED_IP_RANGES = [
+    ipaddress.ip_network('127.0.0.0/8'),      # Loopback
+    ipaddress.ip_network('10.0.0.0/8'),       # Private
+    ipaddress.ip_network('172.16.0.0/12'),    # Private
+    ipaddress.ip_network('192.168.0.0/16'),   # Private
+    ipaddress.ip_network('169.254.0.0/16'),   # Link-local (AWS metadata)
+    ipaddress.ip_network('::1/128'),          # IPv6 loopback
+    ipaddress.ip_network('fc00::/7'),         # IPv6 private
+    ipaddress.ip_network('fe80::/10'),        # IPv6 link-local
+]
+
+# Blocked hostnames
+BLOCKED_HOSTNAMES = {
+    'localhost',
+    'metadata.google.internal',
+    'metadata.aws.internal',
+}
+
+# Dangerous headers that must never be set
+BLOCKED_HEADERS = {
+    'host',
+    'authorization',
+    'content-length',
+    'transfer-encoding',
+    'content-encoding',
+    'connection',
+    'keep-alive',
+    'proxy-authenticate',
+    'proxy-authorization',
+    'te',
+    'trailer',
+    'upgrade',
+}
+
+# Replay protection window (5 minutes)
+TIMESTAMP_TOLERANCE_SECONDS = 300
+
+
+def validate_webhook_url(url: str) -> Tuple[bool, Optional[str]]:
+    """
+    Validate webhook URL for SSRF protection.
+
+    Returns:
+        (is_valid, error_message)
+    """
+    if not url:
+        return False, "URL is required"
+
+    if len(url) > 2048:
+        return False, "URL too long (max 2048 characters)"
+
+    # Must be HTTPS in production
+    if not url.startswith('https://'):
+        return False, "URL must use HTTPS"
+
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False, "Invalid URL format"
+
+    hostname = parsed.hostname
+    if not hostname:
+        return False, "URL must have a hostname"
+
+    # Check blocked hostnames
+    hostname_lower = hostname.lower()
+    if hostname_lower in BLOCKED_HOSTNAMES:
+        return False, f"Hostname '{hostname}' is not allowed"
+
+    # Check for IP address in hostname
+    try:
+        ip = ipaddress.ip_address(hostname)
+        for blocked_range in BLOCKED_IP_RANGES:
+            if ip in blocked_range:
+                return False, f"IP address {ip} is in a blocked range"
+    except ValueError:
+        # Not an IP address, resolve it
+        pass
+
+    # DNS resolution check (prevent DNS rebinding)
+    try:
+        resolved_ips = socket.getaddrinfo(hostname, None, socket.AF_UNSPEC)
+        for family, _, _, _, sockaddr in resolved_ips:
+            ip_str = sockaddr[0]
+            try:
+                ip = ipaddress.ip_address(ip_str)
+                for blocked_range in BLOCKED_IP_RANGES:
+                    if ip in blocked_range:
+                        return False, f"Hostname resolves to blocked IP {ip}"
+            except ValueError:
+                continue
+    except socket.gaierror:
+        return False, f"Cannot resolve hostname '{hostname}'"
+
+    return True, None
+
+
+def validate_custom_headers(headers: dict) -> Tuple[bool, Optional[str]]:
+    """
+    Validate custom headers for injection protection.
+
+    Returns:
+        (is_valid, error_message)
+    """
+    if not headers:
+        return True, None
+
+    if len(headers) > 10:
+        return False, "Maximum 10 custom headers allowed"
+
+    for key, value in headers.items():
+        key_lower = key.lower()
+
+        # Check blocked headers
+        if key_lower in BLOCKED_HEADERS:
+            return False, f"Header '{key}' is not allowed"
+
+        # Check header name format
+        if not re.match(r'^[a-zA-Z][a-zA-Z0-9\-]*$', key):
+            return False, f"Invalid header name format: '{key}'"
+
+        # Check value for injection attempts
+        if '\n' in value or '\r' in value:
+            return False, f"Header '{key}' contains invalid characters"
+
+        # Limit value length
+        if len(value) > 500:
+            return False, f"Header '{key}' value too long (max 500 characters)"
+
+    return True, None
+
+
+def sign_payload_with_timestamp(payload: str, secret: str, timestamp: int) -> str:
+    """
+    Sign payload with HMAC-SHA256 including timestamp (replay-safe).
+
+    Format: t={timestamp},v1={signature}
+
+    The signature is computed over: "{timestamp}.{payload}"
+    """
+    signed_content = f"{timestamp}.{payload}"
+    signature = hmac.new(
+        secret.encode(),
+        signed_content.encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    return f"t={timestamp},v1={signature}"
+
+
+def verify_signature(
+    payload: str,
+    signature_header: str,
+    secret: str,
+    tolerance_seconds: int = TIMESTAMP_TOLERANCE_SECONDS
+) -> Tuple[bool, Optional[str]]:
+    """
+    Verify webhook signature with replay protection.
+
+    Returns:
+        (is_valid, error_message)
+    """
+    # Parse signature header
+    parts = {}
+    for part in signature_header.split(','):
+        if '=' in part:
+            key, value = part.split('=', 1)
+            parts[key.strip()] = value.strip()
+
+    timestamp_str = parts.get('t')
+    signature = parts.get('v1')
+
+    if not timestamp_str or not signature:
+        return False, "Invalid signature format"
+
+    try:
+        timestamp = int(timestamp_str)
+    except ValueError:
+        return False, "Invalid timestamp in signature"
+
+    # Check timestamp is within tolerance (replay protection)
+    current_time = int(time.time())
+    if abs(current_time - timestamp) > tolerance_seconds:
+        return False, f"Timestamp outside tolerance window ({tolerance_seconds}s)"
+
+    # Compute expected signature
+    signed_content = f"{timestamp}.{payload}"
+    expected = hmac.new(
+        secret.encode(),
+        signed_content.encode(),
+        hashlib.sha256
+    ).hexdigest()
+
+    # Constant-time comparison (prevent timing attacks)
+    if not hmac.compare_digest(signature, expected):
+        return False, "Signature mismatch"
+
+    return True, None
+
+
+def mask_secret(secret: str) -> str:
+    """Mask a secret for logging (shows only last 4 chars)."""
+    if len(secret) <= 8:
+        return "••••••••"
+    return f"••••••••{secret[-4:]}"
+```
+
+### 2.2 Encryption Module
 
 **File:** `backend/webhooks/crypto.py`
 
@@ -591,12 +1016,8 @@ Before proceeding, verify:
 Webhook Cryptography Module
 
 Encrypts webhook secrets using company-derived keys.
-Signs payloads with HMAC-SHA256 for verification.
-Follows existing BYOK pattern from backend/utils/encryption.py.
 """
 
-import hmac
-import hashlib
 import secrets
 import os
 from typing import Tuple
@@ -608,7 +1029,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Use existing encryption secret or dedicated webhook secret
 WEBHOOK_ENCRYPTION_SECRET = os.getenv(
     "WEBHOOK_ENCRYPTION_SECRET",
     os.getenv("USER_KEY_ENCRYPTION_SECRET")
@@ -616,22 +1036,20 @@ WEBHOOK_ENCRYPTION_SECRET = os.getenv(
 
 if not WEBHOOK_ENCRYPTION_SECRET:
     raise ValueError(
-        "WEBHOOK_ENCRYPTION_SECRET or USER_KEY_ENCRYPTION_SECRET "
-        "environment variable required"
+        "WEBHOOK_ENCRYPTION_SECRET or USER_KEY_ENCRYPTION_SECRET required"
     )
 
 
-def _derive_company_key(company_id: str) -> bytes:
+def _derive_company_key(company_id: str, version: int = 1) -> bytes:
     """
-    Derive a unique encryption key for each company using HKDF.
+    Derive encryption key for a company using HKDF.
 
-    This ensures webhook secrets are encrypted with company-specific keys,
-    providing tenant isolation even if the database is compromised.
+    Version parameter supports key rotation.
     """
     hkdf = HKDF(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=b"axcouncil-webhooks-v1",
+        salt=f"axcouncil-webhooks-v{version}".encode(),
         info=f"company_webhook:{company_id}".encode(),
         backend=default_backend()
     )
@@ -639,56 +1057,40 @@ def _derive_company_key(company_id: str) -> bytes:
 
 
 def generate_webhook_secret() -> str:
-    """
-    Generate a new webhook signing secret.
-
-    Format: whsec_{44 random characters}
-    Example: whsec_a1b2c3d4e5f6g7h8i9j0...
-    """
+    """Generate a new webhook signing secret."""
     return f"whsec_{secrets.token_urlsafe(32)}"
 
 
-def encrypt_webhook_secret(secret: str, company_id: str) -> Tuple[bytes, str]:
+def encrypt_webhook_secret(
+    secret: str,
+    company_id: str,
+    version: int = 1
+) -> Tuple[bytes, str]:
     """
-    Encrypt a webhook secret for database storage.
-
-    Args:
-        secret: The plain text webhook secret
-        company_id: Company UUID for key derivation
+    Encrypt webhook secret for database storage.
 
     Returns:
-        Tuple of (encrypted_bytes, display_suffix)
-        - encrypted_bytes: For database storage
-        - display_suffix: Last 4 chars for UI display (e.g., "••••abc1")
+        (encrypted_bytes, display_suffix)
     """
-    key = _derive_company_key(company_id)
+    key = _derive_company_key(company_id, version)
     aesgcm = AESGCM(key)
     nonce = secrets.token_bytes(12)
 
     encrypted = aesgcm.encrypt(nonce, secret.encode(), None)
     encrypted_with_nonce = nonce + encrypted
 
-    # Keep last 4 chars for display
     suffix = secret[-4:] if len(secret) >= 4 else secret
 
     return encrypted_with_nonce, suffix
 
 
-def decrypt_webhook_secret(encrypted: bytes, company_id: str) -> str:
-    """
-    Decrypt a webhook secret for use.
-
-    Args:
-        encrypted: Encrypted bytes from database
-        company_id: Company UUID for key derivation
-
-    Returns:
-        Plain text webhook secret
-
-    Raises:
-        Exception: If decryption fails (wrong key, corrupted data)
-    """
-    key = _derive_company_key(company_id)
+def decrypt_webhook_secret(
+    encrypted: bytes,
+    company_id: str,
+    version: int = 1
+) -> str:
+    """Decrypt webhook secret from database."""
+    key = _derive_company_key(company_id, version)
     aesgcm = AESGCM(key)
 
     nonce = encrypted[:12]
@@ -696,865 +1098,516 @@ def decrypt_webhook_secret(encrypted: bytes, company_id: str) -> str:
 
     decrypted = aesgcm.decrypt(nonce, ciphertext, None)
     return decrypted.decode()
-
-
-def sign_webhook_payload(payload: str, secret: str) -> str:
-    """
-    Sign a webhook payload using HMAC-SHA256.
-
-    This signature is sent in the X-AxCouncil-Signature header.
-    Recipients can verify the webhook authenticity.
-
-    Args:
-        payload: JSON string of the webhook payload
-        secret: The webhook signing secret
-
-    Returns:
-        Signature string in format "sha256={hex_digest}"
-    """
-    signature = hmac.new(
-        secret.encode(),
-        payload.encode(),
-        hashlib.sha256
-    ).hexdigest()
-
-    return f"sha256={signature}"
-
-
-def verify_webhook_signature(payload: str, signature: str, secret: str) -> bool:
-    """
-    Verify a webhook signature.
-
-    Useful for testing and documentation examples.
-
-    Args:
-        payload: JSON string of the webhook payload
-        signature: Signature from X-AxCouncil-Signature header
-        secret: The webhook signing secret
-
-    Returns:
-        True if signature is valid
-    """
-    expected = sign_webhook_payload(payload, secret)
-    return hmac.compare_digest(signature, expected)
-
-
-def get_secret_suffix(secret: str) -> str:
-    """Get display suffix for a secret (last 4 characters)."""
-    return secret[-4:] if len(secret) >= 4 else secret
-
-
-def mask_secret(secret: str) -> str:
-    """Mask a secret for logging (shows only last 4 chars)."""
-    if len(secret) <= 4:
-        return "••••"
-    return f"••••••••{secret[-4:]}"
 ```
 
-### Stage 2.2: Test Encryption
-
-Create a quick test script:
-
-```bash
-# From project root
-python -c "
-from backend.webhooks.crypto import (
-    generate_webhook_secret,
-    encrypt_webhook_secret,
-    decrypt_webhook_secret,
-    sign_webhook_payload,
-    verify_webhook_signature
-)
-
-# Test 1: Generate secret
-secret = generate_webhook_secret()
-print(f'Generated: {secret}')
-assert secret.startswith('whsec_'), 'Secret should start with whsec_'
-
-# Test 2: Encrypt/decrypt roundtrip
-company_id = 'test-company-123'
-encrypted, suffix = encrypt_webhook_secret(secret, company_id)
-decrypted = decrypt_webhook_secret(encrypted, company_id)
-assert decrypted == secret, 'Decryption should match original'
-print(f'Encrypt/decrypt: OK (suffix: {suffix})')
-
-# Test 3: Signature
-payload = '{\"event\":\"test\"}'
-signature = sign_webhook_payload(payload, secret)
-assert verify_webhook_signature(payload, signature, secret), 'Signature should verify'
-print(f'Signature: OK ({signature[:30]}...)')
-
-print('\\n✓ All crypto tests passed')
-"
-```
-
-### Stage 2.3: Webhook Service
-
-**File:** `backend/webhooks/service.py`
-
-```python
-"""
-Webhook Delivery Service
-
-Dispatches webhooks asynchronously with retry logic.
-Follows existing patterns from backend/routers/settings.py.
-"""
-
-import asyncio
-import httpx
-import json
-import logging
-from datetime import datetime, timezone
-from typing import Optional, List, Dict, Any
-from uuid import uuid4
-
-from backend.database import get_service_client
-from backend.webhooks.crypto import (
-    encrypt_webhook_secret,
-    decrypt_webhook_secret,
-    sign_webhook_payload,
-    generate_webhook_secret,
-    mask_secret
-)
-from backend.security import log_app_event
-
-logger = logging.getLogger(__name__)
-
-# Configuration
-MAX_RETRIES = 3
-TIMEOUT_SECONDS = 30
-RETRY_DELAYS = [60, 300, 900]  # 1 min, 5 min, 15 min
-
-
-class WebhookEvent:
-    """Represents a webhook event to be dispatched."""
-
-    def __init__(
-        self,
-        event_type: str,
-        company_id: str,
-        data: Dict[str, Any],
-        department_id: Optional[str] = None,
-        tags: Optional[List[str]] = None
-    ):
-        self.event_id = str(uuid4())
-        self.event_type = event_type
-        self.company_id = company_id
-        self.timestamp = datetime.now(timezone.utc).isoformat()
-        self.department_id = department_id
-        self.tags = tags or []
-
-        # Build full payload
-        self.payload = {
-            "event": event_type,
-            "event_id": self.event_id,
-            "timestamp": self.timestamp,
-            "data": data
-        }
-
-
-class WebhookService:
-    """Service for managing and dispatching webhooks."""
-
-    def __init__(self):
-        self._supabase = None
-
-    @property
-    def supabase(self):
-        """Lazy load Supabase client."""
-        if self._supabase is None:
-            self._supabase = get_service_client()
-        return self._supabase
-
-    # =========================================================================
-    # ENDPOINT MANAGEMENT
-    # =========================================================================
-
-    async def create_endpoint(
-        self,
-        company_id: str,
-        name: str,
-        url: str,
-        event_types: List[str],
-        created_by: str,
-        description: Optional[str] = None,
-        filter_department_ids: Optional[List[str]] = None,
-        filter_tags: Optional[List[str]] = None,
-        custom_headers: Optional[Dict[str, str]] = None
-    ) -> Dict[str, Any]:
-        """Create a new webhook endpoint for a company."""
-
-        # Generate and encrypt secret
-        secret = generate_webhook_secret()
-        encrypted_secret, secret_suffix = encrypt_webhook_secret(secret, company_id)
-
-        # Insert endpoint
-        result = self.supabase.table("company_webhooks").insert({
-            "company_id": company_id,
-            "name": name,
-            "url": url,
-            "description": description,
-            "event_types": event_types,
-            "secret_encrypted": encrypted_secret.hex(),
-            "secret_suffix": secret_suffix,
-            "filter_department_ids": filter_department_ids,
-            "filter_tags": filter_tags,
-            "custom_headers": custom_headers or {},
-            "created_by": created_by,
-            "is_active": True,
-            "is_verified": False
-        }).execute()
-
-        if not result.data:
-            raise Exception("Failed to create webhook endpoint")
-
-        endpoint = result.data[0]
-
-        # Log event
-        log_app_event(
-            "WEBHOOK_CREATED",
-            user_id=created_by,
-            resource_id=endpoint["id"],
-            details={
-                "name": name,
-                "url": url[:50] + "..." if len(url) > 50 else url,
-                "event_types": event_types
-            }
-        )
-
-        logger.info(f"Webhook created: {endpoint['id']} for company {company_id}")
-
-        # Return with plain secret (only shown once!)
-        return {
-            **endpoint,
-            "secret": secret,
-            "secret_encrypted": None  # Don't expose
-        }
-
-    async def list_endpoints(self, company_id: str) -> List[Dict[str, Any]]:
-        """List all webhook endpoints for a company."""
-        result = self.supabase.table("company_webhooks") \
-            .select(
-                "id, name, url, description, event_types, secret_suffix, "
-                "filter_department_ids, filter_tags, custom_headers, "
-                "is_active, is_verified, created_at, updated_at"
-            ) \
-            .eq("company_id", company_id) \
-            .order("created_at", desc=True) \
-            .execute()
-
-        return result.data or []
-
-    async def get_endpoint(
-        self,
-        webhook_id: str,
-        company_id: str
-    ) -> Optional[Dict[str, Any]]:
-        """Get a specific webhook endpoint."""
-        result = self.supabase.table("company_webhooks") \
-            .select("*") \
-            .eq("id", webhook_id) \
-            .eq("company_id", company_id) \
-            .execute()
-
-        return result.data[0] if result.data else None
-
-    async def update_endpoint(
-        self,
-        webhook_id: str,
-        company_id: str,
-        **updates
-    ) -> Optional[Dict[str, Any]]:
-        """Update a webhook endpoint."""
-
-        # Don't allow updating sensitive fields
-        updates.pop("secret", None)
-        updates.pop("secret_encrypted", None)
-        updates.pop("company_id", None)
-        updates.pop("id", None)
-
-        updates["updated_at"] = datetime.now(timezone.utc).isoformat()
-
-        result = self.supabase.table("company_webhooks") \
-            .update(updates) \
-            .eq("id", webhook_id) \
-            .eq("company_id", company_id) \
-            .execute()
-
-        return result.data[0] if result.data else None
-
-    async def delete_endpoint(
-        self,
-        webhook_id: str,
-        company_id: str
-    ) -> bool:
-        """Delete a webhook endpoint."""
-        result = self.supabase.table("company_webhooks") \
-            .delete() \
-            .eq("id", webhook_id) \
-            .eq("company_id", company_id) \
-            .execute()
-
-        return len(result.data) > 0 if result.data else False
-
-    async def rotate_secret(
-        self,
-        webhook_id: str,
-        company_id: str
-    ) -> Dict[str, str]:
-        """Generate a new secret for an endpoint."""
-
-        secret = generate_webhook_secret()
-        encrypted_secret, secret_suffix = encrypt_webhook_secret(secret, company_id)
-
-        result = self.supabase.table("company_webhooks") \
-            .update({
-                "secret_encrypted": encrypted_secret.hex(),
-                "secret_suffix": secret_suffix,
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            }) \
-            .eq("id", webhook_id) \
-            .eq("company_id", company_id) \
-            .execute()
-
-        if not result.data:
-            raise Exception("Webhook not found")
-
-        logger.info(f"Webhook secret rotated: {webhook_id}")
-
-        return {
-            "secret": secret,
-            "secret_suffix": secret_suffix
-        }
-
-    # =========================================================================
-    # EVENT DISPATCH
-    # =========================================================================
-
-    async def dispatch_event(self, event: WebhookEvent) -> List[str]:
-        """
-        Dispatch an event to all subscribed webhooks.
-
-        Returns list of delivery IDs for tracking.
-        """
-
-        # Get all active endpoints subscribed to this event
-        endpoints = await self._get_subscribed_endpoints(
-            company_id=event.company_id,
-            event_type=event.event_type,
-            department_id=event.department_id,
-            tags=event.tags
-        )
-
-        if not endpoints:
-            logger.debug(
-                f"No webhooks subscribed to {event.event_type} "
-                f"for company {event.company_id}"
-            )
-            return []
-
-        delivery_ids = []
-
-        for endpoint in endpoints:
-            # Create delivery record
-            delivery_id = await self._create_delivery(
-                company_id=event.company_id,
-                webhook_id=endpoint["webhook_id"],
-                event_type=event.event_type,
-                event_id=event.event_id,
-                payload=event.payload
-            )
-            delivery_ids.append(delivery_id)
-
-            # Dispatch asynchronously (fire and forget)
-            asyncio.create_task(
-                self._deliver_webhook(
-                    delivery_id=delivery_id,
-                    endpoint=endpoint,
-                    payload=event.payload,
-                    company_id=event.company_id
-                )
-            )
-
-        logger.info(
-            f"Dispatched {event.event_type} to {len(endpoints)} webhooks "
-            f"for company {event.company_id}"
-        )
-
-        return delivery_ids
-
-    async def _get_subscribed_endpoints(
-        self,
-        company_id: str,
-        event_type: str,
-        department_id: Optional[str] = None,
-        tags: Optional[List[str]] = None
-    ) -> List[Dict[str, Any]]:
-        """Get all endpoints subscribed to an event type."""
-
-        result = self.supabase.rpc(
-            "get_webhooks_for_event",
-            {
-                "p_company_id": company_id,
-                "p_event_type": event_type,
-                "p_department_id": department_id,
-                "p_tags": tags
-            }
-        ).execute()
-
-        return result.data or []
-
-    async def _create_delivery(
-        self,
-        company_id: str,
-        webhook_id: str,
-        event_type: str,
-        event_id: str,
-        payload: Dict[str, Any]
-    ) -> str:
-        """Create a delivery record for tracking."""
-
-        result = self.supabase.table("webhook_deliveries").insert({
-            "company_id": company_id,
-            "webhook_id": webhook_id,
-            "event_type": event_type,
-            "event_id": event_id,
-            "payload": payload,
-            "status": "pending",
-            "attempt_count": 0,
-            "max_attempts": MAX_RETRIES
-        }).execute()
-
-        return result.data[0]["id"]
-
-    async def _deliver_webhook(
-        self,
-        delivery_id: str,
-        endpoint: Dict[str, Any],
-        payload: Dict[str, Any],
-        company_id: str,
-        attempt: int = 1
-    ):
-        """Deliver a webhook with retry logic."""
-
-        url = endpoint["url"]
-
-        # Decrypt secret and sign payload
-        try:
-            secret_encrypted = bytes.fromhex(endpoint["secret_encrypted"])
-            secret = decrypt_webhook_secret(secret_encrypted, company_id)
-        except Exception as e:
-            logger.error(f"Failed to decrypt webhook secret: {e}")
-            await self._update_delivery_failed(
-                delivery_id,
-                "Failed to decrypt secret"
-            )
-            return
-
-        payload_json = json.dumps(payload, separators=(",", ":"))
-        signature = sign_webhook_payload(payload_json, secret)
-
-        # Build headers
-        headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "AxCouncil-Webhooks/1.0",
-            "X-AxCouncil-Event": payload["event"],
-            "X-AxCouncil-Signature": signature,
-            "X-AxCouncil-Delivery": delivery_id,
-            "X-AxCouncil-Timestamp": payload["timestamp"]
-        }
-
-        # Add custom headers
-        if endpoint.get("custom_headers"):
-            headers.update(endpoint["custom_headers"])
-
-        # Make request
-        start_time = asyncio.get_event_loop().time()
-
-        try:
-            async with httpx.AsyncClient(timeout=TIMEOUT_SECONDS) as client:
-                response = await client.post(
-                    url,
-                    content=payload_json,
-                    headers=headers
-                )
-
-            response_time_ms = int(
-                (asyncio.get_event_loop().time() - start_time) * 1000
-            )
-
-            if 200 <= response.status_code < 300:
-                # Success
-                await self._update_delivery_success(
-                    delivery_id=delivery_id,
-                    response_status=response.status_code,
-                    response_body=response.text[:1000],
-                    response_time_ms=response_time_ms
-                )
-                logger.info(f"Webhook delivered: {delivery_id}")
-
-            else:
-                # HTTP error - retry if attempts remaining
-                await self._handle_delivery_failure(
-                    delivery_id=delivery_id,
-                    endpoint=endpoint,
-                    payload=payload,
-                    company_id=company_id,
-                    attempt=attempt,
-                    error=f"HTTP {response.status_code}",
-                    response_status=response.status_code,
-                    response_body=response.text[:1000],
-                    response_time_ms=response_time_ms
-                )
-
-        except httpx.TimeoutException:
-            await self._handle_delivery_failure(
-                delivery_id=delivery_id,
-                endpoint=endpoint,
-                payload=payload,
-                company_id=company_id,
-                attempt=attempt,
-                error="Request timeout"
-            )
-
-        except httpx.RequestError as e:
-            await self._handle_delivery_failure(
-                delivery_id=delivery_id,
-                endpoint=endpoint,
-                payload=payload,
-                company_id=company_id,
-                attempt=attempt,
-                error=str(e)
-            )
-
-    async def _handle_delivery_failure(
-        self,
-        delivery_id: str,
-        endpoint: Dict[str, Any],
-        payload: Dict[str, Any],
-        company_id: str,
-        attempt: int,
-        error: str,
-        response_status: Optional[int] = None,
-        response_body: Optional[str] = None,
-        response_time_ms: Optional[int] = None
-    ):
-        """Handle a failed delivery - retry or mark as failed."""
-
-        if attempt < MAX_RETRIES:
-            # Schedule retry
-            delay = RETRY_DELAYS[attempt - 1]
-
-            self.supabase.rpc("update_webhook_delivery", {
-                "p_delivery_id": delivery_id,
-                "p_status": "retrying",
-                "p_response_status": response_status,
-                "p_response_body": response_body,
-                "p_response_time_ms": response_time_ms,
-                "p_error_message": error
-            }).execute()
-
-            logger.warning(
-                f"Webhook delivery failed (attempt {attempt}), "
-                f"retrying in {delay}s: {error}"
-            )
-
-            # Wait and retry
-            await asyncio.sleep(delay)
-            await self._deliver_webhook(
-                delivery_id=delivery_id,
-                endpoint=endpoint,
-                payload=payload,
-                company_id=company_id,
-                attempt=attempt + 1
-            )
-        else:
-            # Max retries reached
-            await self._update_delivery_failed(
-                delivery_id=delivery_id,
-                error=error,
-                response_status=response_status,
-                response_body=response_body,
-                response_time_ms=response_time_ms
-            )
-            logger.error(
-                f"Webhook delivery failed after {MAX_RETRIES} attempts: "
-                f"{delivery_id}"
-            )
-
-    async def _update_delivery_success(
-        self,
-        delivery_id: str,
-        response_status: int,
-        response_body: str,
-        response_time_ms: int
-    ):
-        """Mark delivery as successful."""
-        self.supabase.rpc("update_webhook_delivery", {
-            "p_delivery_id": delivery_id,
-            "p_status": "success",
-            "p_response_status": response_status,
-            "p_response_body": response_body,
-            "p_response_time_ms": response_time_ms
-        }).execute()
-
-    async def _update_delivery_failed(
-        self,
-        delivery_id: str,
-        error: str,
-        response_status: Optional[int] = None,
-        response_body: Optional[str] = None,
-        response_time_ms: Optional[int] = None
-    ):
-        """Mark delivery as permanently failed."""
-        self.supabase.rpc("update_webhook_delivery", {
-            "p_delivery_id": delivery_id,
-            "p_status": "failed",
-            "p_response_status": response_status,
-            "p_response_body": response_body,
-            "p_response_time_ms": response_time_ms,
-            "p_error_message": error
-        }).execute()
-
-    # =========================================================================
-    # DELIVERY HISTORY
-    # =========================================================================
-
-    async def get_deliveries(
-        self,
-        company_id: str,
-        webhook_id: Optional[str] = None,
-        status: Optional[str] = None,
-        limit: int = 50,
-        offset: int = 0
-    ) -> List[Dict[str, Any]]:
-        """Get delivery history for debugging."""
-
-        query = self.supabase.table("webhook_deliveries") \
-            .select("*") \
-            .eq("company_id", company_id) \
-            .order("created_at", desc=True) \
-            .limit(limit) \
-            .offset(offset)
-
-        if webhook_id:
-            query = query.eq("webhook_id", webhook_id)
-
-        if status:
-            query = query.eq("status", status)
-
-        result = query.execute()
-        return result.data or []
-
-    async def retry_delivery(
-        self,
-        delivery_id: str,
-        company_id: str
-    ) -> bool:
-        """Manually retry a failed delivery."""
-
-        # Get delivery with webhook info
-        delivery_result = self.supabase.table("webhook_deliveries") \
-            .select("*") \
-            .eq("id", delivery_id) \
-            .eq("company_id", company_id) \
-            .execute()
-
-        if not delivery_result.data:
-            return False
-
-        delivery = delivery_result.data[0]
-
-        # Get webhook endpoint
-        webhook_result = self.supabase.table("company_webhooks") \
-            .select("*") \
-            .eq("id", delivery["webhook_id"]) \
-            .execute()
-
-        if not webhook_result.data:
-            return False
-
-        webhook = webhook_result.data[0]
-
-        # Reset delivery status
-        self.supabase.table("webhook_deliveries") \
-            .update({"status": "pending", "attempt_count": 0}) \
-            .eq("id", delivery_id) \
-            .execute()
-
-        # Build endpoint data for delivery
-        endpoint = {
-            "webhook_id": webhook["id"],
-            "url": webhook["url"],
-            "secret_encrypted": webhook["secret_encrypted"],
-            "custom_headers": webhook.get("custom_headers", {})
-        }
-
-        # Dispatch retry
-        asyncio.create_task(
-            self._deliver_webhook(
-                delivery_id=delivery_id,
-                endpoint=endpoint,
-                payload=delivery["payload"],
-                company_id=company_id
-            )
-        )
-
-        return True
-
-    # =========================================================================
-    # TEST WEBHOOK
-    # =========================================================================
-
-    async def send_test(
-        self,
-        webhook_id: str,
-        company_id: str
-    ) -> Dict[str, Any]:
-        """Send a test webhook to verify endpoint configuration."""
-
-        # Get endpoint
-        endpoint = await self.get_endpoint(webhook_id, company_id)
-        if not endpoint:
-            return {"success": False, "error": "Webhook not found"}
-
-        # Create test payload
-        test_payload = {
-            "event": "test.ping",
-            "event_id": str(uuid4()),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "data": {
-                "message": "This is a test webhook from AxCouncil",
-                "webhook_name": endpoint["name"]
-            }
-        }
-
-        # Decrypt secret
-        try:
-            secret_encrypted = bytes.fromhex(endpoint["secret_encrypted"])
-            secret = decrypt_webhook_secret(secret_encrypted, company_id)
-        except Exception as e:
-            return {"success": False, "error": "Failed to decrypt secret"}
-
-        # Sign and send
-        payload_json = json.dumps(test_payload, separators=(",", ":"))
-        signature = sign_webhook_payload(payload_json, secret)
-
-        headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "AxCouncil-Webhooks/1.0",
-            "X-AxCouncil-Event": "test.ping",
-            "X-AxCouncil-Signature": signature,
-            "X-AxCouncil-Timestamp": test_payload["timestamp"]
-        }
-
-        try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                response = await client.post(
-                    endpoint["url"],
-                    content=payload_json,
-                    headers=headers
-                )
-
-            success = 200 <= response.status_code < 300
-
-            # Update verification status
-            if success:
-                await self.update_endpoint(
-                    webhook_id,
-                    company_id,
-                    is_verified=True
-                )
-
-            return {
-                "success": success,
-                "status_code": response.status_code,
-                "response_body": response.text[:500] if response.text else None
-            }
-
-        except httpx.TimeoutException:
-            return {"success": False, "error": "Request timeout (10s)"}
-        except httpx.RequestError as e:
-            return {"success": False, "error": str(e)}
-
-
-# Global instance
-webhook_service = WebhookService()
-```
-
-### Stage 2.4: Create __init__.py
-
-**File:** `backend/webhooks/__init__.py`
-
-```python
-"""
-Webhook System
-
-Provides outgoing webhook functionality for AxCouncil events.
-"""
-
-from backend.webhooks.crypto import (
-    generate_webhook_secret,
-    encrypt_webhook_secret,
-    decrypt_webhook_secret,
-    sign_webhook_payload,
-    verify_webhook_signature
-)
-from backend.webhooks.service import (
-    WebhookService,
-    WebhookEvent,
-    webhook_service
-)
-
-__all__ = [
-    # Crypto
-    "generate_webhook_secret",
-    "encrypt_webhook_secret",
-    "decrypt_webhook_secret",
-    "sign_webhook_payload",
-    "verify_webhook_signature",
-    # Service
-    "WebhookService",
-    "WebhookEvent",
-    "webhook_service"
-]
-```
-
-### Stage 2.4: Test Service Instantiation
-
-```bash
-# From project root
-python -c "
-from backend.webhooks import webhook_service, WebhookEvent
-
-print('Service instantiated:', webhook_service)
-print('WebhookEvent class:', WebhookEvent)
-
-# Test event creation
-event = WebhookEvent(
-    event_type='decision.saved',
-    company_id='test-company',
-    data={'decision': {'id': 'test'}}
-)
-print(f'Event created: {event.event_type} ({event.event_id})')
-print('\\n✓ Service ready')
-"
-```
-
-### ✅ CHECKPOINT 2: Services Ready
-
-Before proceeding, verify:
-- [ ] `backend/webhooks/crypto.py` created
-- [ ] `backend/webhooks/service.py` created
-- [ ] `backend/webhooks/__init__.py` created
-- [ ] Encryption test passes
-- [ ] Service instantiation works
+### ✅ CHECKPOINT 2: Security Layer Ready
+
+- [ ] SSRF validator blocks internal IPs
+- [ ] Header validator blocks dangerous headers
+- [ ] Signature includes timestamp (replay-safe)
+- [ ] Encryption with key versioning works
 
 ---
 
-## Phase 3: API Endpoints
+## Phase 3: Delivery Infrastructure
 
-### Stage 3.1: Create Webhook Router
+### 3.1 Redis Queue Module
+
+**File:** `backend/webhooks/queue.py`
+
+```python
+"""
+Redis-backed Webhook Delivery Queue
+
+Survives server restarts. Uses sorted set for delayed retries.
+"""
+
+import json
+import time
+from typing import Optional, List, Dict, Any
+from uuid import uuid4
+import logging
+
+from backend.cache import get_redis
+from backend.openrouter import calculate_backoff_with_jitter
+
+logger = logging.getLogger(__name__)
+
+QUEUE_KEY = "webhook:deliveries"
+PROCESSING_KEY = "webhook:processing"
+MAX_RETRIES = 8
+
+
+class WebhookQueue:
+    """Redis-backed delivery queue."""
+
+    async def enqueue(
+        self,
+        delivery_id: str,
+        webhook_id: str,
+        company_id: str,
+        url: str,
+        payload: Dict[str, Any],
+        secret_encrypted: bytes,
+        custom_headers: Dict[str, str],
+        include_enriched: bool,
+        header_prefix: str,
+        delay_seconds: float = 0
+    ) -> bool:
+        """Add delivery to queue."""
+        redis = await get_redis()
+        if not redis:
+            logger.error("Redis unavailable - delivery will be lost")
+            return False
+
+        delivery_data = {
+            "delivery_id": delivery_id,
+            "webhook_id": webhook_id,
+            "company_id": company_id,
+            "url": url,
+            "payload": payload,
+            "secret_encrypted": secret_encrypted.hex(),
+            "custom_headers": custom_headers,
+            "include_enriched": include_enriched,
+            "header_prefix": header_prefix,
+            "attempt": 0,
+            "created_at": time.time()
+        }
+
+        score = time.time() + delay_seconds
+
+        await redis.zadd(
+            QUEUE_KEY,
+            {json.dumps(delivery_data): score}
+        )
+
+        logger.debug(f"Enqueued delivery {delivery_id} for {score}")
+        return True
+
+    async def dequeue_batch(self, batch_size: int = 10) -> List[Dict[str, Any]]:
+        """Get deliveries ready for processing."""
+        redis = await get_redis()
+        if not redis:
+            return []
+
+        now = time.time()
+
+        # Get items with score <= now
+        items = await redis.zrangebyscore(
+            QUEUE_KEY,
+            min=0,
+            max=now,
+            start=0,
+            num=batch_size
+        )
+
+        deliveries = []
+        for item in items:
+            try:
+                data = json.loads(item)
+                # Move to processing set
+                await redis.zrem(QUEUE_KEY, item)
+                await redis.sadd(PROCESSING_KEY, item)
+                deliveries.append(data)
+            except json.JSONDecodeError:
+                logger.error(f"Invalid delivery data in queue: {item[:100]}")
+                await redis.zrem(QUEUE_KEY, item)
+
+        return deliveries
+
+    async def complete(self, delivery_data: Dict[str, Any]) -> None:
+        """Mark delivery as complete (remove from processing)."""
+        redis = await get_redis()
+        if not redis:
+            return
+
+        await redis.srem(PROCESSING_KEY, json.dumps(delivery_data))
+
+    async def retry(
+        self,
+        delivery_data: Dict[str, Any],
+        attempt: int
+    ) -> bool:
+        """Schedule retry with exponential backoff + jitter."""
+        if attempt >= MAX_RETRIES:
+            logger.warning(f"Max retries reached for {delivery_data['delivery_id']}")
+            return False
+
+        redis = await get_redis()
+        if not redis:
+            return False
+
+        # Remove from processing
+        await redis.srem(PROCESSING_KEY, json.dumps(delivery_data))
+
+        # Calculate delay with jitter
+        delay = calculate_backoff_with_jitter(
+            attempt,
+            base_delay=60.0,
+            max_delay=3600.0,
+            jitter_factor=0.3
+        )
+
+        # Update attempt count
+        delivery_data["attempt"] = attempt
+
+        # Re-queue with delay
+        score = time.time() + delay
+        await redis.zadd(QUEUE_KEY, {json.dumps(delivery_data): score})
+
+        logger.info(
+            f"Scheduled retry {attempt + 1} for {delivery_data['delivery_id']} "
+            f"in {delay:.0f}s"
+        )
+        return True
+
+    async def get_queue_stats(self) -> Dict[str, int]:
+        """Get queue statistics."""
+        redis = await get_redis()
+        if not redis:
+            return {"pending": 0, "processing": 0}
+
+        pending = await redis.zcard(QUEUE_KEY)
+        processing = await redis.scard(PROCESSING_KEY)
+
+        return {
+            "pending": pending,
+            "processing": processing
+        }
+
+
+# Global instance
+webhook_queue = WebhookQueue()
+```
+
+### 3.2 Delivery Worker
+
+**File:** `backend/webhooks/worker.py`
+
+```python
+"""
+Webhook Delivery Worker
+
+Processes deliveries from Redis queue with circuit breakers.
+"""
+
+import asyncio
+import json
+import time
+from typing import Dict, Any, Optional
+import httpx
+import logging
+
+from backend.webhooks.queue import webhook_queue, MAX_RETRIES
+from backend.webhooks.crypto import decrypt_webhook_secret
+from backend.webhooks.security import (
+    sign_payload_with_timestamp,
+    validate_webhook_url,
+    mask_secret
+)
+from backend.openrouter import CircuitBreaker
+from backend.database import get_service_client
+
+logger = logging.getLogger(__name__)
+
+# Shared HTTP client (connection pooling)
+_http_client: Optional[httpx.AsyncClient] = None
+
+# Circuit breakers per webhook endpoint
+_circuit_breakers: Dict[str, CircuitBreaker] = {}
+
+DELIVERY_TIMEOUT = 20.0
+MAX_PAYLOAD_SIZE = 256 * 1024  # 256KB
+
+
+def get_http_client() -> httpx.AsyncClient:
+    """Get shared HTTP client with connection pooling."""
+    global _http_client
+    if _http_client is None or _http_client.is_closed:
+        _http_client = httpx.AsyncClient(
+            timeout=httpx.Timeout(DELIVERY_TIMEOUT, connect=10.0),
+            limits=httpx.Limits(
+                max_connections=50,
+                max_keepalive_connections=20,
+                keepalive_expiry=30.0
+            ),
+            http2=True
+        )
+    return _http_client
+
+
+def get_circuit_breaker(webhook_id: str) -> CircuitBreaker:
+    """Get or create circuit breaker for a webhook."""
+    if webhook_id not in _circuit_breakers:
+        _circuit_breakers[webhook_id] = CircuitBreaker(
+            name=f"webhook:{webhook_id[:8]}",
+            failure_threshold=5,
+            recovery_timeout=120.0,
+            half_open_max_calls=2
+        )
+    return _circuit_breakers[webhook_id]
+
+
+async def process_delivery(delivery_data: Dict[str, Any]) -> bool:
+    """
+    Process a single webhook delivery.
+
+    Returns True if successful, False if should retry.
+    """
+    delivery_id = delivery_data["delivery_id"]
+    webhook_id = delivery_data["webhook_id"]
+    company_id = delivery_data["company_id"]
+    url = delivery_data["url"]
+    payload = delivery_data["payload"]
+    attempt = delivery_data.get("attempt", 0)
+    header_prefix = delivery_data.get("header_prefix", "X-AxCouncil")
+
+    # Check circuit breaker
+    breaker = get_circuit_breaker(webhook_id)
+    if not await breaker.can_execute():
+        logger.warning(f"Circuit open for webhook {webhook_id}, skipping")
+        return False
+
+    # Validate URL (SSRF check at delivery time)
+    is_valid, error = validate_webhook_url(url)
+    if not is_valid:
+        logger.error(f"Invalid webhook URL: {error}")
+        await record_failure(delivery_id, webhook_id, f"Invalid URL: {error}")
+        return True  # Don't retry invalid URLs
+
+    # Decrypt secret
+    try:
+        secret_bytes = bytes.fromhex(delivery_data["secret_encrypted"])
+        secret = decrypt_webhook_secret(secret_bytes, company_id)
+    except Exception as e:
+        logger.error(f"Failed to decrypt secret: {e}")
+        await record_failure(delivery_id, webhook_id, "Decryption failed")
+        return True  # Don't retry crypto failures
+
+    # Serialize and check size
+    payload_json = json.dumps(payload, separators=(",", ":"))
+    if len(payload_json) > MAX_PAYLOAD_SIZE:
+        logger.warning(f"Payload too large ({len(payload_json)} bytes), truncating")
+        payload["_truncated"] = True
+        payload_json = json.dumps(payload, separators=(",", ":"))[:MAX_PAYLOAD_SIZE]
+
+    # Sign with timestamp
+    timestamp = int(time.time())
+    signature = sign_payload_with_timestamp(payload_json, secret, timestamp)
+
+    # Build headers
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "AxCouncil-Webhooks/2.0",
+        f"{header_prefix}-Event": payload.get("event", "unknown"),
+        f"{header_prefix}-Signature": signature,
+        f"{header_prefix}-Delivery": delivery_id,
+        f"{header_prefix}-Timestamp": payload.get("timestamp", ""),
+    }
+
+    # Add custom headers
+    custom_headers = delivery_data.get("custom_headers", {})
+    for key, value in custom_headers.items():
+        if not key.lower().startswith(("host", "authorization", "content-length")):
+            headers[key] = value
+
+    # Send request
+    client = get_http_client()
+    start_time = time.time()
+
+    try:
+        response = await client.post(
+            url,
+            content=payload_json,
+            headers=headers
+        )
+
+        response_time_ms = int((time.time() - start_time) * 1000)
+
+        if 200 <= response.status_code < 300:
+            # Success
+            await breaker.record_success()
+            await record_success(
+                delivery_id,
+                webhook_id,
+                response.status_code,
+                response.text[:1000],
+                response_time_ms
+            )
+            logger.info(f"Delivered {delivery_id} in {response_time_ms}ms")
+            return True
+        else:
+            # HTTP error
+            await breaker.record_failure()
+            error_msg = f"HTTP {response.status_code}"
+            await record_attempt(
+                delivery_id,
+                webhook_id,
+                attempt,
+                response.status_code,
+                response.text[:1000],
+                response_time_ms,
+                error_msg
+            )
+            logger.warning(f"Delivery failed: {error_msg}")
+            return False
+
+    except httpx.TimeoutException:
+        await breaker.record_failure()
+        await record_attempt(delivery_id, webhook_id, attempt, error="Timeout")
+        logger.warning(f"Delivery timeout for {delivery_id}")
+        return False
+
+    except httpx.RequestError as e:
+        await breaker.record_failure()
+        await record_attempt(delivery_id, webhook_id, attempt, error=str(e))
+        logger.warning(f"Delivery error: {e}")
+        return False
+
+
+async def record_success(
+    delivery_id: str,
+    webhook_id: str,
+    status_code: int,
+    response_body: str,
+    response_time_ms: int
+) -> None:
+    """Record successful delivery."""
+    supabase = get_service_client()
+
+    supabase.table("webhook_deliveries").update({
+        "status": "success",
+        "response_status": status_code,
+        "response_body": response_body,
+        "response_time_ms": response_time_ms,
+        "completed_at": "now()",
+        "attempt_count": supabase.raw("attempt_count + 1")
+    }).eq("id", delivery_id).execute()
+
+    # Reset webhook failure counter
+    supabase.rpc("record_webhook_success", {"p_webhook_id": webhook_id}).execute()
+
+
+async def record_failure(
+    delivery_id: str,
+    webhook_id: str,
+    error: str
+) -> None:
+    """Record permanent failure (no retry)."""
+    supabase = get_service_client()
+
+    supabase.table("webhook_deliveries").update({
+        "status": "failed",
+        "error_message": error,
+        "completed_at": "now()"
+    }).eq("id", delivery_id).execute()
+
+    # Increment webhook failure counter
+    supabase.rpc("record_webhook_failure", {
+        "p_webhook_id": webhook_id,
+        "p_error_message": error
+    }).execute()
+
+
+async def record_attempt(
+    delivery_id: str,
+    webhook_id: str,
+    attempt: int,
+    status_code: Optional[int] = None,
+    response_body: Optional[str] = None,
+    response_time_ms: Optional[int] = None,
+    error: Optional[str] = None
+) -> None:
+    """Record delivery attempt (may retry)."""
+    supabase = get_service_client()
+
+    update_data = {
+        "attempt_count": attempt + 1,
+        "error_message": error
+    }
+
+    if status_code:
+        update_data["response_status"] = status_code
+    if response_body:
+        update_data["response_body"] = response_body
+    if response_time_ms:
+        update_data["response_time_ms"] = response_time_ms
+
+    if attempt + 1 >= MAX_RETRIES:
+        update_data["status"] = "dead_letter"
+        update_data["completed_at"] = "now()"
+
+        # Record webhook failure
+        supabase.rpc("record_webhook_failure", {
+            "p_webhook_id": webhook_id,
+            "p_error_message": error or "Max retries exceeded"
+        }).execute()
+    else:
+        update_data["status"] = "retrying"
+
+    supabase.table("webhook_deliveries").update(update_data).eq("id", delivery_id).execute()
+
+
+async def run_worker(poll_interval: float = 1.0) -> None:
+    """
+    Main worker loop.
+
+    Polls Redis queue and processes deliveries.
+    """
+    logger.info("Webhook delivery worker started")
+
+    while True:
+        try:
+            # Get batch of ready deliveries
+            deliveries = await webhook_queue.dequeue_batch(batch_size=10)
+
+            if not deliveries:
+                await asyncio.sleep(poll_interval)
+                continue
+
+            # Process concurrently
+            tasks = []
+            for delivery_data in deliveries:
+                tasks.append(process_single(delivery_data))
+
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+        except Exception as e:
+            logger.error(f"Worker error: {e}", exc_info=True)
+            await asyncio.sleep(5)
+
+
+async def process_single(delivery_data: Dict[str, Any]) -> None:
+    """Process single delivery with retry handling."""
+    try:
+        success = await process_delivery(delivery_data)
+
+        if success:
+            await webhook_queue.complete(delivery_data)
+        else:
+            attempt = delivery_data.get("attempt", 0)
+            if not await webhook_queue.retry(delivery_data, attempt + 1):
+                # Max retries reached
+                await webhook_queue.complete(delivery_data)
+
+    except Exception as e:
+        logger.error(f"Error processing delivery: {e}", exc_info=True)
+        await webhook_queue.complete(delivery_data)
+```
+
+### ✅ CHECKPOINT 3: Delivery Infrastructure Ready
+
+- [ ] Redis queue enqueue/dequeue works
+- [ ] Deliveries survive server restart
+- [ ] Circuit breaker opens after failures
+- [ ] Exponential backoff with jitter
+- [ ] Shared HTTP client with pooling
+
+---
+
+## Phase 4: API Endpoints
+
+### 4.1 Webhook Router
 
 **File:** `backend/routers/webhooks.py`
 
@@ -1562,17 +1615,22 @@ Before proceeding, verify:
 """
 Webhook Management API Endpoints
 
-Follows patterns from backend/routers/settings.py
+Follows standardized response format from backend/schemas/responses.py
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel, HttpUrl, field_validator
+from pydantic import BaseModel, field_validator
 from typing import Optional, List, Dict
-from backend.auth import get_current_user
-from backend.webhooks import webhook_service
-from backend.rate_limit import limiter
-from backend.database import get_service_client
+from uuid import uuid4
 import logging
+
+from ..auth import get_current_user
+from ..rate_limit import limiter
+from ..database import get_service_client
+from ..schemas.responses import success_response, paginated_response, error_response
+from ..webhooks.crypto import generate_webhook_secret, encrypt_webhook_secret
+from ..webhooks.security import validate_webhook_url, validate_custom_headers
+from ..webhooks.queue import webhook_queue
 
 logger = logging.getLogger(__name__)
 
@@ -1580,11 +1638,10 @@ router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
 
 # ============================================================================
-# REQUEST/RESPONSE MODELS
+# REQUEST MODELS
 # ============================================================================
 
 class WebhookCreateRequest(BaseModel):
-    """Request body for creating a webhook."""
     name: str
     url: str
     event_types: List[str]
@@ -1592,6 +1649,7 @@ class WebhookCreateRequest(BaseModel):
     filter_department_ids: Optional[List[str]] = None
     filter_tags: Optional[List[str]] = None
     custom_headers: Optional[Dict[str, str]] = None
+    include_enriched_data: bool = False
 
     @field_validator("name")
     @classmethod
@@ -1603,31 +1661,13 @@ class WebhookCreateRequest(BaseModel):
     @field_validator("url")
     @classmethod
     def validate_url(cls, v):
-        if not v.startswith(("http://", "https://")):
-            raise ValueError("URL must start with http:// or https://")
-        return v
-
-    @field_validator("event_types")
-    @classmethod
-    def validate_event_types(cls, v):
-        valid_events = {
-            "decision.saved",
-            "decision.promoted",
-            "conversation.completed",
-            "conversation.exported",
-            "member.invited",
-            "member.joined"
-        }
-        for event in v:
-            if event not in valid_events:
-                raise ValueError(f"Invalid event type: {event}")
-        if not v:
-            raise ValueError("At least one event type required")
+        is_valid, error = validate_webhook_url(v)
+        if not is_valid:
+            raise ValueError(error)
         return v
 
 
 class WebhookUpdateRequest(BaseModel):
-    """Request body for updating a webhook."""
     name: Optional[str] = None
     url: Optional[str] = None
     event_types: Optional[List[str]] = None
@@ -1635,7 +1675,45 @@ class WebhookUpdateRequest(BaseModel):
     filter_department_ids: Optional[List[str]] = None
     filter_tags: Optional[List[str]] = None
     custom_headers: Optional[Dict[str, str]] = None
+    include_enriched_data: Optional[bool] = None
     is_active: Optional[bool] = None
+
+
+class ZapierSubscribeRequest(BaseModel):
+    """Zapier REST Hooks subscribe request."""
+    target_url: str
+    event: str
+
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+async def check_webhook_access(company_id: str, require_admin: bool = False) -> bool:
+    """Check if company has webhook feature enabled."""
+    supabase = get_service_client()
+
+    result = supabase.table("webhook_features") \
+        .select("is_enabled") \
+        .eq("company_id", company_id) \
+        .single() \
+        .execute()
+
+    if not result.data or not result.data.get("is_enabled"):
+        return False
+
+    return True
+
+
+async def get_valid_event_types() -> set:
+    """Get valid event types from database."""
+    supabase = get_service_client()
+    result = supabase.table("webhook_event_types") \
+        .select("id") \
+        .eq("is_active", True) \
+        .execute()
+
+    return {row["id"] for row in (result.data or [])}
 
 
 # ============================================================================
@@ -1647,11 +1725,7 @@ async def list_event_types(
     request: Request,
     current_user: dict = Depends(get_current_user)
 ):
-    """
-    List all available webhook event types.
-
-    Returns event types with descriptions and example payloads.
-    """
+    """List all available webhook event types."""
     supabase = get_service_client()
 
     result = supabase.table("webhook_event_types") \
@@ -1660,40 +1734,39 @@ async def list_event_types(
         .order("category") \
         .execute()
 
-    return {
-        "success": True,
-        "data": result.data or []
-    }
+    return success_response(result.data or [])
 
 
 @router.get("")
-@limiter.limit("30/minute")
+@limiter.limit("60/minute")
 async def list_webhooks(
     request: Request,
     current_user: dict = Depends(get_current_user)
 ):
-    """
-    List all webhooks for the current company.
-
-    Returns webhook configurations without secrets.
-    """
+    """List all webhooks for the current company."""
     company_id = current_user.get("company_id")
     if not company_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Company ID required"
-        )
+        raise HTTPException(400, "Company ID required")
 
-    endpoints = await webhook_service.list_endpoints(company_id)
+    supabase = get_service_client()
 
-    return {
-        "success": True,
-        "data": endpoints
-    }
+    result = supabase.table("company_webhooks") \
+        .select(
+            "id, name, url, description, event_types, secret_suffix, "
+            "filter_department_ids, filter_tags, custom_headers, "
+            "include_enriched_data, is_active, is_verified, "
+            "consecutive_failures, last_success_at, last_failure_at, "
+            "created_at, updated_at"
+        ) \
+        .eq("company_id", company_id) \
+        .order("created_at", desc=True) \
+        .execute()
+
+    return success_response(result.data or [])
 
 
 @router.post("")
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 async def create_webhook(
     request: Request,
     body: WebhookCreateRequest,
@@ -1702,43 +1775,66 @@ async def create_webhook(
     """
     Create a new webhook endpoint.
 
-    Returns the created webhook including the signing secret.
-    IMPORTANT: The secret is only shown once - save it immediately!
+    The signing secret is only returned once - save it immediately!
     """
     company_id = current_user.get("company_id")
     user_id = current_user.get("id")
 
     if not company_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Company ID required"
-        )
+        raise HTTPException(400, "Company ID required")
 
-    try:
-        endpoint = await webhook_service.create_endpoint(
-            company_id=company_id,
-            name=body.name,
-            url=body.url,
-            event_types=body.event_types,
-            created_by=user_id,
-            description=body.description,
-            filter_department_ids=body.filter_department_ids,
-            filter_tags=body.filter_tags,
-            custom_headers=body.custom_headers
-        )
+    # Check feature access
+    if not await check_webhook_access(company_id):
+        raise HTTPException(403, "Webhook feature not enabled for this company")
 
-        return {
-            "success": True,
-            "data": endpoint,
-            "message": "Webhook created. Save the secret - it won't be shown again!"
-        }
+    # Validate event types against database
+    valid_events = await get_valid_event_types()
+    invalid_events = set(body.event_types) - valid_events
+    if invalid_events:
+        raise HTTPException(400, f"Invalid event types: {', '.join(invalid_events)}")
 
-    except Exception as e:
-        logger.error(f"Failed to create webhook: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create webhook"
-        )
+    # Validate custom headers
+    if body.custom_headers:
+        is_valid, error = validate_custom_headers(body.custom_headers)
+        if not is_valid:
+            raise HTTPException(400, error)
+
+    # Generate and encrypt secret
+    secret = generate_webhook_secret()
+    encrypted_secret, secret_suffix = encrypt_webhook_secret(secret, company_id)
+
+    supabase = get_service_client()
+
+    result = supabase.table("company_webhooks").insert({
+        "company_id": company_id,
+        "name": body.name,
+        "url": body.url,
+        "description": body.description,
+        "event_types": body.event_types,
+        "secret_encrypted": encrypted_secret.hex(),
+        "secret_suffix": secret_suffix,
+        "filter_department_ids": body.filter_department_ids,
+        "filter_tags": body.filter_tags,
+        "custom_headers": body.custom_headers or {},
+        "include_enriched_data": body.include_enriched_data,
+        "created_by": user_id,
+        "is_active": True,
+        "is_verified": False
+    }).execute()
+
+    if not result.data:
+        raise HTTPException(500, "Failed to create webhook")
+
+    webhook = result.data[0]
+    webhook["secret"] = secret  # Only returned once!
+    webhook.pop("secret_encrypted", None)
+
+    logger.info(f"Webhook created: {webhook['id']} by user {user_id}")
+
+    return success_response(
+        webhook,
+        message="Webhook created. Save the secret - it won't be shown again!"
+    )
 
 
 @router.get("/{webhook_id}")
@@ -1750,25 +1846,25 @@ async def get_webhook(
     """Get a specific webhook endpoint."""
     company_id = current_user.get("company_id")
 
-    endpoint = await webhook_service.get_endpoint(webhook_id, company_id)
+    supabase = get_service_client()
 
-    if not endpoint:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Webhook not found"
-        )
+    result = supabase.table("company_webhooks") \
+        .select("*") \
+        .eq("id", webhook_id) \
+        .eq("company_id", company_id) \
+        .single() \
+        .execute()
 
-    # Remove encrypted secret from response
-    endpoint.pop("secret_encrypted", None)
+    if not result.data:
+        raise HTTPException(404, "Webhook not found")
 
-    return {
-        "success": True,
-        "data": endpoint
-    }
+    result.data.pop("secret_encrypted", None)
+
+    return success_response(result.data)
 
 
 @router.patch("/{webhook_id}")
-@limiter.limit("20/minute")
+@limiter.limit("30/minute")
 async def update_webhook(
     webhook_id: str,
     request: Request,
@@ -1780,26 +1876,48 @@ async def update_webhook(
 
     updates = body.model_dump(exclude_unset=True)
 
-    endpoint = await webhook_service.update_endpoint(
-        webhook_id=webhook_id,
-        company_id=company_id,
-        **updates
-    )
+    # Validate URL if changing
+    if "url" in updates:
+        is_valid, error = validate_webhook_url(updates["url"])
+        if not is_valid:
+            raise HTTPException(400, error)
 
-    if not endpoint:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Webhook not found"
-        )
+    # Validate event types if changing
+    if "event_types" in updates:
+        valid_events = await get_valid_event_types()
+        invalid_events = set(updates["event_types"]) - valid_events
+        if invalid_events:
+            raise HTTPException(400, f"Invalid event types: {', '.join(invalid_events)}")
 
-    return {
-        "success": True,
-        "data": endpoint
-    }
+    # Validate headers if changing
+    if "custom_headers" in updates and updates["custom_headers"]:
+        is_valid, error = validate_custom_headers(updates["custom_headers"])
+        if not is_valid:
+            raise HTTPException(400, error)
+
+    # Re-enable clears failure state
+    if updates.get("is_active") is True:
+        updates["consecutive_failures"] = 0
+        updates["disabled_reason"] = None
+
+    supabase = get_service_client()
+
+    result = supabase.table("company_webhooks") \
+        .update(updates) \
+        .eq("id", webhook_id) \
+        .eq("company_id", company_id) \
+        .execute()
+
+    if not result.data:
+        raise HTTPException(404, "Webhook not found")
+
+    result.data[0].pop("secret_encrypted", None)
+
+    return success_response(result.data[0])
 
 
 @router.delete("/{webhook_id}")
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 async def delete_webhook(
     webhook_id: str,
     request: Request,
@@ -1808,50 +1926,20 @@ async def delete_webhook(
     """Delete a webhook endpoint."""
     company_id = current_user.get("company_id")
 
-    deleted = await webhook_service.delete_endpoint(webhook_id, company_id)
+    supabase = get_service_client()
 
-    if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Webhook not found"
-        )
+    result = supabase.table("company_webhooks") \
+        .delete() \
+        .eq("id", webhook_id) \
+        .eq("company_id", company_id) \
+        .execute()
 
-    logger.info(f"Webhook deleted: {webhook_id} by user {current_user.get('id')}")
+    if not result.data:
+        raise HTTPException(404, "Webhook not found")
 
-    return {
-        "success": True,
-        "message": "Webhook deleted"
-    }
+    logger.info(f"Webhook deleted: {webhook_id}")
 
-
-@router.post("/{webhook_id}/rotate-secret")
-@limiter.limit("5/minute")
-async def rotate_webhook_secret(
-    webhook_id: str,
-    request: Request,
-    current_user: dict = Depends(get_current_user)
-):
-    """
-    Rotate the signing secret for a webhook.
-
-    Returns the new secret - save it immediately!
-    """
-    company_id = current_user.get("company_id")
-
-    try:
-        result = await webhook_service.rotate_secret(webhook_id, company_id)
-
-        return {
-            "success": True,
-            "data": result,
-            "message": "Secret rotated. Save the new secret - it won't be shown again!"
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Webhook not found"
-        )
+    return success_response({"deleted": True})
 
 
 @router.post("/{webhook_id}/test")
@@ -1861,19 +1949,67 @@ async def test_webhook(
     request: Request,
     current_user: dict = Depends(get_current_user)
 ):
-    """
-    Send a test webhook to verify the endpoint.
-
-    Sends a test.ping event and returns the response.
-    """
+    """Send a test webhook to verify the endpoint."""
     company_id = current_user.get("company_id")
 
-    result = await webhook_service.send_test(webhook_id, company_id)
+    supabase = get_service_client()
 
-    return {
-        "success": result.get("success", False),
-        "data": result
-    }
+    webhook = supabase.table("company_webhooks") \
+        .select("*") \
+        .eq("id", webhook_id) \
+        .eq("company_id", company_id) \
+        .single() \
+        .execute()
+
+    if not webhook.data:
+        raise HTTPException(404, "Webhook not found")
+
+    # Create test delivery
+    from ..webhooks.service import dispatch_test_event
+
+    result = await dispatch_test_event(
+        webhook_id=webhook_id,
+        company_id=company_id,
+        webhook_data=webhook.data
+    )
+
+    return success_response(result)
+
+
+@router.post("/{webhook_id}/rotate-secret")
+@limiter.limit("5/minute")
+async def rotate_webhook_secret(
+    webhook_id: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """Rotate the signing secret for a webhook."""
+    company_id = current_user.get("company_id")
+
+    secret = generate_webhook_secret()
+    encrypted_secret, secret_suffix = encrypt_webhook_secret(secret, company_id)
+
+    supabase = get_service_client()
+
+    result = supabase.table("company_webhooks") \
+        .update({
+            "secret_encrypted": encrypted_secret.hex(),
+            "secret_suffix": secret_suffix,
+            "secret_version": supabase.raw("secret_version + 1")
+        }) \
+        .eq("id", webhook_id) \
+        .eq("company_id", company_id) \
+        .execute()
+
+    if not result.data:
+        raise HTTPException(404, "Webhook not found")
+
+    logger.info(f"Webhook secret rotated: {webhook_id}")
+
+    return success_response(
+        {"secret": secret, "secret_suffix": secret_suffix},
+        message="Secret rotated. Save the new secret - it won't be shown again!"
+    )
 
 
 @router.get("/{webhook_id}/deliveries")
@@ -1888,22 +2024,30 @@ async def get_webhook_deliveries(
     """Get delivery history for a webhook."""
     company_id = current_user.get("company_id")
 
-    deliveries = await webhook_service.get_deliveries(
-        company_id=company_id,
-        webhook_id=webhook_id,
-        status=status_filter,
-        limit=min(limit, 100),
-        offset=offset
-    )
+    supabase = get_service_client()
 
-    return {
-        "success": True,
-        "data": deliveries
-    }
+    query = supabase.table("webhook_deliveries") \
+        .select("*", count="exact") \
+        .eq("company_id", company_id) \
+        .eq("webhook_id", webhook_id) \
+        .order("created_at", desc=True) \
+        .range(offset, offset + min(limit, 100) - 1)
+
+    if status_filter:
+        query = query.eq("status", status_filter)
+
+    result = query.execute()
+
+    return paginated_response(
+        result.data or [],
+        limit=limit,
+        offset=offset,
+        total_count=result.count
+    )
 
 
 @router.post("/deliveries/{delivery_id}/retry")
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 async def retry_delivery(
     delivery_id: str,
     request: Request,
@@ -1912,753 +2056,257 @@ async def retry_delivery(
     """Manually retry a failed delivery."""
     company_id = current_user.get("company_id")
 
-    success = await webhook_service.retry_delivery(delivery_id, company_id)
+    supabase = get_service_client()
 
-    if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Delivery not found"
-        )
+    # Get delivery
+    delivery = supabase.table("webhook_deliveries") \
+        .select("*, company_webhooks(*)") \
+        .eq("id", delivery_id) \
+        .eq("company_id", company_id) \
+        .single() \
+        .execute()
 
-    return {
-        "success": True,
-        "message": "Retry initiated"
-    }
+    if not delivery.data:
+        raise HTTPException(404, "Delivery not found")
+
+    if delivery.data["status"] not in ("failed", "dead_letter"):
+        raise HTTPException(400, "Can only retry failed deliveries")
+
+    webhook = delivery.data["company_webhooks"]
+
+    # Reset and re-queue
+    supabase.table("webhook_deliveries") \
+        .update({"status": "queued", "attempt_count": 0}) \
+        .eq("id", delivery_id) \
+        .execute()
+
+    await webhook_queue.enqueue(
+        delivery_id=delivery_id,
+        webhook_id=webhook["id"],
+        company_id=company_id,
+        url=webhook["url"],
+        payload=delivery.data["payload"],
+        secret_encrypted=bytes.fromhex(webhook["secret_encrypted"]),
+        custom_headers=webhook.get("custom_headers", {}),
+        include_enriched=webhook.get("include_enriched_data", False),
+        header_prefix=webhook.get("custom_header_prefix", "X-AxCouncil")
+    )
+
+    return success_response({"retrying": True})
+
+
+# ============================================================================
+# ZAPIER REST HOOKS
+# ============================================================================
+
+@router.post("/subscribe")
+async def zapier_subscribe(
+    request: Request,
+    body: ZapierSubscribeRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Zapier REST Hooks subscribe endpoint.
+
+    Called when a Zap is turned on.
+    """
+    company_id = current_user.get("company_id")
+    user_id = current_user.get("id")
+
+    if not company_id:
+        raise HTTPException(400, "Company ID required")
+
+    # Validate event type
+    valid_events = await get_valid_event_types()
+    if body.event not in valid_events:
+        raise HTTPException(400, f"Invalid event type: {body.event}")
+
+    # Validate URL
+    is_valid, error = validate_webhook_url(body.target_url)
+    if not is_valid:
+        raise HTTPException(400, error)
+
+    # Create webhook
+    secret = generate_webhook_secret()
+    encrypted_secret, secret_suffix = encrypt_webhook_secret(secret, company_id)
+
+    subscription_id = str(uuid4())
+
+    supabase = get_service_client()
+
+    result = supabase.table("company_webhooks").insert({
+        "company_id": company_id,
+        "name": f"Zapier: {body.event}",
+        "url": body.target_url,
+        "description": "Created by Zapier",
+        "event_types": [body.event],
+        "secret_encrypted": encrypted_secret.hex(),
+        "secret_suffix": secret_suffix,
+        "zapier_subscription_id": subscription_id,
+        "created_by": user_id,
+        "is_active": True
+    }).execute()
+
+    return {"id": subscription_id}
+
+
+@router.delete("/subscribe/{subscription_id}")
+async def zapier_unsubscribe(
+    subscription_id: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Zapier REST Hooks unsubscribe endpoint.
+
+    Called when a Zap is turned off.
+    """
+    company_id = current_user.get("company_id")
+
+    supabase = get_service_client()
+
+    result = supabase.table("company_webhooks") \
+        .delete() \
+        .eq("zapier_subscription_id", subscription_id) \
+        .eq("company_id", company_id) \
+        .execute()
+
+    return {"success": True}
+
+
+@router.get("/sample-data")
+async def get_sample_data(
+    event_type: str,
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Zapier performList endpoint.
+
+    Returns sample data for field mapping in Zapier editor.
+    """
+    supabase = get_service_client()
+
+    result = supabase.table("webhook_event_types") \
+        .select("payload_example") \
+        .eq("id", event_type) \
+        .single() \
+        .execute()
+
+    if not result.data:
+        raise HTTPException(404, "Event type not found")
+
+    # Return array for Zapier
+    sample = result.data.get("payload_example", {})
+    return [{"event": event_type, "event_id": "sample_123", "data": sample}]
 ```
 
-### Stage 3.2: Register Router
+### 4.2 Register Router
 
-**File:** `backend/routers/v1.py` (add to existing file)
-
-Find the imports section and add:
+Add to `backend/routers/v1.py`:
 
 ```python
-from backend.routers.webhooks import router as webhooks_router
-```
+from .webhooks import router as webhooks_router
 
-Find where other routers are included and add:
-
-```python
+# In the router setup section:
 router.include_router(webhooks_router)
 ```
 
-### Stage 3.3: Test Endpoints
+### ✅ CHECKPOINT 4: API Ready
 
-```bash
-# Start the server
-python -m backend.main
-
-# In another terminal, test the endpoints:
-
-# List event types (should work without auth for testing)
-curl http://localhost:8081/api/v1/webhooks/event-types
-
-# Expected response:
-# {"success": true, "data": [{"id": "decision.saved", ...}, ...]}
-```
-
-### Stage 3.4: Add to Frontend API Client
-
-**File:** `frontend/src/api.ts` (add to existing file)
-
-Find the API class and add these methods:
-
-```typescript
-  // =========================================================================
-  // WEBHOOKS
-  // =========================================================================
-
-  async getWebhookEventTypes(): Promise<{ success: boolean; data: WebhookEventType[] }> {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/webhooks/event-types`, {
-      headers,
-    });
-    if (!response.ok) throw new Error('Failed to get webhook event types');
-    return response.json();
-  }
-
-  async getWebhooks(): Promise<{ success: boolean; data: Webhook[] }> {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/webhooks`, {
-      headers,
-    });
-    if (!response.ok) throw new Error('Failed to get webhooks');
-    return response.json();
-  }
-
-  async createWebhook(data: CreateWebhookRequest): Promise<{ success: boolean; data: Webhook & { secret: string }; message: string }> {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/webhooks`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
-      throw new Error(error.detail || 'Failed to create webhook');
-    }
-    return response.json();
-  }
-
-  async updateWebhook(webhookId: string, data: UpdateWebhookRequest): Promise<{ success: boolean; data: Webhook }> {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/webhooks/${webhookId}`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) throw new Error('Failed to update webhook');
-    return response.json();
-  }
-
-  async deleteWebhook(webhookId: string): Promise<{ success: boolean }> {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/webhooks/${webhookId}`, {
-      method: 'DELETE',
-      headers,
-    });
-    if (!response.ok) throw new Error('Failed to delete webhook');
-    return response.json();
-  }
-
-  async testWebhook(webhookId: string): Promise<{ success: boolean; data: WebhookTestResult }> {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/webhooks/${webhookId}/test`, {
-      method: 'POST',
-      headers,
-    });
-    if (!response.ok) throw new Error('Failed to test webhook');
-    return response.json();
-  }
-
-  async rotateWebhookSecret(webhookId: string): Promise<{ success: boolean; data: { secret: string; secret_suffix: string } }> {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/webhooks/${webhookId}/rotate-secret`, {
-      method: 'POST',
-      headers,
-    });
-    if (!response.ok) throw new Error('Failed to rotate webhook secret');
-    return response.json();
-  }
-
-  async getWebhookDeliveries(webhookId: string, options?: { status?: string; limit?: number; offset?: number }): Promise<{ success: boolean; data: WebhookDelivery[] }> {
-    const headers = await getAuthHeaders();
-    const params = new URLSearchParams();
-    if (options?.status) params.append('status_filter', options.status);
-    if (options?.limit) params.append('limit', options.limit.toString());
-    if (options?.offset) params.append('offset', options.offset.toString());
-
-    const url = `${API_BASE}${API_VERSION}/webhooks/${webhookId}/deliveries${params.toString() ? '?' + params.toString() : ''}`;
-    const response = await fetch(url, { headers });
-    if (!response.ok) throw new Error('Failed to get webhook deliveries');
-    return response.json();
-  }
-
-  async retryWebhookDelivery(deliveryId: string): Promise<{ success: boolean }> {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/webhooks/deliveries/${deliveryId}/retry`, {
-      method: 'POST',
-      headers,
-    });
-    if (!response.ok) throw new Error('Failed to retry delivery');
-    return response.json();
-  }
-```
-
-Add TypeScript types at the top of the file or in a types file:
-
-```typescript
-// Webhook Types
-interface WebhookEventType {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  payload_example: Record<string, unknown>;
-  is_active: boolean;
-}
-
-interface Webhook {
-  id: string;
-  name: string;
-  url: string;
-  description?: string;
-  event_types: string[];
-  secret_suffix: string;
-  filter_department_ids?: string[];
-  filter_tags?: string[];
-  custom_headers?: Record<string, string>;
-  is_active: boolean;
-  is_verified: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface CreateWebhookRequest {
-  name: string;
-  url: string;
-  event_types: string[];
-  description?: string;
-  filter_department_ids?: string[];
-  filter_tags?: string[];
-  custom_headers?: Record<string, string>;
-}
-
-interface UpdateWebhookRequest {
-  name?: string;
-  url?: string;
-  event_types?: string[];
-  description?: string;
-  filter_department_ids?: string[];
-  filter_tags?: string[];
-  custom_headers?: Record<string, string>;
-  is_active?: boolean;
-}
-
-interface WebhookTestResult {
-  success: boolean;
-  status_code?: number;
-  response_body?: string;
-  error?: string;
-}
-
-interface WebhookDelivery {
-  id: string;
-  webhook_id: string;
-  event_type: string;
-  event_id: string;
-  payload: Record<string, unknown>;
-  status: 'pending' | 'success' | 'failed' | 'retrying';
-  attempt_count: number;
-  response_status?: number;
-  response_body?: string;
-  response_time_ms?: number;
-  error_message?: string;
-  created_at: string;
-  completed_at?: string;
-}
-```
-
-### ✅ CHECKPOINT 3: API Ready
-
-Before proceeding, verify:
-- [ ] Router file created at `backend/routers/webhooks.py`
-- [ ] Router registered in `backend/routers/v1.py`
-- [ ] Server starts without errors
-- [ ] `GET /api/v1/webhooks/event-types` returns 200
-- [ ] API client methods added to `frontend/src/api.ts`
-- [ ] TypeScript types defined
+- [ ] All endpoints return standardized response format
+- [ ] Event types validated against database
+- [ ] Zapier REST Hooks (subscribe/unsubscribe/sample-data) working
+- [ ] Rate limiting in place
+- [ ] Access control checking webhook feature flag
 
 ---
 
-## Phase 4: Event Integration
-
-### Stage 4.1: Create Event Emitters
-
-**File:** `backend/webhooks/events.py`
-
-```python
-"""
-Webhook Event Emitters
-
-Convenience functions for emitting webhook events from various parts of the application.
-"""
-
-import asyncio
-from typing import Optional, List, Dict, Any
-from backend.webhooks.service import webhook_service, WebhookEvent
-import logging
-
-logger = logging.getLogger(__name__)
-
-
-async def emit_decision_saved(
-    company_id: str,
-    decision: Dict[str, Any],
-    user: Dict[str, Any],
-    department_id: Optional[str] = None,
-    tags: Optional[List[str]] = None
-) -> List[str]:
-    """
-    Emit decision.saved event.
-
-    Called when a council decision is saved to the knowledge base.
-    """
-    event = WebhookEvent(
-        event_type="decision.saved",
-        company_id=company_id,
-        department_id=department_id,
-        tags=tags,
-        data={
-            "decision": {
-                "id": decision.get("id"),
-                "title": decision.get("title"),
-                "content": decision.get("content"),
-                "summary": decision.get("content_summary") or decision.get("summary"),
-                "department": decision.get("department_name"),
-                "tags": decision.get("tags", []),
-                "created_at": decision.get("created_at")
-            },
-            "user": {
-                "id": user.get("id"),
-                "email": user.get("email")
-            }
-        }
-    )
-    return await webhook_service.dispatch_event(event)
-
-
-async def emit_decision_promoted(
-    company_id: str,
-    decision: Dict[str, Any],
-    promoted_to: Dict[str, Any],
-    user: Dict[str, Any]
-) -> List[str]:
-    """
-    Emit decision.promoted event.
-
-    Called when a decision is promoted to a playbook or project.
-    """
-    event = WebhookEvent(
-        event_type="decision.promoted",
-        company_id=company_id,
-        data={
-            "decision": {
-                "id": decision.get("id"),
-                "title": decision.get("title")
-            },
-            "promoted_to": {
-                "type": promoted_to.get("type"),
-                "id": promoted_to.get("id"),
-                "name": promoted_to.get("name") or promoted_to.get("title")
-            },
-            "user": {
-                "id": user.get("id"),
-                "email": user.get("email")
-            }
-        }
-    )
-    return await webhook_service.dispatch_event(event)
-
-
-async def emit_conversation_completed(
-    company_id: str,
-    conversation: Dict[str, Any],
-    synthesis: str,
-    duration_ms: int
-) -> List[str]:
-    """
-    Emit conversation.completed event.
-
-    Called when a council deliberation completes all 3 stages.
-    """
-    event = WebhookEvent(
-        event_type="conversation.completed",
-        company_id=company_id,
-        data={
-            "conversation": {
-                "id": conversation.get("id"),
-                "title": conversation.get("title"),
-                "question": conversation.get("last_question"),
-                "synthesis": synthesis[:2000] if synthesis else None,  # Limit size
-                "duration_ms": duration_ms
-            }
-        }
-    )
-    return await webhook_service.dispatch_event(event)
-
-
-async def emit_conversation_exported(
-    company_id: str,
-    conversation_id: str,
-    format: str,
-    user: Dict[str, Any]
-) -> List[str]:
-    """
-    Emit conversation.exported event.
-
-    Called when a conversation is exported.
-    """
-    event = WebhookEvent(
-        event_type="conversation.exported",
-        company_id=company_id,
-        data={
-            "conversation_id": conversation_id,
-            "format": format,
-            "user": {
-                "id": user.get("id"),
-                "email": user.get("email")
-            }
-        }
-    )
-    return await webhook_service.dispatch_event(event)
-
-
-async def emit_member_invited(
-    company_id: str,
-    email: str,
-    role: str,
-    invited_by: Dict[str, Any]
-) -> List[str]:
-    """
-    Emit member.invited event.
-
-    Called when a new team member is invited.
-    """
-    event = WebhookEvent(
-        event_type="member.invited",
-        company_id=company_id,
-        data={
-            "member": {
-                "email": email,
-                "role": role,
-                "invited_by": invited_by.get("email")
-            }
-        }
-    )
-    return await webhook_service.dispatch_event(event)
-
-
-async def emit_member_joined(
-    company_id: str,
-    member: Dict[str, Any]
-) -> List[str]:
-    """
-    Emit member.joined event.
-
-    Called when an invited member accepts and joins.
-    """
-    event = WebhookEvent(
-        event_type="member.joined",
-        company_id=company_id,
-        data={
-            "member": {
-                "id": member.get("id"),
-                "email": member.get("email"),
-                "name": member.get("name") or member.get("full_name"),
-                "role": member.get("role")
-            }
-        }
-    )
-    return await webhook_service.dispatch_event(event)
-
-
-def emit_async(coro):
-    """
-    Helper to emit webhook events without blocking.
-
-    Usage:
-        emit_async(emit_decision_saved(company_id, decision, user))
-    """
-    asyncio.create_task(coro)
-```
-
-Update `backend/webhooks/__init__.py`:
-
-```python
-"""
-Webhook System
-"""
-
-from backend.webhooks.crypto import (
-    generate_webhook_secret,
-    encrypt_webhook_secret,
-    decrypt_webhook_secret,
-    sign_webhook_payload,
-    verify_webhook_signature
-)
-from backend.webhooks.service import (
-    WebhookService,
-    WebhookEvent,
-    webhook_service
-)
-from backend.webhooks.events import (
-    emit_decision_saved,
-    emit_decision_promoted,
-    emit_conversation_completed,
-    emit_conversation_exported,
-    emit_member_invited,
-    emit_member_joined,
-    emit_async
-)
-
-__all__ = [
-    # Crypto
-    "generate_webhook_secret",
-    "encrypt_webhook_secret",
-    "decrypt_webhook_secret",
-    "sign_webhook_payload",
-    "verify_webhook_signature",
-    # Service
-    "WebhookService",
-    "WebhookEvent",
-    "webhook_service",
-    # Event emitters
-    "emit_decision_saved",
-    "emit_decision_promoted",
-    "emit_conversation_completed",
-    "emit_conversation_exported",
-    "emit_member_invited",
-    "emit_member_joined",
-    "emit_async"
-]
-```
-
-### Stage 4.2-4.3: Hook into Existing Code
-
-**File:** `backend/routers/knowledge.py` (modify existing)
-
-Find the function that saves decisions (look for `save_knowledge_entry` or similar) and add:
-
-```python
-# At the top, add import
-from backend.webhooks import emit_decision_saved, emit_async
-
-# After successful save (find where result is returned):
-# Add webhook emission
-if result:
-    emit_async(emit_decision_saved(
-        company_id=str(company_uuid),
-        decision=result,
-        user={"id": str(current_user.get("id")), "email": current_user.get("email")},
-        department_id=str(department_uuid) if department_uuid else None,
-        tags=entry_request.tags
-    ))
-```
-
-**File:** `backend/routers/company/decisions.py` (if promotion is here)
-
-Find the promotion function and add:
-
-```python
-# At the top, add import
-from backend.webhooks import emit_decision_promoted, emit_async
-
-# After successful promotion:
-if promoted_doc:
-    emit_async(emit_decision_promoted(
-        company_id=str(company_id),
-        decision={"id": decision_id, "title": decision.get("title")},
-        promoted_to={
-            "type": doc_type,
-            "id": str(promoted_doc.get("id")),
-            "name": promoted_doc.get("title")
-        },
-        user={"id": str(current_user.get("id")), "email": current_user.get("email")}
-    ))
-```
-
-### Stage 4.4: Test Event Emission
-
-```bash
-# Start the server with debug logging
-LOG_LEVEL=DEBUG python -m backend.main
-
-# In another terminal:
-# 1. Create a webhook pointing to webhook.site or similar
-# 2. Save a decision in the UI
-# 3. Check the logs for "Dispatched decision.saved to X webhooks"
-# 4. Check webhook.site for received payload
-```
-
-### ✅ CHECKPOINT 4: Events Firing
-
-Before proceeding, verify:
-- [ ] `backend/webhooks/events.py` created
-- [ ] Event emitters added to knowledge.py
-- [ ] Event emitters added to decisions.py (if applicable)
-- [ ] Server starts without errors
-- [ ] Test: Save a decision → check logs for webhook dispatch
-- [ ] Test: Webhook delivery record created in database
-
----
-
-## Phase 5: Frontend UI
-
-> **Note:** Detailed frontend implementation continues with WebhooksSection.tsx,
-> useWebhooks.ts hook, and CSS files. Follow the patterns in Phase 5 of the
-> detailed implementation plan.
-
-### Files to Create
-
-1. `frontend/src/components/settings/WebhooksSection.tsx` - Main component
-2. `frontend/src/components/settings/hooks/useWebhooks.ts` - Data hook
-3. `frontend/src/components/settings/webhooks/base.css` - Styling
-4. Update `frontend/src/components/settings/index.tsx` - Add tab
-
-### ✅ CHECKPOINT 5: UI Complete
-
-Before proceeding, verify:
-- [ ] WebhooksSection component renders
-- [ ] Can create a webhook
-- [ ] Can test a webhook
-- [ ] Can delete a webhook
-- [ ] Can rotate secret
-- [ ] Secret displayed only once after creation
-- [ ] Mobile responsive
-
----
-
-## Phase 6: Testing
-
-### Stage 6.1: Backend Unit Tests
-
-**File:** `backend/tests/test_webhooks.py`
-
-```python
-"""Webhook System Tests"""
-
-import pytest
-from backend.webhooks.crypto import (
-    generate_webhook_secret,
-    encrypt_webhook_secret,
-    decrypt_webhook_secret,
-    sign_webhook_payload,
-    verify_webhook_signature
-)
-from backend.webhooks.service import WebhookEvent
-
-
-class TestWebhookCrypto:
-    """Test cryptography functions."""
-
-    def test_generate_secret_format(self):
-        secret = generate_webhook_secret()
-        assert secret.startswith("whsec_")
-        assert len(secret) > 20
-
-    def test_generate_secret_unique(self):
-        secrets = [generate_webhook_secret() for _ in range(100)]
-        assert len(set(secrets)) == 100
-
-    def test_encrypt_decrypt_roundtrip(self):
-        secret = "whsec_test_secret_12345"
-        company_id = "company-123"
-
-        encrypted, suffix = encrypt_webhook_secret(secret, company_id)
-        decrypted = decrypt_webhook_secret(encrypted, company_id)
-
-        assert decrypted == secret
-        assert suffix == "2345"
-
-    def test_sign_verify(self):
-        payload = '{"event":"test"}'
-        secret = "whsec_test"
-
-        signature = sign_webhook_payload(payload, secret)
-        assert verify_webhook_signature(payload, signature, secret)
-        assert not verify_webhook_signature(payload, signature, "wrong")
-
-
-class TestWebhookEvent:
-    """Test WebhookEvent class."""
-
-    def test_event_creation(self):
-        event = WebhookEvent(
-            event_type="decision.saved",
-            company_id="company-123",
-            data={"decision": {"id": "dec-1"}}
-        )
-
-        assert event.event_type == "decision.saved"
-        assert event.event_id is not None
-        assert event.payload["event"] == "decision.saved"
-        assert event.payload["data"]["decision"]["id"] == "dec-1"
-```
-
-Run tests:
-
-```bash
-pytest backend/tests/test_webhooks.py -v
-```
-
-### ✅ CHECKPOINT 6: Tests Passing
-
-Before proceeding, verify:
-- [ ] Backend unit tests pass
-- [ ] Frontend tests pass (if applicable)
-- [ ] Manual test with real Zapier/Make webhook
-- [ ] Webhook delivery logged correctly
-- [ ] Retry logic works
-
----
-
-## Phase 7: Deployment
-
-### Stage 7.1: Environment Variables
-
-Add to production environment:
-
-```bash
-# Required
-WEBHOOK_ENCRYPTION_SECRET=<generate-32-char-secret>
-
-# Or use existing key
-USER_KEY_ENCRYPTION_SECRET=<existing-key>
-```
-
-Generate a secret:
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-### Stage 7.2: Apply Migration to Production
-
-```bash
-# Using Supabase CLI
-supabase db push --db-url "$PRODUCTION_DATABASE_URL"
-
-# Or direct SQL
-psql "$PRODUCTION_DATABASE_URL" -f supabase/migrations/20260129000000_webhook_system.sql
-```
-
-### Stage 7.3-7.5: Deploy and Verify
-
-1. Deploy backend (Render/Railway/etc.)
-2. Deploy frontend (Vercel/Netlify/etc.)
-3. Smoke test:
-   - Create a webhook
-   - Test it
-   - Save a decision
-   - Verify delivery
-
-### ✅ CHECKPOINT 7: Live
-
-- [ ] Production database migrated
-- [ ] Environment variables set
-- [ ] Backend deployed
-- [ ] Frontend deployed
-- [ ] Smoke test passed
-- [ ] Monitoring in place
+## Phase 5-13: Summary
+
+Due to document length, the remaining phases are summarized. Each follows the same structure with:
+- Detailed implementation code
+- Verification commands
+- Checkpoint criteria
+
+### Phase 5: Event Registry & Emitters
+- `backend/webhooks/events.py` with emitter functions for all 40+ events
+- Hooks into all routers (conversations, decisions, projects, playbooks, team, billing)
+- GDPR-safe payloads by default, enriched when opted-in
+
+### Phase 6: Access Control & Feature Gating
+- `backend/webhooks/access.py` with feature check middleware
+- Platform admin override capability
+- White-label configuration support
+
+### Phase 7: Frontend UI
+- `frontend/src/components/settings/WebhooksSection.tsx`
+- `frontend/src/components/settings/hooks/useWebhooks.ts`
+- Event selector with categories
+- Secret display modal (shown once)
+
+### Phase 8: Delivery Inspector UI
+- `frontend/src/components/settings/WebhookDeliveries.tsx`
+- Full request/response viewer
+- Manual retry button
+- Status filtering
+
+### Phase 9: Documentation
+- `docs/webhooks/README.md` - Overview
+- `docs/webhooks/verification.md` - Code examples in 5 languages
+- `docs/webhooks/events.md` - Full event catalog
+- OpenAPI spec generation
+
+### Phase 10: Testing
+- `backend/tests/test_webhooks/` - Unit tests
+- `backend/tests/test_webhooks_integration.py` - E2E tests
+- Frontend component tests
+
+### Phase 11: Monitoring & Alerting
+- Consecutive failure tracking (auto-disable at 10)
+- Health endpoint for queue stats
+- Webhook health dashboard data
+
+### Phase 12: Deployment
+- Environment variables checklist
+- Feature flag rollout
+- Migration commands
+
+### Phase 13: MCP Server (Future)
+- Architecture documentation
+- HTTP+SSE transport spec
+- Tool definitions for AI agents
 
 ---
 
 ## Rollback Procedures
 
-### If Database Migration Fails
+### Database Rollback
 
 ```sql
--- Drop all webhook tables
+-- Only if needed - drops all webhook data
 DROP TABLE IF EXISTS public.webhook_deliveries CASCADE;
 DROP TABLE IF EXISTS public.company_webhooks CASCADE;
 DROP TABLE IF EXISTS public.webhook_event_types CASCADE;
+DROP TABLE IF EXISTS public.webhook_features CASCADE;
 
--- Drop functions
+DROP FUNCTION IF EXISTS public.company_webhooks_enabled;
 DROP FUNCTION IF EXISTS public.get_webhooks_for_event;
-DROP FUNCTION IF EXISTS public.update_webhook_delivery;
+DROP FUNCTION IF EXISTS public.record_webhook_failure;
+DROP FUNCTION IF EXISTS public.record_webhook_success;
+DROP FUNCTION IF EXISTS update_webhook_updated_at;
 ```
 
-### If Backend Fails
+### Backend Rollback
 
 1. Remove webhook router from `v1.py`
 2. Redeploy backend
-3. Events will fail silently (emit_async catches errors)
+3. Events fail silently (no user impact)
 
-### If Frontend Fails
+### Frontend Rollback
 
 1. Remove Webhooks tab from Settings
 2. Redeploy frontend
-3. Backend continues to work
 
 ---
 
@@ -2666,55 +2314,49 @@ DROP FUNCTION IF EXISTS public.update_webhook_delivery;
 
 ### Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/webhooks/event-types` | List available events |
-| GET | `/webhooks` | List company webhooks |
-| POST | `/webhooks` | Create webhook |
-| GET | `/webhooks/{id}` | Get webhook |
-| PATCH | `/webhooks/{id}` | Update webhook |
-| DELETE | `/webhooks/{id}` | Delete webhook |
-| POST | `/webhooks/{id}/test` | Test webhook |
-| POST | `/webhooks/{id}/rotate-secret` | Rotate secret |
-| GET | `/webhooks/{id}/deliveries` | Get delivery history |
-| POST | `/webhooks/deliveries/{id}/retry` | Retry delivery |
+| Method | Path | Description | Rate Limit |
+|--------|------|-------------|------------|
+| GET | `/webhooks/event-types` | List available events | - |
+| GET | `/webhooks` | List company webhooks | 60/min |
+| POST | `/webhooks` | Create webhook | 10/min |
+| GET | `/webhooks/{id}` | Get webhook | - |
+| PATCH | `/webhooks/{id}` | Update webhook | 30/min |
+| DELETE | `/webhooks/{id}` | Delete webhook | 20/min |
+| POST | `/webhooks/{id}/test` | Test webhook | 10/min |
+| POST | `/webhooks/{id}/rotate-secret` | Rotate secret | 5/min |
+| GET | `/webhooks/{id}/deliveries` | Get delivery history | - |
+| POST | `/webhooks/deliveries/{id}/retry` | Retry delivery | 20/min |
+| POST | `/webhooks/subscribe` | Zapier subscribe | 10/min |
+| DELETE | `/webhooks/subscribe/{id}` | Zapier unsubscribe | 20/min |
+| GET | `/webhooks/sample-data` | Zapier sample data | - |
 
-### Webhook Payload Format
-
-```json
-{
-  "event": "decision.saved",
-  "event_id": "evt_abc123",
-  "timestamp": "2026-01-29T10:30:00Z",
-  "data": {
-    // Event-specific data
-  }
-}
-```
-
-### Signature Verification (for Recipients)
+### Signature Verification (Python)
 
 ```python
 import hmac
 import hashlib
+import time
 
-def verify_signature(payload: bytes, signature: str, secret: str) -> bool:
-    expected = "sha256=" + hmac.new(
+def verify_webhook(payload: bytes, signature: str, secret: str) -> bool:
+    """Verify AxCouncil webhook signature."""
+    parts = dict(p.split('=', 1) for p in signature.split(','))
+    timestamp = int(parts['t'])
+    sig = parts['v1']
+
+    # Check timestamp (5 min tolerance)
+    if abs(time.time() - timestamp) > 300:
+        return False
+
+    # Verify signature
+    expected = hmac.new(
         secret.encode(),
-        payload,
+        f"{timestamp}.{payload.decode()}".encode(),
         hashlib.sha256
     ).hexdigest()
-    return hmac.compare_digest(signature, expected)
+
+    return hmac.compare_digest(sig, expected)
 ```
 
 ---
 
-## Support
-
-- **Documentation:** `/docs/webhooks/`
-- **Issues:** GitHub Issues
-- **Logs:** Check `webhook_deliveries` table for debugging
-
----
-
-*Last updated: 2026-01-29*
+*Document Version: 2.0 | Last Updated: 2026-02-05*
