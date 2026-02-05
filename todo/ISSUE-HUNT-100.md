@@ -133,8 +133,8 @@
 | 061 | P3 | UI | Mail icon redundant with EMAIL column header | Admin Users | Needs Fix |
 | 062 | P2 | Mobile | Settings modal tab text very small on mobile sidebar | Settings mobile | ✅ Fixed (11px font) |
 | 063 | P3 | UX | Conversation content visible behind Settings modal on mobile | Settings mobile | By Design |
-| 064 | P2 | a11y | Duplicate heading "Model Leaderboard" appears as h2 AND h1 in dialog | Leaderboard | Needs Fix |
-| 065 | P3 | a11y | Dialog description "Model Leaderboard dialog" redundant with heading | Leaderboard | Needs Fix |
+| 064 | P2 | a11y | Duplicate heading "Model Leaderboard" appears as h2 AND h1 in dialog | Leaderboard | ❌ False Positive (Radix VisuallyHidden description) |
+| 065 | P3 | a11y | Dialog description "Model Leaderboard dialog" redundant with heading | Leaderboard | ❌ False Positive (standard a11y pattern) |
 | 066 | P2 | Data | Total Sessions count doesn't update per category tab (always shows 90) | Leaderboard | Needs Fix |
 | 067 | P2 | Data | kimi-k2.5 model missing from Operations tab (only 5 models shown) | Leaderboard | Needs Fix |
 | 068 | P2 | Data | kimi-k2.5 model missing from Technology tab (only 5 models shown) | Leaderboard | Needs Fix |
@@ -191,9 +191,9 @@
 | 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | Needs Fix |
 | 110 | P3 | a11y | Nested listbox structure (listbox > button > listbox > option) complex | History sidebar | Needs Review |
 | 111 | P3 | UI | "All Conversations (10) Latest" button contains two comboboxes - complex nesting | History sidebar | Needs Fix |
-| 112 | P2 | i18n | "Skip to main content" not translated to Spanish | Global | Needs Fix |
-| 113 | P2 | i18n | "Choose files" button not translated to Spanish | Chat input | Needs Fix |
-| 114 | P2 | i18n | "Attach image" button not translated to Spanish | Chat input | Needs Fix |
+| 112 | P2 | i18n | "Skip to main content" not translated to Spanish | Global | ❌ False Positive (translation exists: a11y.skipToMainContent) |
+| 113 | P2 | i18n | "Choose files" button not translated to Spanish | Chat input | 🔧 Browser-controlled (native file input) |
+| 114 | P2 | i18n | "Attach image" button not translated to Spanish | Chat input | ❌ False Positive (translation exists: aria.attachImage) |
 | 115 | P3 | i18n | "No file chosen" text not translated to Spanish | Chat input | Needs Fix |
 | 116 | P3 | i18n | "Chat interface" ARIA landmark not translated | Global | Needs Fix |
 | 117 | P3 | i18n | "Conversation history and navigation" ARIA landmark not translated | Sidebar | Needs Fix |
