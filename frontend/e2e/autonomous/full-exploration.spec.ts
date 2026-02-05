@@ -163,7 +163,7 @@ async function exploreScreen(
           }
         }
       }
-    } catch (e) {
+    } catch {
       // Continue on error
     }
   }
@@ -192,7 +192,7 @@ async function exploreScreen(
 
       // Clear for next test
       await input.fill('');
-    } catch (e) {
+    } catch {
       // Continue on error
     }
   }
