@@ -2,6 +2,7 @@
 
 /* Dark mode - imports at top so light theme can override */
 @import url('./LandingHeroDark.css');
+@import url('./LandingHeroMobile.css');
 
 /* Override aurora for light theme landing */
 .landing-hero-aurora.aurora-container {
@@ -176,6 +177,3 @@
     opacity: 1;
   }
 }
-
-/* Mobile styles - imported last so they override base styles at same specificity */
-@import url('./LandingHeroMobile.css');
