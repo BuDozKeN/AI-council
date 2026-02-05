@@ -195,94 +195,96 @@ async def explore_app(
 
     browser = Browser(config=browser_config)
 
-    # Initialize AI agent with Claude
-    llm = ChatAnthropic(
-        model="claude-sonnet-4-20250514",
-        temperature=0,
-    )
+    try:
+        # Initialize AI agent with Claude
+        llm = ChatAnthropic(
+            model="claude-sonnet-4-20250514",
+            temperature=0,
+        )
 
-    for screen in screens_to_test:
-        url = f"{APP_URL}{screen}"
-        print(f"\n{'='*60}")
-        print(f"Exploring: {screen}")
-        print(f"{'='*60}")
+        for screen in screens_to_test:
+            url = f"{APP_URL}{screen}"
+            print(f"\n{'='*60}")
+            print(f"Exploring: {screen}")
+            print(f"{'='*60}")
 
-        # Create exploration task for this screen
-        exploration_task = f"""
-        Navigate to {url} and systematically test this screen:
+            # Create exploration task for this screen
+            exploration_task = f"""
+            Navigate to {url} and systematically test this screen:
 
-        1. NAVIGATION:
-           - Wait for the page to fully load
-           - Take note of all visible elements
+            1. NAVIGATION:
+               - Wait for the page to fully load
+               - Take note of all visible elements
 
-        2. INTERACTIVE ELEMENTS:
-           - Find and click every button
-           - Test every link (but don't leave the main app)
-           - Open every dropdown and select options
-           - Toggle any switches/checkboxes
-           - Test any tabs or accordion items
+            2. INTERACTIVE ELEMENTS:
+               - Find and click every button
+               - Test every link (but don't leave the main app)
+               - Open every dropdown and select options
+               - Toggle any switches/checkboxes
+               - Test any tabs or accordion items
 
-        3. FORMS (if any):
-           - Fill in text inputs with realistic test data
-           - Test form validation (try empty, invalid data)
-           - Test form submission
+            3. FORMS (if any):
+               - Fill in text inputs with realistic test data
+               - Test form validation (try empty, invalid data)
+               - Test form submission
 
-        4. MODALS (if any):
-           - Open any modal dialogs
-           - Test all buttons inside modals
-           - Test closing via X button, Escape key, and clicking outside
+            4. MODALS (if any):
+               - Open any modal dialogs
+               - Test all buttons inside modals
+               - Test closing via X button, Escape key, and clicking outside
 
-        5. REPORT:
-           For each interaction, note:
-           - Element interacted with
-           - Expected behavior
-           - Actual behavior
-           - Any errors or unexpected results
+            5. REPORT:
+               For each interaction, note:
+               - Element interacted with
+               - Expected behavior
+               - Actual behavior
+               - Any errors or unexpected results
 
-        Be thorough but efficient. If something doesn't work as expected,
-        note it and continue exploring.
+            Be thorough but efficient. If something doesn't work as expected,
+            note it and continue exploring.
 
-        Current viewport: {viewport} ({viewport_config['width']}x{viewport_config['height']})
-        """
+            Current viewport: {viewport} ({viewport_config['width']}x{viewport_config['height']})
+            """
 
-        try:
-            agent = Agent(
-                task=exploration_task,
-                llm=llm,
-                browser=browser,
-            )
-
-            result = await agent.run(max_steps=50)
-
-            # Process results and add to report
-            report.screens_tested.append(screen)
-
-            # Parse agent output for issues
-            if result and "error" in str(result).lower():
-                report.add_issue(
-                    screen=screen,
-                    element="Unknown",
-                    severity="P2",
-                    category="exploration",
-                    expected="Smooth interaction",
-                    actual=str(result)[:500],
+            try:
+                agent = Agent(
+                    task=exploration_task,
+                    llm=llm,
+                    browser=browser,
                 )
 
-            print(f"✓ Completed: {screen}")
+                result = await agent.run(max_steps=50)
 
-        except Exception as e:
-            print(f"✗ Error on {screen}: {e}")
-            report.add_issue(
-                screen=screen,
-                element="Page",
-                severity="P1",
-                category="error",
-                expected="Page loads successfully",
-                actual=str(e)[:500],
-            )
+                # Process results and add to report
+                report.screens_tested.append(screen)
 
-    # Close browser
-    await browser.close()
+                # Parse agent output for issues
+                if result and "error" in str(result).lower():
+                    report.add_issue(
+                        screen=screen,
+                        element="Unknown",
+                        severity="P2",
+                        category="exploration",
+                        expected="Smooth interaction",
+                        actual=str(result)[:500],
+                    )
+
+                print(f"✓ Completed: {screen}")
+
+            except Exception as e:
+                print(f"✗ Error on {screen}: {e}")
+                report.add_issue(
+                    screen=screen,
+                    element="Page",
+                    severity="P1",
+                    category="error",
+                    expected="Page loads successfully",
+                    actual=str(e)[:500],
+                )
+
+    finally:
+        # Always close browser, even if an exception occurred
+        await browser.close()
 
     return report
 
