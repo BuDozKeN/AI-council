@@ -765,6 +765,7 @@
     "deleteConversationWarning": "This action cannot be undone. The conversation will be permanently deleted.",
     "processing": "Processing...",
     "ok": "OK",
+    "project": "Project",
     "newProject": "New Project",
     "reviewProject": "Review Your Project",
     "projectNeedsName": "Your project needs a name",
@@ -1008,6 +1009,7 @@
     "aiPersonality": "AI Personality",
     "aiPersonalityPlaceholder": "How this role should behave as an AI advisor...",
     "aiPersonalityHint": "Defines how this role behaves when acting as an AI advisor in the council",
+    "playbook": "Playbook",
     "newPlaybook": "New Playbook",
     "reviewPlaybook": "Review Playbook",
     "playbookCreated": "Playbook Created!",
@@ -1494,6 +1496,7 @@
   "mobileNav": {
     "new": "New",
     "history": "Chats",
+    "leaderboard": "Ranks",
     "company": "Company",
     "settings": "Settings"
   },

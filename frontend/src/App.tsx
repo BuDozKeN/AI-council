@@ -1286,6 +1286,7 @@ function App() {
           <MobileBottomNav
             onNewChat={handleNewConversation}
             onOpenHistory={handleOpenSidebar}
+            onOpenLeaderboard={handleOpenLeaderboard}
             onOpenMyCompany={handleOpenMyCompany}
             onOpenSettings={handleOpenSettings}
             activeTab={isMobileSidebarOpen ? 'history' : 'chat'}

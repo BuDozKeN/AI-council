@@ -23,6 +23,11 @@
 | 162 | GAP text visible | **FIXED** - cleanGapMarkers function strips [GAP:...] markers |
 | 183 | Admin Portal not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-183) |
 | 185 | Sign Out not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-185) |
+| 033 | Project dialog title generic | **FIXED** - AppModal now receives project name as title prop |
+| 036 | Playbook dialog title generic | **FIXED** - AppModal now receives playbook title as title prop |
+| 043 | Leaderboard not in mobile nav | **FIXED** - Added Trophy icon Leaderboard button to MobileBottomNav |
+| 047 | Tables plain text on mobile | **ALREADY IMPLEMENTED** - table-scroll-wrapper in MarkdownViewer |
+| 049 | Code blocks overflow mobile | **ALREADY IMPLEMENTED** - overflow-x: auto in prose pre |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -60,7 +65,7 @@
 | 008 | P2 | Perf | API calls to /projects and /playbooks made when not authenticated | Network | Needs Fix |
 | 009 | P3 | API | Inconsistent API paths - "/companies/" vs "/company/" | API | Tech Debt |
 | 010 | P2 | a11y | First Tab press skips "Skip to main content" link | Login page | ✅ Verified Fixed |
-| 011 | P2 | i18n | "Skip to main content" link not translated to Spanish | Login page | Needs Fix |
+| 011 | P2 | i18n | "Skip to main content" link not translated to Spanish | Login page | ✅ Verified Fixed |
 | 012 | P3 | i18n | "Show password" button aria-label not translated | Login page | Needs Fix |
 | 013 | P3 | i18n | Page title shows "Conversación" instead of "Bienvenido" in Spanish | Login page | Needs Fix |
 | 014 | P3 | UX | Page title shows "Conversation" in English instead of "Welcome back" | Login page | Needs Fix |
@@ -68,7 +73,7 @@
 | 016 | P3 | UI | Password strength label ("Strong/Fair/Weak") has very low contrast | Signup form | Needs Fix |
 | 017 | P2 | API | "Failed to load billing information" error on Billing tab | Settings > Billing | Needs Fix |
 | 018 | P2 | API | "Failed to get company members" error on Team tab | Settings > Team | Needs Fix |
-| 019 | P2 | i18n | Missing i18n key: settings.emailCannotBeChanged | Settings > Profile | Needs Fix |
+| 019 | P2 | i18n | Missing i18n key: settings.emailCannotBeChanged | Settings > Profile | ✅ Verified Fixed |
 | 020 | P3 | a11y | Missing autocomplete attribute on form element | Settings > Profile | Needs Fix |
 | 021 | P2 | API | "Failed to load API key status" error on API Keys tab | Settings > API Keys | Needs Fix |
 | 022 | P2 | API | "Unable to load configuration" error on LLM Hub tab | Settings > LLM Hub | Needs Fix |
@@ -87,10 +92,10 @@
 |---|----------|----------|-------|----------|--------|
 | 031 | P2 | a11y | Duplicate heading "New Project" appears twice in create dialog | Projects > New Project | ❌ False Positive (asChild) |
 | 032 | P2 | a11y | Duplicate heading "Create Project" appears twice in manual create dialog | Projects > New Project | ❌ False Positive (asChild) |
-| 033 | P2 | a11y | Project detail dialog title is generic "Dialog" instead of project name | Projects > Detail | Needs Fix |
-| 034 | P2 | a11y | Duplicate heading "New Playbook" appears twice in create dialog | Playbooks > New Playbook | Needs Fix |
-| 035 | P2 | a11y | Duplicate heading "Create Playbook" appears twice in manual create dialog | Playbooks > New Playbook | Needs Fix |
-| 036 | P2 | a11y | Playbook detail dialog title is generic "Dialog" instead of playbook name | Playbooks > Detail | Needs Fix |
+| 033 | P2 | a11y | Project detail dialog title is generic "Dialog" instead of project name | Projects > Detail | ✅ Fixed |
+| 034 | P2 | a11y | Duplicate heading "New Playbook" appears twice in create dialog | Playbooks > New Playbook | ❌ False Positive (asChild) |
+| 035 | P2 | a11y | Duplicate heading "Create Playbook" appears twice in manual create dialog | Playbooks > New Playbook | ❌ False Positive (asChild) |
+| 036 | P2 | a11y | Playbook detail dialog title is generic "Dialog" instead of playbook name | Playbooks > Detail | ✅ Fixed |
 | 037 | P3 | UX | "Let our SOP expert write this" button text doesn't adapt for Framework/Policy types | Playbooks > New | Needs Fix |
 | 038 | P2 | a11y | Duplicate heading "Settings" appears twice in settings dialog | Settings | ❌ False Positive (asChild) |
 | 039 | P2 | UX | Command palette (Ctrl+K) shows empty listbox - no commands available | Global | Confirmed #075 in Hunt 200 |
@@ -102,13 +107,13 @@
 |---|----------|----------|-------|----------|--------|
 | 041 | P2 | Mobile | Language selector missing on mobile viewport (visible on desktop) | Global mobile | 🔧 By Design (in Settings) |
 | 042 | P3 | a11y | Response style button nested/duplicated in DOM (button inside button) | Chat input | Needs Fix |
-| 043 | P2 | Mobile | Leaderboard not accessible from mobile bottom navigation | Mobile nav | Needs Fix |
+| 043 | P2 | Mobile | Leaderboard not accessible from mobile bottom navigation | Mobile nav | ✅ Fixed |
 | 044 | P3 | Mobile | History button only in bottom nav, missing from collapsed sidebar | Sidebar mobile | By Design? |
 | 045 | P3 | Mobile | Conversation action buttons always visible (star, archive, delete) - cluttered | Sidebar mobile | Needs Review |
 | 046 | P3 | UX | "STANDARD 10 conversations" label unclear meaning | Sidebar | Needs Fix |
-| 047 | P2 | Mobile | Tables in AI responses rendered as plain text, not structured | Chat mobile | Needs Fix |
+| 047 | P2 | Mobile | Tables in AI responses rendered as plain text, not structured | Chat mobile | ✅ Already Implemented (table-scroll-wrapper) |
 | 048 | P3 | UX | "AI can make mistakes" disclaimer appears after every council response | Chat | By Design |
-| 049 | P2 | Mobile | Long code blocks may overflow horizontally on mobile | Chat mobile | Needs Fix |
+| 049 | P2 | Mobile | Long code blocks may overflow horizontally on mobile | Chat mobile | ✅ Already Implemented (overflow-x: auto) |
 | 050 | P2 | Mobile | Admin Portal tab labels cramped/small on mobile | Admin Portal | Needs Fix |
 | 051 | P3 | UX | Admin download button disabled with no explanation | Admin Analytics | Needs Fix |
 | 052 | P2 | Data | Rankings show incorrect order (#1, #2, #3, #4, #6, #5) instead of sequential | Admin Analytics | Needs Fix |
@@ -222,7 +227,7 @@
 |---|----------|----------|-------|----------|--------|
 | 141 | P2 | a11y | Analytics charts have empty group elements with no accessible names | Admin Analytics | Needs Fix |
 | 142 | P3 | Data | Company Growth chart y-axis shows 0.5 - doesn't make sense for whole companies | Admin Analytics | Needs Fix |
-| 143 | P1 | Data | Model count inconsistent: "6 AIs" (main) vs "5 AI models" (Billing) vs "15 models" (LLM Hub) | Multiple | Needs Fix |
+| 143 | P1 | Data | Model count inconsistent: "6 AIs" (main) vs "5 AI models" (Billing) vs "15 models" (LLM Hub) | Multiple | 🔧 Backend Data Issue |
 | 144 | P2 | UX | Enterprise plan shows "Free" as price - should be "Custom" or "Contact Us" | Settings > Billing | Needs Fix |
 | 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | Needs Fix |
 | 146 | P2 | UX | Team members shown as truncated UUIDs instead of names/emails | Settings > Team | Needs Fix |
@@ -245,8 +250,8 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 161 | P1 | UX | Mobile clicks open conversations but desktop clicks trigger bulk selection - inconsistent | History sidebar | Needs Fix |
-| 162 | P1 | Bug | "[GAP: Specific use case for the query...]" template text visible to users | Conversation view | Needs Fix |
+| 161 | P1 | UX | Mobile clicks open conversations but desktop clicks trigger bulk selection - inconsistent | History sidebar | ✅ Works (see #103) |
+| 162 | P1 | Bug | "[GAP: Specific use case for the query...]" template text visible to users | Conversation view | ✅ Verified Fixed |
 | 163 | P3 | a11y | Duplicate heading text - h1 "Basic Math Question" AND StaticText "Basic Math Question" | Conversation view | Needs Fix |
 | 164 | P3 | a11y | User message wrapped in button element - odd semantic structure | Conversation view | Needs Review |
 | 165 | P2 | a11y | Nested button in Response style on mobile (button > button > button) | Mobile chat | Needs Fix |
@@ -316,7 +321,7 @@
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
 | 221 | P2 | a11y | My Company modal close wrapper contains nested buttons (button > button > combobox) | My Company | Needs Fix |
-| 222 | P1 | a11y | Entire Table of Contents is wrapped in a button element - wrong semantics | My Company > Overview | Needs Fix |
+| 222 | P1 | a11y | Entire Table of Contents is wrapped in a button element - wrong semantics | My Company > Overview | ❌ False Positive |
 | 223 | P3 | a11y | Navigation tabs use buttons instead of proper tab/tablist elements | My Company | Needs Fix |
 | 224 | P3 | UX | "Command Center" subtitle meaning unclear | My Company header | Needs Fix |
 | 225 | P3 | UX | Close button (×) is very subtle/small | My Company modal | Needs Fix |

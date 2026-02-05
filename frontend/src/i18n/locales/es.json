@@ -756,6 +756,7 @@
     "deleteConversationWarning": "Esta acción no se puede deshacer. La conversación será eliminada permanentemente.",
     "processing": "Procesando...",
     "ok": "OK",
+    "project": "Proyecto",
     "newProject": "Nuevo proyecto",
     "reviewProject": "Revisa tu proyecto",
     "projectNeedsName": "Tu proyecto necesita un nombre",
@@ -999,6 +1000,7 @@
     "aiPersonality": "Personalidad de IA",
     "aiPersonalityPlaceholder": "Cómo debe comportarse este rol como asesor de IA...",
     "aiPersonalityHint": "Define cómo se comporta este rol cuando actúa como asesor de IA en el consejo",
+    "playbook": "Manual",
     "newPlaybook": "Nuevo Manual",
     "reviewPlaybook": "Revisar Manual",
     "playbookCreated": "¡Manual Creado!",
@@ -1485,6 +1487,7 @@
   "mobileNav": {
     "new": "Nuevo",
     "history": "Chats",
+    "leaderboard": "Ranking",
     "company": "Empresa",
     "settings": "Ajustes"
   },

@@ -492,6 +492,7 @@ export function ViewProjectModal({
       size="lg"
       showCloseButton={false}
       contentClassName="mc-modal-no-padding"
+      title={project.name || t('modals.project')}
     >
       {/* Header with title */}
       <div className="mc-modal-header-clean">
