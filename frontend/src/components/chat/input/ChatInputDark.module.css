@@ -1,0 +1,149 @@
+/**
+ * ChatInput Dark Mode Styles
+ *
+ * Dark theme overrides for ChatInput component.
+ * Imported by main ChatInput.module.css
+ */
+
+/* =============================================================================
+   MAIN CONTAINER - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .omnibar {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  box-shadow: 0 4px 12px var(--overlay-black-30);
+}
+
+:global(.dark) .omnibar:focus-within {
+  border-color: var(--color-slate-500);
+  box-shadow: 0 4px 20px var(--overlay-black-40);
+}
+
+:global(.dark) .omnibar.councilMode {
+  border-color: var(--color-indigo-500);
+  box-shadow:
+    0 0 0 1px var(--overlay-indigo-20),
+    0 4px 12px var(--overlay-black-30);
+}
+
+:global(.dark) .omnibar.councilMode:focus-within {
+  border-color: var(--color-indigo-400);
+  box-shadow:
+    0 0 0 2px var(--overlay-indigo-30),
+    0 4px 20px var(--overlay-black-40);
+}
+
+:global(.dark) .omniBottom {
+  border-block-start-color: var(--color-border);
+}
+
+:global(.dark) .omniInput {
+  color: var(--color-text-primary);
+}
+
+:global(.dark) .omniInput::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* =============================================================================
+   ICON BUTTONS - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .iconBtn {
+  color: var(--color-slate-500);
+  opacity: 0.6;
+}
+
+:global(.dark) .iconBtn.attach {
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+}
+
+:global(.dark) .iconBtn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  opacity: 1;
+}
+
+:global(.dark) .iconBtn.dept.hasSelection {
+  color: var(--color-amber-400);
+  opacity: 0.5;
+}
+
+:global(.dark) .iconBtn.dept .iconBadge {
+  background: var(--color-amber-400);
+  opacity: 0.7;
+}
+
+:global(.dark) .iconBtn.role.hasSelection {
+  color: var(--color-purple-400);
+  opacity: 0.5;
+}
+
+:global(.dark) .iconBtn.role .iconBadge {
+  background: var(--color-purple-400);
+  opacity: 0.7;
+}
+
+:global(.dark) .iconBtn.playbook.hasSelection {
+  color: var(--color-blue-400);
+  opacity: 0.5;
+}
+
+:global(.dark) .iconBtn.playbook .iconBadge {
+  background: var(--color-blue-400);
+  opacity: 0.7;
+}
+
+:global(.dark) .iconBtn.project.hasSelection {
+  color: var(--color-emerald-400);
+  opacity: 0.5;
+}
+
+:global(.dark) .iconBtn.project .iconBadge {
+  background: var(--color-emerald-400);
+  opacity: 0.7;
+}
+
+:global(.dark) .resetAll {
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .resetAll:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   MODE TOGGLE & SEND BUTTON - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .inlineModeToggle {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+:global(.dark) .inlineModeBtn {
+  color: var(--color-text-quaternary);
+}
+
+:global(.dark) .inlineModeBtn:hover:not(:disabled) {
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .inlineModeBtn.active {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px var(--overlay-black-20);
+}
+
+:global(.dark) .sendBtn {
+  background: transparent;
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .sendBtn.active {
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}

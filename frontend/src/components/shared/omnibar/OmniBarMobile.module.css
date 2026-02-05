@@ -1,0 +1,120 @@
+/**
+ * OmniBar Mobile Responsive Styles
+ *
+ * Mobile-specific overrides for OmniBar component.
+ * Imported by main OmniBar.module.css
+ */
+
+/* Hide keyboard shortcut hint on mobile */
+@media (width <= 640px) {
+  .barKbd {
+    display: none;
+  }
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .wrapper {
+    max-width: 100%;
+  }
+
+  .barTop {
+    padding: var(--space-2-5) var(--space-3) 6px;
+  }
+
+  .landing .barTop {
+    padding: var(--space-3) var(--space-3-5) 8px;
+  }
+
+  .barBottom {
+    padding: var(--space-1-5) var(--space-2-5) 10px;
+    gap: var(--gap-xs);
+  }
+
+  .landing .barBottom {
+    padding: var(--space-2) var(--space-3) 12px;
+  }
+
+  .barLeft {
+    flex: 1 1 0%;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .barRight {
+    flex-shrink: 0;
+    gap: var(--space-1);
+  }
+
+  .barRight .iconBtn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .barRight .barSubmit {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+  }
+
+  .barInput {
+    font-size: var(--text-base);
+  }
+
+  .modeToggle {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .modeBtn {
+    flex: 1;
+  }
+
+  .iconsCapsuleWrapper {
+    display: none;
+  }
+
+  .iconBtn.attach {
+    width: 44px;
+    height: 44px;
+  }
+
+  .iconBtn.attach svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .resetAll {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+
+  .barSubmit {
+    width: 44px;
+    height: 44px;
+  }
+
+  .inlineModeToggle {
+    padding: 2px;
+    min-height: 44px;
+    margin-left: 0;
+    flex-shrink: 0;
+  }
+
+  .inlineModeIndicator {
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-xs);
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
