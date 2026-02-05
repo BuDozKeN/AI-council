@@ -10,6 +10,7 @@
  */
 
 import { useRef, useEffect, memo, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Star,
   Trash2,
@@ -94,6 +95,7 @@ export const ConversationItem = memo(function ConversationItem({
   dragHandlers,
   isDragging,
 }: ConversationItemProps) {
+  const { t } = useTranslation();
   const editInputRef = useRef<HTMLInputElement | null>(null);
   const itemRef = useRef<HTMLDivElement | null>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -340,7 +342,11 @@ export const ConversationItem = memo(function ConversationItem({
           }}
           onPointerDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
-          aria-label={isSelected ? 'Deselect conversation' : 'Select conversation'}
+          aria-label={
+            isSelected
+              ? t('sidebar.bulkDeselect', 'Remove from bulk selection')
+              : t('sidebar.bulkSelect', 'Add to bulk selection')
+          }
           aria-pressed={isSelected}
         >
           {isSelected ? <CheckSquare size={14} /> : <Square size={14} />}

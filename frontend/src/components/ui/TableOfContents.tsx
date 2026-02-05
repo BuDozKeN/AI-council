@@ -40,7 +40,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
-import { makeClickable } from '../../utils/a11y';
 import './table-of-contents/toc-base.css';
 import './table-of-contents/toc-mobile.css';
 import './table-of-contents/toc-variants.css';
@@ -235,7 +234,7 @@ export function TableOfContents({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [variant, isCollapsed]);
 
-  // Escape key to close dropdown
+  // Escape key to close dropdown (sticky variant)
   useEffect(() => {
     if (variant !== 'sticky' || isCollapsed) return;
 
@@ -248,6 +247,20 @@ export function TableOfContents({
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [variant, isCollapsed]);
+
+  // Escape key to close sheet (sheet variant)
+  useEffect(() => {
+    if (variant !== 'sheet' || !isSheetOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsSheetOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [variant, isSheetOpen]);
 
   const handleClick = useCallback(
     (id: string) => (e: React.MouseEvent) => {
@@ -403,9 +416,10 @@ export function TableOfContents({
               aria-modal="true"
               aria-label="Table of contents"
             >
+              {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
               <div
                 className="stage3-mobile-outline-sheet"
-                {...makeClickable((e) => e.stopPropagation())}
+                onClick={(e) => e.stopPropagation()}
               >
                 {/* Drag handle */}
                 <div className="stage3-mobile-sheet-handle" />
@@ -449,16 +463,10 @@ export function TableOfContents({
   // ============================================================================
   if (variant === 'floating') {
     return (
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events
       <nav
         ref={tocRef}
         className={`stage3-floating-toc ${isCollapsed ? 'collapsed' : ''} ${className}`}
         aria-label="Table of contents"
-        onClick={(e) => {
-          if (isCollapsed && !(e.target as HTMLElement).closest('.stage3-toc-toggle')) {
-            setIsCollapsed(false);
-          }
-        }}
       >
         <button
           type="button"

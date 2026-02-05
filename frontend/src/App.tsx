@@ -882,7 +882,7 @@ function App() {
     >
       {/* Skip to main content link - FIRST focusable element for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only">
-        Skip to main content
+        {t('a11y.skipToMainContent', 'Skip to main content')}
       </a>
 
       {/* Impersonation banner - shown when admin is impersonating a user */}
@@ -981,7 +981,8 @@ function App() {
 
         {/* Main content area - Landing Hero or Chat Interface */}
         {/* Semantic main landmark with ID for skip-to-content link */}
-        <main id="main-content" aria-label="Chat interface">
+        {/* ISS-281/282: tabIndex={-1} makes main focusable for skip link navigation */}
+        <main id="main-content" aria-label={t('aria.chatInterface')} tabIndex={-1}>
           {/* Transition: Landing slides up and fades out while chat slides up from below */}
           <AnimatePresence mode="wait">
             {showLandingHero ? (
@@ -1170,6 +1171,10 @@ function App() {
               companyId={selectedBusiness}
               onMockModeChange={handleMockModeChange}
               initialTab={settingsInitialTab}
+              // ISS-183/185: Pass sign out and admin handlers for mobile accessibility
+              onSignOut={handleSignOut}
+              onOpenAdmin={handleOpenAdmin}
+              isAdmin={isAdmin}
             />
           </Suspense>
         )}

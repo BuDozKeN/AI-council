@@ -56,7 +56,7 @@ export function FilterSortBar({
             const deptCount = groupedConversations[deptKey]?.conversations.length || 0;
             return (
               <SelectItem key={dept.id} value={deptKey}>
-                {dept.name} ({deptCount})
+                {t('sidebar.departmentCount', { name: dept.name, count: deptCount })}
               </SelectItem>
             );
           })}

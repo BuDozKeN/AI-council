@@ -16,7 +16,6 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import { Target, Zap, Sparkles, Settings2, Check, ChevronDown, Building2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
-import { makeClickable } from '../../utils/a11y';
 import type { LLMPresetId } from '../../types/business';
 import '../ui/Tooltip.css';
 import styles from './ResponseStyleSelector.module.css';
@@ -126,6 +125,11 @@ export function ResponseStyleSelector({
   // Dropdown content (shared between popover and bottom sheet)
   const dropdownContent = (
     <div className={styles.list}>
+      {/* Title heading - ISS-077 */}
+      <div className={styles.title}>
+        {t('chat.responseStyle.title', 'Response Style')}
+      </div>
+
       {/* Department Default Option */}
       <label
         className={cn(styles.item, styles.departmentDefault, !isUsingOverride && styles.selected)}
@@ -150,12 +154,10 @@ export function ResponseStyleSelector({
             {t('chat.responseStyle.departmentDefault', 'Department Default')}
           </span>
           <span className={styles.itemDesc}>
-            {departmentName
-              ? t('chat.responseStyle.departmentUsing', '{{dept}}: {{preset}}', {
-                  dept: departmentName,
-                  preset: getLabel(departmentPreset),
-                })
-              : getLabel(departmentPreset)}
+            {/* ISS-078: Clarify this is an auto-inherited setting */}
+            {t('chat.responseStyle.inheritFromDept', 'Auto: uses {{dept}} settings', {
+              dept: departmentName || t('common.department', 'department'),
+            })}
           </span>
         </div>
         {!isUsingOverride && (
@@ -251,14 +253,35 @@ export function ResponseStyleSelector({
       );
 
   if (isMobile) {
+    // Mobile: use button directly with onClick to open BottomSheet
+    // This avoids nested interactive elements (button inside span with makeClickable)
     return (
       <>
         <Tooltip.Provider delayDuration={400}>
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
-              <span {...(!disabled ? makeClickable(() => setOpen(true)) : {})}>
-                {triggerButton}
-              </span>
+              <button
+                type="button"
+                className={cn(
+                  styles.trigger,
+                  config.colorClass,
+                  isUsingOverride && styles.hasOverride,
+                  disabled && styles.disabled,
+                  compact && styles.compact
+                )}
+                disabled={disabled}
+                onClick={() => !disabled && setOpen(true)}
+                aria-label={t('chat.responseStyle.label', 'Response style')}
+                aria-expanded={open}
+              >
+                <Icon size={compact ? 14 : 12} className={styles.icon} />
+                {!compact && (
+                  <>
+                    <span className={styles.label}>{getLabel(effectivePreset)}</span>
+                    <ChevronDown size={10} className={cn(styles.chevron, open && styles.open)} />
+                  </>
+                )}
+              </button>
             </Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content className="tooltip-content" sideOffset={8}>

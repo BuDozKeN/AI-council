@@ -570,7 +570,7 @@ function Sidebar({
     .join(' ');
 
   return (
-    <aside ref={sidebarRef} className={sidebarClasses} aria-label="Conversation history">
+    <aside ref={sidebarRef} className={sidebarClasses} aria-label={t('aria.conversationHistory', 'Conversation history and navigation')}>
       {/* Header with New Chat and Pin toggle */}
       <div
         className="sidebar-header"
@@ -821,6 +821,7 @@ function Sidebar({
           onOpenMyCompany={onOpenMyCompany ?? (() => {})}
           onOpenSettings={onOpenSettings ?? (() => {})}
           onOpenAdmin={onOpenAdmin}
+          onOpenLeaderboard={onOpenLeaderboard}
           isAdmin={isAdmin}
           onSignOut={onSignOut ?? (() => {})}
           onMouseEnter={handleExpandedAreaEnter}

@@ -93,6 +93,19 @@ function CodeBlock({ children, className }: CodeBlockProps) {
  * Note: Uses custom celebration logic instead of useCelebration hook
  * because it has a multi-stage animation (cursor fade -> celebration).
  */
+/**
+ * Clean GAP markers from AI responses.
+ * [GAP: ...] markers are internal knowledge gap indicators that shouldn't be shown to users.
+ */
+function cleanGapMarkers(text: string): string {
+  if (!text) return text;
+  // Remove [GAP: ...] markers and clean up extra newlines
+  return text
+    .replace(/\[GAP:\s*[^\]]*\]/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function Stage3Content({
   displayText,
   hasError,
@@ -103,6 +116,9 @@ function Stage3Content({
   usage,
 }: Stage3ContentProps) {
   const { t } = useTranslation();
+
+  // Clean the display text by removing GAP markers
+  const cleanedDisplayText = useMemo(() => cleanGapMarkers(displayText), [displayText]);
 
   // Calculate cost from usage data
   const costDisplay = useMemo(() => {
@@ -197,7 +213,7 @@ function Stage3Content({
       <div className={`final-content-wrapper ${showCompleteCelebration ? 'complete-glow' : ''}`}>
         <div className={`final-text ${hasError ? 'error-text' : ''}`}>
           {hasError ? (
-            <p className="empty-message">{displayText || t('stages.synthesisError')}</p>
+            <p className="empty-message">{cleanedDisplayText || t('stages.synthesisError')}</p>
           ) : (
             <>
               <article className="prose prose-slate max-w-none dark:prose-invert">
@@ -229,7 +245,7 @@ function Stage3Content({
                     },
                   }}
                 >
-                  {displayText}
+                  {cleanedDisplayText}
                 </ReactMarkdown>
               </article>
               {isStreaming && (

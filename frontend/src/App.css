@@ -53,6 +53,13 @@
   min-width: 0;
 }
 
+/* ISS-281/282: Remove focus outline when main receives focus via skip link
+   The main element is only focusable to support skip-to-content navigation.
+   Visual focus ring is unnecessary since user knows they're in main content. */
+#main-content:focus {
+  outline: none;
+}
+
 /* Main content areas - Landing and Chat */
 .main-content-landing,
 .main-content-chat {

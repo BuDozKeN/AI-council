@@ -1,6 +1,6 @@
 /* LandingHero - Perplexity-style landing page */
 
-/* Dark mode - imports at top so light theme can override */
+/* Responsive & Theme imports - mobile CSS uses higher specificity to override base styles */
 @import url('./LandingHeroDark.css');
 @import url('./LandingHeroMobile.css');
 
@@ -177,3 +177,4 @@
     opacity: 1;
   }
 }
+

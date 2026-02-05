@@ -31,6 +31,15 @@ import type { Project } from '../../types/business';
 import type { Conversation, StreamingState } from '../../types/conversation';
 import type { AggregateRanking } from '../../types/stages';
 
+/**
+ * Remove [GAP: ...] markers from AI responses.
+ * These are internal knowledge gap indicators that shouldn't be shown to users.
+ * Fixes issue ISS-162.
+ */
+function cleanGapMarkers(text: string): string {
+  return text.replace(/\[GAP:\s*[^\]]*\]/gi, '');
+}
+
 interface MessageMetadata {
   aggregate_rankings?: AggregateRanking[];
   label_to_model?: Record<string, string>;
@@ -374,7 +383,7 @@ export function MessageList({
                           },
                         }}
                       >
-                        {msg.stage3Streaming.text || ''}
+                        {cleanGapMarkers(msg.stage3Streaming.text || '')}
                       </ReactMarkdown>
                       {msg.loading?.stage3 && <span className="cursor-blink">|</span>}
                     </article>
@@ -420,7 +429,7 @@ export function MessageList({
                           },
                         }}
                       >
-                        {msg.stage3.response || msg.stage3.content || ''}
+                        {cleanGapMarkers(msg.stage3.response || msg.stage3.content || '')}
                       </ReactMarkdown>
                     </article>
                   ) : null}

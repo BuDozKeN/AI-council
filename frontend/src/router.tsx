@@ -29,6 +29,9 @@ const AdminPortal = lazy(() => import('./components/admin/AdminPortal'));
 // Lazy load accept invite pages (public/authenticated, rarely accessed)
 const AcceptInvite = lazy(() => import('./components/AcceptInvite'));
 const AcceptCompanyInvite = lazy(() => import('./components/AcceptCompanyInvite'));
+// Lazy load legal pages (public, rarely accessed)
+const TermsPage = lazy(() => import('./components/legal/TermsPage'));
+const PrivacyPage = lazy(() => import('./components/legal/PrivacyPage'));
 
 // The App component handles all rendering - routes just control what's visible
 // This is a "modal overlay with URL sync" approach - keeps current UX but URLs change
@@ -67,8 +70,14 @@ export const router = createBrowserRouter([
       // Leaderboard
       { path: 'leaderboard', element: null },
 
-      // Catch-all redirect to home
-      { path: '*', element: <Navigate to="/" replace /> },
+      // Catch-all for unknown routes - show 404 error (ISS-015)
+      {
+        path: '*',
+        loader: () => {
+          throw new Response('Not Found', { status: 404, statusText: 'Not Found' });
+        },
+        element: null,
+      },
     ],
   },
   // Admin portal - full page, separate layout from main app
@@ -176,6 +185,72 @@ export const router = createBrowserRouter([
         }
       >
         <AcceptCompanyInvite />
+      </Suspense>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  // Terms of Service - public page
+  {
+    path: '/terms',
+    element: (
+      <Suspense
+        fallback={
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100vh',
+              background: 'var(--color-bg-primary, #fafafa)',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                border: '3px solid var(--color-border, #e5e5e5)',
+                borderTopColor: 'var(--color-primary, #6366f1)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
+          </div>
+        }
+      >
+        <TermsPage />
+      </Suspense>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  // Privacy Policy - public page
+  {
+    path: '/privacy',
+    element: (
+      <Suspense
+        fallback={
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100vh',
+              background: 'var(--color-bg-primary, #fafafa)',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                border: '3px solid var(--color-border, #e5e5e5)',
+                borderTopColor: 'var(--color-primary, #6366f1)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
+          </div>
+        }
+      >
+        <PrivacyPage />
       </Suspense>
     ),
     errorElement: <ErrorPage />,

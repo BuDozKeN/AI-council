@@ -353,15 +353,15 @@
 }
 
 .password-strength-bar.weak + .password-strength-text {
-  color: var(--color-red-400);
+  color: var(--color-red-600);
 }
 
 .password-strength-bar.fair + .password-strength-text {
-  color: var(--color-yellow-400);
+  color: var(--color-amber-600);
 }
 
 .password-strength-bar.strong + .password-strength-text {
-  color: var(--color-green-400);
+  color: var(--color-green-600);
 }
 
 /* Submit Button */

@@ -276,7 +276,7 @@ SUBSCRIPTION_TIERS = {
         "name": "Starter",
         "price_monthly": int(os.environ.get("SUBSCRIPTION_STARTER_PRICE", "7900")),
         "queries_per_month": int(os.environ.get("SUBSCRIPTION_STARTER_QUERIES", "100")),
-        "features": ["100 council queries/month", "All 5 AI models", "Knowledge base", "Email support"],
+        "features": ["100 council queries/month", "All AI models", "Knowledge base", "Email support"],
     },
     "pro": {
         "name": "Pro",

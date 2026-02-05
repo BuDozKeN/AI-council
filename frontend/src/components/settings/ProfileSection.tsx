@@ -70,7 +70,7 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
           <CardTitle>{t('settings.profileDetails')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSaveProfile}>
+          <form onSubmit={handleSaveProfile} autoComplete="on">
             <div className="form-group">
               <label htmlFor="profile-display-name">{t('settings.displayName')}</label>
               <input

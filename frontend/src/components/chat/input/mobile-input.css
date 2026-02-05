@@ -23,6 +23,8 @@
 
   .input-form {
     padding: var(--space-3);
+    /* Add clearance for mobile bottom nav (72px) + safe area + base padding */
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + var(--space-3));
     gap: var(--gap-sm-plus);
     background: var(--color-bg-primary);
   }

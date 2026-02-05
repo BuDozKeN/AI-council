@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../api';
 import { toast } from '../../ui/sonner';
 import type { User } from '@supabase/supabase-js';
@@ -49,9 +49,12 @@ export function useTeam(isOpen: boolean, companyId: string | null, user: User | 
   const [addingMember, setAddingMember] = useState<boolean>(false);
   const [memberActionLoading, setMemberActionLoading] = useState<string | null>(null);
   const [invitationActionLoading, setInvitationActionLoading] = useState<string | null>(null);
+  // ISS-198/199: Prevent duplicate API calls from StrictMode or tab re-opening
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (isOpen && companyId) {
+    if (isOpen && companyId && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       loadTeamData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- loadTeamData is stable

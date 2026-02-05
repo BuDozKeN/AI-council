@@ -5,7 +5,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Briefcase, Settings, LogOut, Shield } from 'lucide-react';
+import { Briefcase, Settings, LogOut, Shield, Trophy } from 'lucide-react';
 import { DEV_MODE } from './hooks';
 
 interface User {
@@ -23,6 +23,7 @@ interface SidebarFooterProps {
   onOpenMyCompany: () => void;
   onOpenSettings: () => void;
   onOpenAdmin?: (() => void) | undefined;
+  onOpenLeaderboard?: (() => void) | undefined;
   isAdmin?: boolean | undefined;
   onSignOut: () => void;
   onMouseEnter?: (() => void) | undefined;
@@ -42,6 +43,7 @@ export function SidebarFooter({
   onOpenMyCompany,
   onOpenSettings,
   onOpenAdmin,
+  onOpenLeaderboard,
   isAdmin = false,
   onSignOut,
   onMouseEnter,
@@ -105,6 +107,16 @@ export function SidebarFooter({
             title={t('sidebar.adminPortal', 'Platform Admin Portal')}
           >
             <Shield className="h-3.5 w-3.5" />
+          </button>
+        )}
+        {/* Leaderboard button - mobile accessible (ISS-043) */}
+        {onOpenLeaderboard && (
+          <button
+            className="footer-btn leaderboard-btn"
+            onClick={onOpenLeaderboard}
+            title={t('sidebar.leaderboard', 'Leaderboard')}
+          >
+            <Trophy className="h-3.5 w-3.5" />
           </button>
         )}
         <button

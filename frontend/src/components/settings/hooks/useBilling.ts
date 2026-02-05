@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
 
@@ -27,9 +27,12 @@ export function useBilling(isOpen: boolean) {
   const [billingLoading, setBillingLoading] = useState<boolean>(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
   const [billingError, setBillingError] = useState<string | null>(null);
+  // ISS-196/197: Prevent duplicate API calls from StrictMode or tab re-opening
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       loadBillingData();
     }
   }, [isOpen]);
