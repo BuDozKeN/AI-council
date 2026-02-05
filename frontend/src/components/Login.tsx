@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Globe } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { AuroraBackground } from './ui/aurora-background';
 import { hapticMedium, hapticSuccess, hapticError } from '../lib/haptics';
 import { springs, interactionStates, springWithDelay } from '../lib/animations';
 import { saveReturnUrl } from '../utils/authRedirect';
+import { supportedLanguages } from '../i18n';
 import './Login.css';
 
 // Google Icon SVG
@@ -47,6 +48,8 @@ const getUserFriendlyError = (error: string, t: TFunction): string => {
       'Sign up is currently unavailable. Please try again later.'
     ),
     invalid_credentials: t('errors.invalidCredentials', 'Invalid email or password'),
+    // ISS-009: Supabase returns this exact message for failed login
+    'invalid login credentials': t('errors.invalidCredentials', 'Invalid email or password'),
     email_not_confirmed: t(
       'errors.emailNotConfirmed',
       'Please check your email to confirm your account'
@@ -56,6 +59,10 @@ const getUserFriendlyError = (error: string, t: TFunction): string => {
       'errors.weakPassword',
       'Password must be at least 8 characters with a mix of letters, numbers, and symbols'
     ),
+    // ISS-008: Common browser validation messages
+    'email address is not valid': t('validation.invalidEmail', 'Invalid email address'),
+    'password is required': t('validation.required', 'This field is required'),
+    'email is required': t('validation.required', 'This field is required'),
   };
 
   // Check if the error contains any known error codes
@@ -71,7 +78,7 @@ const getUserFriendlyError = (error: string, t: TFunction): string => {
 };
 
 export default function Login() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [mode, setMode] = useState('signIn'); // 'signIn', 'signUp', 'forgotPassword', 'resetPassword'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -82,6 +89,16 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+
+  // Get current language info (ISS-002)
+  const currentLang = i18n.language?.split('-')[0] || 'en';
+  const currentLanguage = supportedLanguages.find((l) => l.code === currentLang) || supportedLanguages[0];
+
+  const handleLanguageChange = (langCode: string) => {
+    i18n.changeLanguage(langCode);
+    setShowLangMenu(false);
+  };
 
   const {
     signIn,
@@ -188,7 +205,20 @@ export default function Login() {
 
   // Update document title based on current mode for better accessibility
   useEffect(() => {
-    const pageTitle = getTitle();
+    let pageTitle: string;
+    switch (mode) {
+      case 'signUp':
+        pageTitle = t('auth.createAccount');
+        break;
+      case 'forgotPassword':
+        pageTitle = t('auth.resetPassword');
+        break;
+      case 'resetPassword':
+        pageTitle = t('auth.setNewPassword');
+        break;
+      default:
+        pageTitle = t('auth.welcomeBack');
+    }
     document.title = `${pageTitle} - AxCouncil`;
   }, [mode, t]);
 
@@ -234,6 +264,38 @@ export default function Login() {
         role="main"
         aria-labelledby="login-title"
       >
+        {/* Language Selector (ISS-002) */}
+        <div className="login-lang-selector">
+          <button
+            type="button"
+            className="lang-toggle-btn"
+            onClick={() => setShowLangMenu(!showLangMenu)}
+            aria-expanded={showLangMenu}
+            aria-haspopup="listbox"
+            aria-label={t('settings.language', 'Language')}
+          >
+            <Globe size={16} />
+            <span>{currentLanguage.nativeName}</span>
+          </button>
+          {showLangMenu && (
+            <div className="lang-menu" role="listbox" aria-label={t('settings.language', 'Language')}>
+              {supportedLanguages.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  className={`lang-menu-item ${lang.code === currentLang ? 'active' : ''}`}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  role="option"
+                  aria-selected={lang.code === currentLang}
+                >
+                  <span className="lang-flag">{lang.flag}</span>
+                  <span>{lang.nativeName}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Header */}
         <div className="login-header">
           <motion.h1

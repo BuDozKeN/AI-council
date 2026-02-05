@@ -374,6 +374,13 @@
         "conservative": "Factual, focused answers - best for data and compliance",
         "balanced": "Good for most questions - reliable and flexible",
         "creative": "More original ideas - great for brainstorming"
+      },
+      "usesDefault": "Uses department defaults",
+      "llmHubTooltip": "Configure LLM models and presets",
+      "tooltip": {
+        "precise": "Precise and focused",
+        "balanced": "Balanced approach",
+        "creative": "Creative and imaginative"
       }
     }
   },

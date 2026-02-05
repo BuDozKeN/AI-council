@@ -61,8 +61,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUser(session?.user ?? null);
         setLoading(false);
       })
-      .catch((err) => {
-        logger.error('Failed to get session:', err);
+      .catch(async (err) => {
+        // Handle stale refresh tokens gracefully (ISS-004)
+        // This happens when localStorage has an expired/invalid token
+        if (err?.message?.includes('refresh_token') || err?.code === 'refresh_token_not_found') {
+          logger.debug('Stale refresh token detected, clearing session');
+          // Sign out to clear the stale tokens (supabase is non-null here since we're in its callback)
+          await supabase!.auth.signOut().catch(() => {
+            // Ignore signOut errors - we just want to clear local state
+          });
+        } else {
+          logger.error('Failed to get session:', err);
+        }
+        setUser(null);
         setLoading(false);
       });
 
@@ -199,7 +210,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Start a new refresh and store the promise
         refreshingPromiseRef.current = (async () => {
           try {
-            const { data: refreshData } = await supabase.auth.refreshSession();
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+            // Handle stale refresh token (ISS-004)
+            if (refreshError?.message?.includes('refresh_token') || refreshError?.code === 'refresh_token_not_found') {
+              logger.debug('Stale refresh token, clearing session');
+              await supabase.auth.signOut().catch(() => {});
+              setUser(null);
+              return null;
+            }
             return refreshData?.session?.access_token ?? session.access_token;
           } finally {
             refreshingPromiseRef.current = null;
@@ -221,7 +239,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       refreshingPromiseRef.current = (async () => {
         try {
-          const { data: refreshData } = await supabase.auth.refreshSession();
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+          // Handle stale refresh token (ISS-004)
+          if (refreshError?.message?.includes('refresh_token') || refreshError?.code === 'refresh_token_not_found') {
+            logger.debug('Stale refresh token, clearing session');
+            await supabase.auth.signOut().catch(() => {});
+            setUser(null);
+            return null;
+          }
           return refreshData?.session?.access_token ?? null;
         } finally {
           refreshingPromiseRef.current = null;
