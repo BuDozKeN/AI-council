@@ -1,0 +1,69 @@
+/**
+ * ChatInput Mobile Responsive Styles
+ *
+ * Mobile-specific overrides for ChatInput component.
+ * Imported by main ChatInput.module.css
+ */
+
+@media (width <= 640px) {
+  .omnibar {
+    padding: var(--space-2) var(--space-3-5);
+    border-radius: var(--radius-xl);
+  }
+
+  .iconBtn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .omniInput {
+    font-size: var(--text-base);
+    padding: var(--space-1-5) var(--space-0-5);
+  }
+
+  .sendBtn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  .sendBtn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .omniBottom {
+    padding-top: var(--space-1-5);
+    margin-top: var(--space-1-5);
+  }
+
+  .omniLeft {
+    gap: var(--gap-2xs);
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+
+  .omniRight {
+    gap: var(--gap-2xs);
+    flex-shrink: 0;
+  }
+
+  .resetAll {
+    width: 44px;
+    height: 44px;
+  }
+
+  .inlineModeToggle {
+    padding: var(--space-0-5);
+    min-height: 44px;
+  }
+
+  .inlineModeBtn {
+    padding: var(--space-2) var(--space-2-5);
+    font-size: var(--text-xs);
+    min-height: 44px;
+  }
+}

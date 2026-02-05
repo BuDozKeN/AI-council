@@ -1,0 +1,185 @@
+/**
+ * ChatInput Context Dark Mode Styles
+ *
+ * Dark theme overrides for context menu and selection UI.
+ * Imported by ChatInputContext.module.css
+ */
+
+/* =============================================================================
+   CONTEXT TRIGGER - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .contextTrigger {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+:global(.dark) .contextTrigger:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+:global(.dark) .contextTrigger.hasSelection {
+  background: var(--overlay-indigo-15);
+  border-color: var(--color-indigo-600);
+  color: var(--color-indigo-300);
+}
+
+:global(.dark) .contextTriggerBadge {
+  background: var(--color-indigo-900);
+  color: var(--color-indigo-300);
+}
+
+/* =============================================================================
+   CONTEXT DROPDOWN - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .contextDropdown {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-dark);
+}
+
+:global(.dark) .contextDropdownMenu {
+  border-right-color: var(--color-border);
+}
+
+:global(.dark) .contextMenuItem:hover,
+:global(.dark) .contextMenuItem.active {
+  background: var(--color-bg-hover);
+}
+
+:global(.dark) .contextMenuBadge {
+  background: var(--color-bg-hover);
+  color: var(--color-text-quaternary);
+}
+
+:global(.dark) .contextMenuDivider {
+  background: var(--color-border);
+}
+
+:global(.dark) .contextMenuClear:hover {
+  background: var(--color-bg-hover);
+}
+
+/* =============================================================================
+   POPOVER ITEMS - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .popoverItem:hover {
+  background: var(--color-bg-hover);
+}
+
+:global(.dark) .popoverItem.selected {
+  background: var(--color-bg-hover);
+}
+
+:global(.dark) .popoverCheckbox {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+:global(.dark) .popoverCheckbox.checked {
+  background: var(--color-indigo-500);
+  border-color: var(--color-indigo-500);
+}
+
+:global(.dark) .popoverRadio {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+:global(.dark) .popoverRadio.checked {
+  background: var(--color-emerald-500);
+  border-color: var(--color-emerald-500);
+}
+
+:global(.dark) .popoverGroupHeader {
+  color: var(--color-text-secondary);
+}
+
+:global(.dark) .popoverGroupHeader.clickable {
+  background: var(--color-bg-tertiary);
+}
+
+:global(.dark) .popoverGroupHeader.clickable:hover {
+  background: var(--color-bg-hover);
+}
+
+:global(.dark) .popoverGroupItems {
+  border-inline-start-color: var(--color-border);
+}
+
+:global(.dark) .popoverGroupHeader.sop {
+  color: var(--color-blue-400);
+}
+
+:global(.dark) .popoverGroupHeader.framework {
+  color: var(--color-amber-400);
+}
+
+:global(.dark) .popoverGroupHeader.policy {
+  color: var(--color-purple-400);
+}
+
+:global(.dark) .popoverClear {
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .popoverClear:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+:global(.dark) .popoverEmpty {
+  color: var(--color-text-tertiary);
+}
+
+/* =============================================================================
+   MOBILE CONTEXT - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .mobileContextBtn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+:global(.dark) .mobileContextBtn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+:global(.dark) .mobileContextBtn.hasSelection {
+  background: var(--overlay-indigo-15);
+  border-color: var(--color-indigo-600);
+  color: var(--color-indigo-300);
+}
+
+:global(.dark) .mobileContextBadge {
+  background: var(--color-bg-hover);
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .contextSectionBadge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-quaternary);
+}
+
+/* =============================================================================
+   MOBILE POPOVER ITEMS - DARK MODE
+   ============================================================================= */
+
+@media (width <= 640px) {
+  :global(.dark) .popoverItem {
+    background: var(--color-bg-tertiary);
+  }
+
+  :global(.dark) .popoverItem:active {
+    background: var(--color-bg-hover);
+  }
+
+  :global(.dark) .popoverItem.selected {
+    background: var(--color-bg-hover);
+  }
+}

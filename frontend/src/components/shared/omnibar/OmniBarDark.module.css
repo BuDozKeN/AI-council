@@ -1,0 +1,207 @@
+/**
+ * OmniBar Dark Mode Styles
+ *
+ * Dark theme overrides for OmniBar component.
+ * Imported by main OmniBar.module.css
+ */
+
+/* =============================================================================
+   MAIN BAR - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .bar {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  box-shadow:
+    0 4px 16px var(--overlay-black-30),
+    0 1px 4px var(--overlay-black-20),
+    inset 0 1px 0 var(--overlay-white-5);
+}
+
+:global(.dark) .bar:focus-within {
+  background: var(--glass-bg-focus);
+  border-color: var(--color-brand-primary);
+  box-shadow:
+    0 4px 24px var(--overlay-blue-20),
+    0 2px 8px var(--overlay-black-30),
+    inset 0 1px 0 var(--overlay-white-8);
+}
+
+:global(.dark) .wrapper.landing .bar,
+:global(.dark) .wrapper.landing.hasContent .bar,
+:global(.dark) .wrapper.landing.councilMode .bar,
+:global(.dark) .wrapper.landing.councilMode.hasContent .bar {
+  background: var(--glass-bg);
+  border: none;
+  box-shadow:
+    0 8px 32px var(--overlay-black-40),
+    0 2px 8px var(--overlay-black-20),
+    inset 0 1px 0 var(--overlay-white-5);
+}
+
+:global(.dark) .wrapper.landing .bar:hover {
+  box-shadow:
+    0 12px 40px var(--overlay-black-50),
+    0 4px 12px var(--overlay-black-30),
+    inset 0 1px 0 var(--overlay-white-5);
+}
+
+:global(.dark) .wrapper.landing .bar:focus-within,
+:global(.dark) .wrapper.landing.councilMode .bar:focus-within {
+  background: var(--glass-bg-focus);
+  border: none;
+  box-shadow:
+    0 12px 40px var(--overlay-black-50),
+    0 4px 12px var(--overlay-black-30),
+    inset 0 1px 0 var(--overlay-white-8);
+}
+
+:global(.dark) .barBottom {
+  border-block-start-color: var(--color-border);
+}
+
+:global(.dark) .iconsCapsule {
+  background: var(--overlay-white-10);
+  border-color: var(--color-border);
+}
+
+:global(.dark) .barInput {
+  color: var(--color-text-primary);
+}
+
+:global(.dark) .barInput::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .barKbd {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   ICON BUTTONS - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .iconBtn {
+  color: var(--color-text-secondary);
+}
+
+:global(.dark) .iconBtn.attach {
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+}
+
+:global(.dark) .iconBtn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+:global(.dark) .iconBtn.company.hasSelection {
+  color: var(--color-emerald-400);
+}
+
+:global(.dark) .iconBtn.dept.hasSelection {
+  color: var(--color-amber-400);
+}
+
+:global(.dark) .iconBtn.role.hasSelection {
+  color: var(--color-purple-400);
+}
+
+:global(.dark) .iconBtn.playbook.hasSelection {
+  color: var(--color-blue-400);
+}
+
+:global(.dark) .iconBtn.project.hasSelection {
+  color: var(--color-cyan-400);
+}
+
+/* =============================================================================
+   SUBMIT BUTTON - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .barSubmit {
+  background: transparent;
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .barSubmit.active {
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+/* =============================================================================
+   MODE TOGGLE - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .modeToggle {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-secondary);
+}
+
+:global(.dark) .modeBtn {
+  color: var(--color-text-quaternary);
+}
+
+:global(.dark) .modeBtn:hover {
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .modeBtn.active {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+:global(.dark) .modeBtn.active::before {
+  background: var(--color-indigo-400);
+}
+
+:global(.dark) .modeBtn:last-child.active::before {
+  background: linear-gradient(
+    90deg,
+    var(--color-indigo-400) 0%,
+    var(--color-indigo-400) 20%,
+    transparent 20%,
+    transparent 40%,
+    var(--color-indigo-400) 40%,
+    var(--color-indigo-400) 60%,
+    transparent 60%,
+    transparent 80%,
+    var(--color-indigo-400) 80%,
+    var(--color-indigo-400) 100%
+  );
+}
+
+/* =============================================================================
+   INLINE MODE TOGGLE - DARK MODE
+   ============================================================================= */
+
+:global(.dark) .inlineModeToggle {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+:global(.dark) .inlineModeToggle:hover:not(:disabled) {
+  border-color: var(--color-border-dark);
+}
+
+:global(.dark) .inlineModeIndicator {
+  color: var(--color-text-quaternary);
+}
+
+:global(.dark) .inlineModeIndicator.active {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px var(--overlay-black-20);
+}
+
+:global(.dark) .resetAll {
+  color: var(--color-text-tertiary);
+}
+
+:global(.dark) .resetAll:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}

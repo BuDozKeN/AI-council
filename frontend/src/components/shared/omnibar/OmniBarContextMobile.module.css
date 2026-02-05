@@ -1,0 +1,80 @@
+/**
+ * OmniBar Context Mobile Styles
+ *
+ * Mobile-specific overrides for context menu and selection UI.
+ * Imported by OmniBarContext.module.css
+ */
+
+@media (width <= 640px) {
+  .popoverList {
+    gap: var(--gap-xs-plus);
+    padding: var(--space-2);
+  }
+
+  .popoverItem {
+    padding: var(--space-3-5) var(--space-4);
+    font-size: var(--text-base);
+    min-height: 56px;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-lg);
+  }
+
+  .popoverItem:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.98);
+  }
+
+  .popoverItem.selected {
+    background: var(--color-bg-hover);
+  }
+
+  .popoverCheckbox,
+  .popoverRadio {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-md);
+  }
+
+  .popoverCheckbox svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .popoverRadio svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .popoverGroupHeader.clickable {
+    padding: var(--space-3-5) var(--space-3);
+    font-size: var(--text-xs-plus);
+    min-height: 48px;
+    gap: var(--gap-sm-plus);
+  }
+
+  .popoverGroupHeader .sectionChevron {
+    width: 16px;
+    height: 16px;
+  }
+
+  .popoverGroupHeader svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .popoverGroupHeader .sectionCount {
+    font-size: var(--text-xs-plus);
+  }
+
+  .popoverGroupItems {
+    margin-left: var(--space-5);
+    padding-left: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  .popoverGroupItems .popoverItem {
+    padding: var(--space-3) var(--space-3-5);
+    font-size: var(--text-sm-plus);
+    min-height: 48px;
+  }
+}
