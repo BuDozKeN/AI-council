@@ -57,6 +57,9 @@ export default defineConfig({
   /* Snapshot directory for visual regression tests */
   snapshotDir: './e2e/__snapshots__',
 
+  /* Ignore autonomous tests in regular runs (they have long timeouts) */
+  testIgnore: ['**/autonomous/**'],
+
   /* Configure projects for major browsers and devices */
   projects: [
     /* Desktop Browsers */
@@ -90,6 +93,7 @@ export default defineConfig({
     {
       name: 'explorer',
       testDir: './e2e/autonomous',
+      testIgnore: [], /* Override global testIgnore to include autonomous tests */
       use: {
         ...devices['Desktop Chrome'],
         /* Extended timeout for autonomous exploration */
