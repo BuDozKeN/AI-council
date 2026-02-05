@@ -37,7 +37,9 @@ vi.mock('../../hooks/useCouncilStats', () => ({
 // Mock Radix Popover to render inline (avoids portal issues in jsdom)
 vi.mock('@radix-ui/react-popover', () => ({
   Root: ({ children, open }: { children: React.ReactNode; open?: boolean }) => (
-    <div data-testid="popover-root" data-open={open}>{children}</div>
+    <div data-testid="popover-root" data-open={open}>
+      {children}
+    </div>
   ),
   Trigger: ({ children, asChild }: { children: React.ReactNode; asChild?: boolean }) =>
     asChild ? children : <button>{children}</button>,
@@ -100,7 +102,7 @@ vi.mock('./input/ChatInput.module.css', () => ({
     {},
     {
       get: (_target, prop) => (typeof prop === 'string' ? prop : ''),
-    },
+    }
   ),
 }));
 
@@ -269,7 +271,9 @@ describe('ChatInput', () => {
     it('calls openFilePicker when attach button is clicked', async () => {
       const user = userEvent.setup();
       const openFilePicker = vi.fn();
-      renderChatInput({ imageUpload: { errorDisplay: null, previews: null, handlePaste: vi.fn(), openFilePicker } });
+      renderChatInput({
+        imageUpload: { errorDisplay: null, previews: null, handlePaste: vi.fn(), openFilePicker },
+      });
       const attachBtn = screen.getByRole('button', { name: /attach image/i });
       await user.click(attachBtn);
       expect(openFilePicker).toHaveBeenCalledTimes(1);

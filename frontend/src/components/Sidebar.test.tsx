@@ -31,7 +31,8 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string | Record<string, string>) => {
       if (typeof fallback === 'string') return fallback;
-      if (typeof fallback === 'object' && 'query' in fallback) return `No results for "${fallback.query}"`;
+      if (typeof fallback === 'object' && 'query' in fallback)
+        return `No results for "${fallback.query}"`;
       return key;
     },
     i18n: { language: 'en', changeLanguage: vi.fn() },
@@ -74,22 +75,32 @@ vi.mock('./sidebar/index.jsx', () => ({
     handleExpandedAreaLeave: vi.fn(),
     collapseNow: vi.fn(),
   }),
-  SearchBar: vi.fn(({ searchQuery, onSearchChange, onClear }: {
-    searchQuery: string;
-    onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onClear: () => void;
-    [key: string]: unknown;
-  }) => (
-    <div data-testid="search-bar">
-      <input
-        data-testid="search-input"
-        value={searchQuery}
-        onChange={onSearchChange}
-        placeholder="Search conversations"
-      />
-      {searchQuery && <button data-testid="search-clear" onClick={onClear}>Clear</button>}
-    </div>
-  )),
+  SearchBar: vi.fn(
+    ({
+      searchQuery,
+      onSearchChange,
+      onClear,
+    }: {
+      searchQuery: string;
+      onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+      onClear: () => void;
+      [key: string]: unknown;
+    }) => (
+      <div data-testid="search-bar">
+        <input
+          data-testid="search-input"
+          value={searchQuery}
+          onChange={onSearchChange}
+          placeholder="Search conversations"
+        />
+        {searchQuery && (
+          <button data-testid="search-clear" onClick={onClear}>
+            Clear
+          </button>
+        )}
+      </div>
+    )
+  ),
   FilterSortBar: () => <div data-testid="filter-sort-bar" />,
   ConversationGroup: ({
     groupName,
@@ -102,7 +113,9 @@ vi.mock('./sidebar/index.jsx', () => ({
     [key: string]: unknown;
   }) => (
     <div data-testid={`conv-group-${groupName}`}>
-      <span>{groupName} ({conversations.length})</span>
+      <span>
+        {groupName} ({conversations.length})
+      </span>
       {conversations.map((c) => (
         <button
           key={c.id}
@@ -134,11 +147,19 @@ vi.mock('./sidebar/index.jsx', () => ({
     <div data-testid="sidebar-footer">
       {user && <span data-testid="user-email">{user.email}</span>}
       {isAdmin && onOpenAdmin && (
-        <button data-testid="admin-btn" onClick={onOpenAdmin}>Admin</button>
+        <button data-testid="admin-btn" onClick={onOpenAdmin}>
+          Admin
+        </button>
       )}
-      <button data-testid="company-btn" onClick={onOpenMyCompany}>Company</button>
-      <button data-testid="settings-btn" onClick={onOpenSettings}>Settings</button>
-      <button data-testid="signout-btn" onClick={onSignOut}>Sign Out</button>
+      <button data-testid="company-btn" onClick={onOpenMyCompany}>
+        Company
+      </button>
+      <button data-testid="settings-btn" onClick={onOpenSettings}>
+        Settings
+      </button>
+      <button data-testid="signout-btn" onClick={onSignOut}>
+        Sign Out
+      </button>
     </div>
   ),
   BulkActionBar: ({
@@ -154,8 +175,12 @@ vi.mock('./sidebar/index.jsx', () => ({
     selectedCount > 0 ? (
       <div data-testid="bulk-action-bar">
         <span>{selectedCount} selected</span>
-        <button data-testid="bulk-cancel" onClick={onClearSelection}>Cancel</button>
-        <button data-testid="bulk-delete" onClick={onBulkDelete}>Delete</button>
+        <button data-testid="bulk-cancel" onClick={onClearSelection}>
+          Cancel
+        </button>
+        <button data-testid="bulk-delete" onClick={onBulkDelete}>
+          Delete
+        </button>
       </div>
     ) : null,
   SidebarIconButton: ({
@@ -291,7 +316,9 @@ describe('Sidebar', () => {
   describe('Structure', () => {
     it('renders as an aside with correct aria-label', () => {
       renderSidebar();
-      expect(screen.getByRole('complementary', { name: /conversation history/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole('complementary', { name: /conversation history/i })
+      ).toBeInTheDocument();
     });
 
     it('starts in collapsed state by default', () => {
@@ -406,7 +433,9 @@ describe('Sidebar', () => {
 
     it('renders SidebarFooter with user info when pinned', () => {
       localStorage.setItem('sidebar-pinned', 'true');
-      renderSidebar({ user: { id: 'u1', email: 'admin@test.com' } as Parameters<typeof Sidebar>[0]['user'] });
+      renderSidebar({
+        user: { id: 'u1', email: 'admin@test.com' } as Parameters<typeof Sidebar>[0]['user'],
+      });
       expect(screen.getByTestId('sidebar-footer')).toBeInTheDocument();
       expect(screen.getByTestId('user-email')).toHaveTextContent('admin@test.com');
     });

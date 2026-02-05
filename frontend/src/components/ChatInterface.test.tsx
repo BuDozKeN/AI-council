@@ -125,9 +125,7 @@ vi.mock('./ui/Spinner', () => ({
 }));
 
 vi.mock('./ui/CouncilLoader', () => ({
-  CouncilLoader: ({ text }: { text: string }) => (
-    <div data-testid="council-loader">{text}</div>
-  ),
+  CouncilLoader: ({ text }: { text: string }) => <div data-testid="council-loader">{text}</div>,
 }));
 
 // ---------------------------------------------------------------------------
@@ -396,9 +394,7 @@ describe('ChatInterface', () => {
       renderChatInterface({
         conversation: {
           ...baseConversation,
-          messages: [
-            { role: 'user', content: 'Hello', timestamp: new Date().toISOString() },
-          ],
+          messages: [{ role: 'user', content: 'Hello', timestamp: new Date().toISOString() }],
         },
       });
       expect(screen.queryByTestId('progress-capsule')).not.toBeInTheDocument();
@@ -444,9 +440,7 @@ describe('ChatInterface', () => {
 
     it('has sr-only h1 when loading conversation', () => {
       renderChatInterface({ conversation: null, isLoadingConversation: true });
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-        'Loading Conversation',
-      );
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Loading Conversation');
     });
   });
 });

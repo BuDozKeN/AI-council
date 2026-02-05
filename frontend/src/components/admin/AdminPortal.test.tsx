@@ -87,11 +87,17 @@ vi.mock('../../api', () => ({
 
 // Mock recharts to avoid canvas/SVG rendering issues in jsdom
 vi.mock('recharts', () => ({
-  AreaChart: ({ children }: { children: React.ReactNode }) => <div data-testid="area-chart">{children}</div>,
+  AreaChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="area-chart">{children}</div>
+  ),
   Area: () => null,
-  BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+  BarChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="bar-chart">{children}</div>
+  ),
   Bar: () => null,
-  PieChart: ({ children }: { children: React.ReactNode }) => <div data-testid="pie-chart">{children}</div>,
+  PieChart: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="pie-chart">{children}</div>
+  ),
   Pie: () => null,
   Cell: () => null,
   XAxis: () => null,
@@ -125,7 +131,7 @@ function renderAdminPortal(initialRoute = '/admin/users') {
   return render(
     <MemoryRouter initialEntries={[initialRoute]}>
       <AdminPortal />
-    </MemoryRouter>,
+    </MemoryRouter>
   );
 }
 
@@ -208,9 +214,7 @@ describe('AdminPortal', () => {
 
       renderAdminPortal();
       expect(screen.getByText('Not Logged In')).toBeInTheDocument();
-      expect(
-        screen.getByText('Please log in to access the admin portal.'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Please log in to access the admin portal.')).toBeInTheDocument();
     });
 
     it('shows access-denied state when user is not admin', () => {
@@ -223,9 +227,7 @@ describe('AdminPortal', () => {
 
       renderAdminPortal();
       expect(screen.getByText('Access Denied')).toBeInTheDocument();
-      expect(
-        screen.getByText(/not authorized to access the admin portal/),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/not authorized to access the admin portal/)).toBeInTheDocument();
     });
   });
 

@@ -45,13 +45,7 @@ import type {
 } from '../../api';
 import { useAuth } from '../../AuthContext';
 import { useAdminAccess } from '../../hooks';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,

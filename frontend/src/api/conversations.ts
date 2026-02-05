@@ -6,7 +6,12 @@
  */
 
 import { API_BASE, API_VERSION, getAuthHeaders, handleErrorResponse, log } from './client';
-import type { ListConversationsOptions, SendMessageStreamOptions, ChatStreamOptions, SSEEventCallback } from './types';
+import type {
+  ListConversationsOptions,
+  SendMessageStreamOptions,
+  ChatStreamOptions,
+  SSEEventCallback,
+} from './types';
 
 export const conversationsMethods = {
   async listBusinesses() {

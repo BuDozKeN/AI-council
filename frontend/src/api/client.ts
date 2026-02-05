@@ -72,7 +72,10 @@ export class APIError extends Error {
  * Parse an error response and throw an appropriate error.
  * Handles both new standardized format and legacy format.
  */
-export async function handleErrorResponse(response: Response, fallbackMessage: string): Promise<never> {
+export async function handleErrorResponse(
+  response: Response,
+  fallbackMessage: string
+): Promise<never> {
   let errorData: unknown;
   try {
     errorData = await response.json();

@@ -20,7 +20,8 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, opts?: { defaultValue?: string; count?: number }) => {
       if (opts?.defaultValue) return opts.defaultValue;
-      if (key === 'stages.expertsRespondCount' && opts?.count) return `${opts.count} Experts Respond`;
+      if (key === 'stages.expertsRespondCount' && opts?.count)
+        return `${opts.count} Experts Respond`;
       return key;
     },
     i18n: { language: 'en', changeLanguage: vi.fn() },
@@ -72,7 +73,19 @@ vi.mock('framer-motion', () => ({
       // Filter out motion-specific props
       const htmlProps: Record<string, unknown> = {};
       for (const [key, val] of Object.entries(props)) {
-        if (!['initial', 'animate', 'exit', 'layout', 'variants', 'transition', 'whileHover', 'whileTap', 'layoutId'].includes(key)) {
+        if (
+          ![
+            'initial',
+            'animate',
+            'exit',
+            'layout',
+            'variants',
+            'transition',
+            'whileHover',
+            'whileTap',
+            'layoutId',
+          ].includes(key)
+        ) {
           htmlProps[key] = val;
         }
       }
@@ -280,9 +293,7 @@ describe('Stage1', () => {
 
     it('does not false-positive on normal content discussing errors', () => {
       renderStage1({
-        responses: [
-          { model: 'gpt-4', response: 'Here is how to handle errors in your code.' },
-        ],
+        responses: [{ model: 'gpt-4', response: 'Here is how to handle errors in your code.' }],
       });
       // Response text should be visible (not treated as error)
       expect(screen.getByText(/handle errors in your code/)).toBeInTheDocument();
