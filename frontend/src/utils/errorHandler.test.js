@@ -92,7 +92,10 @@ describe('errorHandler', () => {
       expect(toast.error).not.toHaveBeenCalled();
       expect(logger.error).not.toHaveBeenCalled();
       // Should still return the error result
-      expect(result).toEqual({ error: true, message: 'The requested GitHub resource was not found' });
+      expect(result).toEqual({
+        error: true,
+        message: 'The requested GitHub resource was not found',
+      });
     });
   });
 
