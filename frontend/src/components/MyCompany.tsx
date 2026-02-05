@@ -713,7 +713,15 @@ export default function MyCompany({
         className="mc-panel"
         ref={panelSwipeRef as React.RefObject<HTMLDivElement>}
         onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.stopPropagation()}
+        onKeyDown={(e) => {
+          // Allow Escape to close the modal (ISS-038)
+          if (e.key === 'Escape') {
+            hapticLight();
+            onClose?.();
+          } else {
+            e.stopPropagation();
+          }
+        }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="mycompany-header-title"

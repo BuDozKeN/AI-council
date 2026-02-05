@@ -205,15 +205,23 @@ export default function Login() {
 
   return (
     <AuroraBackground>
+      {/* Skip to main content link for accessibility (ISS-007) */}
+      <a href="#login-form" className="skip-to-main-content">
+        {t('a11y.skipToMainContent', 'Skip to main content')}
+      </a>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={springs.gentle}
         className="login-card noise-overlay"
+        id="login-form"
+        role="main"
+        aria-labelledby="login-title"
       >
         {/* Header */}
         <div className="login-header">
           <motion.h1
+            id="login-title"
             className="login-title"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -277,6 +285,17 @@ export default function Login() {
           animate={{ opacity: 1 }}
           transition={springWithDelay('smooth', 0.35)}
         >
+          {/* Hidden username field for password managers (ISS-005 accessibility fix) */}
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            value={email}
+            readOnly
+            tabIndex={-1}
+            aria-hidden="true"
+            style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}
+          />
           {mode !== 'resetPassword' && (
             <div className="form-group">
               <label htmlFor="email">{t('auth.email')}</label>

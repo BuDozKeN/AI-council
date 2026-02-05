@@ -363,7 +363,7 @@ export function AuditTab() {
             >
               <caption className="sr-only">
                 {t(
-                  'admin.audit.description',
+                  'admin.audit.tableCaption',
                   'Platform audit logs showing all administrative actions, timestamps, actors, and affected resources'
                 )}
               </caption>
@@ -401,7 +401,7 @@ export function AuditTab() {
                       key={log.id}
                       className={useDummyData ? 'admin-demo-row' : ''}
                       {...getAuditRowProps(rowIndex)}
-                      aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)} on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
+                      aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)}${log.resource_type ? ` on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
                     >
                       <td>
                         <div className="admin-date-cell">

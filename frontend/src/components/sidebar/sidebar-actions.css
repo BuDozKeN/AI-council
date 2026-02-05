@@ -11,6 +11,7 @@
   align-items: center;
   gap: 0;
   opacity: 0;
+  pointer-events: none; /* Prevent clicks when invisible (fixes ISS-018) */
   transition: opacity 0.15s ease;
 
   /* Clean background - no overlap since content shrinks on hover */
@@ -22,6 +23,7 @@
 .conversation-item:hover .hover-actions,
 .conversation-item.focused .hover-actions {
   opacity: 1;
+  pointer-events: auto; /* Re-enable clicks when visible */
 }
 
 .hover-action-btn {

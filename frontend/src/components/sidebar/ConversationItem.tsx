@@ -334,6 +334,7 @@ export const ConversationItem = memo(function ConversationItem({
         <button
           className={`hover-action-btn touch-target ${isSelected ? 'active' : ''}`}
           onClick={(e) => {
+            e.stopPropagation();
             e.preventDefault();
             onToggleSelection(conversation.id, e);
           }}

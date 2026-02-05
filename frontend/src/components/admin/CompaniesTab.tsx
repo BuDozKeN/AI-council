@@ -181,7 +181,7 @@ export function CompaniesTab() {
             >
               <caption className="sr-only">
                 {t(
-                  'admin.companies.description',
+                  'admin.companies.tableCaption',
                   'List of all companies with owner information and conversation count'
                 )}
               </caption>
