@@ -160,6 +160,13 @@ export function Stage3Actions({
                   handleViewDecision(savedDecisionId);
                 }
               }}
+              title={
+                promotedPlaybookId
+                  ? t('stages.viewPlaybookTooltip', 'Open this playbook in My Company')
+                  : currentProject
+                    ? t('stages.viewInProjectTooltip', 'Open this decision in the project')
+                    : t('stages.viewDecisionTooltip', 'Open in My Company > Decisions')
+              }
             >
               {promotedPlaybookId
                 ? t('stages.viewPlaybook')

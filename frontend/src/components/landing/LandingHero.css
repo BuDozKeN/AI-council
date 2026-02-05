@@ -1,8 +1,8 @@
 /* LandingHero - Perplexity-style landing page */
 
-/* Mobile & Dark mode: See extracted files */
-@import url('./LandingHeroMobile.css');
+/* Dark mode - imports at top so light theme can override */
 @import url('./LandingHeroDark.css');
+@import url('./LandingHeroMobile.css');
 
 /* Override aurora for light theme landing */
 .landing-hero-aurora.aurora-container {

@@ -1193,6 +1193,7 @@ export function OmniBar({
                       type="button"
                       className={cn(s.barSubmit, s.barStop)}
                       onClick={onStop}
+                      aria-label={TOOLTIPS.stop}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
@@ -1210,6 +1211,7 @@ export function OmniBar({
                       className={cn(s.barSubmit, hasContent && s.active)}
                       disabled={!hasContent}
                       onClick={handleSubmit}
+                      aria-label={TOOLTIPS.send}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { motion } from 'framer-motion';
+import { Eye, EyeOff, Globe } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { AuroraBackground } from './ui/aurora-background';
 import { hapticMedium, hapticSuccess, hapticError } from '../lib/haptics';
 import { springs, interactionStates, springWithDelay } from '../lib/animations';
 import { saveReturnUrl } from '../utils/authRedirect';
+import { supportedLanguages } from '../i18n';
 import './Login.css';
 
 // Google Icon SVG
@@ -46,6 +48,8 @@ const getUserFriendlyError = (error: string, t: TFunction): string => {
       'Sign up is currently unavailable. Please try again later.'
     ),
     invalid_credentials: t('errors.invalidCredentials', 'Invalid email or password'),
+    // ISS-009: Supabase returns this exact message for failed login
+    'invalid login credentials': t('errors.invalidCredentials', 'Invalid email or password'),
     email_not_confirmed: t(
       'errors.emailNotConfirmed',
       'Please check your email to confirm your account'
@@ -55,6 +59,10 @@ const getUserFriendlyError = (error: string, t: TFunction): string => {
       'errors.weakPassword',
       'Password must be at least 8 characters with a mix of letters, numbers, and symbols'
     ),
+    // ISS-008: Common browser validation messages
+    'email address is not valid': t('validation.invalidEmail', 'Invalid email address'),
+    'password is required': t('validation.required', 'This field is required'),
+    'email is required': t('validation.required', 'This field is required'),
   };
 
   // Check if the error contains any known error codes
@@ -70,7 +78,7 @@ const getUserFriendlyError = (error: string, t: TFunction): string => {
 };
 
 export default function Login() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [mode, setMode] = useState('signIn'); // 'signIn', 'signUp', 'forgotPassword', 'resetPassword'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -79,6 +87,19 @@ export default function Login() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
+
+  // Get current language info (ISS-002)
+  const currentLang = i18n.language?.split('-')[0] || 'en';
+  const currentLanguage =
+    supportedLanguages.find((l) => l.code === currentLang) || supportedLanguages[0];
+
+  const handleLanguageChange = (langCode: string) => {
+    i18n.changeLanguage(langCode);
+    setShowLangMenu(false);
+  };
 
   const {
     signIn,
@@ -120,6 +141,19 @@ export default function Login() {
 
     try {
       if (mode === 'signUp') {
+        // Password confirmation validation
+        if (password !== confirmPassword) {
+          setError(t('validation.passwordsNoMatch', 'Passwords do not match'));
+          setLoading(false);
+          hapticError();
+          return;
+        }
+        if (password.length < 6) {
+          setError(t('validation.passwordMinLength', 'Password must be at least 6 characters'));
+          setLoading(false);
+          hapticError();
+          return;
+        }
         await signUp(email, password);
         setMessage(t('auth.checkEmailConfirm'));
         hapticSuccess();
@@ -172,7 +206,20 @@ export default function Login() {
 
   // Update document title based on current mode for better accessibility
   useEffect(() => {
-    const pageTitle = getTitle();
+    let pageTitle: string;
+    switch (mode) {
+      case 'signUp':
+        pageTitle = t('auth.createAccount');
+        break;
+      case 'forgotPassword':
+        pageTitle = t('auth.resetPassword');
+        break;
+      case 'resetPassword':
+        pageTitle = t('auth.setNewPassword');
+        break;
+      default:
+        pageTitle = t('auth.welcomeBack');
+    }
     document.title = `${pageTitle} - AxCouncil`;
   }, [mode, t]);
 
@@ -205,15 +252,59 @@ export default function Login() {
 
   return (
     <AuroraBackground>
+      {/* Skip to main content link for accessibility (ISS-007) */}
+      <a href="#login-form" className="skip-to-main-content">
+        {t('a11y.skipToMainContent', 'Skip to main content')}
+      </a>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={springs.gentle}
         className="login-card noise-overlay"
+        id="login-form"
+        role="main"
+        aria-labelledby="login-title"
       >
+        {/* Language Selector (ISS-002) */}
+        <div className="login-lang-selector">
+          <button
+            type="button"
+            className="lang-toggle-btn"
+            onClick={() => setShowLangMenu(!showLangMenu)}
+            aria-expanded={showLangMenu}
+            aria-haspopup="listbox"
+            aria-label={t('settings.language', 'Language')}
+          >
+            <Globe size={16} />
+            <span>{currentLanguage.nativeName}</span>
+          </button>
+          {showLangMenu && (
+            <div
+              className="lang-menu"
+              role="listbox"
+              aria-label={t('settings.language', 'Language')}
+            >
+              {supportedLanguages.map((lang) => (
+                <button
+                  key={lang.code}
+                  type="button"
+                  className={`lang-menu-item ${lang.code === currentLang ? 'active' : ''}`}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  role="option"
+                  aria-selected={lang.code === currentLang}
+                >
+                  <span className="lang-flag">{lang.flag}</span>
+                  <span>{lang.nativeName}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Header */}
         <div className="login-header">
           <motion.h1
+            id="login-title"
             className="login-title"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -277,6 +368,26 @@ export default function Login() {
           animate={{ opacity: 1 }}
           transition={springWithDelay('smooth', 0.35)}
         >
+          {/* Hidden username field for password managers (ISS-005 accessibility fix) */}
+          <input
+            type="text"
+            name="username"
+            autoComplete="username"
+            value={email}
+            readOnly
+            tabIndex={-1}
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              width: 1,
+              height: 1,
+              padding: 0,
+              margin: -1,
+              overflow: 'hidden',
+              clip: 'rect(0, 0, 0, 0)',
+              border: 0,
+            }}
+          />
           {mode !== 'resetPassword' && (
             <div className="form-group">
               <label htmlFor="email">{t('auth.email')}</label>
@@ -297,36 +408,104 @@ export default function Login() {
               <label htmlFor="password">
                 {mode === 'resetPassword' ? t('auth.newPassword') : t('auth.password')}
               </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={
-                  mode === 'resetPassword'
-                    ? t('auth.enterNewPassword')
-                    : t('auth.passwordPlaceholder')
-                }
-                required
-                minLength={6}
-                autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
-              />
+              <div className="password-input-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={
+                    mode === 'resetPassword'
+                      ? t('auth.enterNewPassword')
+                      : t('auth.passwordPlaceholder')
+                  }
+                  required
+                  minLength={6}
+                  autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={
+                    showPassword
+                      ? t('auth.hidePassword', 'Hide password')
+                      : t('auth.showPassword', 'Show password')
+                  }
+                  tabIndex={0}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {/* Password requirements hint (ISS-010) and strength indicator (ISS-161) */}
+              {(mode === 'signUp' || mode === 'resetPassword') && (
+                <>
+                  <p className="password-requirements">
+                    {t('auth.passwordRequirements', 'Password must be at least 6 characters')}
+                  </p>
+                  {password.length > 0 && (
+                    <div className="password-strength" aria-live="polite">
+                      <div
+                        className={`password-strength-bar ${
+                          password.length >= 12 &&
+                          /[A-Z]/.test(password) &&
+                          /[0-9]/.test(password) &&
+                          /[^A-Za-z0-9]/.test(password)
+                            ? 'strong'
+                            : password.length >= 8 &&
+                                (/[A-Z]/.test(password) || /[0-9]/.test(password))
+                              ? 'fair'
+                              : 'weak'
+                        }`}
+                      />
+                      <span className="password-strength-text">
+                        {password.length >= 12 &&
+                        /[A-Z]/.test(password) &&
+                        /[0-9]/.test(password) &&
+                        /[^A-Za-z0-9]/.test(password)
+                          ? t('auth.passwordStrong', 'Strong')
+                          : password.length >= 8 &&
+                              (/[A-Z]/.test(password) || /[0-9]/.test(password))
+                            ? t('auth.passwordFair', 'Fair')
+                            : t('auth.passwordWeak', 'Weak')}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 
-          {mode === 'resetPassword' && (
+          {(mode === 'signUp' || mode === 'resetPassword') && (
             <div className="form-group">
-              <label htmlFor="confirmPassword">{t('auth.confirmPassword')}</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder={t('auth.confirmNewPassword')}
-                required
-                minLength={6}
-                autoComplete="new-password"
-              />
+              <label htmlFor="confirmPassword">
+                {t('auth.confirmPassword', 'Confirm Password')}
+              </label>
+              <div className="password-input-wrapper">
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={t('auth.confirmPasswordPlaceholder', 'Re-enter your password')}
+                  required
+                  minLength={6}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={
+                    showConfirmPassword
+                      ? t('auth.hidePassword', 'Hide password')
+                      : t('auth.showPassword', 'Show password')
+                  }
+                  tabIndex={0}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
           )}
 
@@ -398,17 +577,29 @@ export default function Login() {
           )}
 
           {mode === 'signUp' && (
-            <button
-              type="button"
-              className="link-button"
-              onClick={() => {
-                setMode('signIn');
-                setError('');
-                setMessage('');
-              }}
-            >
-              {t('auth.hasAccount')} <strong>{t('auth.signIn')}</strong>
-            </button>
+            <>
+              <p className="legal-text">
+                {t('auth.signupAgreement', 'By signing up, you agree to our')}{' '}
+                <a href="/terms" className="legal-link" target="_blank" rel="noopener noreferrer">
+                  {t('auth.termsOfService', 'Terms of Service')}
+                </a>{' '}
+                {t('common.and', 'and')}{' '}
+                <a href="/privacy" className="legal-link" target="_blank" rel="noopener noreferrer">
+                  {t('auth.privacyPolicy', 'Privacy Policy')}
+                </a>
+              </p>
+              <button
+                type="button"
+                className="link-button"
+                onClick={() => {
+                  setMode('signIn');
+                  setError('');
+                  setMessage('');
+                }}
+              >
+                {t('auth.hasAccount')} <strong>{t('auth.signIn')}</strong>
+              </button>
+            </>
           )}
 
           {(mode === 'forgotPassword' || mode === 'resetPassword') && (

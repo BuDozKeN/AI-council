@@ -119,7 +119,7 @@ export function AdminRolesTab() {
           <table className="admin-table" aria-label={t('admin.admins.title', 'Admin Users List')}>
             <caption className="sr-only">
               {t(
-                'admin.admins.description',
+                'admin.admins.tableCaption',
                 'List of platform administrators with their roles and grant dates'
               )}
             </caption>
