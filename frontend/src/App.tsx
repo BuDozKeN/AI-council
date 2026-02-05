@@ -555,6 +555,14 @@ function App() {
     navigate('/admin');
   }, [navigate]);
 
+  // Sign out with confirmation (ISS-045)
+  const handleSignOut = useCallback(() => {
+    const confirmed = window.confirm(t('auth.signOutConfirm', 'Are you sure you want to sign out?'));
+    if (confirmed) {
+      signOut();
+    }
+  }, [signOut, t]);
+
   // Memoized callback for MyCompany tab changes
   const handleMyCompanyTabChange = useCallback(
     (tab: MyCompanyTab) => {
@@ -958,7 +966,7 @@ function App() {
             hasMoreConversations={hasMoreConversations}
             departments={availableDepartments}
             user={user}
-            onSignOut={signOut}
+            onSignOut={handleSignOut}
             sortBy={conversationSortBy}
             onSortByChange={handleSortByChange}
             onUpdateConversationDepartment={handleUpdateConversationDepartment}
