@@ -160,7 +160,7 @@
 | 043 | P2 | Mobile | Leaderboard not accessible from mobile bottom navigation | Mobile nav | ✅ Fixed |
 | 044 | P3 | Mobile | History button only in bottom nav, missing from collapsed sidebar | Sidebar mobile | By Design? |
 | 045 | P3 | Mobile | Conversation action buttons always visible (star, archive, delete) - cluttered | Sidebar mobile | Needs Review |
-| 046 | P3 | UX | "STANDARD 10 conversations" label unclear meaning | Sidebar | Needs Fix |
+| 046 | P3 | UX | "STANDARD 10 conversations" label unclear meaning | Sidebar | 🔧 By Design (department names from company config) |
 | 047 | P2 | Mobile | Tables in AI responses rendered as plain text, not structured | Chat mobile | ✅ Already Implemented (table-scroll-wrapper) |
 | 048 | P3 | UX | "AI can make mistakes" disclaimer appears after every council response | Chat | By Design |
 | 049 | P2 | Mobile | Long code blocks may overflow horizontally on mobile | Chat mobile | ✅ Already Implemented (overflow-x: auto) |
