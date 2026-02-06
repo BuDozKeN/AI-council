@@ -300,7 +300,7 @@
 | 152 | P3 | UX | "Data refreshes hourly" but no manual refresh button | Admin Analytics | Needs Fix |
 | 153 | P3 | UX | Last updated time format inconsistent (06:06:16 vs dates elsewhere) | Admin Analytics | Needs Fix |
 | 154 | P2 | a11y | Radio buttons "1 AI" / "6 AIs" have no visible group label | Chat input | ✅ Fixed (has aria-label + sr-only label) |
-| 155 | P3 | UX | "Choose files" button shows "No file chosen" as value - confusing UI | Chat input | Needs Fix |
+| 155 | P3 | UX | "Choose files" button shows "No file chosen" as value - confusing UI | Chat input | ❌ False Positive (file input is hidden, uses custom button) |
 | 156 | P3 | UX | Phone field in Profile doesn't use tel input type | Settings > Profile | ✅ Already Fixed (has type="tel" + inputMode="tel") |
 | 157 | P3 | UX | No validation indicators for required fields in Profile form | Settings > Profile | Needs Fix |
 | 158 | P3 | UX | No character limit indicator on Bio field | Settings > Profile | Needs Fix |
@@ -337,9 +337,9 @@
 | 184 | P3 | Mobile | Leaderboard only accessible via collapsed sidebar, not bottom nav | Mobile nav | Confirmed #043 |
 | 185 | P3 | Mobile | Sign out only in collapsed sidebar, not in Settings or bottom nav | Mobile nav | ✅ Fixed (ISS-185) |
 | 186 | P2 | UX | Desktop sidebar doesn't show conversation list by default - must click History | Desktop sidebar | Needs Review |
-| 187 | P3 | UX | No keyboard shortcut hint for opening History (only Ctrl+K shown) | Sidebar | Needs Fix |
-| 188 | P3 | UX | Conversation URL uses UUID - not shareable/memorable | URL structure | By Design? |
-| 189 | P3 | a11y | "Send message" button different label from "Send your question to the AI" | Chat input | Needs Fix |
+| 187 | P3 | UX | No keyboard shortcut hint for opening History (only Ctrl+K shown) | Sidebar | 📋 Feature Request (Ctrl+K opens search which includes history) |
+| 188 | P3 | UX | Conversation URL uses UUID - not shareable/memorable | URL structure | 🔧 By Design (security - UUIDs prevent enumeration) |
+| 189 | P3 | a11y | "Send message" button different label from "Send your question to the AI" | Chat input | ✅ By Design (concise aria-label is better for screen readers) |
 | 190 | P3 | UX | Follow-up placeholder says "Ask a quick follow-up..." vs "What decision..." | Chat input | Needs Review |
 
 ## Issue Tracker (191-230) - API, i18n & Context Selector
