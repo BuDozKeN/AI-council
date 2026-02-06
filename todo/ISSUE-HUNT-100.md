@@ -213,7 +213,7 @@
 | 082 | P3 | UX | No indication of current context selections in selector | Context selector | Needs Fix |
 | 083 | P3 | UX | No search/filter for long lists in context selector | Context selector | Needs Fix |
 | 084 | P2 | Data | User Status shows "6 total" but legend only shows Active 2 (math doesn't add up) | Admin Analytics | ✅ Fixed (ISS-084) |
-| 085 | P3 | UI | "Model Performance90 sessions" - missing space between text and number | Admin Analytics | Needs Fix |
+| 085 | P3 | UI | "Model Performance90 sessions" - missing space between text and number | Admin Analytics | ✅ Fixed (ISS-085, marginLeft: 8px) |
 | 086 | P2 | Data | Win Distribution pie chart missing Kimi K2.5 (only 5 models shown) | Admin Analytics | 🔧 By Design (only shows models with wins > 0) |
 | 087 | P3 | UI | Green dot next to "Analytics" heading - purpose unclear | Admin Analytics | ✅ Fixed (ISS-087, aria-label) |
 | 088 | P3 | UX | No row click action to view company details | Admin Companies | Needs Fix |
@@ -264,7 +264,7 @@
 | 127 | P3 | a11y | Conversation action buttons appear before option in DOM (odd structure) | History sidebar | Needs Review |
 | 128 | P3 | UX | "Pin sidebar open" button - unclear what "pinning" means | Sidebar mobile | Needs Fix |
 | 129 | P2 | a11y | ACTIONS column header missing columnheader markup | Admin Users | ❌ False Positive (<th> has implicit columnheader role) |
-| 130 | P3 | Data | Users with "-" for name instead of email-derived fallback | Admin Users | Needs Fix |
+| 130 | P3 | Data | Users with "-" for name instead of email-derived fallback | Admin Users | ✅ Fixed (ISS-130, getDisplayName from email) |
 | 131 | P3 | UX | User names wrap to two lines at tablet ("Alfredo\nLanda") | Admin Users tablet | Needs Fix |
 | 132 | P2 | Tablet | All emails truncated at tablet width with "..." | Admin Users tablet | Confirmed #056 |
 | 133 | P3 | a11y | Rankings table at tablet missing SESSIONS and WINS columns | Admin Analytics tablet | Needs Review |
@@ -371,7 +371,7 @@
 | 213 | P3 | UX | Long project names may truncate without tooltip | Context selector | ✅ Fixed (ISS-213, title tooltip) |
 | 214 | P3 | a11y | Code block language label "PYTHON" has no semantic role | Conversation view | Needs Fix |
 | 215 | P3 | a11y | Code block has no announcement for screen readers | Conversation view | Needs Fix |
-| 216 | P3 | UX | Code block Copy button has no success feedback | Conversation view | Needs Fix |
+| 216 | P3 | UX | Code block Copy button has no success feedback | Conversation view | ✅ Already Fixed (Check icon + "Copied!" tooltip) |
 | 217 | P3 | UX | Multiple Copy buttons - unclear which content each copies | Conversation view | Needs Fix |
 | 218 | P3 | a11y | Response sections (6 AI Experts, Review) are buttons not headings | Conversation view | Needs Review |
 | 219 | P3 | a11y | Expandable sections don't announce expanded/collapsed state | Conversation view | Needs Fix |

@@ -63,6 +63,22 @@ import { useTableKeyboardNav } from './useTableKeyboardNav';
 import { SkeletonCell, SkeletonBadge, SkeletonActions, Pagination } from './adminUtils';
 import { formatDate } from './adminConstants';
 
+/**
+ * ISS-130: Derive a display name from email when name is missing
+ * Converts "john.doe@email.com" → "John Doe"
+ */
+function getDisplayName(name: string | null, email: string): string {
+  if (name) return name;
+  // Extract username part before @
+  const username = email.split('@')[0] || email;
+  // Replace dots, underscores, hyphens with spaces and capitalize each word
+  return username
+    .replace(/[._-]/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
 /** Users table skeleton rows */
 const UsersTableSkeleton = () => (
   <>
@@ -974,7 +990,8 @@ export function UsersTab() {
                     return (
                       <tr key={row.id} {...getUserRowProps(rowIndex)}>
                         <td>
-                          <span>{row.name || '-'}</span>
+                          {/* ISS-130: Show email-derived name when name is missing */}
+                          <span>{getDisplayName(row.name, row.email)}</span>
                         </td>
                         <td>
                           {/* ISS-135: title attribute shows full email on hover when truncated */}
