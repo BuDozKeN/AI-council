@@ -269,7 +269,7 @@
 | 132 | P2 | Tablet | All emails truncated at tablet width with "..." | Admin Users tablet | Confirmed #056 |
 | 133 | P3 | a11y | Rankings table at tablet missing SESSIONS and WINS columns | Admin Analytics tablet | Needs Review |
 | 134 | P3 | UI | Model names split across lines at tablet ("Claude Opus" / "4.5") | Admin Analytics tablet | Confirmed #053 |
-| 135 | P3 | UX | No tooltip on truncated emails to show full address | Admin Users | Needs Fix |
+| 135 | P3 | UX | No tooltip on truncated emails to show full address | Admin Users | ✅ Fixed (ISS-135, title tooltip) |
 | 136 | P3 | UX | "View and manage all users across the platform" wraps awkwardly | Admin Users | Needs Fix |
 | 137 | P2 | Bug | Search doesn't reset results when cleared - requires page reload | Admin Users | ✅ Fixed |
 | 221 | P2 | a11y | My Company header nested buttons | My Company | ✅ Fixed (restructured header) |
@@ -368,7 +368,7 @@
 | 210 | P3 | UX | Context selector has no "None" option to clear project selection | Context selector | Needs Fix |
 | 211 | P3 | a11y | Help text not properly associated with radio group | Context selector | Needs Fix |
 | 212 | P3 | UX | Context selector shows active projects only - no way to see completed | Context selector | Needs Fix |
-| 213 | P3 | UX | Long project names may truncate without tooltip | Context selector | Needs Fix |
+| 213 | P3 | UX | Long project names may truncate without tooltip | Context selector | ✅ Fixed (ISS-213, title tooltip) |
 | 214 | P3 | a11y | Code block language label "PYTHON" has no semantic role | Conversation view | Needs Fix |
 | 215 | P3 | a11y | Code block has no announcement for screen readers | Conversation view | Needs Fix |
 | 216 | P3 | UX | Code block Copy button has no success feedback | Conversation view | Needs Fix |

@@ -977,8 +977,9 @@ export function UsersTab() {
                           <span>{row.name || '-'}</span>
                         </td>
                         <td>
-                          <div className="admin-user-cell">
-                            <Mail className="h-4 w-4" />
+                          {/* ISS-135: title attribute shows full email on hover when truncated */}
+                          <div className="admin-user-cell" title={row.email}>
+                            <Mail className="h-4 w-4" aria-hidden="true" />
                             <span>{row.email}</span>
                             {isCurrentUser && <span className="admin-you-badge">You</span>}
                           </div>

@@ -138,7 +138,8 @@ export function ProjectSelect({
           ) : (
             <Plus className="h-3.5 w-3.5 project-select-trigger-icon-create" />
           )}
-          <span>{getDisplayName()}</span>
+          {/* ISS-213: title attribute shows full name on hover when truncated */}
+          <span title={selectedProject?.name}>{getDisplayName()}</span>
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
@@ -179,7 +180,8 @@ export function ProjectSelect({
                     {isSelected && <Check className="h-3 w-3" />}
                   </div>
                   <FolderKanban className="h-4 w-4 project-select-icon-mobile" />
-                  <span className="project-select-item-label">{project.name}</span>
+                  {/* ISS-213: title attribute shows full name on hover when truncated */}
+                  <span className="project-select-item-label" title={project.name}>{project.name}</span>
                   {isCurrent && (
                     <span className="project-select-current-badge">{currentBadgeLabel}</span>
                   )}
