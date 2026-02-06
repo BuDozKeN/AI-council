@@ -234,7 +234,7 @@ function UserMessage({ content }: { content: string }) {
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       >
         {/* Sticky copy button - stays visible when scrolling long content */}
-        <CopyButton text={content} size="sm" className="user-copy-btn no-touch-target" />
+        <CopyButton text={content} size="sm" className="user-copy-btn no-touch-target" tooltip="Copy your question" />
 
         <div className="user-collapse-row" {...makeClickable(() => setIsCollapsed(!isCollapsed))}>
           {isCollapsed ? (

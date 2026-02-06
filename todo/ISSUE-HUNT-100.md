@@ -327,7 +327,7 @@
 | 174 | P3 | UX | "Experts Review Each Other" icons (medal, circle) meaning unclear | Conversation view | Needs Fix |
 | 175 | P2 | UX | Expandable sections (6 AI Experts, Review, Best Answer) all collapsed by default | Conversation view | Needs Review |
 | 176 | P3 | UI | Model chips use different brand colors but no legend explaining them | Conversation view | Needs Fix |
-| 177 | P3 | UX | Copy button on user message - unclear what it copies | Conversation view | Needs Fix |
+| 177 | P3 | UX | Copy button on user message - unclear what it copies | Conversation view | ✅ Fixed (tooltip now says "Copy your question") |
 | 178 | P3 | UX | "Save Answer" button purpose unclear - where does it save? | Conversation view | Needs Fix |
 | 179 | P3 | UX | "Departments" button in response - purpose unclear | Conversation view | Needs Fix |
 | 180 | P3 | UX | "Project" button tooltip says "Link this answer" but action unclear | Conversation view | Needs Fix |
