@@ -1446,6 +1446,7 @@
     "wins": "Victorias",
     "totalVotes": "Votos totales",
     "winRate": "Tasa de victoria",
+    "noWinsYet": "Sin victorias",
     "avgRank": "Posición promedio",
     "noData": "Sin datos de clasificación aún",
     "noDataHint": "Las clasificaciones se registran después de cada sesión del consejo.",

@@ -400,12 +400,12 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                     const modelName = entry.model.split('/')[1] || entry.model;
                     const rankLabel = index === 0 ? 'First place' : index === 1 ? 'Second place' : index === 2 ? 'Third place' : `Rank ${index + 1}`;
                     return (
-                      /* ISS-273: tabIndex enables keyboard navigation, aria-label provides context */
+                      /* ISS-273: tabIndex enables keyboard navigation, ISS-070: use "no wins yet" for 0% */
                       <tr
                         key={entry.model}
                         className={index === 0 ? 'leader' : ''}
                         tabIndex={0}
-                        aria-label={`${rankLabel}: ${modelName}, win rate ${entry.win_rate}%, ${entry.wins} wins in ${entry.sessions} sessions`}
+                        aria-label={`${rankLabel}: ${modelName}, ${entry.win_rate === 0 ? 'no wins yet' : `win rate ${entry.win_rate}%`}, ${entry.wins} wins in ${entry.sessions} sessions`}
                       >
                         <td className="rank-col">
                           {/* ISS-255: Hide medal emoji from screen readers - row has full aria-label */}
@@ -420,7 +420,12 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                         <td className="model-col">{modelName}</td>
                         <td className="score-col">{entry.avg_rank.toFixed(2)}</td>
                         <td className="wins-col">{entry.wins}</td>
-                        <td className="rate-col">{entry.win_rate}%</td>
+                        {/* ISS-070: Show user-friendly text for 0% win rate */}
+                        <td className="rate-col">
+                          {entry.win_rate === 0
+                            ? t('leaderboard.noWinsYet', 'No wins')
+                            : `${entry.win_rate}%`}
+                        </td>
                         <td className="sessions-col">{entry.sessions}</td>
                       </tr>
                     );

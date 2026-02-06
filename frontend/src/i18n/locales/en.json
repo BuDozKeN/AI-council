@@ -1455,6 +1455,7 @@
     "wins": "Wins",
     "totalVotes": "Total Votes",
     "winRate": "Win Rate",
+    "noWinsYet": "No wins",
     "avgRank": "Avg Rank",
     "noData": "No ranking data yet",
     "noDataHint": "Rankings are recorded after each council session completes.",

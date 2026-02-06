@@ -158,7 +158,7 @@
 | 054 | P3 | UX | "LIVE" badge meaning unclear on charts | Admin Analytics | Needs Fix |
 | 055 | P2 | Mobile | No hamburger menu alternative for Admin Portal mobile nav | Admin Portal | 🔧 By Design (horizontal scroll tabs) |
 | 056 | P2 | Tablet | Email addresses truncated at tablet width making users unidentifiable | Admin Users | ✅ Fixed (180px max-width) |
-| 057 | P3 | UI | Palm tree/beach emoji in bottom right corner - purpose unclear | Admin Portal | Needs Fix |
+| 057 | P3 | UI | Palm tree/beach emoji in bottom right corner - purpose unclear | Admin Portal | ❌ False Positive (TanStack devtools, same as #122) |
 | 058 | P3 | Data | Two users with identical name "Alfredo Landa" - confusing | Admin Users | Data Issue |
 | 059 | P3 | UX | "Never signed in" status combined with "Active" badge - confusing state | Admin Users | Needs Fix |
 | 060 | P3 | UI | Date format inconsistent across table (20 Jan 2026 vs 6 Dec 2025) | Admin Users | Needs Fix |
@@ -176,7 +176,7 @@
 | 067 | P2 | Data | kimi-k2.5 model missing from Operations tab (only 5 models shown) | Leaderboard | Needs Fix |
 | 068 | P2 | Data | kimi-k2.5 model missing from Technology tab (only 5 models shown) | Leaderboard | Needs Fix |
 | 069 | P3 | UX | Tab categories (Operations/Standard/Technology) not explained | Leaderboard | Needs Fix |
-| 070 | P3 | UX | "0%" win rate could say "No wins yet" for clarity | Leaderboard | Needs Fix |
+| 070 | P3 | UX | "0%" win rate could say "No wins yet" for clarity | Leaderboard | ✅ Fixed (shows "No wins" with i18n) |
 | 071 | P2 | Mobile | Model names wrap awkwardly with hyphens on mobile | Leaderboard mobile | ✅ Fixed (white-space: nowrap) |
 | 072 | P3 | UI | "AxCouncil" text cut off/faded at top of leaderboard mobile | Leaderboard mobile | Needs Fix |
 | 073 | P1 | Mobile | Response style button click opens My Company modal instead | Mobile chat input | ✅ Verified Fixed |
