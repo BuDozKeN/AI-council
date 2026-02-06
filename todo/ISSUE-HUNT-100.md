@@ -111,7 +111,7 @@
 | 017 | P2 | API | "Failed to load billing information" error on Billing tab | Settings > Billing | Needs Fix |
 | 018 | P2 | API | "Failed to get company members" error on Team tab | Settings > Team | Needs Fix |
 | 019 | P2 | i18n | Missing i18n key: settings.emailCannotBeChanged | Settings > Profile | ✅ Verified Fixed |
-| 020 | P3 | a11y | Missing autocomplete attribute on form element | Settings > Profile | Needs Fix |
+| 020 | P3 | a11y | Missing autocomplete attribute on form element | Settings > Profile | ✅ Already Fixed (name, organization, tel autocomplete attrs present) |
 | 021 | P2 | API | "Failed to load API key status" error on API Keys tab | Settings > API Keys | Needs Fix |
 | 022 | P2 | API | "Unable to load configuration" error on LLM Hub tab | Settings > LLM Hub | Needs Fix |
 | 023 | P1 | API | Aggressive rate limiting (429) causing cascading failures across Settings tabs | Settings (all) | ✅ Investigated (rate limits reasonable: 100/min reads, 30/min writes; proper 429 error handling exists) |
