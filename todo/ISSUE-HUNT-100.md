@@ -457,7 +457,7 @@
 | 288 | P3 | UX | No keyboard shortcut to start new chat (only button) | Global | Needs Fix |
 | 289 | P3 | UX | No keyboard shortcut to open History | Global | Needs Fix |
 | 290 | P3 | UX | No keyboard shortcut to open Settings | Global | Needs Fix |
-| 291 | P3 | UX | Enter key doesn't submit chat input (need to click Send) | Chat input | Needs Review |
+| 291 | P3 | UX | Enter key doesn't submit chat input (need to click Send) | Chat input | ✅ Already Fixed (handleKeyDown in ChatInterface.tsx) |
 | 292 | P3 | UX | Ctrl+Enter keyboard hint not shown for submit | Chat input | Needs Fix |
 | 293 | P3 | a11y | Radio buttons for 1 AI / 6 AIs not in fieldset with legend | Chat input | Needs Fix |
 | 294 | P3 | UX | Lightning bolt button (response style) has no tooltip | Chat input | Needs Fix |
