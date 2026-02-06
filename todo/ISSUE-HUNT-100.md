@@ -59,6 +59,9 @@
 | 015 | 404 page title not set | **FIXED** - ErrorPage now sets document.title based on error type |
 | 002 | Terms page wrong title | **VERIFIED** - Already shows "Terms of Service - AxCouncil" |
 | 037 | Playbook button text not adapting | **VERIFIED** - getPlaybookButtonText handles type-specific text |
+| 006-008 | API calls when unauthenticated | **FIXED** - Added isAuthenticated guard to projects/playbooks queries (ISS-006-008) |
+| 070 | 0% win rate display | **FIXED** - Shows "No wins" with i18n support (ISS-070) |
+| 084 | User Status math mismatch | **FIXED** - User Status total now uses same data source as breakdown (ISS-084) |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -81,10 +84,12 @@
 
 | # | Issue | Notes |
 |---|-------|-------|
-| 005-008 | API errors unauthenticated | Auth guard issues (API calls made before auth) |
+| 005 | 429 rate limiting on login | Investigate if this still occurs (may be resolved with #006-008 fix) |
+| 006-008 | ~~API errors unauthenticated~~ | ✅ **FIXED** - Added isAuthenticated guard to projects/playbooks TanStack queries |
 | 017-022 | Settings tab API errors | Network/auth cascade, not rate limits |
 | 023 | ~~Aggressive rate limiting~~ | ✅ Investigated: Rate limits reasonable (100/min reads, 30/min writes), proper 429 handling exists |
 | 024-028 | Company-specific failures | Data/permissions issue for "Simple Af" |
+| 052 | Rankings incorrect order | **BACKEND DATA ISSUE** - API returns models in wrong order (#1,#2,#3,#4,#6,#5) |
 
 ---
 
@@ -97,9 +102,9 @@
 | 003 | P1 | Legal | /privacy route shows login page instead of Privacy Policy content | /privacy | ✅ Verified Fixed |
 | 004 | P3 | UX | Page title changes to "Conversation" after clicking theme toggle | Login page | Needs Fix |
 | 005 | P2 | API | 429 Too Many Requests errors - rate limiting triggered on login page | Console | Investigate |
-| 006 | P2 | API | "Failed to load projects" error on unauthenticated page | Console | Needs Fix |
-| 007 | P2 | API | "Failed to load playbooks" error on unauthenticated page | Console | Needs Fix |
-| 008 | P2 | Perf | API calls to /projects and /playbooks made when not authenticated | Network | Needs Fix |
+| 006 | P2 | API | "Failed to load projects" error on unauthenticated page | Console | ✅ Fixed (ISS-006-008) |
+| 007 | P2 | API | "Failed to load playbooks" error on unauthenticated page | Console | ✅ Fixed (ISS-006-008) |
+| 008 | P2 | Perf | API calls to /projects and /playbooks made when not authenticated | Network | ✅ Fixed (ISS-006-008) |
 | 009 | P3 | API | Inconsistent API paths - "/companies/" vs "/company/" | API | Tech Debt |
 | 010 | P2 | a11y | First Tab press skips "Skip to main content" link | Login page | ✅ Verified Fixed |
 | 011 | P2 | i18n | "Skip to main content" link not translated to Spanish | Login page | ✅ Verified Fixed |
@@ -153,7 +158,7 @@
 | 049 | P2 | Mobile | Long code blocks may overflow horizontally on mobile | Chat mobile | ✅ Already Implemented (overflow-x: auto) |
 | 050 | P2 | Mobile | Admin Portal tab labels cramped/small on mobile | Admin Portal | ✅ Fixed (11px font) |
 | 051 | P3 | UX | Admin download button disabled with no explanation | Admin Analytics | Needs Fix |
-| 052 | P2 | Data | Rankings show incorrect order (#1, #2, #3, #4, #6, #5) instead of sequential | Admin Analytics | Needs Fix |
+| 052 | P2 | Data | Rankings show incorrect order (#1, #2, #3, #4, #6, #5) instead of sequential | Admin Analytics | 🔧 Backend Data Issue |
 | 053 | P3 | UI | Model names split across multiple elements in charts (accessibility) | Admin Analytics | Needs Fix |
 | 054 | P3 | UX | "LIVE" badge meaning unclear on charts | Admin Analytics | Needs Fix |
 | 055 | P2 | Mobile | No hamburger menu alternative for Admin Portal mobile nav | Admin Portal | 🔧 By Design (horizontal scroll tabs) |
@@ -195,7 +200,7 @@
 | 081 | P3 | UX | Inconsistent selection UI: Departments use checkboxes, Roles use buttons | Context selector | Needs Fix |
 | 082 | P3 | UX | No indication of current context selections in selector | Context selector | Needs Fix |
 | 083 | P3 | UX | No search/filter for long lists in context selector | Context selector | Needs Fix |
-| 084 | P2 | Data | User Status shows "6 total" but legend only shows Active 2 (math doesn't add up) | Admin Analytics | Needs Fix |
+| 084 | P2 | Data | User Status shows "6 total" but legend only shows Active 2 (math doesn't add up) | Admin Analytics | ✅ Fixed (ISS-084) |
 | 085 | P3 | UI | "Model Performance90 sessions" - missing space between text and number | Admin Analytics | Needs Fix |
 | 086 | P2 | Data | Win Distribution pie chart missing Kimi K2.5 (only 5 models shown) | Admin Analytics | Needs Fix |
 | 087 | P3 | UI | Green dot next to "Analytics" heading - purpose unclear | Admin Analytics | Needs Fix |

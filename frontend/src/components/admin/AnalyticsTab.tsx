@@ -768,11 +768,12 @@ export function AnalyticsTab() {
       {/* Status Overview - Compact side-by-side */}
       <div className="analytics-status-row">
         {/* User Status Donut */}
+        {/* ISS-084: Use userStatusBreakdown.total for consistency with the pie chart data */}
         <div className="analytics-status-card">
           <div className="analytics-status-header">
             <h3>User Status</h3>
             <span className="analytics-status-total">
-              {(displayStats?.total_users ?? 0).toLocaleString()} total
+              {userStatusBreakdown.total.toLocaleString()} total
             </span>
           </div>
           {/* ISS-141: Chart accessibility */}
