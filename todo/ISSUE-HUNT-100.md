@@ -60,6 +60,7 @@
 | 002 | Terms page wrong title | **VERIFIED** - Already shows "Terms of Service - AxCouncil" |
 | 037 | Playbook button text not adapting | **VERIFIED** - getPlaybookButtonText handles type-specific text |
 | 006-008 | API calls when unauthenticated | **FIXED** - Added isAuthenticated guard to projects/playbooks queries (ISS-006-008) |
+| 066 | Leaderboard sessions count per tab | **FIXED** - Now calculates from current tab's entries instead of always using overall (ISS-066) |
 | 070 | 0% win rate display | **FIXED** - Shows "No wins" with i18n support (ISS-070) |
 | 084 | User Status math mismatch | **FIXED** - User Status total now uses same data source as breakdown (ISS-084) |
 
@@ -177,9 +178,9 @@
 | 063 | P3 | UX | Conversation content visible behind Settings modal on mobile | Settings mobile | By Design |
 | 064 | P2 | a11y | Duplicate heading "Model Leaderboard" appears as h2 AND h1 in dialog | Leaderboard | ❌ False Positive (Radix VisuallyHidden description) |
 | 065 | P3 | a11y | Dialog description "Model Leaderboard dialog" redundant with heading | Leaderboard | ❌ False Positive (standard a11y pattern) |
-| 066 | P2 | Data | Total Sessions count doesn't update per category tab (always shows 90) | Leaderboard | Needs Fix |
-| 067 | P2 | Data | kimi-k2.5 model missing from Operations tab (only 5 models shown) | Leaderboard | Needs Fix |
-| 068 | P2 | Data | kimi-k2.5 model missing from Technology tab (only 5 models shown) | Leaderboard | Needs Fix |
+| 066 | P2 | Data | Total Sessions count doesn't update per category tab (always shows 90) | Leaderboard | ✅ Fixed (ISS-066) |
+| 067 | P2 | Data | kimi-k2.5 model missing from Operations tab (only 5 models shown) | Leaderboard | 🔧 Backend Data (model has no sessions in category) |
+| 068 | P2 | Data | kimi-k2.5 model missing from Technology tab (only 5 models shown) | Leaderboard | 🔧 Backend Data (model has no sessions in category) |
 | 069 | P3 | UX | Tab categories (Operations/Standard/Technology) not explained | Leaderboard | Needs Fix |
 | 070 | P3 | UX | "0%" win rate could say "No wins yet" for clarity | Leaderboard | ✅ Fixed (shows "No wins" with i18n) |
 | 071 | P2 | Mobile | Model names wrap awkwardly with hyphens on mobile | Leaderboard mobile | ✅ Fixed (white-space: nowrap) |

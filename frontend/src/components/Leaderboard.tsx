@@ -91,7 +91,12 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
   const currentLeaderboard = getCurrentLeaderboard();
   const departments = getAvailableDepartments();
-  const totalSessions = leaderboardData?.overall?.total_sessions || 0;
+  // ISS-066: Calculate total sessions from the current tab's leaderboard entries
+  // Previously always showed overall.total_sessions regardless of selected category
+  const totalSessions =
+    selectedDepartment === 'overall'
+      ? leaderboardData?.overall?.total_sessions || 0
+      : currentLeaderboard.reduce((sum, entry) => Math.max(sum, entry.sessions), 0);
 
   return (
     <AdaptiveModal
