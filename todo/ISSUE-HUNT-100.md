@@ -424,7 +424,7 @@
 | 260 | P3 | UX | No way to export/download leaderboard data | Leaderboard | Needs Fix |
 | 261 | P3 | UX | Model name "deepseek-chat-v3-0324" too technical for end users | Leaderboard | ✅ Fixed (ISS-256) |
 | 262 | P3 | UX | Win rate "0%" for kimi-k2.5 could show "No wins" for clarity | Leaderboard | Confirmed #070 |
-| 263 | P3 | a11y | Table lacks proper table element structure (table/thead/tbody/tr/td) | Leaderboard | Needs Fix |
+| 263 | P3 | a11y | Table lacks proper table element structure (table/thead/tbody/tr/td) | Leaderboard | ✅ Already Fixed (uses semantic table/thead/tbody/tr/th/td) |
 | 264 | P3 | UX | "Avg Rank: Lower is better" explanation at bottom, not near data | Leaderboard | Needs Fix |
 | 265 | P3 | UX | Percent symbol separated from number (42.7 + %) - odd formatting | Leaderboard | Needs Fix |
 | 266 | P3 | UX | No visual trend indicators (up/down arrows) for model performance | Leaderboard | Needs Fix |
@@ -552,7 +552,7 @@
 | 373 | P3 | UI | Selection highlight color not customized | Global | Needs Review |
 | 374 | P3 | UI | Print stylesheet missing | Global | Needs Fix |
 | 375 | P3 | UI | High contrast mode not supported | Global | Needs Fix |
-| 376 | P3 | UI | Reduced motion preference not respected | Global | Needs Fix |
+| 376 | P3 | UI | Reduced motion preference not respected | Global | ✅ Already Fixed (extensive @media prefers-reduced-motion support) |
 | 377 | P3 | UI | Color contrast ratios may fail WCAG in some areas | Global | Needs Audit |
 | 378 | P3 | UX | Very long conversation titles cause layout shift | History | Needs Fix |
 | 379 | P3 | UX | Very long model responses cause performance issues | Conversation | Needs Fix |
