@@ -114,12 +114,12 @@
 | 014 | P3 | UX | Page title shows "Conversation" in English instead of "Welcome back" | Login page | Needs Fix |
 | 015 | P2 | UX | No 404 page - invalid routes show login page instead of error | All routes | ✅ Verified Fixed |
 | 016 | P3 | UI | Password strength label ("Strong/Fair/Weak") has very low contrast | Signup form | ✅ Fixed (changed to 400 color variants) |
-| 017 | P2 | API | "Failed to load billing information" error on Billing tab | Settings > Billing | Needs Fix |
-| 018 | P2 | API | "Failed to get company members" error on Team tab | Settings > Team | Needs Fix |
+| 017 | P2 | API | "Failed to load billing information" error on Billing tab | Settings > Billing | ✅ Works (was intermittent) |
+| 018 | P2 | API | "Failed to get company members" error on Team tab | Settings > Team | ✅ Works (was intermittent) |
 | 019 | P2 | i18n | Missing i18n key: settings.emailCannotBeChanged | Settings > Profile | ✅ Verified Fixed |
 | 020 | P3 | a11y | Missing autocomplete attribute on form element | Settings > Profile | ✅ Already Fixed (name, organization, tel autocomplete attrs present) |
-| 021 | P2 | API | "Failed to load API key status" error on API Keys tab | Settings > API Keys | Needs Fix |
-| 022 | P2 | API | "Unable to load configuration" error on LLM Hub tab | Settings > LLM Hub | Needs Fix |
+| 021 | P2 | API | "Failed to load API key status" error on API Keys tab | Settings > API Keys | ✅ Works (was intermittent) |
+| 022 | P2 | API | "Unable to load configuration" error on LLM Hub tab | Settings > LLM Hub | ✅ Works (was intermittent) |
 | 023 | P1 | API | Aggressive rate limiting (429) causing cascading failures across Settings tabs | Settings (all) | ✅ Investigated (rate limits reasonable: 100/min reads, 30/min writes; proper 429 error handling exists) |
 | 024 | P2 | Data | Simple Af company: "Failed to load overview" error | My Company > Overview | Investigate |
 | 025 | P2 | Data | Simple Af company: "Failed to load team" error | My Company > Team | Investigate |
@@ -203,7 +203,7 @@
 | 083 | P3 | UX | No search/filter for long lists in context selector | Context selector | Needs Fix |
 | 084 | P2 | Data | User Status shows "6 total" but legend only shows Active 2 (math doesn't add up) | Admin Analytics | ✅ Fixed (ISS-084) |
 | 085 | P3 | UI | "Model Performance90 sessions" - missing space between text and number | Admin Analytics | Needs Fix |
-| 086 | P2 | Data | Win Distribution pie chart missing Kimi K2.5 (only 5 models shown) | Admin Analytics | Needs Fix |
+| 086 | P2 | Data | Win Distribution pie chart missing Kimi K2.5 (only 5 models shown) | Admin Analytics | 🔧 By Design (only shows models with wins > 0) |
 | 087 | P3 | UI | Green dot next to "Analytics" heading - purpose unclear | Admin Analytics | Needs Fix |
 | 088 | P3 | UX | No row click action to view company details | Admin Companies | Needs Fix |
 | 089 | P3 | UX | No edit/view/delete actions on company rows | Admin Companies | Needs Fix |
@@ -492,7 +492,7 @@
 | 325 | P3 | Error | Failed image upload shows no user-friendly error | Chat input | Needs Fix |
 | 326 | P3 | Error | Large file upload limit not shown before upload | Chat input | Needs Fix |
 | 327 | P3 | Error | Unsupported file type rejection message unclear | Chat input | Needs Fix |
-| 328 | P2 | Security | No rate limiting indicator for API calls | Global | Needs Fix |
+| 328 | P2 | Security | No rate limiting indicator for API calls | Global | 📋 Feature Request (nice-to-have) |
 | 329 | P3 | Security | API key visibility in OpenRouter settings | Settings > API Keys | Needs Review |
 | 330 | P3 | Security | No 2FA/MFA option for account security | Settings | Needs Fix |
 | 331 | P3 | Security | No session management (view/revoke sessions) | Settings | Needs Fix |
@@ -510,7 +510,7 @@
 | 343 | P3 | UX | Skeleton loading inconsistent across pages | Global | Needs Fix |
 | 344 | P3 | UX | Empty states have inconsistent designs | Multiple | Needs Fix |
 | 345 | P3 | UX | Error retry buttons not consistently placed | Error states | Needs Fix |
-| 346 | P2 | Error | Conversation load failure shows blank page | Conversation view | Needs Fix |
+| 346 | P2 | Error | Conversation load failure shows blank page | Conversation view | ✅ Fixed (ISS-109 shows toast + redirects) |
 | 347 | P3 | Error | Model API timeout not handled gracefully | Council response | Needs Fix |
 | 348 | P3 | Error | Partial response not shown if one model fails | Council response | Needs Fix |
 | 349 | P3 | Error | No indication which model failed in council | Council response | Needs Fix |
