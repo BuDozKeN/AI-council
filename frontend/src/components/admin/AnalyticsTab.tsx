@@ -652,7 +652,15 @@ export function AnalyticsTab() {
         <div className="analytics-header-left">
           <h2 className="analytics-title-premium">
             {t('admin.analytics.title', 'Analytics')}
-            {!useDummyData && <span className="analytics-live-dot" title="Real-time data" />}
+            {/* ISS-087: Live indicator shows when displaying real-time (not dummy) data */}
+            {!useDummyData && (
+              <span
+                className="analytics-live-dot"
+                title={t('admin.analytics.liveData', 'Real-time data')}
+                aria-label={t('admin.analytics.liveData', 'Real-time data')}
+                role="img"
+              />
+            )}
           </h2>
           <p className="analytics-subtitle-premium">
             {t('admin.analytics.description', 'Platform performance at a glance')}

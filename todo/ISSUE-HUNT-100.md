@@ -69,6 +69,7 @@
 | 261 | "deepseek-chat-v3-0324" too technical | **FIXED** - Now shows "DeepSeek V3" via formatModelName (ISS-256) |
 | 051 | Admin download button no explanation | **ALREADY FIXED** - Has "Export coming soon" tooltip |
 | 105 | "All Conversati..." truncated | **FIXED** - Added title attribute for hover tooltip (ISS-105) |
+| 087 | Green dot purpose unclear | **FIXED** - Added aria-label and improved tooltip for live indicator (ISS-087) |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -210,7 +211,7 @@
 | 084 | P2 | Data | User Status shows "6 total" but legend only shows Active 2 (math doesn't add up) | Admin Analytics | ✅ Fixed (ISS-084) |
 | 085 | P3 | UI | "Model Performance90 sessions" - missing space between text and number | Admin Analytics | Needs Fix |
 | 086 | P2 | Data | Win Distribution pie chart missing Kimi K2.5 (only 5 models shown) | Admin Analytics | 🔧 By Design (only shows models with wins > 0) |
-| 087 | P3 | UI | Green dot next to "Analytics" heading - purpose unclear | Admin Analytics | Needs Fix |
+| 087 | P3 | UI | Green dot next to "Analytics" heading - purpose unclear | Admin Analytics | ✅ Fixed (ISS-087, aria-label) |
 | 088 | P3 | UX | No row click action to view company details | Admin Companies | Needs Fix |
 | 089 | P3 | UX | No edit/view/delete actions on company rows | Admin Companies | Needs Fix |
 | 090 | P3 | UX | No "Add Company" button for creating new companies | Admin Companies | Needs Fix |
