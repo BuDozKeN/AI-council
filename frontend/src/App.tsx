@@ -370,8 +370,10 @@ function App() {
   }, [i18nInstance.language]);
 
   // SEO: Dynamic meta tags, hreflang links, and Open Graph tags
+  // ISS-004: When not authenticated, use home title (Login page manages its own title)
+  // This prevents "Conversation - AxCouncil" from showing on the login page
   useFullSEO({
-    title: showLandingHero ? t('seo.homeTitle') : t('seo.conversationTitle'),
+    title: !isAuthenticated || showLandingHero ? t('seo.homeTitle') : t('seo.conversationTitle'),
     description: t('seo.defaultDescription'),
   });
 

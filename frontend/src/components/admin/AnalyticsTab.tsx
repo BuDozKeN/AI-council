@@ -907,8 +907,9 @@ export function AnalyticsTab() {
         <h3 className="analytics-section-title-premium">
           <BarChart3 className="h-5 w-5" />
           Model Performance
+          {/* ISS-085: Add space before session count badge */}
           {modelAnalytics && modelAnalytics.total_sessions > 0 && (
-            <span className="analytics-sessions-badge">
+            <span className="analytics-sessions-badge" style={{ marginLeft: '8px' }}>
               {modelAnalytics.total_sessions} sessions
             </span>
           )}

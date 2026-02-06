@@ -63,6 +63,8 @@
 | 066 | Leaderboard sessions count per tab | **FIXED** - Now calculates from current tab's entries instead of always using overall (ISS-066) |
 | 070 | 0% win rate display | **FIXED** - Shows "No wins" with i18n support (ISS-070) |
 | 084 | User Status math mismatch | **FIXED** - User Status total now uses same data source as breakdown (ISS-084) |
+| 004 | Page title "Conversation" on login | **FIXED** - useFullSEO now uses home title when not authenticated (ISS-004) |
+| 013-014 | Login page title not localized | **FIXED** - Same fix as ISS-004, now shows home title in all languages |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -101,7 +103,7 @@
 | 001 | P1 | Legal | /terms route shows login page instead of Terms of Service content | /terms | ✅ Verified Fixed |
 | 002 | P3 | UX | Page title shows "Conversation - AxCouncil" on /terms route | /terms | ✅ Already Fixed (shows "Terms of Service - AxCouncil") |
 | 003 | P1 | Legal | /privacy route shows login page instead of Privacy Policy content | /privacy | ✅ Verified Fixed |
-| 004 | P3 | UX | Page title changes to "Conversation" after clicking theme toggle | Login page | Needs Fix |
+| 004 | P3 | UX | Page title changes to "Conversation" after clicking theme toggle | Login page | ✅ Fixed (ISS-004) |
 | 005 | P2 | API | 429 Too Many Requests errors - rate limiting triggered on login page | Console | Investigate |
 | 006 | P2 | API | "Failed to load projects" error on unauthenticated page | Console | ✅ Fixed (ISS-006-008) |
 | 007 | P2 | API | "Failed to load playbooks" error on unauthenticated page | Console | ✅ Fixed (ISS-006-008) |
@@ -110,8 +112,8 @@
 | 010 | P2 | a11y | First Tab press skips "Skip to main content" link | Login page | ✅ Verified Fixed |
 | 011 | P2 | i18n | "Skip to main content" link not translated to Spanish | Login page | ✅ Verified Fixed |
 | 012 | P3 | i18n | "Show password" button aria-label not translated | Login page | ✅ Already Fixed (auth.showPassword/hidePassword exist) |
-| 013 | P3 | i18n | Page title shows "Conversación" instead of "Bienvenido" in Spanish | Login page | Needs Fix |
-| 014 | P3 | UX | Page title shows "Conversation" in English instead of "Welcome back" | Login page | Needs Fix |
+| 013 | P3 | i18n | Page title shows "Conversación" instead of "Bienvenido" in Spanish | Login page | ✅ Fixed (ISS-004) |
+| 014 | P3 | UX | Page title shows "Conversation" in English instead of "Welcome back" | Login page | ✅ Fixed (ISS-004) |
 | 015 | P2 | UX | No 404 page - invalid routes show login page instead of error | All routes | ✅ Verified Fixed |
 | 016 | P3 | UI | Password strength label ("Strong/Fair/Weak") has very low contrast | Signup form | ✅ Fixed (changed to 400 color variants) |
 | 017 | P2 | API | "Failed to load billing information" error on Billing tab | Settings > Billing | ✅ Works (was intermittent) |
