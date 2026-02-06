@@ -323,22 +323,22 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 191 | P2 | i18n | Missing key: context.projectHelp | Console | Needs Fix |
-| 192 | P2 | i18n | Missing key: context.departmentHelp | Console | Needs Fix |
-| 193 | P2 | i18n | Missing key: context.roleHelp | Console | Needs Fix |
-| 194 | P2 | i18n | Missing key: tooltips.attachImage | Console | Needs Fix |
-| 195 | P2 | Perf | Duplicate API calls - profile endpoint called twice | Network | Needs Fix |
-| 196 | P2 | Perf | Duplicate API calls - billing/plans endpoint called twice | Network | Needs Fix |
-| 197 | P2 | Perf | Duplicate API calls - billing/subscription endpoint called twice | Network | Needs Fix |
-| 198 | P2 | Perf | Duplicate API calls - company members endpoint called twice | Network | Needs Fix |
-| 199 | P2 | Perf | Duplicate API calls - company invitations endpoint called twice | Network | Needs Fix |
-| 200 | P2 | Perf | Duplicate API calls - openrouter-key endpoint called twice | Network | Needs Fix |
-| 201 | P2 | Perf | Duplicate API calls - mock-mode endpoint called 4+ times | Network | Needs Fix |
-| 202 | P2 | Perf | Duplicate API calls - caching-mode endpoint called twice | Network | Needs Fix |
-| 203 | P2 | Perf | Duplicate API calls - llm-hub/presets endpoint called twice | Network | Needs Fix |
-| 204 | P2 | Perf | Duplicate API calls - llm-hub/models endpoint called twice | Network | Needs Fix |
-| 205 | P2 | Perf | Duplicate API calls - llm-hub/personas endpoint called twice | Network | Needs Fix |
-| 206 | P2 | Perf | Duplicate API calls - team endpoint called twice | Network | Needs Fix |
+| 191 | P2 | i18n | Missing key: context.projectHelp | Console | ❌ False Positive (key exists) |
+| 192 | P2 | i18n | Missing key: context.departmentHelp | Console | ❌ False Positive (key exists) |
+| 193 | P2 | i18n | Missing key: context.roleHelp | Console | ❌ False Positive (key exists) |
+| 194 | P2 | i18n | Missing key: tooltips.attachImage | Console | ❌ False Positive (key exists) |
+| 195 | P2 | Perf | Duplicate API calls - profile endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 196 | P2 | Perf | Duplicate API calls - billing/plans endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 197 | P2 | Perf | Duplicate API calls - billing/subscription endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 198 | P2 | Perf | Duplicate API calls - company members endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 199 | P2 | Perf | Duplicate API calls - company invitations endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 200 | P2 | Perf | Duplicate API calls - openrouter-key endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 201 | P2 | Perf | Duplicate API calls - mock-mode endpoint called 4+ times | Network | ✅ Fixed (hasFetchedRef) |
+| 202 | P2 | Perf | Duplicate API calls - caching-mode endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 203 | P2 | Perf | Duplicate API calls - llm-hub/presets endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 204 | P2 | Perf | Duplicate API calls - llm-hub/models endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 205 | P2 | Perf | Duplicate API calls - llm-hub/personas endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
+| 206 | P2 | Perf | Duplicate API calls - team endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
 | 207 | P3 | a11y | Context selector dialog has no title/heading | Context selector | Needs Fix |
 | 208 | P3 | a11y | Context selector uses menuitem elements outside of menu | Context selector | Needs Fix |
 | 209 | P3 | a11y | Context selector project radios not in radiogroup element | Context selector | Needs Fix |
