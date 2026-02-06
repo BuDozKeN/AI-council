@@ -313,7 +313,11 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                     <RoleIcon size={16} />
                   </div>
                   {/* ISS-146: Show display name, email, or fallback - never truncated UUID */}
-                  <span className="member-name">
+                  {/* ISS-147: For current user, show "You" but reveal name/email on hover */}
+                  <span
+                    className="member-name"
+                    title={isCurrentUser ? (member.display_name || member.email || undefined) : undefined}
+                  >
                     {isCurrentUser
                       ? t('settings.you')
                       : (member.display_name || member.email || t('settings.teamMember', 'Team Member'))}

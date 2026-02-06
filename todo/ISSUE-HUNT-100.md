@@ -292,7 +292,7 @@
 | 144 | P2 | UX | Enterprise plan shows "Free" as price - should be "Custom" or "Contact Us" | Settings > Billing | ✅ Fixed (shows "Contact Us") |
 | 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | Needs Fix |
 | 146 | P2 | UX | Team members shown as truncated UUIDs instead of names/emails | Settings > Team | ✅ Fixed |
-| 147 | P3 | UX | "You" in Team tab doesn't show actual user name or email | Settings > Team | Needs Fix |
+| 147 | P3 | UX | "You" in Team tab doesn't show actual user name or email | Settings > Team | ✅ Fixed (hover tooltip shows name/email) |
 | 148 | P2 | Data | 136 queries used exceeds Free plan's 5/month limit - confusing | Settings > Billing | Investigate |
 | 149 | P3 | UX | No "Current Plan" indicator shown near usage section | Settings > Billing | Needs Fix |
 | 150 | P3 | UI | Invitation bar colors gray for 0 values look like empty progress bars | Admin Analytics | Needs Fix |
