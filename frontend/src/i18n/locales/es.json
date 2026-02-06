@@ -1441,6 +1441,7 @@
   },
   "leaderboard": {
     "title": "Clasificación de modelos",
+    "tableLabel": "Clasificación de rendimiento de modelos IA",
     "rank": "Posición",
     "model": "Modelo",
     "wins": "Victorias",

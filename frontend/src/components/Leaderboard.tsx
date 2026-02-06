@@ -6,6 +6,7 @@ import { AdaptiveModal } from './ui/AdaptiveModal';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/Skeleton';
 import { logger } from '../utils/logger';
+import { formatModelName } from '../utils/modelNames';
 import './Leaderboard.css';
 
 interface LeaderboardEntry {
@@ -402,7 +403,8 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                 </thead>
                 <tbody>
                   {currentLeaderboard.map((entry: LeaderboardEntry, index: number) => {
-                    const modelName = entry.model.split('/')[1] || entry.model;
+                    // ISS-256: Use friendly display names instead of technical IDs
+                    const modelName = formatModelName(entry.model);
                     const rankLabel = index === 0 ? 'First place' : index === 1 ? 'Second place' : index === 2 ? 'Third place' : `Rank ${index + 1}`;
                     return (
                       /* ISS-273: tabIndex enables keyboard navigation, ISS-070: use "no wins yet" for 0% */

@@ -1450,6 +1450,7 @@
   },
   "leaderboard": {
     "title": "Model Leaderboard",
+    "tableLabel": "AI model performance rankings",
     "rank": "Rank",
     "model": "Model",
     "wins": "Wins",

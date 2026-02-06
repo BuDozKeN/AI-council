@@ -65,6 +65,8 @@
 | 084 | User Status math mismatch | **FIXED** - User Status total now uses same data source as breakdown (ISS-084) |
 | 004 | Page title "Conversation" on login | **FIXED** - useFullSEO now uses home title when not authenticated (ISS-004) |
 | 013-014 | Login page title not localized | **FIXED** - Same fix as ISS-004, now shows home title in all languages |
+| 256 | Model names use technical IDs | **FIXED** - Created shared formatModelName utility with display name mapping (ISS-256) |
+| 261 | "deepseek-chat-v3-0324" too technical | **FIXED** - Now shows "DeepSeek V3" via formatModelName (ISS-256) |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -311,7 +313,7 @@
 | 167 | P3 | UI | "Top insights combined into one respo..." truncated on desktop | Conversation view | Needs Fix |
 | 168 | P3 | a11y | Action buttons DOM order differs between mobile and desktop | History sidebar | Needs Fix |
 | 169 | P3 | Mobile | No Rename button on mobile conversation actions (available on desktop) | Mobile sidebar | Needs Fix |
-| 170 | P3 | UX | Mobile bottom nav says "Chats" but sidebar says "History" - inconsistent labels | Mobile nav | Needs Fix |
+| 170 | P3 | UX | Mobile bottom nav says "Chats" but sidebar says "History" - inconsistent labels | Mobile nav | 🔧 By Design (shorter labels for mobile) |
 | 171 | P3 | UX | "Configure context" label on mobile vs "Context 1" on desktop - inconsistent | Chat input | Needs Fix |
 | 172 | P3 | a11y | Conversation header shows "CONTEXT:" label but not as proper label element | Conversation view | Needs Fix |
 | 173 | P3 | UX | No visual indicator showing which AI model "won" in response | Conversation view | Needs Fix |
@@ -412,12 +414,12 @@
 | 253 | P2 | a11y | Leaderboard table headers are StaticText, not columnheader elements | Leaderboard | ✅ Fixed (scope="col") |
 | 254 | P3 | a11y | Leaderboard tabs use buttons instead of proper tab/tablist elements | Leaderboard | Needs Fix |
 | 255 | P3 | a11y | Medal emojis used for ranking not accessible to screen readers | Leaderboard | ✅ Fixed (aria-hidden + role="img") |
-| 256 | P3 | Data | Model names use technical IDs (claude-opus-4.5) vs display names (Claude Opus 4.5) | Leaderboard | Needs Fix |
+| 256 | P3 | Data | Model names use technical IDs (claude-opus-4.5) vs display names (Claude Opus 4.5) | Leaderboard | ✅ Fixed (ISS-256) |
 | 257 | P3 | Data | kimi-k2.5 has only 3 sessions vs 88-90 for others - data imbalance | Leaderboard | Investigate |
 | 258 | P3 | UX | No explanation of what Operations/Standard/Technology categories mean | Leaderboard | Needs Fix |
 | 259 | P3 | UX | Total Sessions count doesn't update when switching tabs | Leaderboard | Confirmed #066 |
 | 260 | P3 | UX | No way to export/download leaderboard data | Leaderboard | Needs Fix |
-| 261 | P3 | UX | Model name "deepseek-chat-v3-0324" too technical for end users | Leaderboard | Needs Fix |
+| 261 | P3 | UX | Model name "deepseek-chat-v3-0324" too technical for end users | Leaderboard | ✅ Fixed (ISS-256) |
 | 262 | P3 | UX | Win rate "0%" for kimi-k2.5 could show "No wins" for clarity | Leaderboard | Confirmed #070 |
 | 263 | P3 | a11y | Table lacks proper table element structure (table/thead/tbody/tr/td) | Leaderboard | Needs Fix |
 | 264 | P3 | UX | "Avg Rank: Lower is better" explanation at bottom, not near data | Leaderboard | Needs Fix |

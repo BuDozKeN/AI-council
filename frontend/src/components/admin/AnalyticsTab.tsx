@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../api';
 import type { ModelRanking } from '../../api';
+import { formatModelName } from '../../utils/modelNames';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Tooltip } from '../ui/Tooltip';
 import {
@@ -114,38 +115,6 @@ function getProviderColor(modelId: string): string {
   };
   const colorKey = colorMap[provider] ?? 'unknown';
   return PROVIDER_COLORS[colorKey];
-}
-
-function formatModelName(model: string): string {
-  const MODEL_NAMES: Record<string, string> = {
-    'anthropic/claude-opus-4.5': 'Claude Opus 4.5',
-    'anthropic/claude-sonnet-4': 'Claude Sonnet 4',
-    'anthropic/claude-3-5-sonnet-20241022': 'Claude 3.5 Sonnet',
-    'anthropic/claude-3-5-haiku-20241022': 'Claude Haiku 3.5',
-    'openai/gpt-5.1': 'GPT-5.1',
-    'openai/gpt-4o': 'GPT-4o',
-    'openai/gpt-4o-mini': 'GPT-4o Mini',
-    'google/gemini-3-pro-preview': 'Gemini 3 Pro',
-    'google/gemini-2.5-flash': 'Gemini 2.5 Flash',
-    'google/gemini-2.0-flash-001': 'Gemini 2.0 Flash',
-    'x-ai/grok-4': 'Grok 4',
-    'x-ai/grok-4-fast': 'Grok 4 Fast',
-    'deepseek/deepseek-chat-v3-0324': 'DeepSeek V3',
-    'moonshotai/kimi-k2': 'Kimi K2',
-    'moonshotai/kimi-k2.5': 'Kimi K2.5',
-  };
-
-  if (MODEL_NAMES[model]) {
-    return MODEL_NAMES[model];
-  }
-
-  const parts = model.split('/');
-  const name = parts[parts.length - 1] || model;
-
-  return name
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }
 
 // =============================================================================
