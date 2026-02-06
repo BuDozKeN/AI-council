@@ -1822,6 +1822,7 @@
       "delete": "Delete user",
       "demoMode": "Showing sample data for preview.",
       "noUsers": "No users found",
+      "inviteFirstUser": "Invite your first user",
       "you": "You",
       "never": "Never",
       "statusSuspended": "Suspended",

@@ -1795,6 +1795,7 @@
       "delete": "Eliminar usuario",
       "demoMode": "Mostrando datos de ejemplo para vista previa.",
       "noUsers": "No se encontraron usuarios",
+      "inviteFirstUser": "Invita a tu primer usuario",
       "you": "Tú",
       "never": "Nunca",
       "statusSuspended": "Suspendido",

@@ -939,10 +939,20 @@ export function UsersTab() {
         <div className="admin-table-empty">
           <Users className="h-8 w-8" />
           <span>{t('admin.users.noUsers', 'No users found')}</span>
-          {statusFilter !== 'all' && (
+          {statusFilter !== 'all' || search ? (
             <p className="admin-empty-hint">
               {t('admin.users.tryDifferentFilter', 'Try a different filter or search term.')}
             </p>
+          ) : (
+            /* ISS-139: Suggest inviting users when list is genuinely empty */
+            <button
+              className="admin-action-btn admin-action-btn--primary"
+              onClick={() => setShowInviteModal(true)}
+              style={{ marginTop: 'var(--space-4)' }}
+            >
+              <UserPlus className="h-4 w-4" />
+              <span>{t('admin.users.inviteFirstUser', 'Invite your first user')}</span>
+            </button>
           )}
         </div>
       ) : (

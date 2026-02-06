@@ -279,8 +279,8 @@
 | 273 | P2 | a11y | Table rows not keyboard navigable | Leaderboard | ✅ Fixed (tabIndex + focus) |
 | 109 | P2 | UX | Invalid conversation URLs silent redirect | URL routing | ✅ Fixed (shows error toast) |
 | 138 | P2 | a11y | ACTIVITY column header missing columnheader markup | Admin Users | ❌ False Positive (<th> has implicit columnheader role) |
-| 139 | P3 | UX | "No users found" empty state could suggest inviting a user | Admin Users | Needs Fix |
-| 140 | P3 | Data | Current user row shows "-" for Actions instead of disabled state | Admin Users | Needs Fix |
+| 139 | P3 | UX | "No users found" empty state could suggest inviting a user | Admin Users | ✅ Fixed (shows "Invite first user" button) |
+| 140 | P3 | Data | Current user row shows "-" for Actions instead of disabled state | Admin Users | 🔧 By Design (can't delete/suspend yourself) |
 
 ## Issue Tracker (141-180) - Data Consistency & Settings
 
