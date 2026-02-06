@@ -262,7 +262,7 @@
 | 125 | P2 | Tablet | Language selector missing at tablet width (768px) | Tablet global | ❌ False Positive |
 | 126 | P3 | Tablet | Uses mobile bottom nav instead of sidebar at tablet width | Tablet nav | By Design? |
 | 127 | P3 | a11y | Conversation action buttons appear before option in DOM (odd structure) | History sidebar | Needs Review |
-| 128 | P3 | UX | "Pin sidebar open" button - unclear what "pinning" means | Sidebar mobile | Needs Fix |
+| 128 | P3 | UX | "Pin sidebar open" button - unclear what "pinning" means | Sidebar mobile | ✅ Fixed (clearer tooltip) |
 | 129 | P2 | a11y | ACTIONS column header missing columnheader markup | Admin Users | ❌ False Positive (<th> has implicit columnheader role) |
 | 130 | P3 | Data | Users with "-" for name instead of email-derived fallback | Admin Users | ✅ Fixed (ISS-130, getDisplayName from email) |
 | 131 | P3 | UX | User names wrap to two lines at tablet ("Alfredo\nLanda") | Admin Users tablet | Needs Fix |
@@ -301,11 +301,11 @@
 | 153 | P3 | UX | Last updated time format inconsistent (06:06:16 vs dates elsewhere) | Admin Analytics | Needs Fix |
 | 154 | P2 | a11y | Radio buttons "1 AI" / "6 AIs" have no visible group label | Chat input | ✅ Fixed (has aria-label + sr-only label) |
 | 155 | P3 | UX | "Choose files" button shows "No file chosen" as value - confusing UI | Chat input | Needs Fix |
-| 156 | P3 | UX | Phone field in Profile doesn't use tel input type | Settings > Profile | Needs Fix |
+| 156 | P3 | UX | Phone field in Profile doesn't use tel input type | Settings > Profile | ✅ Already Fixed (has type="tel" + inputMode="tel") |
 | 157 | P3 | UX | No validation indicators for required fields in Profile form | Settings > Profile | Needs Fix |
 | 158 | P3 | UX | No character limit indicator on Bio field | Settings > Profile | Needs Fix |
-| 159 | P3 | UX | Prompt Caching description mentions only 3 providers (Claude, GPT, DeepSeek) | Settings > Developer | Needs Fix |
-| 160 | P3 | UX | No explanation of what "Mock Mode" actually does | Settings > Developer | Needs Fix |
+| 159 | P3 | UX | Prompt Caching description mentions only 3 providers (Claude, GPT, DeepSeek) | Settings > Developer | ✅ Fixed (clearer description) |
+| 160 | P3 | UX | No explanation of what "Mock Mode" actually does | Settings > Developer | ✅ Fixed (detailed description) |
 
 ## Issue Tracker (161-200) - Conversation View & Mobile/Desktop Parity
 
