@@ -155,7 +155,7 @@ export function AdminRolesTab() {
                     key={admin.id}
                     className={useDummyData ? 'admin-demo-row' : ''}
                     {...getAdminRowProps(rowIndex)}
-                    aria-label={`${admin.email}, Role: ${admin.role.replace('_', ' ')}, Granted: ${formatDate(admin.created_at)}`}
+                    aria-label={`${admin.email}, Role: ${t(`admin.admins.roles.${admin.role}`, admin.role.replace('_', ' '))}, Granted: ${formatDate(admin.created_at)}`}
                   >
                     <td>
                       <div className="admin-user-cell">

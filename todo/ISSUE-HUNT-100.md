@@ -228,7 +228,7 @@
 | 097 | P3 | Data | Audit logs all from Jan 21 - no recent logs (stale data) | Admin Audit Logs | Investigate |
 | 098 | P3 | UX | No "Add Admin" button to grant admin access | Admin Roles | Needs Fix |
 | 099 | P3 | UX | No edit/remove admin actions on rows | Admin Roles | Needs Fix |
-| 100 | P3 | a11y | Role casing inconsistent: "Super Admin" vs "super admin" in row description | Admin Roles | Needs Fix |
+| 100 | P3 | a11y | Role casing inconsistent: "Super Admin" vs "super admin" in row description | Admin Roles | ✅ Fixed (aria-label now uses i18n) |
 
 ## Issue Tracker (101-120) - Admin Portal & Features
 
