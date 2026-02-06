@@ -53,6 +53,12 @@
 | 121 | AI count toggle low contrast light mode | **FIXED** - Changed to --color-text-secondary for WCAG AA contrast |
 | 255 | Medal emojis not accessible | **FIXED** - Added aria-hidden to emojis, role="img" + aria-label to parents |
 | 230 | Department cards not keyboard focusable | **FIXED** - Added focus-visible styles to mc-dept-row and mc-role-row |
+| 116 | "Chat interface" ARIA not translated | **ALREADY FIXED** - Uses t('aria.chatInterface') |
+| 117 | "Conversation history" ARIA not translated | **FIXED** - App.tsx uses t('aria.conversationHistory') |
+| 118 | "Notifications" region not translated | **FIXED** - sonner.tsx containerAriaLabel uses t() |
+| 015 | 404 page title not set | **FIXED** - ErrorPage now sets document.title based on error type |
+| 002 | Terms page wrong title | **VERIFIED** - Already shows "Terms of Service - AxCouncil" |
+| 037 | Playbook button text not adapting | **VERIFIED** - getPlaybookButtonText handles type-specific text |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -87,7 +93,7 @@
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
 | 001 | P1 | Legal | /terms route shows login page instead of Terms of Service content | /terms | ✅ Verified Fixed |
-| 002 | P3 | UX | Page title shows "Conversation - AxCouncil" on /terms route | /terms | Needs Fix |
+| 002 | P3 | UX | Page title shows "Conversation - AxCouncil" on /terms route | /terms | ✅ Already Fixed (shows "Terms of Service - AxCouncil") |
 | 003 | P1 | Legal | /privacy route shows login page instead of Privacy Policy content | /privacy | ✅ Verified Fixed |
 | 004 | P3 | UX | Page title changes to "Conversation" after clicking theme toggle | Login page | Needs Fix |
 | 005 | P2 | API | 429 Too Many Requests errors - rate limiting triggered on login page | Console | Investigate |
@@ -127,7 +133,7 @@
 | 034 | P2 | a11y | Duplicate heading "New Playbook" appears twice in create dialog | Playbooks > New Playbook | ❌ False Positive (asChild) |
 | 035 | P2 | a11y | Duplicate heading "Create Playbook" appears twice in manual create dialog | Playbooks > New Playbook | ❌ False Positive (asChild) |
 | 036 | P2 | a11y | Playbook detail dialog title is generic "Dialog" instead of playbook name | Playbooks > Detail | ✅ Fixed |
-| 037 | P3 | UX | "Let our SOP expert write this" button text doesn't adapt for Framework/Policy types | Playbooks > New | Needs Fix |
+| 037 | P3 | UX | "Let our SOP expert write this" button text doesn't adapt for Framework/Policy types | Playbooks > New | ✅ Already Fixed (getPlaybookButtonText handles type-specific text) |
 | 038 | P2 | a11y | Duplicate heading "Settings" appears twice in settings dialog | Settings | ❌ False Positive (asChild) |
 | 039 | P2 | UX | Command palette (Ctrl+K) shows empty listbox - no commands available | Global | Confirmed #075 in Hunt 200 |
 | 040 | P3 | UX | Invalid routes redirect to / without showing 404 error page | Navigation | Confirmed #015 |
@@ -226,9 +232,9 @@
 | 113 | P2 | i18n | "Choose files" button not translated to Spanish | Chat input | 🔧 Browser-controlled (native file input) |
 | 114 | P2 | i18n | "Attach image" button not translated to Spanish | Chat input | ❌ False Positive (translation exists: aria.attachImage) |
 | 115 | P3 | i18n | "No file chosen" text not translated to Spanish | Chat input | Needs Fix |
-| 116 | P3 | i18n | "Chat interface" ARIA landmark not translated | Global | Needs Fix |
-| 117 | P3 | i18n | "Conversation history and navigation" ARIA landmark not translated | Sidebar | Needs Fix |
-| 118 | P3 | i18n | "Notifications alt+T" region not translated | Global | Needs Fix |
+| 116 | P3 | i18n | "Chat interface" ARIA landmark not translated | Global | ✅ Already Fixed (uses t('aria.chatInterface')) |
+| 117 | P3 | i18n | "Conversation history and navigation" ARIA landmark not translated | Sidebar | ✅ Fixed (App.tsx uses t('aria.conversationHistory')) |
+| 118 | P3 | i18n | "Notifications alt+T" region not translated | Global | ✅ Fixed (sonner containerAriaLabel uses t()) |
 | 119 | P3 | UX | Settings form save has no success/error feedback toast | Settings > Profile | Needs Fix |
 | 120 | P3 | UX | Theme toggle wording confusing ("System (Light) — Click for Light") | Global | Needs Fix |
 | 121 | P3 | UI | AI count toggle ("1 AI / 6 AIs") has low contrast in light mode | Chat input | ✅ Fixed (--color-text-secondary) |

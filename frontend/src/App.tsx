@@ -947,7 +947,8 @@ function App() {
 
       <div className="app">
         {/* Sidebar navigation - semantic aside landmark for screen readers */}
-        <aside aria-label="Conversation history and navigation">
+        {/* ISS-117: Use translated aria-label for i18n support */}
+        <aside aria-label={t('aria.conversationHistory', 'Conversation history and navigation')}>
           <Sidebar
             conversations={conversations}
             currentConversationId={currentConversationId}

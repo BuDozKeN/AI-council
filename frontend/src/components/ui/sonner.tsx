@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- Re-exporting toast helper alongside Toaster is intentional */
 'use client';
 import { Toaster as Sonner, toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import './sonner.css';
 
 /**
@@ -9,8 +10,11 @@ import './sonner.css';
  *
  * Mobile: bottom-center for better thumb reach
  * Desktop: bottom-right to stay out of main content
+ *
+ * ISS-118: Uses translated aria-label for the notifications region
  */
 const Toaster = ({ ...props }) => {
+  const { t } = useTranslation();
   // Detect theme from document class (dark mode support)
   const isDark =
     typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
@@ -26,6 +30,8 @@ const Toaster = ({ ...props }) => {
       // Mobile: larger touch targets and more visible
       expand={isMobile}
       richColors
+      // ISS-118: Translated aria-label for the notifications region
+      containerAriaLabel={t('aria.notifications', 'Notifications')}
       toastOptions={{
         classNames: {
           toast:
