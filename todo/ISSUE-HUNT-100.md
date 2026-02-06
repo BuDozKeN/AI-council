@@ -173,7 +173,7 @@
 | 056 | P2 | Tablet | Email addresses truncated at tablet width making users unidentifiable | Admin Users | ✅ Fixed (180px max-width) |
 | 057 | P3 | UI | Palm tree/beach emoji in bottom right corner - purpose unclear | Admin Portal | ❌ False Positive (TanStack devtools, same as #122) |
 | 058 | P3 | Data | Two users with identical name "Alfredo Landa" - confusing | Admin Users | Data Issue |
-| 059 | P3 | UX | "Never signed in" status combined with "Active" badge - confusing state | Admin Users | Needs Fix |
+| 059 | P3 | UX | "Never signed in" status combined with "Active" badge - confusing state | Admin Users | 🔧 By Design (Active = account enabled, sign-in = usage) |
 | 060 | P3 | UI | Date format inconsistent across table (20 Jan 2026 vs 6 Dec 2025) | Admin Users | Needs Fix |
 
 ## Issue Tracker (061-080) - Settings & Forms
@@ -449,7 +449,7 @@
 |---|----------|----------|-------|----------|--------|
 | 281 | P2 | a11y | Skip to main content link doesn't move focus to target element | Global | ✅ Fixed (tabIndex={-1} on main) |
 | 282 | P3 | a11y | Main content area (#main-content) not focusable | Global | ✅ Fixed (tabIndex={-1} on main) |
-| 283 | P3 | a11y | No focus indicator visible on some interactive elements | Global | Needs Fix |
+| 283 | P3 | a11y | No focus indicator visible on some interactive elements | Global | ✅ Already Fixed (global :focus-visible styles in index.css) |
 | 284 | P3 | a11y | Tab order skips some elements in conversation view | Conversation | Needs Review |
 | 285 | P3 | a11y | Model chips in response not keyboard accessible | Conversation view | Needs Fix |
 | 286 | P3 | a11y | Code block not keyboard navigable | Conversation view | Needs Fix |
@@ -477,7 +477,7 @@
 | 308 | P3 | UX | Session timeout not shown to user | Global | Needs Fix |
 | 309 | P3 | UX | No breadcrumb navigation showing current location | Global | Needs Fix |
 | 310 | P3 | UX | Page title doesn't include current view (just "AxCouncil") | Global | Needs Fix |
-| 311 | P3 | a11y | Focus trap not implemented in modals | Modals | Needs Fix |
+| 311 | P3 | a11y | Focus trap not implemented in modals | Modals | ✅ Already Fixed (Radix Dialog has built-in focus trap) |
 | 312 | P3 | a11y | Modal backdrop click closes modal without warning | Modals | Needs Review |
 | 313 | P3 | UX | No undo for destructive actions (delete conversation) | History | Needs Fix |
 | 314 | P3 | UX | Delete confirmation too easy to dismiss accidentally | Delete dialogs | Needs Fix |
