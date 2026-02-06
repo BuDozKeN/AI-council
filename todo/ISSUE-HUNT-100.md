@@ -184,7 +184,7 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 061 | P3 | UI | Mail icon redundant with EMAIL column header | Admin Users | Needs Fix |
+| 061 | P3 | UI | Mail icon redundant with EMAIL column header | Admin Users | 🔧 By Design (icon aids visual scanning) |
 | 062 | P2 | Mobile | Settings modal tab text very small on mobile sidebar | Settings mobile | ✅ Fixed (11px font) |
 | 063 | P3 | UX | Conversation content visible behind Settings modal on mobile | Settings mobile | By Design |
 | 064 | P2 | a11y | Duplicate heading "Model Leaderboard" appears as h2 AND h1 in dialog | Leaderboard | ❌ False Positive (Radix VisuallyHidden description) |
