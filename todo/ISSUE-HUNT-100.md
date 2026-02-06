@@ -67,6 +67,8 @@
 | 013-014 | Login page title not localized | **FIXED** - Same fix as ISS-004, now shows home title in all languages |
 | 256 | Model names use technical IDs | **FIXED** - Created shared formatModelName utility with display name mapping (ISS-256) |
 | 261 | "deepseek-chat-v3-0324" too technical | **FIXED** - Now shows "DeepSeek V3" via formatModelName (ISS-256) |
+| 051 | Admin download button no explanation | **ALREADY FIXED** - Has "Export coming soon" tooltip |
+| 105 | "All Conversati..." truncated | **FIXED** - Added title attribute for hover tooltip (ISS-105) |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -162,7 +164,7 @@
 | 048 | P3 | UX | "AI can make mistakes" disclaimer appears after every council response | Chat | By Design |
 | 049 | P2 | Mobile | Long code blocks may overflow horizontally on mobile | Chat mobile | ✅ Already Implemented (overflow-x: auto) |
 | 050 | P2 | Mobile | Admin Portal tab labels cramped/small on mobile | Admin Portal | ✅ Fixed (11px font) |
-| 051 | P3 | UX | Admin download button disabled with no explanation | Admin Analytics | Needs Fix |
+| 051 | P3 | UX | Admin download button disabled with no explanation | Admin Analytics | ✅ Already Fixed (has "Export coming soon" tooltip) |
 | 052 | P2 | Data | Rankings show incorrect order (#1, #2, #3, #4, #6, #5) instead of sequential | Admin Analytics | 🔧 Backend Data Issue |
 | 053 | P3 | UI | Model names split across multiple elements in charts (accessibility) | Admin Analytics | Needs Fix |
 | 054 | P3 | UX | "LIVE" badge meaning unclear on charts | Admin Analytics | Needs Fix |
@@ -231,7 +233,7 @@
 | 102 | P3 | a11y | Duplicate text: "Platform Settings" h2 AND "Platform Settings Coming Soon" h3 | Admin Settings | Needs Fix |
 | 103 | P1 | UX | Cannot navigate to view conversations - clicking only triggers bulk selection | History sidebar | ✅ Works (test tooling issue) |
 | 104 | P2 | UX | "Select conversation" button label confusing - it's for bulk selection not navigation | History sidebar | ✅ Already Clear (aria-label: "Add to bulk selection") |
-| 105 | P3 | UX | "All Conversati..." truncated in dropdown | History sidebar | Needs Fix |
+| 105 | P3 | UX | "All Conversati..." truncated in dropdown | History sidebar | ✅ Fixed (ISS-105, title tooltip) |
 | 106 | P3 | UX | Conversation titles truncated with no tooltip or expand option | History sidebar | Needs Fix |
 | 107 | P3 | UX | No date/time shown for conversations | History sidebar | Needs Fix |
 | 108 | P3 | UX | No preview text for conversation content | History sidebar | Needs Fix |
