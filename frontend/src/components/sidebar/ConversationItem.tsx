@@ -248,12 +248,15 @@ export const ConversationItem = memo(function ConversationItem({
             />
           </div>
         ) : (
-          <div className="conversation-title">
+          <div
+            className="conversation-title"
+            title={conversation.title || t('sidebar.newConversation', 'New Conversation')}
+          >
             {conversation.is_starred && (
               <Star size={12} className="title-star" fill="currentColor" />
             )}
             {conversation.is_archived && <span className="archived-badge">Archived</span>}
-            {conversation.title || 'New Conversation'}
+            {conversation.title || t('sidebar.newConversation', 'New Conversation')}
           </div>
         )}
         <div className="conversation-meta">

@@ -70,6 +70,9 @@
 | 051 | Admin download button no explanation | **ALREADY FIXED** - Has "Export coming soon" tooltip |
 | 105 | "All Conversati..." truncated | **FIXED** - Added title attribute for hover tooltip (ISS-105) |
 | 087 | Green dot purpose unclear | **FIXED** - Added aria-label and improved tooltip for live indicator (ISS-087) |
+| 054 | "LIVE" badge meaning unclear | **FIXED** - Same as ISS-087, has aria-label and title tooltip (ISS-087) |
+| 106 | Conversation titles no tooltip | **FIXED** - Added title attribute showing full title on hover (ISS-106) |
+| 294 | Lightning bolt no tooltip | **ALREADY FIXED** - Radix Tooltip with mum-friendly explanations |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -87,6 +90,7 @@
 | 321 | No global error boundary | **FALSE POSITIVE** - ErrorBoundary component exists with Sentry integration |
 | 125 | Language selector missing tablet | **FALSE POSITIVE** - Verified visible at 768px and 641px tablet widths |
 | 251-252 | Leaderboard duplicate headings | **FALSE POSITIVE** - Radix VisuallyHidden pattern for a11y |
+| 060 | Date format inconsistent | **FALSE POSITIVE** - Same format pattern (D MMM YYYY), different dates have different digit counts |
 
 ### Issues Requiring Backend Investigation 🔧
 
@@ -168,13 +172,13 @@
 | 051 | P3 | UX | Admin download button disabled with no explanation | Admin Analytics | ✅ Already Fixed (has "Export coming soon" tooltip) |
 | 052 | P2 | Data | Rankings show incorrect order (#1, #2, #3, #4, #6, #5) instead of sequential | Admin Analytics | 🔧 Backend Data Issue |
 | 053 | P3 | UI | Model names split across multiple elements in charts (accessibility) | Admin Analytics | Needs Fix |
-| 054 | P3 | UX | "LIVE" badge meaning unclear on charts | Admin Analytics | Needs Fix |
+| 054 | P3 | UX | "LIVE" badge meaning unclear on charts | Admin Analytics | ✅ Fixed (ISS-087, aria-label + title) |
 | 055 | P2 | Mobile | No hamburger menu alternative for Admin Portal mobile nav | Admin Portal | 🔧 By Design (horizontal scroll tabs) |
 | 056 | P2 | Tablet | Email addresses truncated at tablet width making users unidentifiable | Admin Users | ✅ Fixed (180px max-width) |
 | 057 | P3 | UI | Palm tree/beach emoji in bottom right corner - purpose unclear | Admin Portal | ❌ False Positive (TanStack devtools, same as #122) |
 | 058 | P3 | Data | Two users with identical name "Alfredo Landa" - confusing | Admin Users | Data Issue |
 | 059 | P3 | UX | "Never signed in" status combined with "Active" badge - confusing state | Admin Users | 🔧 By Design (Active = account enabled, sign-in = usage) |
-| 060 | P3 | UI | Date format inconsistent across table (20 Jan 2026 vs 6 Dec 2025) | Admin Users | Needs Fix |
+| 060 | P3 | UI | Date format inconsistent across table (20 Jan 2026 vs 6 Dec 2025) | Admin Users | ❌ False Positive (same format, different dates) |
 
 ## Issue Tracker (061-080) - Settings & Forms
 
@@ -235,7 +239,7 @@
 | 103 | P1 | UX | Cannot navigate to view conversations - clicking only triggers bulk selection | History sidebar | ✅ Works (test tooling issue) |
 | 104 | P2 | UX | "Select conversation" button label confusing - it's for bulk selection not navigation | History sidebar | ✅ Already Clear (aria-label: "Add to bulk selection") |
 | 105 | P3 | UX | "All Conversati..." truncated in dropdown | History sidebar | ✅ Fixed (ISS-105, title tooltip) |
-| 106 | P3 | UX | Conversation titles truncated with no tooltip or expand option | History sidebar | Needs Fix |
+| 106 | P3 | UX | Conversation titles truncated with no tooltip or expand option | History sidebar | ✅ Fixed (ISS-106, title tooltip) |
 | 107 | P3 | UX | No date/time shown for conversations | History sidebar | Needs Fix |
 | 108 | P3 | UX | No preview text for conversation content | History sidebar | Needs Fix |
 | 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | ✅ Fixed (shows toast) |
@@ -460,7 +464,7 @@
 | 291 | P3 | UX | Enter key doesn't submit chat input (need to click Send) | Chat input | ✅ Already Fixed (handleKeyDown in ChatInterface.tsx) |
 | 292 | P3 | UX | Ctrl+Enter keyboard hint not shown for submit | Chat input | Needs Fix |
 | 293 | P3 | a11y | Radio buttons for 1 AI / 6 AIs not in fieldset with legend | Chat input | Needs Fix |
-| 294 | P3 | UX | Lightning bolt button (response style) has no tooltip | Chat input | Needs Fix |
+| 294 | P3 | UX | Lightning bolt button (response style) has no tooltip | Chat input | ✅ Already Fixed (Radix Tooltip with mum-friendly text) |
 | 295 | P3 | UX | Send button icon-only on desktop - no text label | Chat input | Needs Review |
 | 296 | P3 | a11y | Image attachment button no accessible name beyond "Attach image" | Chat input | Needs Review |
 | 297 | P3 | UX | Context dropdown shows "1" but doesn't explain what it means | Chat input | Needs Fix |
