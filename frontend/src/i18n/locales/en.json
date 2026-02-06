@@ -358,7 +358,7 @@
       "playbooks": "Apply company guides",
       "councilMode": "Multiple AI experts will debate your question and give you the best combined answer. Takes longer but more thorough.",
       "chatMode": "Get a quick answer from one AI. Faster, but just one perspective.",
-      "send": "Send your question to the AI",
+      "send": "Send your question to the AI (Enter)",
       "stop": "Stop the AI from writing more",
       "reset": "Start fresh - clear everything"
     },

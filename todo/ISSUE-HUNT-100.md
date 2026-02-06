@@ -462,7 +462,7 @@
 | 289 | P3 | UX | No keyboard shortcut to open History | Global | Needs Fix |
 | 290 | P3 | UX | No keyboard shortcut to open Settings | Global | Needs Fix |
 | 291 | P3 | UX | Enter key doesn't submit chat input (need to click Send) | Chat input | ✅ Already Fixed (handleKeyDown in ChatInterface.tsx) |
-| 292 | P3 | UX | Ctrl+Enter keyboard hint not shown for submit | Chat input | Needs Fix |
+| 292 | P3 | UX | Ctrl+Enter keyboard hint not shown for submit | Chat input | ✅ Fixed (ISS-292, added "(Enter)" to tooltip) |
 | 293 | P3 | a11y | Radio buttons for 1 AI / 6 AIs not in fieldset with legend | Chat input | Needs Fix |
 | 294 | P3 | UX | Lightning bolt button (response style) has no tooltip | Chat input | ✅ Already Fixed (Radix Tooltip with mum-friendly text) |
 | 295 | P3 | UX | Send button icon-only on desktop - no text label | Chat input | Needs Review |

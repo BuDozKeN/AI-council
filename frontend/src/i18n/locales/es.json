@@ -358,7 +358,7 @@
       "playbooks": "Aplica las guías de tu empresa a la respuesta",
       "councilMode": "Múltiples expertos de IA debatirán tu pregunta y te darán la mejor respuesta combinada. Toma más tiempo pero es más completo.",
       "chatMode": "Obtén una respuesta rápida de una sola IA. Más rápido, pero solo una perspectiva.",
-      "send": "Enviar tu pregunta a la IA",
+      "send": "Enviar tu pregunta a la IA (Enter)",
       "stop": "Detener a la IA de escribir más",
       "reset": "Empezar de nuevo - limpiar todo"
     },
