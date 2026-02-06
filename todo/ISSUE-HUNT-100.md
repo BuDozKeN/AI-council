@@ -160,7 +160,7 @@
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
 | 041 | P2 | Mobile | Language selector missing on mobile viewport (visible on desktop) | Global mobile | 🔧 By Design (in Settings) |
-| 042 | P3 | a11y | Response style button nested/duplicated in DOM (button inside button) | Chat input | Needs Fix |
+| 042 | P3 | a11y | Response style button nested/duplicated in DOM (button inside button) | Chat input | ✅ Verified (uses Radix asChild pattern correctly) |
 | 043 | P2 | Mobile | Leaderboard not accessible from mobile bottom navigation | Mobile nav | ✅ Fixed |
 | 044 | P3 | Mobile | History button only in bottom nav, missing from collapsed sidebar | Sidebar mobile | By Design? |
 | 045 | P3 | Mobile | Conversation action buttons always visible (star, archive, delete) - cluttered | Sidebar mobile | Needs Review |
@@ -192,7 +192,7 @@
 | 066 | P2 | Data | Total Sessions count doesn't update per category tab (always shows 90) | Leaderboard | ✅ Fixed (ISS-066) |
 | 067 | P2 | Data | kimi-k2.5 model missing from Operations tab (only 5 models shown) | Leaderboard | 🔧 Backend Data (model has no sessions in category) |
 | 068 | P2 | Data | kimi-k2.5 model missing from Technology tab (only 5 models shown) | Leaderboard | 🔧 Backend Data (model has no sessions in category) |
-| 069 | P3 | UX | Tab categories (Operations/Standard/Technology) not explained | Leaderboard | Needs Fix |
+| 069 | P3 | UX | Tab categories (Operations/Standard/Technology) not explained | Leaderboard | 🔧 By Design (tabs are company departments, not fixed categories) |
 | 070 | P3 | UX | "0%" win rate could say "No wins yet" for clarity | Leaderboard | ✅ Fixed (shows "No wins" with i18n) |
 | 071 | P2 | Mobile | Model names wrap awkwardly with hyphens on mobile | Leaderboard mobile | ✅ Fixed (white-space: nowrap) |
 | 072 | P3 | UI | "AxCouncil" text cut off/faded at top of leaderboard mobile | Leaderboard mobile | Needs Fix |
@@ -270,7 +270,7 @@
 | 133 | P3 | a11y | Rankings table at tablet missing SESSIONS and WINS columns | Admin Analytics tablet | Needs Review |
 | 134 | P3 | UI | Model names split across lines at tablet ("Claude Opus" / "4.5") | Admin Analytics tablet | Confirmed #053 |
 | 135 | P3 | UX | No tooltip on truncated emails to show full address | Admin Users | ✅ Fixed (ISS-135, title tooltip) |
-| 136 | P3 | UX | "View and manage all users across the platform" wraps awkwardly | Admin Users | Needs Fix |
+| 136 | P3 | UX | "View and manage all users across the platform" wraps awkwardly | Admin Users | 🔧 Minor Cosmetic (text is concise, wrapping is width-dependent) |
 | 137 | P2 | Bug | Search doesn't reset results when cleared - requires page reload | Admin Users | ✅ Fixed |
 | 221 | P2 | a11y | My Company header nested buttons | My Company | ✅ Fixed (restructured header) |
 | 238 | P2 | Data | Status indicator unclear | My Company header | ✅ Fixed (shows readable text) |
@@ -423,7 +423,7 @@
 | 255 | P3 | a11y | Medal emojis used for ranking not accessible to screen readers | Leaderboard | ✅ Fixed (aria-hidden + role="img") |
 | 256 | P3 | Data | Model names use technical IDs (claude-opus-4.5) vs display names (Claude Opus 4.5) | Leaderboard | ✅ Fixed (ISS-256) |
 | 257 | P3 | Data | kimi-k2.5 has only 3 sessions vs 88-90 for others - data imbalance | Leaderboard | Investigate |
-| 258 | P3 | UX | No explanation of what Operations/Standard/Technology categories mean | Leaderboard | Needs Fix |
+| 258 | P3 | UX | No explanation of what Operations/Standard/Technology categories mean | Leaderboard | 🔧 Duplicate of ISS-069 (user-defined departments) |
 | 259 | P3 | UX | Total Sessions count doesn't update when switching tabs | Leaderboard | Confirmed #066 |
 | 260 | P3 | UX | No way to export/download leaderboard data | Leaderboard | Needs Fix |
 | 261 | P3 | UX | Model name "deepseek-chat-v3-0324" too technical for end users | Leaderboard | ✅ Fixed (ISS-256) |
