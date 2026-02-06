@@ -38,6 +38,21 @@
 | 183 | Admin Portal not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-183) |
 | 185 | Sign Out not accessible mobile | **FIXED** - Added to Settings sidebar actions (ISS-185) |
 | 281 | Skip link doesn't move focus | **ALREADY FIXED** - main has tabIndex={-1} |
+| 137 | Search doesn't reset when cleared | **FIXED** - Added refetchQueries on search clear (ISS-137) |
+| 123 | Command palette not accessible | **FIXED** - Added dialog ARIA attributes (ISS-123) |
+| 146 | Team members truncated UUIDs | **FIXED** - Backend fetches profile data, frontend shows fallback (ISS-146) |
+| 141 | Analytics charts no accessible names | **FIXED** - Added role="img" and aria-label to all chart containers (ISS-141) |
+| 109 | Invalid conversation URL silent redirect | **FIXED** - Shows error toast "Conversation not found" with description |
+| 221 | My Company header nested buttons | **FIXED** - Restructured header, company switcher separate from dismiss area |
+| 238 | Status indicator unclear | **FIXED** - Shows readable text "6 pending" or "All decisions promoted" |
+| 253 | Leaderboard table headers StaticText | **FIXED** - scope="col" creates proper columnheader elements |
+| 273 | Leaderboard rows not keyboard navigable | **FIXED** - tabIndex + aria-label + focus styles added |
+| 030 | Skeleton loading indefinite | **FIXED** - useCompanyData sets tabLoaded on error |
+| 233 | Business Context heading hierarchy | **INVESTIGATED** - cleanContent strips h1, markdown uses h2+ correctly |
+| 016 | Password strength label low contrast | **FIXED** - Changed color tokens from 600 to 400 variants for better dark bg contrast |
+| 121 | AI count toggle low contrast light mode | **FIXED** - Changed to --color-text-secondary for WCAG AA contrast |
+| 255 | Medal emojis not accessible | **FIXED** - Added aria-hidden to emojis, role="img" + aria-label to parents |
+| 230 | Department cards not keyboard focusable | **FIXED** - Added focus-visible styles to mc-dept-row and mc-role-row |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -53,14 +68,16 @@
 | 195-206 | Duplicate API calls | **FIXED** - hasFetchedRef pattern applied |
 | 222 | TOC in button | **FALSE POSITIVE** - Uses proper semantic pattern |
 | 321 | No global error boundary | **FALSE POSITIVE** - ErrorBoundary component exists with Sentry integration |
+| 125 | Language selector missing tablet | **FALSE POSITIVE** - Verified visible at 768px and 641px tablet widths |
+| 251-252 | Leaderboard duplicate headings | **FALSE POSITIVE** - Radix VisuallyHidden pattern for a11y |
 
 ### Issues Requiring Backend Investigation 🔧
 
 | # | Issue | Notes |
 |---|-------|-------|
-| 005-008 | API errors unauthenticated | Rate limiting / auth guard issues |
-| 017-022 | Settings tab API errors | Likely rate limiting cascade (#023) |
-| 023 | Aggressive rate limiting | Backend config issue |
+| 005-008 | API errors unauthenticated | Auth guard issues (API calls made before auth) |
+| 017-022 | Settings tab API errors | Network/auth cascade, not rate limits |
+| 023 | ~~Aggressive rate limiting~~ | ✅ Investigated: Rate limits reasonable (100/min reads, 30/min writes), proper 429 handling exists |
 | 024-028 | Company-specific failures | Data/permissions issue for "Simple Af" |
 
 ---
@@ -80,25 +97,25 @@
 | 009 | P3 | API | Inconsistent API paths - "/companies/" vs "/company/" | API | Tech Debt |
 | 010 | P2 | a11y | First Tab press skips "Skip to main content" link | Login page | ✅ Verified Fixed |
 | 011 | P2 | i18n | "Skip to main content" link not translated to Spanish | Login page | ✅ Verified Fixed |
-| 012 | P3 | i18n | "Show password" button aria-label not translated | Login page | Needs Fix |
+| 012 | P3 | i18n | "Show password" button aria-label not translated | Login page | ✅ Already Fixed (auth.showPassword/hidePassword exist) |
 | 013 | P3 | i18n | Page title shows "Conversación" instead of "Bienvenido" in Spanish | Login page | Needs Fix |
 | 014 | P3 | UX | Page title shows "Conversation" in English instead of "Welcome back" | Login page | Needs Fix |
 | 015 | P2 | UX | No 404 page - invalid routes show login page instead of error | All routes | ✅ Verified Fixed |
-| 016 | P3 | UI | Password strength label ("Strong/Fair/Weak") has very low contrast | Signup form | Needs Fix |
+| 016 | P3 | UI | Password strength label ("Strong/Fair/Weak") has very low contrast | Signup form | ✅ Fixed (changed to 400 color variants) |
 | 017 | P2 | API | "Failed to load billing information" error on Billing tab | Settings > Billing | Needs Fix |
 | 018 | P2 | API | "Failed to get company members" error on Team tab | Settings > Team | Needs Fix |
 | 019 | P2 | i18n | Missing i18n key: settings.emailCannotBeChanged | Settings > Profile | ✅ Verified Fixed |
 | 020 | P3 | a11y | Missing autocomplete attribute on form element | Settings > Profile | Needs Fix |
 | 021 | P2 | API | "Failed to load API key status" error on API Keys tab | Settings > API Keys | Needs Fix |
 | 022 | P2 | API | "Unable to load configuration" error on LLM Hub tab | Settings > LLM Hub | Needs Fix |
-| 023 | P1 | API | Aggressive rate limiting (429) causing cascading failures across Settings tabs | Settings (all) | Investigate |
+| 023 | P1 | API | Aggressive rate limiting (429) causing cascading failures across Settings tabs | Settings (all) | ✅ Investigated (rate limits reasonable: 100/min reads, 30/min writes; proper 429 error handling exists) |
 | 024 | P2 | Data | Simple Af company: "Failed to load overview" error | My Company > Overview | Investigate |
 | 025 | P2 | Data | Simple Af company: "Failed to load team" error | My Company > Team | Investigate |
 | 026 | P2 | Data | Simple Af company: "Failed to load projects" error | My Company > Projects | Investigate |
 | 027 | P2 | Data | Simple Af company: "Failed to load playbooks" error | My Company > Playbooks | Investigate |
 | 028 | P1 | Data | Company-specific failures - Simple Af fails everywhere, AxCouncil works | My Company (all) | Investigate |
-| 029 | P3 | UX | Company status indicator changes from green dot to red square (unclear meaning) | My Company header | Needs Fix |
-| 030 | P3 | UX | Skeleton loading shows indefinitely when API fails (no timeout/error state) | My Company | Needs Fix |
+| 029 | P3 | UX | Company status indicator changes from green dot to red square (unclear meaning) | My Company header | ✅ Fixed (ISS-238 shows readable text) |
+| 030 | P3 | UX | Skeleton loading shows indefinitely when API fails (no timeout/error state) | My Company | ✅ Fixed (useCompanyData sets tabLoaded on error) |
 
 ## Issue Tracker (031-050) - Projects, Playbooks & Dialogs
 
@@ -202,7 +219,7 @@
 | 106 | P3 | UX | Conversation titles truncated with no tooltip or expand option | History sidebar | Needs Fix |
 | 107 | P3 | UX | No date/time shown for conversations | History sidebar | Needs Fix |
 | 108 | P3 | UX | No preview text for conversation content | History sidebar | Needs Fix |
-| 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | Needs Fix |
+| 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | ✅ Fixed (shows toast) |
 | 110 | P3 | a11y | Nested listbox structure (listbox > button > listbox > option) complex | History sidebar | Needs Review |
 | 111 | P3 | UI | "All Conversations (10) Latest" button contains two comboboxes - complex nesting | History sidebar | Needs Fix |
 | 112 | P2 | i18n | "Skip to main content" not translated to Spanish | Global | ❌ False Positive (translation exists: a11y.skipToMainContent) |
@@ -214,11 +231,12 @@
 | 118 | P3 | i18n | "Notifications alt+T" region not translated | Global | Needs Fix |
 | 119 | P3 | UX | Settings form save has no success/error feedback toast | Settings > Profile | Needs Fix |
 | 120 | P3 | UX | Theme toggle wording confusing ("System (Light) — Click for Light") | Global | Needs Fix |
-| 121 | P3 | UI | AI count toggle ("1 AI / 6 AIs") has low contrast in light mode | Chat input | Needs Fix |
+| 121 | P3 | UI | AI count toggle ("1 AI / 6 AIs") has low contrast in light mode | Chat input | ✅ Fixed (--color-text-secondary) |
 | 122 | P3 | UI | Palm tree/beach emoji visible on all pages in all modes | Global | Needs Review |
-| 123 | P2 | a11y | Command palette commands not exposed to assistive technology (empty listbox) | Command palette | Needs Fix |
+| 123 | P2 | a11y | Command palette commands not exposed to assistive technology (empty listbox) | Command palette | ✅ Fixed |
+| 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | ✅ Fixed (shows toast) |
 | 124 | P3 | Tablet | "New Chat" text partially cut off in sidebar | Tablet sidebar | Needs Fix |
-| 125 | P2 | Tablet | Language selector missing at tablet width (768px) | Tablet global | Needs Fix |
+| 125 | P2 | Tablet | Language selector missing at tablet width (768px) | Tablet global | ❌ False Positive |
 | 126 | P3 | Tablet | Uses mobile bottom nav instead of sidebar at tablet width | Tablet nav | By Design? |
 | 127 | P3 | a11y | Conversation action buttons appear before option in DOM (odd structure) | History sidebar | Needs Review |
 | 128 | P3 | UX | "Pin sidebar open" button - unclear what "pinning" means | Sidebar mobile | Needs Fix |
@@ -230,7 +248,13 @@
 | 134 | P3 | UI | Model names split across lines at tablet ("Claude Opus" / "4.5") | Admin Analytics tablet | Confirmed #053 |
 | 135 | P3 | UX | No tooltip on truncated emails to show full address | Admin Users | Needs Fix |
 | 136 | P3 | UX | "View and manage all users across the platform" wraps awkwardly | Admin Users | Needs Fix |
-| 137 | P2 | Bug | Search doesn't reset results when cleared - requires page reload | Admin Users | Needs Fix |
+| 137 | P2 | Bug | Search doesn't reset results when cleared - requires page reload | Admin Users | ✅ Fixed |
+| 221 | P2 | a11y | My Company header nested buttons | My Company | ✅ Fixed (restructured header) |
+| 238 | P2 | Data | Status indicator unclear | My Company header | ✅ Fixed (shows readable text) |
+| 251 | P2 | a11y | Leaderboard duplicate headings | Leaderboard | ❌ False Positive (Radix pattern) |
+| 253 | P2 | a11y | Table headers not columnheader | Leaderboard | ✅ Fixed (scope="col") |
+| 273 | P2 | a11y | Table rows not keyboard navigable | Leaderboard | ✅ Fixed (tabIndex + focus) |
+| 109 | P2 | UX | Invalid conversation URLs silent redirect | URL routing | ✅ Fixed (shows error toast) |
 | 138 | P2 | a11y | ACTIVITY column header missing columnheader markup | Admin Users | ❌ False Positive (<th> has implicit columnheader role) |
 | 139 | P3 | UX | "No users found" empty state could suggest inviting a user | Admin Users | Needs Fix |
 | 140 | P3 | Data | Current user row shows "-" for Actions instead of disabled state | Admin Users | Needs Fix |
@@ -239,12 +263,12 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 141 | P2 | a11y | Analytics charts have empty group elements with no accessible names | Admin Analytics | Needs Fix |
+| 141 | P2 | a11y | Analytics charts have empty group elements with no accessible names | Admin Analytics | ✅ Fixed |
 | 142 | P3 | Data | Company Growth chart y-axis shows 0.5 - doesn't make sense for whole companies | Admin Analytics | Needs Fix |
 | 143 | P1 | Data | Model count inconsistent: "6 AIs" (main) vs "5 AI models" (Billing) vs "15 models" (LLM Hub) | Multiple | 🔧 Backend Data Issue |
 | 144 | P2 | UX | Enterprise plan shows "Free" as price - should be "Custom" or "Contact Us" | Settings > Billing | ✅ Fixed (shows "Contact Us") |
 | 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | Needs Fix |
-| 146 | P2 | UX | Team members shown as truncated UUIDs instead of names/emails | Settings > Team | Needs Fix |
+| 146 | P2 | UX | Team members shown as truncated UUIDs instead of names/emails | Settings > Team | ✅ Fixed |
 | 147 | P3 | UX | "You" in Team tab doesn't show actual user name or email | Settings > Team | Needs Fix |
 | 148 | P2 | Data | 136 queries used exceeds Free plan's 5/month limit - confusing | Settings > Billing | Investigate |
 | 149 | P3 | UX | No "Current Plan" indicator shown near usage section | Settings > Billing | Needs Fix |
@@ -268,7 +292,7 @@
 | 162 | P1 | Bug | "[GAP: Specific use case for the query...]" template text visible to users | Conversation view | ✅ Verified Fixed |
 | 163 | P3 | a11y | Duplicate heading text - h1 "Basic Math Question" AND StaticText "Basic Math Question" | Conversation view | Needs Fix |
 | 164 | P3 | a11y | User message wrapped in button element - odd semantic structure | Conversation view | Needs Review |
-| 165 | P2 | a11y | Nested button in Response style on mobile (button > button > button) | Mobile chat | Needs Fix |
+| 165 | P2 | a11y | Nested button in Response style on mobile (button > button > button) | Mobile chat | ✅ Fixed (uses direct button) |
 | 166 | P3 | UX | Follow-up mode defaults to "1 AI" but initial input defaults to "6 AIs" - inconsistent | Chat input | Needs Review |
 | 167 | P3 | UI | "Top insights combined into one respo..." truncated on desktop | Conversation view | Needs Fix |
 | 168 | P3 | a11y | Action buttons DOM order differs between mobile and desktop | History sidebar | Needs Fix |
@@ -286,9 +310,9 @@
 | 180 | P3 | UX | "Project" button tooltip says "Link this answer" but action unclear | Conversation view | Needs Fix |
 | 181 | P3 | UX | "Playbooks" button tooltip says "classify as playbook type" - unclear | Conversation view | Needs Fix |
 | 182 | P3 | Legal | "AI can make mistakes" disclaimer - should link to terms/docs | Conversation view | Needs Fix |
-| 183 | P2 | Mobile | Admin Portal only accessible via collapsed sidebar, not bottom nav | Mobile nav | Needs Fix |
+| 183 | P2 | Mobile | Admin Portal only accessible via collapsed sidebar, not bottom nav | Mobile nav | ✅ Fixed (ISS-183) |
 | 184 | P3 | Mobile | Leaderboard only accessible via collapsed sidebar, not bottom nav | Mobile nav | Confirmed #043 |
-| 185 | P3 | Mobile | Sign out only in collapsed sidebar, not in Settings or bottom nav | Mobile nav | Needs Fix |
+| 185 | P3 | Mobile | Sign out only in collapsed sidebar, not in Settings or bottom nav | Mobile nav | ✅ Fixed (ISS-185) |
 | 186 | P2 | UX | Desktop sidebar doesn't show conversation list by default - must click History | Desktop sidebar | Needs Review |
 | 187 | P3 | UX | No keyboard shortcut hint for opening History (only Ctrl+K shown) | Sidebar | Needs Fix |
 | 188 | P3 | UX | Conversation URL uses UUID - not shareable/memorable | URL structure | By Design? |
@@ -334,7 +358,7 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 221 | P2 | a11y | My Company modal close wrapper contains nested buttons (button > button > combobox) | My Company | Needs Fix |
+| 221 | P2 | a11y | My Company modal close wrapper contains nested buttons (button > button > combobox) | My Company | ✅ Fixed (restructured header) |
 | 222 | P1 | a11y | Entire Table of Contents is wrapped in a button element - wrong semantics | My Company > Overview | ❌ False Positive |
 | 223 | P3 | a11y | Navigation tabs use buttons instead of proper tab/tablist elements | My Company | Needs Fix |
 | 224 | P3 | UX | "Command Center" subtitle meaning unclear | My Company header | Needs Fix |
@@ -343,15 +367,15 @@
 | 227 | P3 | UX | Department color bars have no legend explaining what colors mean | My Company > Team | Needs Fix |
 | 228 | P3 | UX | No search/filter for departments list | My Company > Team | Needs Fix |
 | 229 | P3 | UX | Can't see roles without clicking into department | My Company > Team | Needs Fix |
-| 230 | P3 | a11y | Department cards not focusable via keyboard | My Company > Team | Needs Fix |
+| 230 | P3 | a11y | Department cards not focusable via keyboard | My Company > Team | ✅ Fixed (focus-visible styles) |
 | 231 | P3 | UX | "LAST UPDATED" and "VERSION" labels in all caps | My Company > Overview | Style Choice |
 | 232 | P3 | UX | Table of Contents links as anchor links (#section) but section IDs not visible | My Company > Overview | Needs Fix |
-| 233 | P2 | a11y | Business Context document not structured with proper heading hierarchy | My Company > Overview | Needs Fix |
+| 233 | P2 | a11y | Business Context document not structured with proper heading hierarchy | My Company > Overview | ✅ Investigated (cleanContent strips h1, markdown uses h2+) |
 | 234 | P3 | UX | "Edit" button for Business Context - no indication of what can be edited | My Company > Overview | Needs Fix |
 | 235 | P3 | UX | Copy button for Business Context - no feedback when copied | My Company > Overview | Needs Fix |
 | 236 | P3 | UX | Version number (1.3) - no way to see version history | My Company > Overview | Needs Fix |
 | 237 | P3 | UX | "Expand table of contents" button text not clear when expanded | My Company > Overview | Needs Fix |
-| 238 | P2 | Data | Company status indicator (orange square) meaning unclear | My Company header | Needs Fix |
+| 238 | P2 | Data | Company status indicator (orange square) meaning unclear | My Company header | ✅ Fixed (shows readable status text) |
 | 239 | P3 | UX | Tab descriptions only visible in snapshot, not in UI | My Company | Needs Fix |
 | 240 | P3 | a11y | "Click to close, or press Escape" button label contains instructions | My Company | Needs Fix |
 | 241 | P3 | UX | Light mode: conversation visible behind modal (distraction) | My Company modal | By Design |
@@ -369,11 +393,11 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 251 | P2 | a11y | Leaderboard has duplicate h1 and h2 headings "Model Leaderboard" | Leaderboard | Needs Fix |
-| 252 | P3 | a11y | "Model Leaderboard dialog" description redundant with heading | Leaderboard | Needs Fix |
-| 253 | P2 | a11y | Leaderboard table headers are StaticText, not columnheader elements | Leaderboard | Needs Fix |
+| 251 | P2 | a11y | Leaderboard has duplicate h1 and h2 headings "Model Leaderboard" | Leaderboard | ❌ False Positive (Radix VisuallyHidden) |
+| 252 | P3 | a11y | "Model Leaderboard dialog" description redundant with heading | Leaderboard | ❌ False Positive (standard a11y pattern) |
+| 253 | P2 | a11y | Leaderboard table headers are StaticText, not columnheader elements | Leaderboard | ✅ Fixed (scope="col") |
 | 254 | P3 | a11y | Leaderboard tabs use buttons instead of proper tab/tablist elements | Leaderboard | Needs Fix |
-| 255 | P3 | a11y | Medal emojis used for ranking not accessible to screen readers | Leaderboard | Needs Fix |
+| 255 | P3 | a11y | Medal emojis used for ranking not accessible to screen readers | Leaderboard | ✅ Fixed (aria-hidden + role="img") |
 | 256 | P3 | Data | Model names use technical IDs (claude-opus-4.5) vs display names (Claude Opus 4.5) | Leaderboard | Needs Fix |
 | 257 | P3 | Data | kimi-k2.5 has only 3 sessions vs 88-90 for others - data imbalance | Leaderboard | Investigate |
 | 258 | P3 | UX | No explanation of what Operations/Standard/Technology categories mean | Leaderboard | Needs Fix |
@@ -391,7 +415,7 @@
 | 270 | P3 | UX | No hover state or click action on model rows | Leaderboard | Needs Fix |
 | 271 | P3 | i18n | Model names not localized | Leaderboard | By Design |
 | 272 | P3 | UX | Close button (×) far from modal content | Leaderboard | Needs Review |
-| 273 | P2 | a11y | Leaderboard table rows not keyboard navigable | Leaderboard | Needs Fix |
+| 273 | P2 | a11y | Leaderboard table rows not keyboard navigable | Leaderboard | ✅ Fixed (tabIndex + focus styles) |
 | 274 | P3 | UX | No search/filter for models in leaderboard | Leaderboard | Needs Fix |
 | 275 | P3 | UX | No sort option for columns (already sorted by rank) | Leaderboard | Needs Review |
 | 276 | P3 | a11y | Win rate color coding (if any) not accessible | Leaderboard | Needs Review |
@@ -449,8 +473,8 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 321 | P2 | Error | No global error boundary for React crashes | Global | Needs Fix |
-| 322 | P2 | Error | API errors show technical messages to users | API errors | Needs Fix |
+| 321 | P2 | Error | No global error boundary for React crashes | Global | ❌ False Positive (ErrorBoundary exists with Sentry) |
+| 322 | P2 | Error | API errors show technical messages to users | API errors | 🔧 Tech Debt (needs larger refactor) |
 | 323 | P3 | Error | Network offline state not detected or shown | Global | Needs Fix |
 | 324 | P3 | Error | Slow network not indicated (no loading spinners everywhere) | Global | Needs Review |
 | 325 | P3 | Error | Failed image upload shows no user-friendly error | Chat input | Needs Fix |

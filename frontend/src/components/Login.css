@@ -352,16 +352,17 @@
   min-width: 40px;
 }
 
+/* ISS-016: Use brighter colors for better contrast on dark login background */
 .password-strength-bar.weak + .password-strength-text {
-  color: var(--color-red-600);
+  color: var(--color-red-400);
 }
 
 .password-strength-bar.fair + .password-strength-text {
-  color: var(--color-amber-600);
+  color: var(--color-amber-400);
 }
 
 .password-strength-bar.strong + .password-strength-text {
-  color: var(--color-green-600);
+  color: var(--color-green-400);
 }
 
 /* Submit Button */
