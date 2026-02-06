@@ -235,12 +235,12 @@
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
 | 101 | P3 | Feature | Admin Settings shows "Coming Soon" - feature not implemented | Admin Settings | Planned |
-| 102 | P3 | a11y | Duplicate text: "Platform Settings" h2 AND "Platform Settings Coming Soon" h3 | Admin Settings | Needs Fix |
+| 102 | P3 | a11y | Duplicate text: "Platform Settings" h2 AND "Platform Settings Coming Soon" h3 | Admin Settings | ✅ Fixed (h3 now just "Coming Soon") |
 | 103 | P1 | UX | Cannot navigate to view conversations - clicking only triggers bulk selection | History sidebar | ✅ Works (test tooling issue) |
 | 104 | P2 | UX | "Select conversation" button label confusing - it's for bulk selection not navigation | History sidebar | ✅ Already Clear (aria-label: "Add to bulk selection") |
 | 105 | P3 | UX | "All Conversati..." truncated in dropdown | History sidebar | ✅ Fixed (ISS-105, title tooltip) |
 | 106 | P3 | UX | Conversation titles truncated with no tooltip or expand option | History sidebar | ✅ Fixed (ISS-106, title tooltip) |
-| 107 | P3 | UX | No date/time shown for conversations | History sidebar | Needs Fix |
+| 107 | P3 | UX | No date/time shown for conversations | History sidebar | ✅ Already Implemented (shows relative time + absolute tooltip) |
 | 108 | P3 | UX | No preview text for conversation content | History sidebar | Needs Fix |
 | 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | ✅ Fixed (shows toast) |
 | 110 | P3 | a11y | Nested listbox structure (listbox > button > listbox > option) complex | History sidebar | Needs Review |
@@ -248,7 +248,7 @@
 | 112 | P2 | i18n | "Skip to main content" not translated to Spanish | Global | ❌ False Positive (translation exists: a11y.skipToMainContent) |
 | 113 | P2 | i18n | "Choose files" button not translated to Spanish | Chat input | 🔧 Browser-controlled (native file input) |
 | 114 | P2 | i18n | "Attach image" button not translated to Spanish | Chat input | ❌ False Positive (translation exists: aria.attachImage) |
-| 115 | P3 | i18n | "No file chosen" text not translated to Spanish | Chat input | Needs Fix |
+| 115 | P3 | i18n | "No file chosen" text not translated to Spanish | Chat input | 🔧 Browser-controlled (native file input) |
 | 116 | P3 | i18n | "Chat interface" ARIA landmark not translated | Global | ✅ Already Fixed (uses t('aria.chatInterface')) |
 | 117 | P3 | i18n | "Conversation history and navigation" ARIA landmark not translated | Sidebar | ✅ Fixed (App.tsx uses t('aria.conversationHistory')) |
 | 118 | P3 | i18n | "Notifications alt+T" region not translated | Global | ✅ Fixed (sonner containerAriaLabel uses t()) |

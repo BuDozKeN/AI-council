@@ -23,7 +23,7 @@ export function SettingsTab() {
 
       <div className="admin-placeholder">
         <Settings className="admin-placeholder-icon" />
-        <h3>{t('admin.settings.comingSoon', 'Platform Settings Coming Soon')}</h3>
+        <h3>{t('admin.settings.comingSoon', 'Coming Soon')}</h3>
         <p>
           {t(
             'admin.settings.comingSoonDesc',

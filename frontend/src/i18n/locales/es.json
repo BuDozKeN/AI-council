@@ -1898,7 +1898,7 @@
     "settings": {
       "title": "Configuración de Plataforma",
       "description": "Configurar ajustes y preferencias globales de la plataforma.",
-      "comingSoon": "Configuración de Plataforma Próximamente",
+      "comingSoon": "Próximamente",
       "comingSoonDesc": "Las opciones de configuración global estarán disponibles en una futura actualización."
     },
     "pagination": {
