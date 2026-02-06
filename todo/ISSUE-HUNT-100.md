@@ -430,11 +430,11 @@
 | 262 | P3 | UX | Win rate "0%" for kimi-k2.5 could show "No wins" for clarity | Leaderboard | Confirmed #070 |
 | 263 | P3 | a11y | Table lacks proper table element structure (table/thead/tbody/tr/td) | Leaderboard | ✅ Already Fixed (uses semantic table/thead/tbody/tr/th/td) |
 | 264 | P3 | UX | "Avg Rank: Lower is better" explanation at bottom, not near data | Leaderboard | Needs Fix |
-| 265 | P3 | UX | Percent symbol separated from number (42.7 + %) - odd formatting | Leaderboard | Needs Fix |
+| 265 | P3 | UX | Percent symbol separated from number (42.7 + %) - odd formatting | Leaderboard | ❌ False Positive (code shows `${win_rate}%` - no separation) |
 | 266 | P3 | UX | No visual trend indicators (up/down arrows) for model performance | Leaderboard | Needs Fix |
 | 267 | P3 | UX | No date range selector for leaderboard data | Leaderboard | Needs Fix |
 | 268 | P3 | UX | Session count (89) close to total (90) but not equal - confusing | Leaderboard | Needs Fix |
-| 269 | P3 | UX | Rankings change from medals to numbers at position 4 - inconsistent | Leaderboard | Needs Fix |
+| 269 | P3 | UX | Rankings change from medals to numbers at position 4 - inconsistent | Leaderboard | 🔧 By Design (medals for podium top 3, numbers for rest) |
 | 270 | P3 | UX | No hover state or click action on model rows | Leaderboard | Needs Fix |
 | 271 | P3 | i18n | Model names not localized | Leaderboard | By Design |
 | 272 | P3 | UX | Close button (×) far from modal content | Leaderboard | Needs Review |
