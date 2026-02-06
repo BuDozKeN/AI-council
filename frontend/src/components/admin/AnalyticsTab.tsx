@@ -252,7 +252,12 @@ function UserGrowthChart({ totalUsers, isLoading }: UserGrowthChartProps) {
         <span>User Growth (30 days)</span>
         <span className="analytics-chart-badge">Live</span>
       </div>
-      <div className="analytics-chart-body">
+      {/* ISS-141: Chart accessibility - role="img" + aria-label for screen readers */}
+      <div
+        className="analytics-chart-body"
+        role="img"
+        aria-label={`User growth chart showing ${totalUsers} total users over 30 days with upward trend`}
+      >
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -328,7 +333,12 @@ function CompanyGrowthChart({ totalCompanies, isLoading }: CompanyGrowthChartPro
         <span>Company Growth (30 days)</span>
         <span className="analytics-chart-badge">Live</span>
       </div>
-      <div className="analytics-chart-body">
+      {/* ISS-141: Chart accessibility - role="img" + aria-label for screen readers */}
+      <div
+        className="analytics-chart-body"
+        role="img"
+        aria-label={`Company growth chart showing ${totalCompanies} total companies over 30 days`}
+      >
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -468,7 +478,12 @@ function ConversationActivityChart({
         </Tooltip>
         <span className="analytics-chart-badge">Live</span>
       </div>
-      <div className="analytics-chart-body">
+      {/* ISS-141: Chart accessibility - role="img" + aria-label for screen readers */}
+      <div
+        className="analytics-chart-body"
+        role="img"
+        aria-label={`Platform activity bar chart showing ${totalConversations} conversations and ${totalMessages} messages over ${dateRangeLabel}`}
+      >
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
@@ -760,7 +775,12 @@ export function AnalyticsTab() {
               {(displayStats?.total_users ?? 0).toLocaleString()} total
             </span>
           </div>
-          <div className="analytics-status-chart">
+          {/* ISS-141: Chart accessibility */}
+          <div
+            className="analytics-status-chart"
+            role="img"
+            aria-label={`User status breakdown: ${userStatusBreakdown.active} active, ${userStatusBreakdown.unverified} unverified, ${userStatusBreakdown.suspended} suspended`}
+          >
             {usersLoading ? (
               <div className="analytics-chart-skeleton" />
             ) : (
@@ -913,7 +933,12 @@ export function AnalyticsTab() {
                   </span>
                 )}
               </div>
-              <div className="analytics-model-chart">
+              {/* ISS-141: Chart accessibility */}
+              <div
+                className="analytics-model-chart"
+                role="img"
+                aria-label={`Win rate comparison chart showing ${modelAnalytics.overall_leaderboard.length} AI models. Leading model: ${modelAnalytics.overall_leader ? formatModelName(modelAnalytics.overall_leader.model) : 'none'}`}
+              >
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart
                     data={modelAnalytics.overall_leaderboard.slice(0, 6)}
@@ -960,7 +985,12 @@ export function AnalyticsTab() {
               <div className="analytics-model-header">
                 <span className="analytics-model-card-title">Win Distribution</span>
               </div>
-              <div className="analytics-model-chart">
+              {/* ISS-141: Chart accessibility */}
+              <div
+                className="analytics-model-chart"
+                role="img"
+                aria-label={`Win distribution pie chart showing total wins across ${modelAnalytics.overall_leaderboard.filter((m) => m.wins > 0).length} models`}
+              >
                 <ResponsiveContainer width="100%" height={280}>
                   <RechartsPieChart>
                     <Pie

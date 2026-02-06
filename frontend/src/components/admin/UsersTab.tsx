@@ -11,7 +11,7 @@
  * - InviteUserModal (new user invitation form)
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -141,11 +141,26 @@ export function UsersTab() {
 
   const pageSize = 20;
 
+  // ISS-137 FIX: Track previous search to detect when search is cleared
+  // When search goes from non-empty to empty, force refetch to show all data
+  const prevSearchRef = useRef(search);
+  useEffect(() => {
+    if (prevSearchRef.current && !search) {
+      // Search was cleared - force refetch to get full list
+      // Using refetchQueries instead of invalidateQueries to ensure immediate refetch
+      queryClient.refetchQueries({ queryKey: ['admin', 'users', { search: '' }] });
+      queryClient.refetchQueries({ queryKey: ['admin', 'invitations', { search: '' }] });
+    }
+    prevSearchRef.current = search;
+  }, [search, queryClient]);
+
   // Check if current admin can impersonate
   const canImpersonate = adminRole === 'super_admin' || adminRole === 'admin';
 
   // Fetch users - DISABLE automatic refetching to preserve optimistic updates
   // Supabase Auth has eventual consistency - auto refetches return stale data and overwrite our updates
+  // ISS-137 FIX: Use 5-minute staleTime instead of Infinity to allow proper search clearing
+  // Optimistic updates still work because they use setQueryData which updates cache directly
   const {
     data: usersData,
     isLoading: usersLoading,
@@ -158,7 +173,7 @@ export function UsersTab() {
         page_size: 100, // Backend max is 100
         ...(search ? { search } : {}),
       }),
-    staleTime: Infinity, // NEVER auto-refetch - we use optimistic updates
+    staleTime: 5 * 60 * 1000, // ISS-137: 5 minutes instead of Infinity
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -177,7 +192,7 @@ export function UsersTab() {
         page_size: 100, // Backend max is 100
         ...(search ? { search } : {}),
       }),
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // ISS-137: 5 minutes instead of Infinity
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

@@ -1497,6 +1497,7 @@
     "fullCouncil": "Consejo Completo"
   },
   "commandPalette": {
+    "dialogLabel": "Paleta de comandos - buscar acciones",
     "placeholder": "Escribe un comando o busca...",
     "navigation": "Navegación",
     "create": "Crear",

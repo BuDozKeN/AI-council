@@ -103,6 +103,18 @@
   background: var(--color-bg-secondary);
 }
 
+/* ISS-273: Focus styles for keyboard navigation */
+.leaderboard-table tbody tr:focus {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: -2px;
+  background: var(--color-bg-secondary);
+}
+
+.leaderboard-table tbody tr:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: -2px;
+}
+
 .leaderboard-table tr.leader {
   background: var(--color-warning-light);
 }
@@ -205,6 +217,12 @@
 
 .dark .leaderboard-table tr:hover {
   background: var(--color-bg-secondary);
+}
+
+/* ISS-273: Dark mode focus styles for keyboard navigation */
+.dark .leaderboard-table tbody tr:focus,
+.dark .leaderboard-table tbody tr:focus-visible {
+  outline-color: var(--color-blue-400);
 }
 
 .dark .leaderboard-table tr.leader {

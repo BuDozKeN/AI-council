@@ -185,29 +185,54 @@
   gap: var(--gap-sm-plus);
 }
 
-/* Dynamic status indicator - shows pending decisions status */
+/* ISS-238: Dynamic status indicator - shows pending decisions status with visible text */
 .mc-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  margin-inline-end: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: help;
+  transition: all 0.3s ease;
+}
+
+/* The colored dot */
+.mc-status-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: var(--radius-xs);
   flex-shrink: 0;
   background: var(--color-text-tertiary);
-  cursor: help;
   transition: all 0.3s ease;
 }
 
+/* Status text - always visible for clarity */
+.mc-status-text {
+  color: var(--overlay-white-70);
+  white-space: nowrap;
+}
+
 /* Orange = pending decisions need attention */
-.mc-status-indicator.pending {
+.mc-status-indicator.pending .mc-status-dot {
   background: var(--color-orange-500);
   box-shadow: 0 0 8px var(--overlay-orange-40);
   animation: pulse-attention 2s ease-in-out infinite;
 }
 
+.mc-status-indicator.pending .mc-status-text {
+  color: var(--color-orange-300);
+}
+
 /* Green = all up-to-date, everything promoted */
-.mc-status-indicator.all-good {
+.mc-status-indicator.all-good .mc-status-dot {
   background: var(--color-green-500);
   box-shadow: 0 0 6px var(--overlay-green-30);
+}
+
+.mc-status-indicator.all-good .mc-status-text {
+  color: var(--color-green-300);
 }
 
 @keyframes pulse-attention {
