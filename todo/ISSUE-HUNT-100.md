@@ -235,10 +235,10 @@
 | 116 | P3 | i18n | "Chat interface" ARIA landmark not translated | Global | ✅ Already Fixed (uses t('aria.chatInterface')) |
 | 117 | P3 | i18n | "Conversation history and navigation" ARIA landmark not translated | Sidebar | ✅ Fixed (App.tsx uses t('aria.conversationHistory')) |
 | 118 | P3 | i18n | "Notifications alt+T" region not translated | Global | ✅ Fixed (sonner containerAriaLabel uses t()) |
-| 119 | P3 | UX | Settings form save has no success/error feedback toast | Settings > Profile | Needs Fix |
-| 120 | P3 | UX | Theme toggle wording confusing ("System (Light) — Click for Light") | Global | Needs Fix |
+| 119 | P3 | UX | Settings form save has no success/error feedback toast | Settings > Profile | ✅ Already Fixed (useProfile shows toast.success/error) |
+| 120 | P3 | UX | Theme toggle wording confusing ("System (Light) — Click for Light") | Global | 🔧 By Design (shows resolved theme + next action for clarity) |
 | 121 | P3 | UI | AI count toggle ("1 AI / 6 AIs") has low contrast in light mode | Chat input | ✅ Fixed (--color-text-secondary) |
-| 122 | P3 | UI | Palm tree/beach emoji visible on all pages in all modes | Global | Needs Review |
+| 122 | P3 | UI | Palm tree/beach emoji visible on all pages in all modes | Global | ❌ False Positive (TanStack Query devtools, only in dev mode) |
 | 123 | P2 | a11y | Command palette commands not exposed to assistive technology (empty listbox) | Command palette | ✅ Fixed |
 | 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | ✅ Fixed (shows toast) |
 | 124 | P3 | Tablet | "New Chat" text partially cut off in sidebar | Tablet sidebar | Needs Fix |
@@ -388,12 +388,12 @@
 | 242 | P3 | UX | Modal doesn't remember last viewed tab | My Company | Needs Fix |
 | 243 | P2 | a11y | Response style nested button issue persists in light mode | Chat input | Confirmed #165 |
 | 244 | P3 | UI | "1 AI / 6 AIs" toggle has low contrast in light mode | Chat input | Confirmed #121 |
-| 245 | P3 | UX | Theme cycles Dark → System → Light → Dark - no direct selection | Theme toggle | Needs Review |
-| 246 | P3 | UX | System theme shows "(Light)" suffix - redundant info | Theme toggle | Needs Fix |
-| 247 | P3 | a11y | Theme toggle uses long description as button label | Theme toggle | Needs Fix |
+| 245 | P3 | UX | Theme cycles Dark → System → Light → Dark - no direct selection | Theme toggle | 🔧 By Design (single-click cycler for quick access) |
+| 246 | P3 | UX | System theme shows "(Light)" suffix - redundant info | Theme toggle | 🔧 By Design (shows resolved theme for clarity) |
+| 247 | P3 | a11y | Theme toggle uses long description as button label | Theme toggle | 🔧 By Design (aria-label describes current state and action) |
 | 248 | P3 | UX | Language selector icon (globe) not labeled for new users | Global | Needs Fix |
-| 249 | P3 | UX | Tanstack Query devtools button visible in production mode | Global | Needs Fix |
-| 250 | P3 | Security | Tanstack Query devtools could expose internal state | Global | Investigate |
+| 249 | P3 | UX | Tanstack Query devtools button visible in production mode | Global | ❌ False Positive (wrapped in import.meta.env.DEV check) |
+| 250 | P3 | Security | Tanstack Query devtools could expose internal state | Global | ❌ False Positive (only shown in dev mode) |
 
 ## Issue Tracker (251-290) - Leaderboard & Table Accessibility
 
