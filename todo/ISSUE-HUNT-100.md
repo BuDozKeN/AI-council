@@ -321,7 +321,7 @@
 | 168 | P3 | a11y | Action buttons DOM order differs between mobile and desktop | History sidebar | Needs Fix |
 | 169 | P3 | Mobile | No Rename button on mobile conversation actions (available on desktop) | Mobile sidebar | Needs Fix |
 | 170 | P3 | UX | Mobile bottom nav says "Chats" but sidebar says "History" - inconsistent labels | Mobile nav | 🔧 By Design (shorter labels for mobile) |
-| 171 | P3 | UX | "Configure context" label on mobile vs "Context 1" on desktop - inconsistent | Chat input | Needs Fix |
+| 171 | P3 | UX | "Configure context" label on mobile vs "Context 1" on desktop - inconsistent | Chat input | ✅ Verified (both use "Context" + badge count) |
 | 172 | P3 | a11y | Conversation header shows "CONTEXT:" label but not as proper label element | Conversation view | Needs Fix |
 | 173 | P3 | UX | No visual indicator showing which AI model "won" in response | Conversation view | Needs Fix |
 | 174 | P3 | UX | "Experts Review Each Other" icons (medal, circle) meaning unclear | Conversation view | Needs Fix |
