@@ -113,7 +113,7 @@
 | 002 | P3 | UX | Page title shows "Conversation - AxCouncil" on /terms route | /terms | ✅ Already Fixed (shows "Terms of Service - AxCouncil") |
 | 003 | P1 | Legal | /privacy route shows login page instead of Privacy Policy content | /privacy | ✅ Verified Fixed |
 | 004 | P3 | UX | Page title changes to "Conversation" after clicking theme toggle | Login page | ✅ Fixed (ISS-004) |
-| 005 | P2 | API | 429 Too Many Requests errors - rate limiting triggered on login page | Console | Investigate |
+| 005 | P2 | API | 429 Too Many Requests errors - rate limiting triggered on login page | Console | ✅ Fixed (ISS-006-008 stopped unauthenticated API calls) |
 | 006 | P2 | API | "Failed to load projects" error on unauthenticated page | Console | ✅ Fixed (ISS-006-008) |
 | 007 | P2 | API | "Failed to load playbooks" error on unauthenticated page | Console | ✅ Fixed (ISS-006-008) |
 | 008 | P2 | Perf | API calls to /projects and /playbooks made when not authenticated | Network | ✅ Fixed (ISS-006-008) |
@@ -132,11 +132,11 @@
 | 021 | P2 | API | "Failed to load API key status" error on API Keys tab | Settings > API Keys | ✅ Works (was intermittent) |
 | 022 | P2 | API | "Unable to load configuration" error on LLM Hub tab | Settings > LLM Hub | ✅ Works (was intermittent) |
 | 023 | P1 | API | Aggressive rate limiting (429) causing cascading failures across Settings tabs | Settings (all) | ✅ Investigated (rate limits reasonable: 100/min reads, 30/min writes; proper 429 error handling exists) |
-| 024 | P2 | Data | Simple Af company: "Failed to load overview" error | My Company > Overview | Investigate |
-| 025 | P2 | Data | Simple Af company: "Failed to load team" error | My Company > Team | Investigate |
-| 026 | P2 | Data | Simple Af company: "Failed to load projects" error | My Company > Projects | Investigate |
-| 027 | P2 | Data | Simple Af company: "Failed to load playbooks" error | My Company > Playbooks | Investigate |
-| 028 | P1 | Data | Company-specific failures - Simple Af fails everywhere, AxCouncil works | My Company (all) | Investigate |
+| 024 | P2 | Data | Simple Af company: "Failed to load overview" error | My Company > Overview | ✅ Fixed (migration adds missing company_members) |
+| 025 | P2 | Data | Simple Af company: "Failed to load team" error | My Company > Team | ✅ Fixed (migration adds missing company_members) |
+| 026 | P2 | Data | Simple Af company: "Failed to load projects" error | My Company > Projects | ✅ Fixed (migration adds missing company_members) |
+| 027 | P2 | Data | Simple Af company: "Failed to load playbooks" error | My Company > Playbooks | ✅ Fixed (migration adds missing company_members) |
+| 028 | P1 | Data | Company-specific failures - Simple Af fails everywhere, AxCouncil works | My Company (all) | ✅ Fixed (auto_add_company_owner trigger + backfill migration) |
 | 029 | P3 | UX | Company status indicator changes from green dot to red square (unclear meaning) | My Company header | ✅ Fixed (ISS-238 shows readable text) |
 | 030 | P3 | UX | Skeleton loading shows indefinitely when API fails (no timeout/error state) | My Company | ✅ Fixed (useCompanyData sets tabLoaded on error) |
 
