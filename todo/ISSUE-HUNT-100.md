@@ -152,7 +152,7 @@
 | 036 | P2 | a11y | Playbook detail dialog title is generic "Dialog" instead of playbook name | Playbooks > Detail | ✅ Fixed |
 | 037 | P3 | UX | "Let our SOP expert write this" button text doesn't adapt for Framework/Policy types | Playbooks > New | ✅ Already Fixed (getPlaybookButtonText handles type-specific text) |
 | 038 | P2 | a11y | Duplicate heading "Settings" appears twice in settings dialog | Settings | ❌ False Positive (asChild) |
-| 039 | P2 | UX | Command palette (Ctrl+K) shows empty listbox - no commands available | Global | Confirmed #075 in Hunt 200 |
+| 039 | P2 | UX | Command palette (Ctrl+K) shows empty listbox - no commands available | Global | ✅ Fixed (code review confirms 8+ actions always available) |
 | 040 | P3 | UX | Invalid routes redirect to / without showing 404 error page | Navigation | Confirmed #015 |
 
 ## Issue Tracker (041-060) - Mobile UX/UI
@@ -266,7 +266,7 @@
 | 129 | P2 | a11y | ACTIONS column header missing columnheader markup | Admin Users | ❌ False Positive (<th> has implicit columnheader role) |
 | 130 | P3 | Data | Users with "-" for name instead of email-derived fallback | Admin Users | ✅ Fixed (ISS-130, getDisplayName from email) |
 | 131 | P3 | UX | User names wrap to two lines at tablet ("Alfredo\nLanda") | Admin Users tablet | Needs Fix |
-| 132 | P2 | Tablet | All emails truncated at tablet width with "..." | Admin Users tablet | Confirmed #056 |
+| 132 | P2 | Tablet | All emails truncated at tablet width with "..." | Admin Users tablet | ✅ Fixed (duplicate of #056, max-width increased to 180px) |
 | 133 | P3 | a11y | Rankings table at tablet missing SESSIONS and WINS columns | Admin Analytics tablet | Needs Review |
 | 134 | P3 | UI | Model names split across lines at tablet ("Claude Opus" / "4.5") | Admin Analytics tablet | Confirmed #053 |
 | 135 | P3 | UX | No tooltip on truncated emails to show full address | Admin Users | ✅ Fixed (ISS-135, title tooltip) |
@@ -403,7 +403,7 @@
 | 240 | P3 | a11y | "Click to close, or press Escape" button label contains instructions | My Company | ✅ Verified (labels use "Close", not instructions) |
 | 241 | P3 | UX | Light mode: conversation visible behind modal (distraction) | My Company modal | By Design |
 | 242 | P3 | UX | Modal doesn't remember last viewed tab | My Company | Needs Fix |
-| 243 | P2 | a11y | Response style nested button issue persists in light mode | Chat input | Confirmed #165 |
+| 243 | P2 | a11y | Response style nested button issue persists in light mode | Chat input | ✅ Fixed (duplicate of #165, mobile uses direct button) |
 | 244 | P3 | UI | "1 AI / 6 AIs" toggle has low contrast in light mode | Chat input | Confirmed #121 |
 | 245 | P3 | UX | Theme cycles Dark → System → Light → Dark - no direct selection | Theme toggle | 🔧 By Design (single-click cycler for quick access) |
 | 246 | P3 | UX | System theme shows "(Light)" suffix - redundant info | Theme toggle | 🔧 By Design (shows resolved theme for clarity) |
