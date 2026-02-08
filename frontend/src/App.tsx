@@ -40,6 +40,8 @@ import { ImpersonationBanner } from './components/admin/ImpersonationBanner';
 import MobileBottomNav from './components/ui/MobileBottomNav';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { KeyboardShortcutsHelp } from './components/ui/KeyboardShortcutsHelp';
+import { PWAInstallPrompt } from './components/ui/PWAInstallPrompt';
+import { OfflineIndicator } from './components/ui/OfflineIndicator';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from 'next-themes';
 import { logger } from './utils/logger';
@@ -914,6 +916,9 @@ function App() {
       {/* Impersonation banner - shown when admin is impersonating a user */}
       <ImpersonationBanner />
 
+      {/* Offline indicator - shown when network is disconnected */}
+      <OfflineIndicator />
+
       {/* Mock mode banner - shown when mock mode is enabled */}
       {mockModeEnabled && <MockModeBanner />}
 
@@ -1313,6 +1318,9 @@ function App() {
 
         {/* Toast notifications for undo actions */}
         <Toaster />
+
+        {/* PWA install prompt - shown when app can be installed */}
+        <PWAInstallPrompt />
 
         {/* Mobile bottom navigation - thumb-friendly access to main sections */}
         {!isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && (

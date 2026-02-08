@@ -155,6 +155,16 @@
     "currentLabel": "Current: {{current}}. Click to switch to {{next}}.",
     "switchTo": "{{current}} — Click for {{next}}"
   },
+  "pwa": {
+    "installTitle": "Install AxCouncil",
+    "installDesc": "Get quick access from your home screen",
+    "install": "Install",
+    "installing": "Installing..."
+  },
+  "offline": {
+    "message": "You're offline. Some features may be unavailable.",
+    "reconnected": "You're back online!"
+  },
   "aiAssist": {
     "suggestion": "AI Suggestion",
     "noSuggestion": "No suggestion returned",
