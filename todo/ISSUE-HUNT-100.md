@@ -400,7 +400,7 @@
 | 237 | P3 | UX | "Expand table of contents" button text not clear when expanded | My Company > Overview | Needs Fix |
 | 238 | P2 | Data | Company status indicator (orange square) meaning unclear | My Company header | ✅ Fixed (shows readable status text) |
 | 239 | P3 | UX | Tab descriptions only visible in snapshot, not in UI | My Company | Needs Fix |
-| 240 | P3 | a11y | "Click to close, or press Escape" button label contains instructions | My Company | Needs Fix |
+| 240 | P3 | a11y | "Click to close, or press Escape" button label contains instructions | My Company | ✅ Verified (labels use "Close", not instructions) |
 | 241 | P3 | UX | Light mode: conversation visible behind modal (distraction) | My Company modal | By Design |
 | 242 | P3 | UX | Modal doesn't remember last viewed tab | My Company | Needs Fix |
 | 243 | P2 | a11y | Response style nested button issue persists in light mode | Chat input | Confirmed #165 |
