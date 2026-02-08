@@ -288,7 +288,7 @@
 |---|----------|----------|-------|----------|--------|
 | 141 | P2 | a11y | Analytics charts have empty group elements with no accessible names | Admin Analytics | ✅ Fixed |
 | 142 | P3 | Data | Company Growth chart y-axis shows 0.5 - doesn't make sense for whole companies | Admin Analytics | Needs Fix |
-| 143 | P1 | Data | Model count inconsistent: "6 AIs" (main) vs "5 AI models" (Billing) vs "15 models" (LLM Hub) | Multiple | 🔧 Backend Data Issue |
+| 143 | P1 | Data | Model count inconsistent: "6 AIs" (main) vs "5 AI models" (Billing) vs "15 models" (LLM Hub) | Multiple | 🔧 By Design (6 AIs = Stage 1 council; 15 = total across all stages; Billing shows "All AI models" text) |
 | 144 | P2 | UX | Enterprise plan shows "Free" as price - should be "Custom" or "Contact Us" | Settings > Billing | ✅ Fixed (shows "Contact Us") |
 | 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | Needs Fix |
 | 146 | P2 | UX | Team members shown as truncated UUIDs instead of names/emails | Settings > Team | ✅ Fixed |
