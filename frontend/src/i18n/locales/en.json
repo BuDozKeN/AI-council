@@ -521,6 +521,7 @@
     "usageDescription": "Your council queries this billing period",
     "queriesUsed": "{{count}} queries used this period",
     "queriesMonthly": "{{count}} / {{limit}} queries this month",
+    "usageExceedsLimit": "Usage includes queries from a previous billing period. Upgrade to continue using the council.",
     "subscriptionPlans": "Subscription Plans",
     "mostPopular": "Most Popular",
     "free": "Free",

@@ -22,6 +22,27 @@
   color: var(--color-text-secondary);
 }
 
+/* ISS-148: Over limit styling */
+.usage-bar.over-limit {
+  background: var(--color-red-100, #fee2e2);
+}
+
+.usage-fill.over-limit {
+  background: var(--color-red-500, #ef4444);
+}
+
+.usage-text.over-limit {
+  color: var(--color-red-600, #dc2626);
+  font-weight: 500;
+}
+
+.usage-over-limit-hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
 /* Plans */
 .plans-section {
   margin-top: var(--space-6);

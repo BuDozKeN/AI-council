@@ -66,6 +66,9 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
     handleManageSubscription,
   } = useBilling(isOpen);
 
+  // ISS-148: Detect if usage exceeds current plan limit (e.g., downgraded from paid plan)
+  const isOverLimit = !isUnlimited && queriesUsed > queriesLimit;
+
   if (billingLoading) {
     return <BillingSkeleton />;
   }
@@ -81,9 +84,9 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
           <CardDescription>{t('settings.usageDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="usage-bar">
+          <div className={`usage-bar ${isOverLimit ? 'over-limit' : ''}`}>
             <div
-              className="usage-fill"
+              className={`usage-fill ${isOverLimit ? 'over-limit' : ''}`}
               style={{
                 width: isUnlimited
                   ? '10%'
@@ -91,11 +94,20 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
               }}
             />
           </div>
-          <p className="usage-text">
+          <p className={`usage-text ${isOverLimit ? 'over-limit' : ''}`}>
             {isUnlimited
               ? t('settings.queriesUsed', { count: queriesUsed })
               : t('settings.queriesMonthly', { count: queriesUsed, limit: queriesLimit })}
           </p>
+          {/* ISS-148: Show helpful message when usage exceeds limit */}
+          {isOverLimit && (
+            <p className="usage-over-limit-hint">
+              {t(
+                'settings.usageExceedsLimit',
+                'Usage includes queries from a previous billing period. Upgrade to continue using the council.'
+              )}
+            </p>
+          )}
         </CardContent>
       </Card>
 

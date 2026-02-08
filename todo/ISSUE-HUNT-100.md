@@ -293,10 +293,10 @@
 | 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | Needs Fix |
 | 146 | P2 | UX | Team members shown as truncated UUIDs instead of names/emails | Settings > Team | ✅ Fixed |
 | 147 | P3 | UX | "You" in Team tab doesn't show actual user name or email | Settings > Team | ✅ Fixed (hover tooltip shows name/email) |
-| 148 | P2 | Data | 136 queries used exceeds Free plan's 5/month limit - confusing | Settings > Billing | Investigate |
+| 148 | P2 | Data | 136 queries used exceeds Free plan's 5/month limit - confusing | Settings > Billing | ✅ Fixed (visual indicator + explanatory text for over-limit state) |
 | 149 | P3 | UX | No "Current Plan" indicator shown near usage section | Settings > Billing | Needs Fix |
 | 150 | P3 | UI | Invitation bar colors gray for 0 values look like empty progress bars | Admin Analytics | Needs Fix |
-| 151 | P2 | a11y | Revenue Dashboard disclosure triangle - purpose unclear | Admin Analytics | Needs Review |
+| 151 | P2 | a11y | Revenue Dashboard disclosure triangle - purpose unclear | Admin Analytics | 🔧 By Design (standard expandable section pattern) |
 | 152 | P3 | UX | "Data refreshes hourly" but no manual refresh button | Admin Analytics | Needs Fix |
 | 153 | P3 | UX | Last updated time format inconsistent (06:06:16 vs dates elsewhere) | Admin Analytics | Needs Fix |
 | 154 | P2 | a11y | Radio buttons "1 AI" / "6 AIs" have no visible group label | Chat input | ✅ Fixed (has aria-label + sr-only label) |
@@ -325,7 +325,7 @@
 | 172 | P3 | a11y | Conversation header shows "CONTEXT:" label but not as proper label element | Conversation view | Needs Fix |
 | 173 | P3 | UX | No visual indicator showing which AI model "won" in response | Conversation view | Needs Fix |
 | 174 | P3 | UX | "Experts Review Each Other" icons (medal, circle) meaning unclear | Conversation view | Needs Fix |
-| 175 | P2 | UX | Expandable sections (6 AI Experts, Review, Best Answer) all collapsed by default | Conversation view | Needs Review |
+| 175 | P2 | UX | Expandable sections (6 AI Experts, Review, Best Answer) all collapsed by default | Conversation view | 🔧 By Design (Stage3/Best Answer expanded; Stage1/2 collapsed to focus on final answer) |
 | 176 | P3 | UI | Model chips use different brand colors but no legend explaining them | Conversation view | Needs Fix |
 | 177 | P3 | UX | Copy button on user message - unclear what it copies | Conversation view | ✅ Fixed (tooltip now says "Copy your question") |
 | 178 | P3 | UX | "Save Answer" button purpose unclear - where does it save? | Conversation view | Needs Fix |
@@ -336,7 +336,7 @@
 | 183 | P2 | Mobile | Admin Portal only accessible via collapsed sidebar, not bottom nav | Mobile nav | ✅ Fixed (ISS-183) |
 | 184 | P3 | Mobile | Leaderboard only accessible via collapsed sidebar, not bottom nav | Mobile nav | Confirmed #043 |
 | 185 | P3 | Mobile | Sign out only in collapsed sidebar, not in Settings or bottom nav | Mobile nav | ✅ Fixed (ISS-185) |
-| 186 | P2 | UX | Desktop sidebar doesn't show conversation list by default - must click History | Desktop sidebar | Needs Review |
+| 186 | P2 | UX | Desktop sidebar doesn't show conversation list by default - must click History | Desktop sidebar | 🔧 By Design (icon rail is space-efficient; click History or pin to expand) |
 | 187 | P3 | UX | No keyboard shortcut hint for opening History (only Ctrl+K shown) | Sidebar | 📋 Feature Request (Ctrl+K opens search which includes history) |
 | 188 | P3 | UX | Conversation URL uses UUID - not shareable/memorable | URL structure | 🔧 By Design (security - UUIDs prevent enumeration) |
 | 189 | P3 | a11y | "Send message" button different label from "Send your question to the AI" | Chat input | ✅ By Design (concise aria-label is better for screen readers) |
