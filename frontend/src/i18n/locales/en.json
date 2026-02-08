@@ -1950,5 +1950,24 @@
       "exitMode": "Exit impersonation mode",
       "watermark": "IMPERSONATION MODE"
     }
+  },
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "hint": "Use these shortcuts to navigate AxCouncil faster",
+    "navigation": "Navigation",
+    "listNavigation": "List Navigation",
+    "general": "General",
+    "focusSearch": "Focus search / Open command palette",
+    "newChat": "Start new conversation",
+    "openHistory": "Open conversation history",
+    "openLeaderboard": "Open AI leaderboard",
+    "openSettings": "Open settings",
+    "navigateList": "Navigate up/down in list",
+    "selectItem": "Select current item",
+    "deleteItem": "Delete current item",
+    "escape": "Close modal / Clear focus",
+    "showHelp": "Show this help",
+    "pressToClose": "Press",
+    "orClickToClose": "or click outside to close"
   }
 }

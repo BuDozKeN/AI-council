@@ -1923,5 +1923,24 @@
       "exitMode": "Salir del modo de suplantación",
       "watermark": "MODO DE SUPLANTACIÓN"
     }
+  },
+  "shortcuts": {
+    "title": "Atajos de Teclado",
+    "hint": "Usa estos atajos para navegar AxCouncil más rápido",
+    "navigation": "Navegación",
+    "listNavigation": "Navegación de Lista",
+    "general": "General",
+    "focusSearch": "Enfocar búsqueda / Abrir paleta de comandos",
+    "newChat": "Iniciar nueva conversación",
+    "openHistory": "Abrir historial de conversaciones",
+    "openLeaderboard": "Abrir tabla de posiciones de IA",
+    "openSettings": "Abrir configuración",
+    "navigateList": "Navegar arriba/abajo en lista",
+    "selectItem": "Seleccionar elemento actual",
+    "deleteItem": "Eliminar elemento actual",
+    "escape": "Cerrar modal / Quitar foco",
+    "showHelp": "Mostrar esta ayuda",
+    "pressToClose": "Presiona",
+    "orClickToClose": "o haz clic afuera para cerrar"
   }
 }

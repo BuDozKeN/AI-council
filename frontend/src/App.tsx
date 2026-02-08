@@ -39,6 +39,8 @@ import { HelpButton } from './components/ui/HelpButton';
 import { ImpersonationBanner } from './components/admin/ImpersonationBanner';
 import MobileBottomNav from './components/ui/MobileBottomNav';
 import { CommandPalette } from './components/ui/CommandPalette';
+import { KeyboardShortcutsHelp } from './components/ui/KeyboardShortcutsHelp';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from 'next-themes';
 import { logger } from './utils/logger';
 import { consumeReturnUrl } from './utils/authRedirect';
@@ -266,18 +268,40 @@ function App() {
   // Command palette state (Cmd+K)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
-  // Register Cmd+K keyboard shortcut at App level so it works even when
-  // CommandPalette is conditionally unmounted for performance
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsCommandPaletteOpen((prev) => !prev);
+  // Keyboard shortcuts help modal state (?)
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+
+  // Global keyboard shortcuts - works even when CommandPalette is unmounted
+  useKeyboardShortcuts({
+    onFocusSearch: useCallback(() => {
+      setIsCommandPaletteOpen((prev) => !prev);
+    }, []),
+    onNewConversation: useCallback(() => {
+      if (isAuthenticated) {
+        contextNewConversation();
       }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    }, [isAuthenticated, contextNewConversation]),
+    onOpenHistory: useCallback(() => {
+      // Toggle mobile sidebar to show history
+      if (isAuthenticated) {
+        setIsMobileSidebarOpen((prev) => !prev);
+      }
+    }, [isAuthenticated]),
+    onOpenSettings: useCallback(() => {
+      if (isAuthenticated) {
+        navigateToSettings();
+      }
+    }, [isAuthenticated, navigateToSettings]),
+    onOpenLeaderboard: useCallback(() => {
+      if (isAuthenticated) {
+        navigateToLeaderboard();
+      }
+    }, [isAuthenticated, navigateToLeaderboard]),
+    onOpenHelp: useCallback(() => {
+      setIsShortcutsHelpOpen(true);
+    }, []),
+    enabled: true,
+  });
 
   // Theme state from next-themes
   const { theme, setTheme } = useTheme();
@@ -1280,6 +1304,12 @@ function App() {
             onThemeChange={setTheme}
           />
         )}
+
+        {/* Keyboard shortcuts help modal - press ? to open */}
+        <KeyboardShortcutsHelp
+          isOpen={isShortcutsHelpOpen}
+          onClose={() => setIsShortcutsHelpOpen(false)}
+        />
 
         {/* Toast notifications for undo actions */}
         <Toaster />

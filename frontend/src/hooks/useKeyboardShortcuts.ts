@@ -3,6 +3,10 @@ import { useEffect, useCallback, useRef } from 'react';
 export interface KeyboardShortcutsOptions {
   onFocusSearch?: () => void;
   onNewConversation?: () => void;
+  onOpenHistory?: () => void;
+  onOpenSettings?: () => void;
+  onOpenLeaderboard?: () => void;
+  onOpenHelp?: () => void;
   onNavigateUp?: () => void;
   onNavigateDown?: () => void;
   onSelectCurrent?: () => void;
@@ -15,6 +19,10 @@ export interface KeyboardShortcutsOptions {
 interface KeyboardHandlers {
   onFocusSearch?: (() => void) | undefined;
   onNewConversation?: (() => void) | undefined;
+  onOpenHistory?: (() => void) | undefined;
+  onOpenSettings?: (() => void) | undefined;
+  onOpenLeaderboard?: (() => void) | undefined;
+  onOpenHelp?: (() => void) | undefined;
   onNavigateUp?: (() => void) | undefined;
   onNavigateDown?: (() => void) | undefined;
   onSelectCurrent?: (() => void) | undefined;
@@ -28,6 +36,10 @@ interface KeyboardHandlers {
 export function useKeyboardShortcuts({
   onFocusSearch,
   onNewConversation,
+  onOpenHistory,
+  onOpenSettings,
+  onOpenLeaderboard,
+  onOpenHelp,
   onNavigateUp,
   onNavigateDown,
   onSelectCurrent,
@@ -39,6 +51,10 @@ export function useKeyboardShortcuts({
   const handlersRef = useRef<KeyboardHandlers>({
     onFocusSearch,
     onNewConversation,
+    onOpenHistory,
+    onOpenSettings,
+    onOpenLeaderboard,
+    onOpenHelp,
     onNavigateUp,
     onNavigateDown,
     onSelectCurrent,
@@ -51,6 +67,10 @@ export function useKeyboardShortcuts({
     handlersRef.current = {
       onFocusSearch,
       onNewConversation,
+      onOpenHistory,
+      onOpenSettings,
+      onOpenLeaderboard,
+      onOpenHelp,
       onNavigateUp,
       onNavigateDown,
       onSelectCurrent,
@@ -83,6 +103,34 @@ export function useKeyboardShortcuts({
       if (isCmdOrCtrl && e.key === 'n') {
         e.preventDefault();
         handlers.onNewConversation?.();
+        return;
+      }
+
+      // Cmd/Ctrl+H - Open History (works even when input focused)
+      if (isCmdOrCtrl && e.key === 'h') {
+        e.preventDefault();
+        handlers.onOpenHistory?.();
+        return;
+      }
+
+      // Cmd/Ctrl+, - Open Settings (works even when input focused)
+      if (isCmdOrCtrl && e.key === ',') {
+        e.preventDefault();
+        handlers.onOpenSettings?.();
+        return;
+      }
+
+      // Cmd/Ctrl+L - Open Leaderboard (works even when input focused)
+      if (isCmdOrCtrl && e.key === 'l') {
+        e.preventDefault();
+        handlers.onOpenLeaderboard?.();
+        return;
+      }
+
+      // ? - Show keyboard shortcuts help (only when not in input)
+      if (!isInputFocused && e.key === '?') {
+        e.preventDefault();
+        handlers.onOpenHelp?.();
         return;
       }
 
