@@ -195,7 +195,7 @@
 | 069 | P3 | UX | Tab categories (Operations/Standard/Technology) not explained | Leaderboard | 🔧 By Design (tabs are company departments, not fixed categories) |
 | 070 | P3 | UX | "0%" win rate could say "No wins yet" for clarity | Leaderboard | ✅ Fixed (shows "No wins" with i18n) |
 | 071 | P2 | Mobile | Model names wrap awkwardly with hyphens on mobile | Leaderboard mobile | ✅ Fixed (white-space: nowrap) |
-| 072 | P3 | UI | "AxCouncil" text cut off/faded at top of leaderboard mobile | Leaderboard mobile | Needs Fix |
+| 072 | P3 | UI | "AxCouncil" text cut off/faded at top of leaderboard mobile | Leaderboard mobile | 🔍 Needs Clarification (no AxCouncil branding found in Leaderboard component) |
 | 073 | P1 | Mobile | Response style button click opens My Company modal instead | Mobile chat input | ✅ Verified Fixed |
 | 074 | P2 | a11y | Nested button structure on mobile (button > button) causes click issues | Mobile chat input | ✅ Fixed (mobile uses direct button) |
 | 075 | P2 | a11y | My Company header has deeply nested buttons (button > button > combobox) | My Company | ✅ Fixed (removed makeClickable) |
