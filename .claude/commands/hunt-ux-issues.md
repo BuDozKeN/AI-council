@@ -1,6 +1,6 @@
 ---
 name: hunt-ux-issues
-description: Orchestrated UX/UI issue hunt using ALL testing tools - automated agents, Playwright suites, browser-use, Lighthouse, and manual audit skills
+description: Orchestrated UX/UI issue hunt using ALL testing tools - automated agents, Playwright suites, browser-use, Lighthouse, Storybook, Percy, and manual audit skills
 ---
 
 # UX/UI Issue Hunt - $25M SaaS Quality Orchestrator
@@ -50,6 +50,50 @@ python -m backend.automation.explorer --full 2>/dev/null || echo "browser-use no
 ```
 **Captures:** AI-driven exploration findings, interaction anomalies, flow completeness.
 
+### 1f. Storybook Component Visual Audit
+```bash
+cd frontend
+npx storybook dev -p 6006 --ci &
+sleep 10
+# Review each story for visual consistency
+```
+Or build and review statically:
+```bash
+cd frontend && npm run storybook:build
+```
+**How to use:** Open http://localhost:6006 and walk through every component story:
+- `UI/Button` - All 7 variants, all 4 sizes, loading state, disabled state
+- `UI/Input` - All types, disabled, with label (a11y check)
+- `UI/Card` - Default, simple, dashboard metric
+- `UI/Spinner` - All sizes, all color variants
+- `UI/EmptyState` - Default, search empty, large welcome with hints
+- `UI/ErrorState` - Default, with message, with retry, custom label
+
+**For each story, check:**
+- Does the component render correctly in isolation?
+- Does the **Accessibility** tab (axe-core) show any violations?
+- Does it look correct across all viewport presets? (Mobile, Tablet, Desktop, Desktop Wide)
+- Does the dark mode toggle produce intentional styling (not broken inversions)?
+- Are all interactive states visible? (hover, focus, active, disabled, loading)
+
+**Captures:** Component-level visual bugs, isolated a11y violations, design system inconsistencies that only show up outside of page context.
+
+### 1g. Percy Cloud Visual Regression (if PERCY_TOKEN set)
+```bash
+cd frontend
+PERCY_TOKEN=$PERCY_TOKEN npx percy exec -- npx playwright test e2e/percy-visual.spec.ts
+```
+**What it does:**
+- Captures every screen at 3 responsive widths (390px mobile, 834px tablet, 1280px desktop)
+- Captures dark mode variants
+- Captures error states (404 page)
+- Uploads to Percy cloud for AI-powered visual diff against previous baselines
+- Animations frozen for deterministic comparison
+
+**If PERCY_TOKEN is not set:** Skip this step and note "Percy: skipped (no token)" in the report. The Playwright visual regression tests (1a) still provide local screenshot comparison.
+
+**Captures:** Cross-browser visual regressions, responsive layout breaks across widths, dark mode rendering differences, subtle pixel-level changes that human eyes miss.
+
 ---
 
 ## Phase 2: Collect & Deduplicate Results
@@ -62,7 +106,7 @@ For EVERY issue found, record:
 | Field | Value |
 |-------|-------|
 | **ID** | UXH-001, UXH-002, etc. |
-| **Source** | Which tool found it (Playwright, Lighthouse, app-explorer, mobile-ux-tester, browser-use, manual) |
+| **Source** | Which tool found it (Playwright, Lighthouse, app-explorer, mobile-ux-tester, browser-use, Storybook, Percy, manual) |
 | **Screen** | Which screen/URL |
 | **Severity** | P0 (blocker), P1 (critical), P2 (major), P3 (minor), P4 (cosmetic) |
 | **Category** | interaction, visual, a11y, performance, mobile, layout, content, error-handling |
@@ -148,12 +192,15 @@ $25M Readiness Score: [1-10]
 | Dimension | Score | Target | Gap |
 |-----------|-------|--------|-----|
 | Visual Polish | ?/10 | 9/10 | |
+| Visual Regression (Percy/Playwright) | ?/10 | 9/10 | |
+| Component Quality (Storybook) | ?/10 | 9/10 | |
 | Mobile UX | ?/10 | 9/10 | |
 | Accessibility | ?/10 | 9/10 | |
-| Performance | ?/10 | 9/10 | |
+| Performance (Lighthouse) | ?/10 | 9/10 | |
 | Error Handling | ?/10 | 8/10 | |
 | Interaction Quality | ?/10 | 9/10 | |
 | Content/Copy | ?/10 | 8/10 | |
+| Design System Consistency | ?/10 | 9/10 | |
 
 ### Priority Fix List (Top 10)
 
@@ -161,11 +208,13 @@ Ordered list of the highest-impact fixes that would most improve the $25M readin
 
 ### Tool Coverage Matrix
 
-| Screen | Playwright | Lighthouse | app-explorer | mobile-ux | browser-use | Manual |
-|--------|-----------|-----------|-------------|-----------|-------------|--------|
-| / (Landing) | x | x | x | x | x | x |
-| /mycompany | x | | x | x | x | x |
-| ... | | | | | | |
+| Screen | Playwright | Lighthouse | app-explorer | mobile-ux | browser-use | Storybook | Percy | Manual |
+|--------|-----------|-----------|-------------|-----------|-------------|-----------|-------|--------|
+| / (Landing) | x | x | x | x | x | | x | x |
+| /mycompany | x | | x | x | x | | x | x |
+| /settings | x | | x | x | x | | x | x |
+| Components | | | | | | x | | x |
+| ... | | | | | | | | |
 
 ---
 
