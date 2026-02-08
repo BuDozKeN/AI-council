@@ -265,7 +265,7 @@
 | 128 | P3 | UX | "Pin sidebar open" button - unclear what "pinning" means | Sidebar mobile | ✅ Fixed (clearer tooltip) |
 | 129 | P2 | a11y | ACTIONS column header missing columnheader markup | Admin Users | ❌ False Positive (<th> has implicit columnheader role) |
 | 130 | P3 | Data | Users with "-" for name instead of email-derived fallback | Admin Users | ✅ Fixed (ISS-130, getDisplayName from email) |
-| 131 | P3 | UX | User names wrap to two lines at tablet ("Alfredo\nLanda") | Admin Users tablet | Needs Fix |
+| 131 | P3 | UX | User names wrap to two lines at tablet ("Alfredo\nLanda") | Admin Users tablet | ✅ Fixed (white-space: nowrap at tablet) |
 | 132 | P2 | Tablet | All emails truncated at tablet width with "..." | Admin Users tablet | ✅ Fixed (duplicate of #056, max-width increased to 180px) |
 | 133 | P3 | a11y | Rankings table at tablet missing SESSIONS and WINS columns | Admin Analytics tablet | Needs Review |
 | 134 | P3 | UI | Model names split across lines at tablet ("Claude Opus" / "4.5") | Admin Analytics tablet | Confirmed #053 |
@@ -287,7 +287,7 @@
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
 | 141 | P2 | a11y | Analytics charts have empty group elements with no accessible names | Admin Analytics | ✅ Fixed |
-| 142 | P3 | Data | Company Growth chart y-axis shows 0.5 - doesn't make sense for whole companies | Admin Analytics | Needs Fix |
+| 142 | P3 | Data | Company Growth chart y-axis shows 0.5 - doesn't make sense for whole companies | Admin Analytics | ✅ Fixed (allowDecimals={false} on YAxis) |
 | 143 | P1 | Data | Model count inconsistent: "6 AIs" (main) vs "5 AI models" (Billing) vs "15 models" (LLM Hub) | Multiple | 🔧 By Design (6 AIs = Stage 1 council; 15 = total across all stages; Billing shows "All AI models" text) |
 | 144 | P2 | UX | Enterprise plan shows "Free" as price - should be "Custom" or "Contact Us" | Settings > Billing | ✅ Fixed (shows "Contact Us") |
 | 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | ✅ Fixed (limit marker shown above progress bar) |
@@ -295,7 +295,7 @@
 | 147 | P3 | UX | "You" in Team tab doesn't show actual user name or email | Settings > Team | ✅ Fixed (hover tooltip shows name/email) |
 | 148 | P2 | Data | 136 queries used exceeds Free plan's 5/month limit - confusing | Settings > Billing | ✅ Fixed (visual indicator + explanatory text for over-limit state) |
 | 149 | P3 | UX | No "Current Plan" indicator shown near usage section | Settings > Billing | ✅ Fixed (badge shows current plan above usage) |
-| 150 | P3 | UI | Invitation bar colors gray for 0 values look like empty progress bars | Admin Analytics | Needs Fix |
+| 150 | P3 | UI | Invitation bar colors gray for 0 values look like empty progress bars | Admin Analytics | ✅ Fixed (opacity + muted colors for zero values) |
 | 151 | P2 | a11y | Revenue Dashboard disclosure triangle - purpose unclear | Admin Analytics | 🔧 By Design (standard expandable section pattern) |
 | 152 | P3 | UX | "Data refreshes hourly" but no manual refresh button | Admin Analytics | Needs Fix |
 | 153 | P3 | UX | Last updated time format inconsistent (06:06:16 vs dates elsewhere) | Admin Analytics | Needs Fix |
@@ -408,7 +408,7 @@
 | 245 | P3 | UX | Theme cycles Dark → System → Light → Dark - no direct selection | Theme toggle | 🔧 By Design (single-click cycler for quick access) |
 | 246 | P3 | UX | System theme shows "(Light)" suffix - redundant info | Theme toggle | 🔧 By Design (shows resolved theme for clarity) |
 | 247 | P3 | a11y | Theme toggle uses long description as button label | Theme toggle | 🔧 By Design (aria-label describes current state and action) |
-| 248 | P3 | UX | Language selector icon (globe) not labeled for new users | Global | Needs Fix |
+| 248 | P3 | UX | Language selector icon (globe) not labeled for new users | Global | ✅ Already Fixed (has aria-label="Language") |
 | 249 | P3 | UX | Tanstack Query devtools button visible in production mode | Global | ❌ False Positive (wrapped in import.meta.env.DEV check) |
 | 250 | P3 | Security | Tanstack Query devtools could expose internal state | Global | ❌ False Positive (only shown in dev mode) |
 

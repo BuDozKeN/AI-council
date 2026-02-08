@@ -243,11 +243,13 @@ function UserGrowthChart({ totalUsers, isLoading }: UserGrowthChartProps) {
               axisLine={{ stroke: 'var(--color-border)' }}
               interval="preserveStartEnd"
             />
+            {/* ISS-142: allowDecimals={false} prevents showing 0.5 for whole user counts */}
             <YAxis
               tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border)' }}
               width={40}
+              allowDecimals={false}
             />
             <RechartsTooltip
               contentStyle={{
@@ -324,11 +326,13 @@ function CompanyGrowthChart({ totalCompanies, isLoading }: CompanyGrowthChartPro
               axisLine={{ stroke: 'var(--color-border)' }}
               interval="preserveStartEnd"
             />
+            {/* ISS-142: allowDecimals={false} prevents showing 0.5 for whole company counts */}
             <YAxis
               tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border)' }}
               width={40}
+              allowDecimals={false}
             />
             <RechartsTooltip
               contentStyle={{
@@ -827,6 +831,7 @@ export function AnalyticsTab() {
               <div className="analytics-chart-skeleton" />
             ) : (
               <>
+                {/* ISS-150: Show clearer styling for zero-value bars */}
                 {[
                   { label: 'Pending', value: invitationFunnel.pending, color: '#3b82f6' },
                   { label: 'Accepted', value: invitationFunnel.accepted, color: '#22c55e' },
@@ -835,13 +840,20 @@ export function AnalyticsTab() {
                 ].map((item) => {
                   const pct =
                     invitationFunnel.total > 0 ? (item.value / invitationFunnel.total) * 100 : 0;
+                  const isZero = item.value === 0;
                   return (
-                    <div key={item.label} className="analytics-funnel-row">
+                    <div
+                      key={item.label}
+                      className={`analytics-funnel-row ${isZero ? 'analytics-funnel-row--zero' : ''}`}
+                    >
                       <span className="analytics-funnel-label">{item.label}</span>
                       <div className="analytics-funnel-bar-track">
                         <div
                           className="analytics-funnel-bar-fill"
-                          style={{ width: `${pct}%`, background: item.color }}
+                          style={{
+                            width: isZero ? '0%' : `${Math.max(pct, 3)}%`,
+                            background: isZero ? 'var(--color-border)' : item.color,
+                          }}
                         />
                       </div>
                       <span className="analytics-funnel-value">{item.value}</span>

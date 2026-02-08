@@ -127,6 +127,16 @@
   text-align: right;
 }
 
+/* ISS-150: Style zero-value funnel rows differently */
+.analytics-funnel-row--zero {
+  opacity: 0.6;
+}
+
+.analytics-funnel-row--zero .analytics-funnel-label,
+.analytics-funnel-row--zero .analytics-funnel-value {
+  color: var(--color-text-tertiary);
+}
+
 /* =============================================================================
    PREMIUM SECTIONS
    ============================================================================= */
