@@ -103,8 +103,14 @@ export const ConversationItem = memo(function ConversationItem({
   const longPressTriggered = useRef<boolean>(false);
   const isMobile = useIsMobile();
 
-  // Swipe actions for mobile
+  // Swipe actions for mobile - ISS-169: Added Rename action to match desktop
   const swipeActions = [
+    {
+      label: 'Rename conversation',
+      icon: <Pencil size={18} />,
+      onClick: () => onStartEdit(conversation),
+      variant: 'primary' as const,
+    },
     {
       label: conversation.is_starred ? 'Unstar conversation' : 'Star conversation',
       icon: <Star size={18} fill={conversation.is_starred ? 'currentColor' : 'none'} />,

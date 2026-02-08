@@ -7,7 +7,18 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Building2, Search, Mail, MessageSquare, Calendar } from 'lucide-react';
+import {
+  Building2,
+  Search,
+  Mail,
+  MessageSquare,
+  Calendar,
+  Plus,
+  Download,
+  Eye,
+  Pencil,
+  Trash2,
+} from 'lucide-react';
 import { api } from '../../api';
 import type { AdminCompanyInfo } from '../../api';
 import { SortableTableHeader } from './SortableTableHeader';
@@ -26,6 +37,7 @@ const CompaniesTableSkeleton = () => (
       <tr key={i}>
         <SkeletonCell />
         <SkeletonCell />
+        <SkeletonCell short />
         <SkeletonCell short />
         <SkeletonCell short />
       </tr>
@@ -152,18 +164,38 @@ export function CompaniesTab() {
             {t('admin.companies.description', 'View and manage all companies on the platform.')}
           </p>
         </div>
-        <div className="admin-search-box">
-          <Search className="admin-search-icon h-4 w-4" />
-          <input
-            type="text"
-            placeholder={t('admin.companies.searchPlaceholder', 'Search by name...')}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-            className="admin-search-input"
-          />
+        <div className="admin-header-actions">
+          {/* ISS-090: Add Company button */}
+          <button
+            className="admin-action-btn admin-action-btn--primary"
+            disabled
+            title={t('admin.comingSoon', 'Coming soon')}
+          >
+            <Plus className="h-4 w-4" />
+            <span>{t('admin.companies.addCompany', 'Add Company')}</span>
+          </button>
+          {/* ISS-091: Export button */}
+          <button
+            className="admin-action-btn"
+            disabled
+            title={t('admin.exportComingSoon', 'Export coming soon')}
+          >
+            <Download className="h-4 w-4" />
+            <span>{t('admin.export', 'Export')}</span>
+          </button>
+          <div className="admin-search-box">
+            <Search className="admin-search-icon h-4 w-4" />
+            <input
+              type="text"
+              placeholder={t('admin.companies.searchPlaceholder', 'Search by name...')}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              className="admin-search-input"
+            />
+          </div>
         </div>
       </div>
 
@@ -211,6 +243,10 @@ export function CompaniesTab() {
                     sortState={companySortState}
                     onSort={setCompanySortState}
                   />
+                  {/* ISS-089: Actions column */}
+                  <th scope="col" className="admin-actions-col">
+                    {t('admin.actions', 'Actions')}
+                  </th>
                 </tr>
               </thead>
               <tbody ref={companiesTableBodyRef}>
@@ -247,6 +283,41 @@ export function CompaniesTab() {
                         <div className="admin-date-cell">
                           <Calendar className="h-4 w-4" aria-hidden="true" />
                           <span>{formatDate(company.created_at)}</span>
+                        </div>
+                      </td>
+                      {/* ISS-088-089: Row actions */}
+                      <td className="admin-actions-col">
+                        <div className="admin-row-actions">
+                          <button
+                            className="admin-icon-btn"
+                            disabled
+                            title={t('admin.companies.viewDetails', 'View company details (coming soon)')}
+                            aria-label={t('admin.companies.viewCompany', 'View {{name}}', {
+                              name: company.name,
+                            })}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            className="admin-icon-btn"
+                            disabled
+                            title={t('admin.companies.editDetails', 'Edit company (coming soon)')}
+                            aria-label={t('admin.companies.editCompany', 'Edit {{name}}', {
+                              name: company.name,
+                            })}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
+                            className="admin-icon-btn admin-icon-btn--danger"
+                            disabled
+                            title={t('admin.companies.deleteCompany', 'Delete company (coming soon)')}
+                            aria-label={t('admin.companies.deleteCompanyLabel', 'Delete {{name}}', {
+                              name: company.name,
+                            })}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     </tr>

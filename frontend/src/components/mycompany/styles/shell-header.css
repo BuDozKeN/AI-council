@@ -179,22 +179,23 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+/* ISS-225: Close button visibility improved - increased size and opacity */
 .mc-close-btn {
   position: relative;
   z-index: var(--z-base);
-  background: transparent;
+  background: rgb(var(--color-white-rgb, 255, 255, 255), 0.08);
   border: none;
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   cursor: pointer;
-  color: rgb(var(--color-white-rgb, 255, 255, 255), 0.4);
-  width: 32px;
-  height: 32px;
+  color: rgb(var(--color-white-rgb, 255, 255, 255), 0.7);
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  opacity: 0.6;
+  opacity: 0.85;
 }
 
 .mc-close-btn:hover {

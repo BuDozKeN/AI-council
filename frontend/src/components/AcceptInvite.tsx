@@ -22,10 +22,10 @@ import {
   ArrowRight,
   CheckCircle,
   XCircle,
-  Loader2,
   Building2,
   Clock,
 } from 'lucide-react';
+import { Spinner } from './ui/Spinner';
 import { supabase } from '../supabase';
 import { api } from '../api';
 import { ThemeToggle } from './ui/ThemeToggle';
@@ -196,10 +196,10 @@ export default function AcceptInvite() {
 
         {/* Content based on state */}
         <div className="accept-invite-card">
-          {/* Loading state */}
+          {/* Loading state - ISS-342: Use unified Spinner */}
           {pageState === 'loading' && (
             <div className="accept-invite-state">
-              <Loader2 className="accept-invite-spinner" />
+              <Spinner size="xl" variant="brand" label={t('acceptInvite.validating', 'Validating invitation...')} />
               <p>{t('acceptInvite.validating', 'Validating invitation...')}</p>
             </div>
           )}
@@ -330,10 +330,10 @@ export default function AcceptInvite() {
             </>
           )}
 
-          {/* Submitting state */}
+          {/* Submitting state - ISS-342: Use unified Spinner */}
           {pageState === 'submitting' && (
             <div className="accept-invite-state">
-              <Loader2 className="accept-invite-spinner" />
+              <Spinner size="xl" variant="brand" label={t('acceptInvite.creatingAccount', 'Creating your account...')} />
               <p>{t('acceptInvite.creatingAccount', 'Creating your account...')}</p>
             </div>
           )}

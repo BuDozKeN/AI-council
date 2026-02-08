@@ -330,7 +330,7 @@ function Stage2({
                 {activeData.hasError && <span className="error-badge">{t('common.error')}</span>}
               </span>
               {activeData.isComplete && !activeData.isEmpty && activeData.ranking && (
-                <CopyButton text={activeData.ranking} size="sm" />
+                <CopyButton text={activeData.ranking} size="sm" tooltip="Copy review" />
               )}
             </div>
             <div

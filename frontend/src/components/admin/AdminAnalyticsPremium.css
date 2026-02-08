@@ -142,6 +142,7 @@
   align-items: center;
 }
 
+/* ISS-343: Use unified skeleton-shimmer animation from Skeleton.css */
 .analytics-hero-skeleton {
   width: 60%;
   height: 32px;
@@ -154,16 +155,6 @@
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
   border-radius: var(--radius-md);
-}
-
-@keyframes skeleton-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
-  }
 }
 
 .analytics-hero-value {

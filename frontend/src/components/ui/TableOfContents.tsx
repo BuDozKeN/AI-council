@@ -338,6 +338,7 @@ export function TableOfContents({
           onClick={() => setIsCollapsed(!isCollapsed)}
           aria-expanded={!isCollapsed}
           aria-label={isCollapsed ? 'Expand table of contents' : 'Collapse table of contents'}
+          title={isCollapsed ? 'Expand table of contents' : 'Collapse table of contents'}
         >
           <div className="toc-sticky-progress">
             <div className="toc-sticky-progress-fill" style={{ width: `${progressPercent}%` }} />
@@ -476,6 +477,7 @@ export function TableOfContents({
             setIsCollapsed(!isCollapsed);
           }}
           aria-label={isCollapsed ? 'Expand table of contents' : 'Collapse table of contents'}
+          title={isCollapsed ? 'Expand table of contents' : 'Collapse table of contents'}
         >
           {isCollapsed ? <ChevronLeft className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
         </button>

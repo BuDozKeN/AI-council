@@ -76,10 +76,20 @@ function CodeBlock({ children, className }: CodeBlockProps) {
     return <code className="inline-code">{children}</code>;
   }
 
+  // ISS-286: tabIndex={0} makes code blocks keyboard navigable for scrolling
   return (
-    <div className="code-block-wrapper copyable">
-      {language && <span className="code-language">{language}</span>}
-      <CopyButton text={code} size="sm" />
+    <div
+      className="code-block-wrapper copyable"
+      role="region"
+      aria-label={language ? `${language} code block` : 'Code block'}
+      tabIndex={0}
+    >
+      {language && (
+        <span className="code-language" aria-label={`Language: ${language}`}>
+          {language}
+        </span>
+      )}
+      <CopyButton text={code} size="sm" tooltip="Copy code" />
       <pre className={className}>
         <code>{children}</code>
       </pre>

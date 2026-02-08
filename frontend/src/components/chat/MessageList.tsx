@@ -201,10 +201,20 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
     return <code className="inline-code">{children}</code>;
   }
 
+  // ISS-286: tabIndex={0} makes code blocks keyboard navigable for scrolling
   return (
-    <div className="code-block-wrapper copyable">
-      {language && <span className="code-language">{language}</span>}
-      <CopyButton text={code} size="sm" />
+    <div
+      className="code-block-wrapper copyable"
+      role="region"
+      aria-label={language ? `${language} code block` : 'Code block'}
+      tabIndex={0}
+    >
+      {language && (
+        <span className="code-language" aria-label={`Language: ${language}`}>
+          {language}
+        </span>
+      )}
+      <CopyButton text={code} size="sm" tooltip="Copy code" />
       <pre className={className}>
         <code>{children}</code>
       </pre>
@@ -236,7 +246,13 @@ function UserMessage({ content }: { content: string }) {
         {/* Sticky copy button - stays visible when scrolling long content */}
         <CopyButton text={content} size="sm" className="user-copy-btn no-touch-target" tooltip="Copy your question" />
 
-        <div className="user-collapse-row" {...makeClickable(() => setIsCollapsed(!isCollapsed))}>
+        {/* ISS-219: aria-expanded announces collapsed/expanded state to screen readers */}
+        <div
+          className="user-collapse-row"
+          aria-expanded={!isCollapsed}
+          aria-label={isCollapsed ? 'Expand your question' : 'Collapse your question'}
+          {...makeClickable(() => setIsCollapsed(!isCollapsed))}
+        >
           {isCollapsed ? (
             <ChevronRight size={16} className="collapse-arrow" aria-hidden="true" />
           ) : (

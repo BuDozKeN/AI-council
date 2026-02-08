@@ -83,7 +83,15 @@ export function MyCompanyHeader({
             )}
             {companyName || 'Your Company'}
           </h1>
-          <span className="mc-title-suffix">{t('myCompany.commandCenter', 'Command Center')}</span>
+          <span
+            className="mc-title-suffix"
+            title={t(
+              'myCompany.commandCenterTooltip',
+              'Central hub for managing decisions, knowledge base, and company settings'
+            )}
+          >
+            {t('myCompany.commandCenter', 'Command Center')}
+          </span>
         </div>
         {/* Company switcher - now outside the dismiss button area (ISS-221) */}
         <div className="mc-company-switcher">
@@ -127,6 +135,7 @@ export function MyCompanyHeader({
       <button
         className="mc-close-btn"
         aria-label={t('common.close', 'Close')}
+        title={t('common.close', 'Close')}
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           onClose?.();

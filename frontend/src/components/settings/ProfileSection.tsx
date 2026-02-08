@@ -71,13 +71,21 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSaveProfile} autoComplete="on">
+            {/* ISS-157: Required field indicator */}
             <div className="form-group">
-              <label htmlFor="profile-display-name">{t('settings.displayName')}</label>
+              <label htmlFor="profile-display-name">
+                {t('settings.displayName')}
+                <span className="required-indicator" aria-hidden="true">
+                  *
+                </span>
+              </label>
               <input
                 id="profile-display-name"
                 name="display_name"
                 type="text"
                 autoComplete="name"
+                required
+                aria-required="true"
                 value={profile.display_name}
                 onChange={(e) => setProfile({ ...profile, display_name: e.target.value })}
                 placeholder={t('settings.displayName')}
@@ -108,7 +116,8 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
                 placeholder={t('settings.phonePlaceholder')}
               />
             </div>
-            <div className="form-group">
+            {/* ISS-158: Character counter for bio field */}
+            <div className="form-group form-group-with-counter">
               <label htmlFor="profile-bio">{t('settings.bio')}</label>
               <textarea
                 id="profile-bio"
@@ -118,7 +127,21 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
                 placeholder={t('settings.bioPlaceholder')}
                 rows={3}
                 enterKeyHint="done"
+                maxLength={500}
+                aria-describedby="bio-char-count"
               />
+              <span
+                id="bio-char-count"
+                className={`character-counter${
+                  profile.bio.length > 450
+                    ? profile.bio.length >= 500
+                      ? ' character-counter--error'
+                      : ' character-counter--warning'
+                    : ''
+                }`}
+              >
+                {profile.bio.length}/500
+              </span>
             </div>
 
             <div className="form-actions">

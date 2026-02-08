@@ -105,8 +105,9 @@ export function SidebarFooter({
             className="footer-btn admin-btn"
             onClick={onOpenAdmin}
             title={t('sidebar.adminPortal', 'Platform Admin Portal')}
+            aria-label={t('sidebar.adminPortal', 'Platform Admin Portal')}
           >
-            <Shield className="h-3.5 w-3.5" />
+            <Shield className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
         )}
         {/* Leaderboard button - mobile accessible (ISS-043) */}
@@ -115,8 +116,9 @@ export function SidebarFooter({
             className="footer-btn leaderboard-btn"
             onClick={onOpenLeaderboard}
             title={t('sidebar.leaderboard', 'Leaderboard')}
+            aria-label={t('sidebar.leaderboard', 'Leaderboard')}
           >
-            <Trophy className="h-3.5 w-3.5" />
+            <Trophy className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
         )}
         <button

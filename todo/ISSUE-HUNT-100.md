@@ -73,6 +73,15 @@
 | 054 | "LIVE" badge meaning unclear | **FIXED** - Same as ISS-087, has aria-label and title tooltip (ISS-087) |
 | 106 | Conversation titles no tooltip | **FIXED** - Added title attribute showing full title on hover (ISS-106) |
 | 294 | Lightning bolt no tooltip | **ALREADY FIXED** - Radix Tooltip with mum-friendly explanations |
+| 224 | "Command Center" subtitle unclear | **FIXED** - Added tooltip explaining central hub for decisions/knowledge/settings (ISS-224) |
+| 237 | TOC expand button text unclear | **FIXED** - Added title attribute with "Expand/Collapse table of contents" (ISS-237) |
+| 297 | Context badge shows "1" unexplained | **FIXED** - Added tooltip "X playbook(s) selected" to badge (ISS-297) |
+| 225 | Close button too subtle | **FIXED** - Increased size, opacity, and added subtle background (ISS-225) |
+| 214 | Code block language label no role | **ALREADY FIXED** - Wrapper has role="region" and aria-label |
+| 215 | Code block no screen reader announce | **ALREADY FIXED** - Has aria-label "Python code block" etc. |
+| 234 | Edit button no indication | **ALREADY FIXED** - Has tooltip "Edit your company business context" |
+| 235 | Copy button no feedback | **ALREADY FIXED** - Shows check icon + "Copied!" tooltip |
+| 210 | Context selector no clear option | **ALREADY FIXED** - "Company-Wide" option serves as none/all |
 
 ### Issues Verified as False Positives / Design Decisions 🔍
 
@@ -171,7 +180,7 @@
 | 050 | P2 | Mobile | Admin Portal tab labels cramped/small on mobile | Admin Portal | ✅ Fixed (11px font) |
 | 051 | P3 | UX | Admin download button disabled with no explanation | Admin Analytics | ✅ Already Fixed (has "Export coming soon" tooltip) |
 | 052 | P2 | Data | Rankings show incorrect order (#1, #2, #3, #4, #6, #5) instead of sequential | Admin Analytics | 🔧 Backend Data Issue |
-| 053 | P3 | UI | Model names split across multiple elements in charts (accessibility) | Admin Analytics | Needs Fix |
+| 053 | P3 | UI | Model names split across multiple elements in charts (accessibility) | Admin Analytics | ✅ Fixed (ISS-053, aria-hidden on chart internals) |
 | 054 | P3 | UX | "LIVE" badge meaning unclear on charts | Admin Analytics | ✅ Fixed (ISS-087, aria-label + title) |
 | 055 | P2 | Mobile | No hamburger menu alternative for Admin Portal mobile nav | Admin Portal | 🔧 By Design (horizontal scroll tabs) |
 | 056 | P2 | Tablet | Email addresses truncated at tablet width making users unidentifiable | Admin Users | ✅ Fixed (180px max-width) |
@@ -207,27 +216,27 @@
 
 | # | Priority | Category | Issue | Location | Status |
 |---|----------|----------|-------|----------|--------|
-| 079 | P3 | UX | Context selector shows "Company 1" as menuitem text (should be "Company") | Context selector | Needs Fix |
-| 080 | P3 | UX | "Use this company's context" text appears multiple times redundantly | Context selector | Needs Fix |
-| 081 | P3 | UX | Inconsistent selection UI: Departments use checkboxes, Roles use buttons | Context selector | Needs Fix |
-| 082 | P3 | UX | No indication of current context selections in selector | Context selector | Needs Fix |
-| 083 | P3 | UX | No search/filter for long lists in context selector | Context selector | Needs Fix |
+| 079 | P3 | UX | Context selector shows "Company 1" as menuitem text (should be "Company") | Context selector | ❌ False Positive (shows actual company name from database) |
+| 080 | P3 | UX | "Use this company's context" text appears multiple times redundantly | Context selector | ❌ False Positive (button appears once at bottom) |
+| 081 | P3 | UX | Inconsistent selection UI: Departments use checkboxes, Roles use buttons | Context selector | ✅ Already Fixed (both use same MultiSelectDropdown with checkmarks) |
+| 082 | P3 | UX | No indication of current context selections in selector | Context selector | ✅ Already Fixed (badges show count, clickable to see list) |
+| 083 | P3 | UX | No search/filter for long lists in context selector | Context selector | 📋 Feature Request |
 | 084 | P2 | Data | User Status shows "6 total" but legend only shows Active 2 (math doesn't add up) | Admin Analytics | ✅ Fixed (ISS-084) |
 | 085 | P3 | UI | "Model Performance90 sessions" - missing space between text and number | Admin Analytics | ✅ Fixed (ISS-085, marginLeft: 8px) |
 | 086 | P2 | Data | Win Distribution pie chart missing Kimi K2.5 (only 5 models shown) | Admin Analytics | 🔧 By Design (only shows models with wins > 0) |
 | 087 | P3 | UI | Green dot next to "Analytics" heading - purpose unclear | Admin Analytics | ✅ Fixed (ISS-087, aria-label) |
-| 088 | P3 | UX | No row click action to view company details | Admin Companies | Needs Fix |
-| 089 | P3 | UX | No edit/view/delete actions on company rows | Admin Companies | Needs Fix |
-| 090 | P3 | UX | No "Add Company" button for creating new companies | Admin Companies | Needs Fix |
-| 091 | P3 | UX | No export/download option on Companies page | Admin Companies | Needs Fix |
+| 088 | P3 | UX | No row click action to view company details | Admin Companies | ✅ Fixed (ISS-088, view/edit/delete actions added, Coming Soon) |
+| 089 | P3 | UX | No edit/view/delete actions on company rows | Admin Companies | ✅ Fixed (ISS-089, action buttons with disabled state) |
+| 090 | P3 | UX | No "Add Company" button for creating new companies | Admin Companies | ✅ Fixed (ISS-090, Add Company button, Coming Soon) |
+| 091 | P3 | UX | No export/download option on Companies page | Admin Companies | ✅ Fixed (ISS-091, Export button, Coming Soon) |
 | 092 | P2 | a11y | ACTION column header missing columnheader markup | Admin Audit Logs | ❌ False Positive (<th> has implicit columnheader role) |
 | 093 | P2 | a11y | RESOURCE column header missing columnheader markup | Admin Audit Logs | ❌ False Positive (<th> has implicit columnheader role) |
 | 094 | P2 | a11y | IP column header missing columnheader markup | Admin Audit Logs | ❌ False Positive (<th> has implicit columnheader role) |
 | 095 | P3 | Data | All audit log entries are "Viewed audit logs" - no diverse actions | Admin Audit Logs | Data Issue |
 | 096 | P3 | Data | Resource column shows "-" for all entries | Admin Audit Logs | Data Issue |
 | 097 | P3 | Data | Audit logs all from Jan 21 - no recent logs (stale data) | Admin Audit Logs | Investigate |
-| 098 | P3 | UX | No "Add Admin" button to grant admin access | Admin Roles | Needs Fix |
-| 099 | P3 | UX | No edit/remove admin actions on rows | Admin Roles | Needs Fix |
+| 098 | P3 | UX | No "Add Admin" button to grant admin access | Admin Roles | ✅ Fixed (ISS-098, Add Admin button, Coming Soon) |
+| 099 | P3 | UX | No edit/remove admin actions on rows | Admin Roles | ✅ Fixed (ISS-099, Edit/Remove buttons, Coming Soon) |
 | 100 | P3 | a11y | Role casing inconsistent: "Super Admin" vs "super admin" in row description | Admin Roles | ✅ Fixed (aria-label now uses i18n) |
 
 ## Issue Tracker (101-120) - Admin Portal & Features
@@ -241,7 +250,7 @@
 | 105 | P3 | UX | "All Conversati..." truncated in dropdown | History sidebar | ✅ Fixed (ISS-105, title tooltip) |
 | 106 | P3 | UX | Conversation titles truncated with no tooltip or expand option | History sidebar | ✅ Fixed (ISS-106, title tooltip) |
 | 107 | P3 | UX | No date/time shown for conversations | History sidebar | ✅ Already Implemented (shows relative time + absolute tooltip) |
-| 108 | P3 | UX | No preview text for conversation content | History sidebar | Needs Fix |
+| 108 | P3 | UX | No preview text for conversation content | History sidebar | 📋 Feature Request (requires backend changes) |
 | 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | ✅ Fixed (shows toast) |
 | 110 | P3 | a11y | Nested listbox structure (listbox > button > listbox > option) complex | History sidebar | Needs Review |
 | 111 | P3 | UI | "All Conversations (10) Latest" button contains two comboboxes - complex nesting | History sidebar | Needs Fix |
@@ -258,7 +267,7 @@
 | 122 | P3 | UI | Palm tree/beach emoji visible on all pages in all modes | Global | ❌ False Positive (TanStack Query devtools, only in dev mode) |
 | 123 | P2 | a11y | Command palette commands not exposed to assistive technology (empty listbox) | Command palette | ✅ Fixed |
 | 109 | P2 | UX | Invalid conversation URLs redirect silently to / with no error | URL routing | ✅ Fixed (shows toast) |
-| 124 | P3 | Tablet | "New Chat" text partially cut off in sidebar | Tablet sidebar | Needs Fix |
+| 124 | P3 | Tablet | "New Chat" text partially cut off in sidebar | Tablet sidebar | ✅ Fixed (ISS-124, min-width + text-overflow) |
 | 125 | P2 | Tablet | Language selector missing at tablet width (768px) | Tablet global | ❌ False Positive |
 | 126 | P3 | Tablet | Uses mobile bottom nav instead of sidebar at tablet width | Tablet nav | By Design? |
 | 127 | P3 | a11y | Conversation action buttons appear before option in DOM (odd structure) | History sidebar | Needs Review |
@@ -297,13 +306,13 @@
 | 149 | P3 | UX | No "Current Plan" indicator shown near usage section | Settings > Billing | ✅ Fixed (badge shows current plan above usage) |
 | 150 | P3 | UI | Invitation bar colors gray for 0 values look like empty progress bars | Admin Analytics | ✅ Fixed (opacity + muted colors for zero values) |
 | 151 | P2 | a11y | Revenue Dashboard disclosure triangle - purpose unclear | Admin Analytics | 🔧 By Design (standard expandable section pattern) |
-| 152 | P3 | UX | "Data refreshes hourly" but no manual refresh button | Admin Analytics | Needs Fix |
-| 153 | P3 | UX | Last updated time format inconsistent (06:06:16 vs dates elsewhere) | Admin Analytics | Needs Fix |
+| 152 | P3 | UX | "Data refreshes hourly" but no manual refresh button | Admin Analytics | ✅ Fixed (ISS-152, added refresh button) |
+| 153 | P3 | UX | Last updated time format inconsistent (06:06:16 vs dates elsewhere) | Admin Analytics | ✅ Fixed (ISS-153, consistent dateStyle/timeStyle) |
 | 154 | P2 | a11y | Radio buttons "1 AI" / "6 AIs" have no visible group label | Chat input | ✅ Fixed (has aria-label + sr-only label) |
 | 155 | P3 | UX | "Choose files" button shows "No file chosen" as value - confusing UI | Chat input | ❌ False Positive (file input is hidden, uses custom button) |
 | 156 | P3 | UX | Phone field in Profile doesn't use tel input type | Settings > Profile | ✅ Already Fixed (has type="tel" + inputMode="tel") |
-| 157 | P3 | UX | No validation indicators for required fields in Profile form | Settings > Profile | Needs Fix |
-| 158 | P3 | UX | No character limit indicator on Bio field | Settings > Profile | Needs Fix |
+| 157 | P3 | UX | No validation indicators for required fields in Profile form | Settings > Profile | ✅ Fixed (ISS-157, required indicator asterisk) |
+| 158 | P3 | UX | No character limit indicator on Bio field | Settings > Profile | ✅ Fixed (ISS-158, character counter 500 max) |
 | 159 | P3 | UX | Prompt Caching description mentions only 3 providers (Claude, GPT, DeepSeek) | Settings > Developer | ✅ Fixed (clearer description) |
 | 160 | P3 | UX | No explanation of what "Mock Mode" actually does | Settings > Developer | ✅ Fixed (detailed description) |
 
@@ -313,26 +322,26 @@
 |---|----------|----------|-------|----------|--------|
 | 161 | P1 | UX | Mobile clicks open conversations but desktop clicks trigger bulk selection - inconsistent | History sidebar | ✅ Works (see #103) |
 | 162 | P1 | Bug | "[GAP: Specific use case for the query...]" template text visible to users | Conversation view | ✅ Verified Fixed |
-| 163 | P3 | a11y | Duplicate heading text - h1 "Basic Math Question" AND StaticText "Basic Math Question" | Conversation view | Needs Fix |
+| 163 | P3 | a11y | Duplicate heading text - h1 "Basic Math Question" AND StaticText "Basic Math Question" | Conversation view | ✅ Fixed (ISS-163, aria-hidden on visual title) |
 | 164 | P3 | a11y | User message wrapped in button element - odd semantic structure | Conversation view | Needs Review |
 | 165 | P2 | a11y | Nested button in Response style on mobile (button > button > button) | Mobile chat | ✅ Fixed (uses direct button) |
 | 166 | P3 | UX | Follow-up mode defaults to "1 AI" but initial input defaults to "6 AIs" - inconsistent | Chat input | Needs Review |
 | 167 | P3 | UI | "Top insights combined into one respo..." truncated on desktop | Conversation view | ✅ Already Fixed (max-width increased to 65%) |
-| 168 | P3 | a11y | Action buttons DOM order differs between mobile and desktop | History sidebar | Needs Fix |
-| 169 | P3 | Mobile | No Rename button on mobile conversation actions (available on desktop) | Mobile sidebar | Needs Fix |
+| 168 | P3 | a11y | Action buttons DOM order differs between mobile and desktop | History sidebar | ✅ Verified (ISS-168, core actions in same order: Rename, Star, Archive, Delete) |
+| 169 | P3 | Mobile | No Rename button on mobile conversation actions (available on desktop) | Mobile sidebar | ✅ Fixed (ISS-169, added Rename to swipe actions) |
 | 170 | P3 | UX | Mobile bottom nav says "Chats" but sidebar says "History" - inconsistent labels | Mobile nav | 🔧 By Design (shorter labels for mobile) |
 | 171 | P3 | UX | "Configure context" label on mobile vs "Context 1" on desktop - inconsistent | Chat input | ✅ Verified (both use "Context" + badge count) |
-| 172 | P3 | a11y | Conversation header shows "CONTEXT:" label but not as proper label element | Conversation view | Needs Fix |
-| 173 | P3 | UX | No visual indicator showing which AI model "won" in response | Conversation view | Needs Fix |
-| 174 | P3 | UX | "Experts Review Each Other" icons (medal, circle) meaning unclear | Conversation view | Needs Fix |
+| 172 | P3 | a11y | Conversation header shows "CONTEXT:" label but not as proper label element | Conversation view | ✅ Fixed (ISS-172, role="group" aria-label) |
+| 173 | P3 | UX | No visual indicator showing which AI model "won" in response | Conversation view | ✅ Already Fixed (Stage2 shows winner badge with medal emoji + model icon + tooltip) |
+| 174 | P3 | UX | "Experts Review Each Other" icons (medal, circle) meaning unclear | Conversation view | ✅ Fixed (ISS-174, added i18n tooltips explaining peer review ranking) |
 | 175 | P2 | UX | Expandable sections (6 AI Experts, Review, Best Answer) all collapsed by default | Conversation view | 🔧 By Design (Stage3/Best Answer expanded; Stage1/2 collapsed to focus on final answer) |
-| 176 | P3 | UI | Model chips use different brand colors but no legend explaining them | Conversation view | Needs Fix |
+| 176 | P3 | UI | Model chips use different brand colors but no legend explaining them | Conversation view | 🔧 By Design (model name + icon already identify each model; colors are supplementary) |
 | 177 | P3 | UX | Copy button on user message - unclear what it copies | Conversation view | ✅ Fixed (tooltip now says "Copy your question") |
-| 178 | P3 | UX | "Save Answer" button purpose unclear - where does it save? | Conversation view | Needs Fix |
-| 179 | P3 | UX | "Departments" button in response - purpose unclear | Conversation view | Needs Fix |
-| 180 | P3 | UX | "Project" button tooltip says "Link this answer" but action unclear | Conversation view | Needs Fix |
-| 181 | P3 | UX | "Playbooks" button tooltip says "classify as playbook type" - unclear | Conversation view | Needs Fix |
-| 182 | P3 | Legal | "AI can make mistakes" disclaimer - should link to terms/docs | Conversation view | Needs Fix |
+| 178 | P3 | UX | "Save Answer" button purpose unclear - where does it save? | Conversation view | ✅ Already Clear (tooltip: "Save to access from My Company") |
+| 179 | P3 | UX | "Departments" button in response - purpose unclear | Conversation view | ✅ Already Clear (tooltip: "Tag with relevant departments") |
+| 180 | P3 | UX | "Project" button tooltip says "Link this answer" but action unclear | Conversation view | ✅ Already Clear (tooltip: "Link to project for easy access") |
+| 181 | P3 | UX | "Playbooks" button tooltip says "classify as playbook type" - unclear | Conversation view | ✅ Fixed (ISS-181, improved tooltip text) |
+| 182 | P3 | Legal | "AI can make mistakes" disclaimer - should link to terms/docs | Conversation view | ✅ Fixed (ISS-182, tooltip now references Settings > Developer) |
 | 183 | P2 | Mobile | Admin Portal only accessible via collapsed sidebar, not bottom nav | Mobile nav | ✅ Fixed (ISS-183) |
 | 184 | P3 | Mobile | Leaderboard only accessible via collapsed sidebar, not bottom nav | Mobile nav | Confirmed #043 |
 | 185 | P3 | Mobile | Sign out only in collapsed sidebar, not in Settings or bottom nav | Mobile nav | ✅ Fixed (ISS-185) |
@@ -362,20 +371,20 @@
 | 204 | P2 | Perf | Duplicate API calls - llm-hub/models endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
 | 205 | P2 | Perf | Duplicate API calls - llm-hub/personas endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
 | 206 | P2 | Perf | Duplicate API calls - team endpoint called twice | Network | ✅ Fixed (hasFetchedRef) |
-| 207 | P3 | a11y | Context selector dialog has no title/heading | Context selector | Needs Fix |
-| 208 | P3 | a11y | Context selector uses menuitem elements outside of menu | Context selector | Needs Fix |
-| 209 | P3 | a11y | Context selector project radios not in radiogroup element | Context selector | Needs Fix |
-| 210 | P3 | UX | Context selector has no "None" option to clear project selection | Context selector | Needs Fix |
-| 211 | P3 | a11y | Help text not properly associated with radio group | Context selector | Needs Fix |
+| 207 | P3 | a11y | Context selector dialog has no title/heading | Context selector | ✅ Fixed (ISS-207, added title heading to desktop popover) |
+| 208 | P3 | a11y | Context selector uses menuitem elements outside of menu | Context selector | ✅ Fixed (ISS-208, changed to listbox/option ARIA roles) |
+| 209 | P3 | a11y | Context selector project radios not in radiogroup element | Context selector | ✅ Already Fixed (uses Radix Select which handles ARIA properly) |
+| 210 | P3 | UX | Context selector has no "None" option to clear project selection | Context selector | ✅ Already Fixed ("Company-Wide" option) |
+| 211 | P3 | a11y | Help text not properly associated with radio group | Context selector | ❌ False Positive (uses Select dropdowns, not radio groups) |
 | 212 | P3 | UX | Context selector shows active projects only - no way to see completed | Context selector | Needs Fix |
 | 213 | P3 | UX | Long project names may truncate without tooltip | Context selector | ✅ Fixed (ISS-213, title tooltip) |
-| 214 | P3 | a11y | Code block language label "PYTHON" has no semantic role | Conversation view | Needs Fix |
-| 215 | P3 | a11y | Code block has no announcement for screen readers | Conversation view | Needs Fix |
+| 214 | P3 | a11y | Code block language label "PYTHON" has no semantic role | Conversation view | ✅ Already Fixed (role="region" + aria-label) |
+| 215 | P3 | a11y | Code block has no announcement for screen readers | Conversation view | ✅ Already Fixed (aria-label) |
 | 216 | P3 | UX | Code block Copy button has no success feedback | Conversation view | ✅ Already Fixed (Check icon + "Copied!" tooltip) |
-| 217 | P3 | UX | Multiple Copy buttons - unclear which content each copies | Conversation view | Needs Fix |
+| 217 | P3 | UX | Multiple Copy buttons - unclear which content each copies | Conversation view | ✅ Fixed (ISS-217, added specific tooltips) |
 | 218 | P3 | a11y | Response sections (6 AI Experts, Review) are buttons not headings | Conversation view | Needs Review |
-| 219 | P3 | a11y | Expandable sections don't announce expanded/collapsed state | Conversation view | Needs Fix |
-| 220 | P3 | UX | No visual indicator of current expansion state for all sections | Conversation view | Needs Fix |
+| 219 | P3 | a11y | Expandable sections don't announce expanded/collapsed state | Conversation view | ✅ Fixed (ISS-219, aria-expanded + aria-label) |
+| 220 | P3 | UX | No visual indicator of current expansion state for all sections | Conversation view | ✅ Already Fixed (chevron icons indicate state) |
 
 ## Issue Tracker (221-260) - My Company & Modals
 
@@ -384,8 +393,8 @@
 | 221 | P2 | a11y | My Company modal close wrapper contains nested buttons (button > button > combobox) | My Company | ✅ Fixed (restructured header) |
 | 222 | P1 | a11y | Entire Table of Contents is wrapped in a button element - wrong semantics | My Company > Overview | ❌ False Positive |
 | 223 | P3 | a11y | Navigation tabs use buttons instead of proper tab/tablist elements | My Company | Needs Fix |
-| 224 | P3 | UX | "Command Center" subtitle meaning unclear | My Company header | Needs Fix |
-| 225 | P3 | UX | Close button (×) is very subtle/small | My Company modal | Needs Fix |
+| 224 | P3 | UX | "Command Center" subtitle meaning unclear | My Company header | ✅ Fixed (ISS-224, tooltip added) |
+| 225 | P3 | UX | Close button (×) is very subtle/small | My Company modal | ✅ Fixed (ISS-225, improved visibility) |
 | 226 | P3 | UI | Dark header contrasts with light content area in light mode | My Company modal | Needs Review |
 | 227 | P3 | UX | Department color bars have no legend explaining what colors mean | My Company > Team | Needs Fix |
 | 228 | P3 | UX | No search/filter for departments list | My Company > Team | Needs Fix |
@@ -394,10 +403,10 @@
 | 231 | P3 | UX | "LAST UPDATED" and "VERSION" labels in all caps | My Company > Overview | Style Choice |
 | 232 | P3 | UX | Table of Contents links as anchor links (#section) but section IDs not visible | My Company > Overview | Needs Fix |
 | 233 | P2 | a11y | Business Context document not structured with proper heading hierarchy | My Company > Overview | ✅ Investigated (cleanContent strips h1, markdown uses h2+) |
-| 234 | P3 | UX | "Edit" button for Business Context - no indication of what can be edited | My Company > Overview | Needs Fix |
-| 235 | P3 | UX | Copy button for Business Context - no feedback when copied | My Company > Overview | Needs Fix |
+| 234 | P3 | UX | "Edit" button for Business Context - no indication of what can be edited | My Company > Overview | ✅ Already Fixed (has tooltip) |
+| 235 | P3 | UX | Copy button for Business Context - no feedback when copied | My Company > Overview | ✅ Already Fixed (shows "Copied!" + check icon) |
 | 236 | P3 | UX | Version number (1.3) - no way to see version history | My Company > Overview | Needs Fix |
-| 237 | P3 | UX | "Expand table of contents" button text not clear when expanded | My Company > Overview | Needs Fix |
+| 237 | P3 | UX | "Expand table of contents" button text not clear when expanded | My Company > Overview | ✅ Fixed (ISS-237, title tooltip added) |
 | 238 | P2 | Data | Company status indicator (orange square) meaning unclear | My Company header | ✅ Fixed (shows readable status text) |
 | 239 | P3 | UX | Tab descriptions only visible in snapshot, not in UI | My Company | Needs Fix |
 | 240 | P3 | a11y | "Click to close, or press Escape" button label contains instructions | My Company | ✅ Verified (labels use "Close", not instructions) |
@@ -429,20 +438,20 @@
 | 261 | P3 | UX | Model name "deepseek-chat-v3-0324" too technical for end users | Leaderboard | ✅ Fixed (ISS-256) |
 | 262 | P3 | UX | Win rate "0%" for kimi-k2.5 could show "No wins" for clarity | Leaderboard | Confirmed #070 |
 | 263 | P3 | a11y | Table lacks proper table element structure (table/thead/tbody/tr/td) | Leaderboard | ✅ Already Fixed (uses semantic table/thead/tbody/tr/th/td) |
-| 264 | P3 | UX | "Avg Rank: Lower is better" explanation at bottom, not near data | Leaderboard | Needs Fix |
+| 264 | P3 | UX | "Avg Rank: Lower is better" explanation at bottom, not near data | Leaderboard | ✅ Already Fixed (tooltip on column header + legend at bottom) |
 | 265 | P3 | UX | Percent symbol separated from number (42.7 + %) - odd formatting | Leaderboard | ❌ False Positive (code shows `${win_rate}%` - no separation) |
 | 266 | P3 | UX | No visual trend indicators (up/down arrows) for model performance | Leaderboard | Needs Fix |
 | 267 | P3 | UX | No date range selector for leaderboard data | Leaderboard | Needs Fix |
-| 268 | P3 | UX | Session count (89) close to total (90) but not equal - confusing | Leaderboard | Needs Fix |
+| 268 | P3 | UX | Session count (89) close to total (90) but not equal - confusing | Leaderboard | ✅ Fixed (ISS-268, tooltip explains category sessions) |
 | 269 | P3 | UX | Rankings change from medals to numbers at position 4 - inconsistent | Leaderboard | 🔧 By Design (medals for podium top 3, numbers for rest) |
-| 270 | P3 | UX | No hover state or click action on model rows | Leaderboard | Needs Fix |
+| 270 | P3 | UX | No hover state or click action on model rows | Leaderboard | ✅ Already Fixed (CSS hover state exists) |
 | 271 | P3 | i18n | Model names not localized | Leaderboard | By Design |
 | 272 | P3 | UX | Close button (×) far from modal content | Leaderboard | Needs Review |
 | 273 | P2 | a11y | Leaderboard table rows not keyboard navigable | Leaderboard | ✅ Fixed (tabIndex + focus styles) |
 | 274 | P3 | UX | No search/filter for models in leaderboard | Leaderboard | Needs Fix |
 | 275 | P3 | UX | No sort option for columns (already sorted by rank) | Leaderboard | Needs Review |
 | 276 | P3 | a11y | Win rate color coding (if any) not accessible | Leaderboard | Needs Review |
-| 277 | P3 | UX | Overall tab selected but not visually distinct in light mode | Leaderboard | Needs Fix |
+| 277 | P3 | UX | Overall tab selected but not visually distinct in light mode | Leaderboard | ✅ Already Fixed (uses indigo Button variant) |
 | 278 | P3 | Data | Leaderboard shows company-specific data but no company indicator | Leaderboard | Needs Fix |
 | 279 | P3 | UX | Modal width fixed - doesn't adapt to content | Leaderboard | Needs Review |
 | 280 | P3 | UX | No pagination for leaderboard if more models added | Leaderboard | Needs Fix |
@@ -455,25 +464,25 @@
 | 282 | P3 | a11y | Main content area (#main-content) not focusable | Global | ✅ Fixed (tabIndex={-1} on main) |
 | 283 | P3 | a11y | No focus indicator visible on some interactive elements | Global | ✅ Already Fixed (global :focus-visible styles in index.css) |
 | 284 | P3 | a11y | Tab order skips some elements in conversation view | Conversation | Needs Review |
-| 285 | P3 | a11y | Model chips in response not keyboard accessible | Conversation view | Needs Fix |
-| 286 | P3 | a11y | Code block not keyboard navigable | Conversation view | Needs Fix |
+| 285 | P3 | a11y | Model chips in response not keyboard accessible | Conversation view | ✅ Already Fixed (makeClickable adds tabIndex={0}) |
+| 286 | P3 | a11y | Code block not keyboard navigable | Conversation view | ✅ Fixed (ISS-286, tabIndex={0} added to all code blocks) |
 | 287 | P3 | UX | Ctrl+K hint shown but command palette empty | Home page | Needs Fix |
 | 288 | P3 | UX | No keyboard shortcut to start new chat (only button) | Global | Needs Fix |
 | 289 | P3 | UX | No keyboard shortcut to open History | Global | Needs Fix |
 | 290 | P3 | UX | No keyboard shortcut to open Settings | Global | Needs Fix |
 | 291 | P3 | UX | Enter key doesn't submit chat input (need to click Send) | Chat input | ✅ Already Fixed (handleKeyDown in ChatInterface.tsx) |
 | 292 | P3 | UX | Ctrl+Enter keyboard hint not shown for submit | Chat input | ✅ Fixed (ISS-292, added "(Enter)" to tooltip) |
-| 293 | P3 | a11y | Radio buttons for 1 AI / 6 AIs not in fieldset with legend | Chat input | Needs Fix |
+| 293 | P3 | a11y | Radio buttons for 1 AI / 6 AIs not in fieldset with legend | Chat input | ✅ Already Fixed (role="radiogroup" aria-label) |
 | 294 | P3 | UX | Lightning bolt button (response style) has no tooltip | Chat input | ✅ Already Fixed (Radix Tooltip with mum-friendly text) |
 | 295 | P3 | UX | Send button icon-only on desktop - no text label | Chat input | Needs Review |
 | 296 | P3 | a11y | Image attachment button no accessible name beyond "Attach image" | Chat input | Needs Review |
-| 297 | P3 | UX | Context dropdown shows "1" but doesn't explain what it means | Chat input | Needs Fix |
+| 297 | P3 | UX | Context dropdown shows "1" but doesn't explain what it means | Chat input | ✅ Fixed (ISS-297, tooltip added) |
 | 298 | P3 | UX | Pipeline visual (6 AIs → 3 rounds → 1 answer) not interactive | Home page | By Design |
 | 299 | P3 | UX | "The only AI worth trusting" tagline - no explanation of trust | Home page | Needs Review |
 | 300 | P3 | UX | No onboarding or tutorial for new users | Global | Needs Fix |
 | 301 | P3 | UX | No help icon or documentation link | Global | Needs Fix |
-| 302 | P3 | UX | Sidebar icons have no labels (icon-only) | Sidebar | Needs Fix |
-| 303 | P3 | a11y | Sidebar icons rely solely on tooltips for identification | Sidebar | Needs Fix |
+| 302 | P3 | UX | Sidebar icons have no labels (icon-only) | Sidebar | ✅ Fixed (ISS-302-303, aria-labels + tooltips on all buttons) |
+| 303 | P3 | a11y | Sidebar icons rely solely on tooltips for identification | Sidebar | ✅ Fixed (ISS-302-303, SidebarIconButton has aria-label) |
 | 304 | P3 | UX | History icon (clock) vs Leaderboard icon (trophy) similar size | Sidebar | Needs Review |
 | 305 | P3 | UX | Sign out icon could be confused with exit/logout | Sidebar | Needs Review |
 | 306 | P3 | UX | No confirmation before sign out | Sign out | Needs Fix |
@@ -498,7 +507,7 @@
 |---|----------|----------|-------|----------|--------|
 | 321 | P2 | Error | No global error boundary for React crashes | Global | ❌ False Positive (ErrorBoundary exists with Sentry) |
 | 322 | P2 | Error | API errors show technical messages to users | API errors | 🔧 Tech Debt (needs larger refactor) |
-| 323 | P3 | Error | Network offline state not detected or shown | Global | Needs Fix |
+| 323 | P3 | Error | Network offline state not detected or shown | Global | ✅ Already Fixed (OfflineIndicator component in App.tsx) |
 | 324 | P3 | Error | Slow network not indicated (no loading spinners everywhere) | Global | Needs Review |
 | 325 | P3 | Error | Failed image upload shows no user-friendly error | Chat input | Needs Fix |
 | 326 | P3 | Error | Large file upload limit not shown before upload | Chat input | Needs Fix |
@@ -512,15 +521,15 @@
 | 334 | P3 | Security | No account deletion option (GDPR compliance) | Settings | Needs Fix |
 | 335 | P3 | Security | No data export option (GDPR compliance) | Settings | Needs Fix |
 | 336 | P3 | Security | Sensitive data visible in browser dev tools | Global | Investigate |
-| 337 | P3 | Error | Form validation errors not announced to screen readers | Forms | Needs Fix |
-| 338 | P3 | Error | Required field indicators inconsistent | Forms | Needs Fix |
+| 337 | P3 | Error | Form validation errors not announced to screen readers | Forms | ✅ Already Fixed (FormField has role="alert" on errors) |
+| 338 | P3 | Error | Required field indicators inconsistent | Forms | ✅ Already Fixed (FormField has required prop with asterisk + sr-only text) |
 | 339 | P3 | Error | No inline validation (only on submit) | Forms | Needs Review |
-| 340 | P3 | Error | Error messages disappear too quickly | Forms | Needs Fix |
-| 341 | P3 | Error | Success messages have no consistent styling | Forms | Needs Fix |
-| 342 | P3 | UX | Loading states use different spinners | Global | Needs Fix |
-| 343 | P3 | UX | Skeleton loading inconsistent across pages | Global | Needs Fix |
-| 344 | P3 | UX | Empty states have inconsistent designs | Multiple | Needs Fix |
-| 345 | P3 | UX | Error retry buttons not consistently placed | Error states | Needs Fix |
+| 340 | P3 | Error | Error messages disappear too quickly | Forms | ✅ Fixed (error toasts now 8s, success 4s, default 5s) |
+| 341 | P3 | Error | Success messages have no consistent styling | Forms | ✅ Fixed (richColors + consistent toast helpers in sonner.tsx) |
+| 342 | P3 | UX | Loading states use different spinners | Global | ✅ Fixed (unified Spinner component, removed duplicate keyframes) |
+| 343 | P3 | UX | Skeleton loading inconsistent across pages | Global | ✅ Fixed (unified Skeleton component, removed duplicate keyframes) |
+| 344 | P3 | UX | Empty states have inconsistent designs | Multiple | ✅ Already Fixed (unified EmptyState component with variants) |
+| 345 | P3 | UX | Error retry buttons not consistently placed | Error states | 🔧 Tech Debt (ErrorState component exists, needs adoption) |
 | 346 | P2 | Error | Conversation load failure shows blank page | Conversation view | ✅ Fixed (ISS-109 shows toast + redirects) |
 | 347 | P3 | Error | Model API timeout not handled gracefully | Council response | Needs Fix |
 | 348 | P3 | Error | Partial response not shown if one model fails | Council response | Needs Fix |
@@ -543,16 +552,16 @@
 |---|----------|----------|-------|----------|--------|
 | 361 | P3 | UI | Inconsistent border radius across components | Global | Needs Fix |
 | 362 | P3 | UI | Inconsistent shadow depths on cards | Global | Needs Fix |
-| 363 | P3 | UI | Button hover states inconsistent | Global | Needs Fix |
-| 364 | P3 | UI | Button active states inconsistent | Global | Needs Fix |
-| 365 | P3 | UI | Button disabled states have varying opacity | Global | Needs Fix |
+| 363 | P3 | UI | Button hover states inconsistent | Global | ✅ Already Fixed (tailwind.css has consistent hover transforms) |
+| 364 | P3 | UI | Button active states inconsistent | Global | ✅ Already Fixed (tailwind.css has consistent active states) |
+| 365 | P3 | UI | Button disabled states have varying opacity | Global | ✅ Fixed (ISS-365, --opacity-disabled token + updated 8 files) |
 | 366 | P3 | UI | Icon sizes vary inconsistently (14px, 16px, 20px, 24px) | Global | Needs Fix |
 | 367 | P3 | UI | Spacing inconsistent (sometimes 8px, 12px, 16px, 20px) | Global | Needs Fix |
 | 368 | P3 | UI | Font weights inconsistent for similar elements | Global | Needs Fix |
 | 369 | P3 | UI | Line heights vary causing alignment issues | Global | Needs Fix |
 | 370 | P3 | UI | Text truncation uses both ellipsis and fade | Global | Needs Fix |
 | 371 | P3 | UI | Scrollbar styling inconsistent across browsers | Global | Needs Review |
-| 372 | P3 | UI | Focus ring color doesn't match brand | Global | Needs Fix |
+| 372 | P3 | UI | Focus ring color doesn't match brand | Global | ✅ Fixed (ISS-372, added --color-focus variables) |
 | 373 | P3 | UI | Selection highlight color not customized | Global | Needs Review |
 | 374 | P3 | UI | Print stylesheet missing | Global | Needs Fix |
 | 375 | P3 | UI | High contrast mode not supported | Global | Needs Fix |

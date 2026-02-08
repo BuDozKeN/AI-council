@@ -397,9 +397,14 @@ function App() {
 
   // SEO: Dynamic meta tags, hreflang links, and Open Graph tags
   // ISS-004: When not authenticated, use home title (Login page manages its own title)
-  // This prevents "Conversation - AxCouncil" from showing on the login page
+  // ISS-310: Include conversation title in page title for better context
+  const pageTitle = !isAuthenticated || showLandingHero
+    ? t('seo.homeTitle')
+    : currentConversation?.title && !currentConversation.isTemp
+      ? `${currentConversation.title} - AxCouncil`
+      : t('seo.conversationTitle');
   useFullSEO({
-    title: !isAuthenticated || showLandingHero ? t('seo.homeTitle') : t('seo.conversationTitle'),
+    title: pageTitle,
     description: t('seo.defaultDescription'),
   });
 

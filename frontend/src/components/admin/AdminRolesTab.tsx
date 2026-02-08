@@ -6,7 +6,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { Shield, Calendar } from 'lucide-react';
+import { Shield, Calendar, Plus, Pencil, Trash2 } from 'lucide-react';
 import { api } from '../../api';
 import type { AdminUserInfo } from '../../api';
 import { SortableTableHeader } from './SortableTableHeader';
@@ -25,6 +25,7 @@ const AdminsTableSkeleton = () => (
       <tr key={i}>
         <SkeletonCell />
         <SkeletonBadge />
+        <SkeletonCell short />
         <SkeletonCell short />
       </tr>
     ))}
@@ -107,6 +108,17 @@ export function AdminRolesTab() {
             {t('admin.admins.description', 'Manage platform administrator access and roles.')}
           </p>
         </div>
+        {/* ISS-098: Add Admin button */}
+        <div className="admin-header-actions">
+          <button
+            className="admin-action-btn admin-action-btn--primary"
+            disabled
+            title={t('admin.comingSoon', 'Coming soon')}
+          >
+            <Plus className="h-4 w-4" />
+            <span>{t('admin.admins.addAdmin', 'Add Admin')}</span>
+          </button>
+        </div>
       </div>
 
       {!isLoading && admins.length === 0 ? (
@@ -144,6 +156,10 @@ export function AdminRolesTab() {
                   onSort={setAdminSortState}
                   className="admin-roles-date-col"
                 />
+                {/* ISS-099: Actions column */}
+                <th scope="col" className="admin-actions-col">
+                  {t('admin.actions', 'Actions')}
+                </th>
               </tr>
             </thead>
             <tbody ref={adminsTableBodyRef}>
@@ -182,6 +198,31 @@ export function AdminRolesTab() {
                       <div className="admin-date-cell">
                         <Calendar className="h-4 w-4" aria-hidden="true" />
                         <span>{formatDate(admin.created_at)}</span>
+                      </div>
+                    </td>
+                    {/* ISS-099: Row actions */}
+                    <td className="admin-actions-col">
+                      <div className="admin-row-actions">
+                        <button
+                          className="admin-icon-btn"
+                          disabled
+                          title={t('admin.admins.editRole', 'Edit role (coming soon)')}
+                          aria-label={t('admin.admins.editAdminRole', 'Edit {{email}} role', {
+                            email: admin.email,
+                          })}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          className="admin-icon-btn admin-icon-btn--danger"
+                          disabled
+                          title={t('admin.admins.removeAdmin', 'Remove admin (coming soon)')}
+                          aria-label={t('admin.admins.removeAdminLabel', 'Remove {{email}} as admin', {
+                            email: admin.email,
+                          })}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>

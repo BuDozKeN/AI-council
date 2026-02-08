@@ -211,7 +211,10 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
           </div>
 
           <div className="leaderboard-stats">
-            <span className="stat-item">
+            <span
+              className="stat-item"
+              title={t('leaderboard.totalSessionsTooltip', 'Total council sessions in this category')}
+            >
               {t('leaderboard.totalSessions')}: <strong>{totalSessions}</strong>
             </span>
           </div>
@@ -395,8 +398,8 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                     {/* ISS-253: scope="col" ensures proper columnheader role for screen readers */}
                     <th scope="col" className="rank-col">#</th>
                     <th scope="col" className="model-col">{t('leaderboard.model')}</th>
-                    <th scope="col" className="score-col">{t('leaderboard.avgRank')}</th>
-                    <th scope="col" className="wins-col">{t('leaderboard.wins')}</th>
+                    <th scope="col" className="score-col" title={t('leaderboard.avgRankHint')}>{t('leaderboard.avgRank')}</th>
+                    <th scope="col" className="wins-col" title={t('leaderboard.winsHint')}>{t('leaderboard.wins')}</th>
                     <th scope="col" className="rate-col">{t('leaderboard.winRate')}</th>
                     <th scope="col" className="sessions-col">{t('leaderboard.sessionsCol')}</th>
                   </tr>

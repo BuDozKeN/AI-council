@@ -8,7 +8,7 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Users,
   Building2,
@@ -18,6 +18,7 @@ import {
   Download,
   ArrowUpRight,
   DollarSign,
+  RefreshCw,
 } from 'lucide-react';
 import { api } from '../../api';
 import type { ModelRanking } from '../../api';
@@ -509,6 +510,17 @@ function ConversationActivityChart({
 export function AnalyticsTab() {
   const { t } = useTranslation();
   const [dateRange, setDateRange] = useState('30d');
+  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date>(new Date());
+
+  // ISS-152: Manual refresh function for all analytics data
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['admin'] });
+    setLastRefreshTime(new Date());
+    setIsRefreshing(false);
+  };
 
   // Fetch real stats
   const {
@@ -924,14 +936,15 @@ export function AnalyticsTab() {
                   </span>
                 )}
               </div>
-              {/* ISS-141: Chart accessibility */}
+              {/* ISS-141: Chart accessibility, ISS-053: Prevent model names from being read as separate elements */}
               <div
                 className="analytics-model-chart"
                 role="img"
                 aria-label={`Win rate comparison chart showing ${modelAnalytics.overall_leaderboard.length} AI models. Leading model: ${modelAnalytics.overall_leader ? formatModelName(modelAnalytics.overall_leader.model) : 'none'}`}
               >
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart
+                <div aria-hidden="true">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart
                     data={modelAnalytics.overall_leaderboard.slice(0, 6)}
                     layout="vertical"
                     margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
@@ -966,8 +979,9 @@ export function AnalyticsTab() {
                         <Cell key={entry.model} fill={getProviderColor(entry.model)} />
                       ))}
                     </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
 
@@ -976,14 +990,15 @@ export function AnalyticsTab() {
               <div className="analytics-model-header">
                 <span className="analytics-model-card-title">Win Distribution</span>
               </div>
-              {/* ISS-141: Chart accessibility */}
+              {/* ISS-141: Chart accessibility, ISS-053: Prevent model names from being read as separate elements */}
               <div
                 className="analytics-model-chart"
                 role="img"
                 aria-label={`Win distribution pie chart showing total wins across ${modelAnalytics.overall_leaderboard.filter((m) => m.wins > 0).length} models`}
               >
-                <ResponsiveContainer width="100%" height={280}>
-                  <RechartsPieChart>
+                <div aria-hidden="true">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <RechartsPieChart>
                     <Pie
                       data={modelAnalytics.overall_leaderboard
                         .filter((m) => m.wins > 0)
@@ -1021,8 +1036,9 @@ export function AnalyticsTab() {
                         fontSize: '12px',
                       }}
                     />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
 
@@ -1136,9 +1152,24 @@ export function AnalyticsTab() {
         </div>
       </details>
 
-      {/* Footer */}
+      {/* Footer - ISS-152: Added manual refresh button, ISS-153: Consistent time format */}
       <div className="analytics-footer-premium">
-        <p>Data refreshes hourly • Last updated {new Date().toLocaleTimeString()}</p>
+        <p>
+          Data refreshes hourly • Last updated{' '}
+          {lastRefreshTime.toLocaleString(undefined, {
+            dateStyle: 'short',
+            timeStyle: 'short',
+          })}
+        </p>
+        <button
+          className="analytics-refresh-btn"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          title={t('admin.refreshData', 'Refresh analytics data')}
+        >
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span>{isRefreshing ? t('common.refreshing', 'Refreshing...') : t('common.refresh', 'Refresh')}</span>
+        </button>
       </div>
     </div>
   );
