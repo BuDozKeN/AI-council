@@ -511,6 +511,7 @@
     "apiKeyReplaced": "¡Clave API reemplazada exitosamente!",
     "failedSaveKey": "Error al guardar la clave API",
     "currentUsage": "Uso actual",
+    "currentPlan": "Plan actual",
     "usageDescription": "Tus consultas al consejo en este período de facturación",
     "queriesUsed": "{{count}} consultas usadas (Ilimitado)",
     "queriesMonthly": "{{count}} / {{limit}} consultas este mes",

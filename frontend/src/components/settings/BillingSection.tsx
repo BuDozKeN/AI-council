@@ -80,6 +80,10 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
       {/* Usage Card */}
       <Card className="settings-card">
         <CardHeader>
+          {/* ISS-149: Show current plan indicator */}
+          <div className="usage-plan-badge">
+            {t('settings.currentPlan', 'Current Plan')}: <strong>{plans.find((p) => p.id === currentTier)?.name || currentTier}</strong>
+          </div>
           <CardTitle>{t('settings.currentUsage')}</CardTitle>
           <CardDescription>{t('settings.usageDescription')}</CardDescription>
         </CardHeader>
@@ -93,6 +97,12 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                   : `${Math.min((queriesUsed / queriesLimit) * 100, 100)}%`,
               }}
             />
+            {/* ISS-145: Show max limit marker */}
+            {!isUnlimited && (
+              <span className="usage-limit-marker" aria-hidden="true">
+                {queriesLimit}
+              </span>
+            )}
           </div>
           <p className={`usage-text ${isOverLimit ? 'over-limit' : ''}`}>
             {isUnlimited

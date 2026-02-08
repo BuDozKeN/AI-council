@@ -290,11 +290,11 @@
 | 142 | P3 | Data | Company Growth chart y-axis shows 0.5 - doesn't make sense for whole companies | Admin Analytics | Needs Fix |
 | 143 | P1 | Data | Model count inconsistent: "6 AIs" (main) vs "5 AI models" (Billing) vs "15 models" (LLM Hub) | Multiple | 🔧 By Design (6 AIs = Stage 1 council; 15 = total across all stages; Billing shows "All AI models" text) |
 | 144 | P2 | UX | Enterprise plan shows "Free" as price - should be "Custom" or "Contact Us" | Settings > Billing | ✅ Fixed (shows "Contact Us") |
-| 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | Needs Fix |
+| 145 | P3 | UX | Usage progress bar doesn't show max limit for current plan | Settings > Billing | ✅ Fixed (limit marker shown above progress bar) |
 | 146 | P2 | UX | Team members shown as truncated UUIDs instead of names/emails | Settings > Team | ✅ Fixed |
 | 147 | P3 | UX | "You" in Team tab doesn't show actual user name or email | Settings > Team | ✅ Fixed (hover tooltip shows name/email) |
 | 148 | P2 | Data | 136 queries used exceeds Free plan's 5/month limit - confusing | Settings > Billing | ✅ Fixed (visual indicator + explanatory text for over-limit state) |
-| 149 | P3 | UX | No "Current Plan" indicator shown near usage section | Settings > Billing | Needs Fix |
+| 149 | P3 | UX | No "Current Plan" indicator shown near usage section | Settings > Billing | ✅ Fixed (badge shows current plan above usage) |
 | 150 | P3 | UI | Invitation bar colors gray for 0 values look like empty progress bars | Admin Analytics | Needs Fix |
 | 151 | P2 | a11y | Revenue Dashboard disclosure triangle - purpose unclear | Admin Analytics | 🔧 By Design (standard expandable section pattern) |
 | 152 | P3 | UX | "Data refreshes hourly" but no manual refresh button | Admin Analytics | Needs Fix |
@@ -317,7 +317,7 @@
 | 164 | P3 | a11y | User message wrapped in button element - odd semantic structure | Conversation view | Needs Review |
 | 165 | P2 | a11y | Nested button in Response style on mobile (button > button > button) | Mobile chat | ✅ Fixed (uses direct button) |
 | 166 | P3 | UX | Follow-up mode defaults to "1 AI" but initial input defaults to "6 AIs" - inconsistent | Chat input | Needs Review |
-| 167 | P3 | UI | "Top insights combined into one respo..." truncated on desktop | Conversation view | Needs Fix |
+| 167 | P3 | UI | "Top insights combined into one respo..." truncated on desktop | Conversation view | ✅ Already Fixed (max-width increased to 65%) |
 | 168 | P3 | a11y | Action buttons DOM order differs between mobile and desktop | History sidebar | Needs Fix |
 | 169 | P3 | Mobile | No Rename button on mobile conversation actions (available on desktop) | Mobile sidebar | Needs Fix |
 | 170 | P3 | UX | Mobile bottom nav says "Chats" but sidebar says "History" - inconsistent labels | Mobile nav | 🔧 By Design (shorter labels for mobile) |
