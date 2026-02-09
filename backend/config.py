@@ -184,7 +184,7 @@ PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "120"))  # 120s per indiv
 # Override PER_MODEL_TIMEOUT for specific models that need more/less time
 MODEL_TIMEOUT_OVERRIDES: Dict[str, int] = {
     # Premium reasoning models that may need extra time
-    "kimi-k2.5": 150,      # Kimi K2.5 has complex agentic reasoning
+    "kimi-k2": 150,        # Matches both kimi-k2 and kimi-k2.5
     "gpt-5.1": 150,        # GPT-5.1 extended reasoning can be slow
     "claude-opus": 150,    # Opus models are thorough but slower
     # Fast models that should fail quicker if stuck
