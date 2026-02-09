@@ -82,6 +82,7 @@ function CodeBlock({ children, className }: CodeBlockProps) {
       className="code-block-wrapper copyable"
       role="region"
       aria-label={language ? `${language} code block` : 'Code block'}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- ISS-286: Intentional tabIndex for keyboard scrolling of code blocks
       tabIndex={0}
     >
       {language && (

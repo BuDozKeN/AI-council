@@ -3,34 +3,30 @@
  *
  * Returns true when online, false when offline.
  * Updates reactively when network status changes.
+ *
+ * Uses useSyncExternalStore (React 18+) for proper external state subscription.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useSyncExternalStore } from 'react';
+
+function subscribe(callback: () => void) {
+  window.addEventListener('online', callback);
+  window.addEventListener('offline', callback);
+  return () => {
+    window.removeEventListener('online', callback);
+    window.removeEventListener('offline', callback);
+  };
+}
+
+function getSnapshot() {
+  return navigator.onLine;
+}
+
+function getServerSnapshot() {
+  // SSR fallback - assume online
+  return true;
+}
 
 export function useOnlineStatus(): boolean {
-  // Initialize with actual status (SSR-safe with fallback to true)
-  const [isOnline, setIsOnline] = useState(() => {
-    if (typeof navigator !== 'undefined') {
-      return navigator.onLine;
-    }
-    return true;
-  });
-
-  const handleOnline = useCallback(() => setIsOnline(true), []);
-  const handleOffline = useCallback(() => setIsOnline(false), []);
-
-  useEffect(() => {
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    // Sync state in case it changed before mount
-    setIsOnline(navigator.onLine);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, [handleOnline, handleOffline]);
-
-  return isOnline;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
