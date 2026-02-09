@@ -42,6 +42,7 @@ import { CommandPalette } from './components/ui/CommandPalette';
 import { KeyboardShortcutsHelp } from './components/ui/KeyboardShortcutsHelp';
 import { PWAInstallPrompt } from './components/ui/PWAInstallPrompt';
 import { OfflineIndicator } from './components/ui/OfflineIndicator';
+import { ConfirmModal } from './components/ui/ConfirmModal';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from 'next-themes';
 import { logger } from './utils/logger';
@@ -274,6 +275,9 @@ function App() {
 
   // Keyboard shortcuts help modal state (?)
   const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+
+  // Sign out confirmation modal state (ISS-045: use styled modal instead of browser confirm)
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   // Global keyboard shortcuts - works even when CommandPalette is unmounted
   useKeyboardShortcuts({
@@ -591,15 +595,16 @@ function App() {
     navigate('/admin');
   }, [navigate]);
 
-  // Sign out with confirmation (ISS-045)
+  // Sign out with confirmation (ISS-045: use styled ConfirmModal instead of browser confirm)
   const handleSignOut = useCallback(() => {
-    const confirmed = window.confirm(
-      t('auth.signOutConfirm', 'Are you sure you want to sign out?')
-    );
-    if (confirmed) {
-      signOut();
-    }
-  }, [signOut, t]);
+    setShowSignOutConfirm(true);
+  }, []);
+
+  // Actual sign out handler called from ConfirmModal
+  const handleConfirmSignOut = useCallback(() => {
+    signOut();
+    setShowSignOutConfirm(false);
+  }, [signOut]);
 
   // Memoized callback for MyCompany tab changes
   const handleMyCompanyTabChange = useCallback(
@@ -1323,6 +1328,18 @@ function App() {
           isOpen={isShortcutsHelpOpen}
           onClose={() => setIsShortcutsHelpOpen(false)}
         />
+
+        {/* Sign out confirmation modal - replaces browser confirm() for consistency */}
+        {showSignOutConfirm && (
+          <ConfirmModal
+            title={t('auth.signOutConfirm', 'Are you sure you want to sign out?')}
+            variant="warning"
+            confirmText={t('auth.signOut', 'Sign Out')}
+            cancelText={t('common.cancel', 'Cancel')}
+            onConfirm={handleConfirmSignOut}
+            onCancel={() => setShowSignOutConfirm(false)}
+          />
+        )}
 
         {/* Toast notifications for undo actions */}
         <Toaster />
