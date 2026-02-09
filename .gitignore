@@ -55,3 +55,17 @@ AxCouncil/
 
 # Test screenshots
 screenshots/
+
+# Storybook build output
+frontend/storybook-static/
+
+# Lighthouse CI
+.lighthouseci/
+frontend/.lighthouseci/
+
+# Playwright test results
+frontend/test-results/
+frontend/playwright-report/
+
+# Percy
+frontend/.percy/

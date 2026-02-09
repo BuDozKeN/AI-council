@@ -1,0 +1,36 @@
+# Percy Visual Testing Configuration
+# Docs: https://www.browserstack.com/docs/percy/take-percy-snapshots/configuration
+version: 2
+
+snapshot:
+  # Widths to capture for responsive testing
+  widths:
+    - 390    # Mobile (iPhone 14)
+    - 834    # Tablet (iPad Pro 11)
+    - 1280   # Desktop
+
+  # Wait for animations to settle
+  percy-css: |
+    *, *::before, *::after {
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+    }
+
+  # Minimum height to capture
+  min-height: 1024
+
+# Discovery settings
+discovery:
+  # Wait for network idle
+  network-idle-timeout: 500
+  # Allow localhost
+  allowed-hostnames:
+    - localhost
+
+# Storybook integration
+storybook:
+  # Skip stories matching these globs
+  skip-stories:
+    - "**/Example*"
