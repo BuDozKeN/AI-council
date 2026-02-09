@@ -52,11 +52,14 @@
   cursor: default;
 }
 
-/* Mobile adjustments - icon only, no background */
+/* Mobile adjustments - move to bottom-left thumb zone (UXH-087) */
 @media (width <= 640px) {
   .theme-toggle-container {
-    inset-block-start: 12px;
-    right: 12px;
+    /* UXH-087: Move to bottom-left for thumb accessibility */
+    inset-block-start: auto;
+    inset-block-end: calc(80px + env(safe-area-inset-bottom, 0px)); /* Above bottom nav */
+    right: auto;
+    left: 12px;
   }
 
   /* Mobile: Keep visible with subtle background (Issue #10 fix) */

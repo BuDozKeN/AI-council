@@ -47,31 +47,12 @@
     margin-top: var(--space-2);
   }
 
+  /* UXH-034: Hide metadata on mobile to reduce information density */
   .mc-overview-meta {
-    display: flex;
-    align-items: center;
-    gap: var(--gap);
+    display: none;
   }
 
-  .mc-meta-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-2xs);
-  }
-
-  .mc-meta-label {
-    font-size: 0.5625rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-tertiary);
-  }
-
-  .mc-meta-value {
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-
-  /* Edit button - push to right on mobile */
+  /* UXH-034: Edit button - push to right on mobile */
   .mc-overview-hero-right > button {
     margin-left: auto;
   }
