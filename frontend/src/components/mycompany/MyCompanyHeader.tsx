@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, ChevronLeft, Building2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { makeClickable, handleKeyPress } from '../../utils/a11y';
+import { handleKeyPress } from '../../utils/a11y';
 
 interface Company {
   id: string;
@@ -21,8 +21,8 @@ interface MyCompanyHeaderProps {
 /**
  * MyCompanyHeader - Header with company name, status indicator, and company switcher
  *
- * WCAG 4.1.1 Fix: Header element should not have role="button" when containing actual button elements.
- * Use semantic <header> and handle keyboard/click on div instead.
+ * ISS-221: Avoid nested buttons - move company switcher outside the clickable dismiss area
+ * ISS-238: Status indicator now has visible text for clarity
  */
 export function MyCompanyHeader({
   companyName,
@@ -34,65 +34,92 @@ export function MyCompanyHeader({
   onHeaderClick,
 }: MyCompanyHeaderProps) {
   const { t } = useTranslation();
+
+  // ISS-238: Generate human-readable status text
+  const statusText =
+    pendingDecisionsCount === 0
+      ? t('myCompany.statusAllGood', 'All decisions promoted')
+      : pendingDecisionsCount !== null && pendingDecisionsCount > 0
+        ? t('myCompany.statusPending', '{{count}} pending', { count: pendingDecisionsCount })
+        : '';
+
+  const statusClass =
+    pendingDecisionsCount === 0
+      ? 'all-good'
+      : pendingDecisionsCount !== null && pendingDecisionsCount > 0
+        ? 'pending'
+        : '';
+
   return (
     <header className="mc-header mc-header-dismissible">
+      {/* ISS-221: Dismiss area is a separate element that doesn't contain buttons */}
       <div
         className="mc-header-dismissible-target"
         onClick={onHeaderClick}
         onKeyDown={handleKeyPress(onHeaderClick)}
         role="button"
         tabIndex={0}
-        aria-label="Click to close, or press Escape"
+        aria-label={t('myCompany.tapToClose', 'Tap to close')}
       >
         <div className="mc-dismiss-hint">
           <ChevronDown size={16} />
-          <span>tap to close</span>
+          <span>{t('myCompany.tapToClose', 'tap to close')}</span>
         </div>
-        <div className="mc-header-content">
-          <div className="mc-title-row">
-            <h1>
+      </div>
+      {/* ISS-221: Header content is now separate from the dismiss button area */}
+      <div className="mc-header-content">
+        <div className="mc-title-row">
+          <h1>
+            {/* ISS-238: Status indicator with visible text for clarity */}
+            {statusClass && (
               <span
-                className={`mc-status-indicator ${pendingDecisionsCount === 0 ? 'all-good' : pendingDecisionsCount !== null && pendingDecisionsCount > 0 ? 'pending' : ''}`}
-                title={
-                  pendingDecisionsCount === 0
-                    ? 'All decisions promoted'
-                    : pendingDecisionsCount !== null && pendingDecisionsCount > 0
-                      ? `${pendingDecisionsCount} pending decision${pendingDecisionsCount !== 1 ? 's' : ''}`
-                      : 'Loading...'
-                }
-              />
-              {companyName || 'Your Company'}
-            </h1>
-            <span className="mc-title-suffix">Command Center</span>
-          </div>
-          {/* Company switcher - always show on mobile for clear company display, only show dropdown if multiple companies */}
-          <div className="mc-company-switcher" {...makeClickable((e) => e.stopPropagation())}>
-            {allCompanies.length > 1 ? (
-              <Select
-                value={companyId}
-                onValueChange={(val) => {
-                  if (val !== companyId) onSelectCompany?.(val);
-                }}
+                className={`mc-status-indicator ${statusClass}`}
+                aria-label={statusText}
+                title={statusText}
               >
-                <SelectTrigger className="mc-company-select-trigger">
-                  <Building2 size={16} />
-                  <SelectValue placeholder="Switch company" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allCompanies.map((company) => (
-                    <SelectItem key={company.id} value={company.id}>
-                      {company.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <div className="mc-company-display">
-                <Building2 size={16} />
-                <span>{companyName || 'Your Company'}</span>
-              </div>
+                <span className="mc-status-dot" aria-hidden="true" />
+                <span className="mc-status-text">{statusText}</span>
+              </span>
             )}
-          </div>
+            {companyName || 'Your Company'}
+          </h1>
+          <span
+            className="mc-title-suffix"
+            title={t(
+              'myCompany.commandCenterTooltip',
+              'Central hub for managing decisions, knowledge base, and company settings'
+            )}
+          >
+            {t('myCompany.commandCenter', 'Command Center')}
+          </span>
+        </div>
+        {/* Company switcher - now outside the dismiss button area (ISS-221) */}
+        <div className="mc-company-switcher">
+          {allCompanies.length > 1 ? (
+            <Select
+              value={companyId}
+              onValueChange={(val) => {
+                if (val !== companyId) onSelectCompany?.(val);
+              }}
+            >
+              <SelectTrigger className="mc-company-select-trigger">
+                <Building2 size={16} />
+                <SelectValue placeholder={t('myCompany.switchCompany', 'Switch company')} />
+              </SelectTrigger>
+              <SelectContent>
+                {allCompanies.map((company) => (
+                  <SelectItem key={company.id} value={company.id}>
+                    {company.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="mc-company-display">
+              <Building2 size={16} />
+              <span>{companyName || 'Your Company'}</span>
+            </div>
+          )}
         </div>
       </div>
       <button
@@ -101,13 +128,14 @@ export function MyCompanyHeader({
           e.stopPropagation();
           onClose?.();
         }}
-        aria-label="Close My Company"
+        aria-label={t('myCompany.closeMyCompany', 'Close My Company')}
       >
         <ChevronLeft size={20} />
       </button>
       <button
         className="mc-close-btn"
         aria-label={t('common.close', 'Close')}
+        title={t('common.close', 'Close')}
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation();
           onClose?.();

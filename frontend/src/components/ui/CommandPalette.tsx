@@ -592,17 +592,22 @@ export function CommandPalette({
   if (!mounted || !isOpen) return null;
 
   const content = (
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    // ISS-123: Added role="presentation" for the backdrop overlay
     <div
       className="command-palette-overlay"
       onClick={() => onOpenChange(false)}
       onKeyDown={handleKeyPress(() => onOpenChange(false))}
+      role="presentation"
     >
-      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      {/* ISS-123: Added dialog ARIA attributes for screen reader accessibility */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         className="command-palette-container"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyPress((e) => e.stopPropagation())}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t('commandPalette.dialogLabel', 'Command palette - search for actions')}
       >
         <Command className="command-palette" shouldFilter={true} loop={true}>
           <div className="command-palette-header">

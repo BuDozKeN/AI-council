@@ -225,16 +225,24 @@ function Stage2({
         )}
 
         {/* Winner badge - medal emoji with icon, modern clean style */}
+        {/* ISS-255: Added role="img" and aria-label for screen reader accessibility */}
         {winnerModel && (
           <span
             className={`stage2-winner ${showCompleteCelebration ? 'animate-winner-reveal' : ''}`}
+            role="img"
+            aria-label={t('stages.winnerBadgeLabel', {
+              model: winnerPersona?.fullName || winnerPersona?.shortName || t('common.unknown'),
+              defaultValue: `Winner: ${winnerPersona?.fullName || winnerPersona?.shortName || 'Unknown'}`,
+            })}
             title={t('stages.winnerTooltip', {
               model: winnerPersona?.fullName || winnerPersona?.shortName || t('common.unknown'),
               count: displayData.length,
               avg: winnerAvg,
             })}
           >
-            <span className="winner-medal">🥇</span>
+            <span className="winner-medal" aria-hidden="true">
+              🥇
+            </span>
             {winnerIconPath && (
               <img
                 src={winnerIconPath}
@@ -242,6 +250,7 @@ function Stage2({
                 className="winner-model-icon"
                 loading="lazy"
                 decoding="async"
+                aria-hidden="true"
               />
             )}
           </span>
@@ -323,7 +332,7 @@ function Stage2({
                 {activeData.hasError && <span className="error-badge">{t('common.error')}</span>}
               </span>
               {activeData.isComplete && !activeData.isEmpty && activeData.ranking && (
-                <CopyButton text={activeData.ranking} size="sm" />
+                <CopyButton text={activeData.ranking} size="sm" tooltip="Copy review" />
               )}
             </div>
             <div
@@ -409,6 +418,7 @@ function Stage2({
                     >
                       <span
                         className="rank-position"
+                        role="img"
                         aria-label={getRankLabel(index + 1).ariaLabel}
                       >
                         {getRankLabel(index + 1).label}

@@ -132,10 +132,21 @@ function CodeBlock({ children, className }: CodeBlockProps) {
     return <code className="inline-code">{children}</code>;
   }
 
+  // ISS-286: tabIndex={0} makes code blocks keyboard navigable for scrolling
   return (
-    <div className="code-block-wrapper copyable">
-      {language && <span className="code-language">{language}</span>}
-      <CopyButton text={code} size="sm" />
+    <div
+      className="code-block-wrapper copyable"
+      role="region"
+      aria-label={language ? `${language} code block` : 'Code block'}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- ISS-286: Intentional tabIndex for keyboard scrolling of code blocks
+      tabIndex={0}
+    >
+      {language && (
+        <span className="code-language" aria-label={`Language: ${language}`}>
+          {language}
+        </span>
+      )}
+      <CopyButton text={code} size="sm" tooltip="Copy code" />
       <pre className={className}>
         <code>{children}</code>
       </pre>
@@ -360,7 +371,7 @@ const ModelCard = memo(function ModelCard({
         {/* Copy button (when expanded) + Expand/collapse */}
         <div className="model-card-header-right">
           {isExpanded && data.isComplete && !data.isEmpty && data.response && (
-            <CopyButton text={data.response} size="sm" />
+            <CopyButton text={data.response} size="sm" tooltip="Copy response" />
           )}
           {data.response && (
             <button

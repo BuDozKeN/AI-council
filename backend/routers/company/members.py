@@ -75,17 +75,31 @@ async def get_company_members(request: Request, company_id: ValidCompanyId,
     if not result.data:
         return {"members": []}
 
-    # Get user emails from auth.users via RPC or direct query
-    # Since we can't directly query auth.users, we'll return user_ids
-    # Frontend can match with current user or we add a users view later
+    # ISS-146: Fetch profile data (email, full_name) for each member
+    user_ids = [m["user_id"] for m in result.data]
+    profiles_map = {}
+    try:
+        profiles_result = client.table("profiles") \
+            .select("id, email, full_name") \
+            .in_("id", user_ids) \
+            .execute()
+        if profiles_result.data:
+            profiles_map = {p["id"]: p for p in profiles_result.data}
+    except Exception as e:
+        # profiles table might not exist - log and continue
+        logger.debug("Could not fetch profiles for members: %s", e)
+
     members = []
     for member in result.data:
+        profile = profiles_map.get(member["user_id"], {})
         members.append({
             "id": member["id"],
             "user_id": member["user_id"],
             "role": member["role"],
             "joined_at": member["joined_at"],
-            "created_at": member["created_at"]
+            "created_at": member["created_at"],
+            "email": profile.get("email"),
+            "display_name": profile.get("full_name"),
         })
 
     return {"members": members}

@@ -34,6 +34,13 @@
   background: var(--color-bg-hover);
 }
 
+/* ISS-230: Keyboard focus indicator for department cards */
+.mc-dept-row:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background: var(--color-bg-hover);
+}
+
 .mc-dept-row.expanded {
   border-radius: var(--radius-default) var(--radius-default) 0 0;
   background: var(--color-bg-secondary);
@@ -150,6 +157,13 @@
 }
 
 .mc-role-row:hover {
+  background: var(--color-bg-hover);
+}
+
+/* ISS-230: Keyboard focus indicator for role rows */
+.mc-role-row:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
   background: var(--color-bg-hover);
 }
 

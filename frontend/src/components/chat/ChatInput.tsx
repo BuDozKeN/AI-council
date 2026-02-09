@@ -883,7 +883,15 @@ export function ChatInput({
 
                 {/* Mode toggle - dynamic "1 AI / N AIs" pill based on LLM Hub config */}
                 <Tooltip.Provider delayDuration={400}>
-                  <div className={s.inlineModeToggle} role="radiogroup" aria-label="Response mode">
+                  <div
+                    className={s.inlineModeToggle}
+                    role="radiogroup"
+                    aria-label={t('aria.aiModeToggle', 'AI response mode')}
+                  >
+                    {/* ISS-154: Screen reader only label for radio group */}
+                    <span className="sr-only">
+                      {t('chat.aiModeLabel', 'Choose how many AIs respond:')}
+                    </span>
                     <Tooltip.Root>
                       <Tooltip.Trigger asChild>
                         <button

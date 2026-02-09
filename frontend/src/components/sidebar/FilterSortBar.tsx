@@ -42,8 +42,17 @@ export function FilterSortBar({
   const { t } = useTranslation();
   return (
     <div className="sidebar-filter" {...makeClickable((e) => e.stopPropagation())}>
+      {/* ISS-105: title attribute shows full text on hover when truncated */}
       <Select value={filter} onValueChange={onFilterChange}>
-        <SelectTrigger variant="compact" className="filter-select-trigger">
+        <SelectTrigger
+          variant="compact"
+          className="filter-select-trigger"
+          title={
+            filter === 'all'
+              ? t('sidebar.allConversationsCount', { count: activeCount })
+              : undefined
+          }
+        >
           <SelectValue placeholder={t('sidebar.allConversations')} />
         </SelectTrigger>
         <SelectContent>
@@ -56,7 +65,7 @@ export function FilterSortBar({
             const deptCount = groupedConversations[deptKey]?.conversations.length || 0;
             return (
               <SelectItem key={dept.id} value={deptKey}>
-                {dept.name} ({deptCount})
+                {t('sidebar.departmentCount', { name: dept.name, count: deptCount })}
               </SelectItem>
             );
           })}

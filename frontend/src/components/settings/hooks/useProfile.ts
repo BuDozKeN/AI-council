@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
 import { toast } from '../../ui/sonner';
@@ -22,9 +22,12 @@ export function useProfile(isOpen: boolean, user: User | null) {
   });
   const [profileLoading, setProfileLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  // ISS-195: Prevent duplicate API calls from StrictMode or tab re-opening
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (isOpen && user) {
+    if (isOpen && user && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       loadProfile();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- loadProfile is stable

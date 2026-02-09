@@ -176,7 +176,8 @@ describe('AdminPortal', () => {
       });
 
       renderAdminPortal();
-      expect(screen.getByText('Checking admin access...')).toBeInTheDocument();
+      // Spinner has sr-only label AND visible <p> tag with same text
+      expect(screen.getAllByText('Checking admin access...').length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows error state when there is a connection error', () => {

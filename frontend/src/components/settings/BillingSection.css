@@ -1,12 +1,41 @@
 /* Billing Section - Plans, pricing, and subscription management */
 
+/* ISS-149: Current plan badge */
+.usage-plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.usage-plan-badge strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
 /* Usage Bar */
 .usage-bar {
+  position: relative;
   height: 10px;
   background: var(--color-border);
   border-radius: var(--radius-sm);
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: var(--space-2-5);
+}
+
+/* ISS-145: Max limit marker */
+.usage-limit-marker {
+  position: absolute;
+  right: 0;
+  top: -18px;
+  font-size: var(--text-2xs);
+  color: var(--color-text-tertiary);
+  font-weight: 500;
 }
 
 .usage-fill {
@@ -20,6 +49,27 @@
   margin: 0;
   font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
+}
+
+/* ISS-148: Over limit styling */
+.usage-bar.over-limit {
+  background: var(--color-red-100);
+}
+
+.usage-fill.over-limit {
+  background: var(--color-red-500);
+}
+
+.usage-text.over-limit {
+  color: var(--color-red-600);
+  font-weight: 500;
+}
+
+.usage-over-limit-hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  font-style: italic;
 }
 
 /* Plans */

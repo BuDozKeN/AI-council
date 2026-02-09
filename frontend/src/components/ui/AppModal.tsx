@@ -309,15 +309,6 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
                 />
               )}
 
-              {/* Accessibility: Title is always required by Radix */}
-              {title ? (
-                <DialogPrimitive.Title className="app-modal-title">{title}</DialogPrimitive.Title>
-              ) : (
-                <VisuallyHidden asChild>
-                  <DialogPrimitive.Title>Dialog</DialogPrimitive.Title>
-                </VisuallyHidden>
-              )}
-
               {/* Accessibility: Description is always required by Radix */}
               {description ? (
                 <DialogPrimitive.Description className="app-modal-description-sr">
@@ -331,11 +322,19 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
                 </VisuallyHidden>
               )}
 
-              {/* Header */}
+              {/* Header - Title uses DialogPrimitive.Title with asChild to avoid duplicate headings */}
               {(title || showCloseButton || badge) && (
                 <div className={cn('app-modal-header', headerClassName)}>
                   <div className="app-modal-header-text">
-                    {title && <h1 className="app-modal-title-display">{title}</h1>}
+                    {title ? (
+                      <DialogPrimitive.Title asChild>
+                        <h1 className="app-modal-title-display">{title}</h1>
+                      </DialogPrimitive.Title>
+                    ) : (
+                      <VisuallyHidden asChild>
+                        <DialogPrimitive.Title>Dialog</DialogPrimitive.Title>
+                      </VisuallyHidden>
+                    )}
                     {badge && (
                       <span
                         className={cn(

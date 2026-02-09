@@ -491,7 +491,11 @@ function ChatInterface({
     // (isLoadingConversation might lag behind the conversation being cleared)
     if (isLoadingConversation) {
       return (
-        <div className="chat-interface" role="region" aria-label="Chat interface">
+        <div
+          className="chat-interface"
+          role="region"
+          aria-label={t('aria.chatInterface', 'Chat interface')}
+        >
           <h1 className="sr-only">Loading Conversation</h1>
           <div className="council-loader-overlay">
             <CouncilLoader text="Getting your conversation ready..." companyId={selectedBusiness} />
@@ -521,7 +525,11 @@ function ChatInterface({
   const hasMessages = conversation.messages.length > 0;
 
   return (
-    <div className="chat-interface" role="region" aria-label="Chat interface">
+    <div
+      className="chat-interface"
+      role="region"
+      aria-label={t('aria.chatInterface', 'Chat interface')}
+    >
       <h1 className="sr-only">{conversation?.title || 'Chat with Council'}</h1>
       {/* Back to My Company floating button */}
       {returnToMyCompanyTab && onReturnToMyCompany && (

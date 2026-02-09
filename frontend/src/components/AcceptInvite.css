@@ -83,21 +83,12 @@
   max-width: 300px;
 }
 
+/* ISS-342: Use unified spinner-rotate animation from Spinner.css */
 .accept-invite-spinner {
   width: 40px;
   height: 40px;
   color: var(--color-primary);
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+  animation: spinner-rotate 0.8s linear infinite;
 }
 
 .accept-invite-icon {

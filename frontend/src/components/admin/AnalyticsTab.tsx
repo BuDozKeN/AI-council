@@ -8,7 +8,7 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Users,
   Building2,
@@ -18,9 +18,11 @@ import {
   Download,
   ArrowUpRight,
   DollarSign,
+  RefreshCw,
 } from 'lucide-react';
 import { api } from '../../api';
 import type { ModelRanking } from '../../api';
+import { formatModelName } from '../../utils/modelNames';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Tooltip } from '../ui/Tooltip';
 import {
@@ -114,38 +116,6 @@ function getProviderColor(modelId: string): string {
   };
   const colorKey = colorMap[provider] ?? 'unknown';
   return PROVIDER_COLORS[colorKey];
-}
-
-function formatModelName(model: string): string {
-  const MODEL_NAMES: Record<string, string> = {
-    'anthropic/claude-opus-4.5': 'Claude Opus 4.5',
-    'anthropic/claude-sonnet-4': 'Claude Sonnet 4',
-    'anthropic/claude-3-5-sonnet-20241022': 'Claude 3.5 Sonnet',
-    'anthropic/claude-3-5-haiku-20241022': 'Claude Haiku 3.5',
-    'openai/gpt-5.1': 'GPT-5.1',
-    'openai/gpt-4o': 'GPT-4o',
-    'openai/gpt-4o-mini': 'GPT-4o Mini',
-    'google/gemini-3-pro-preview': 'Gemini 3 Pro',
-    'google/gemini-2.5-flash': 'Gemini 2.5 Flash',
-    'google/gemini-2.0-flash-001': 'Gemini 2.0 Flash',
-    'x-ai/grok-4': 'Grok 4',
-    'x-ai/grok-4-fast': 'Grok 4 Fast',
-    'deepseek/deepseek-chat-v3-0324': 'DeepSeek V3',
-    'moonshotai/kimi-k2': 'Kimi K2',
-    'moonshotai/kimi-k2.5': 'Kimi K2.5',
-  };
-
-  if (MODEL_NAMES[model]) {
-    return MODEL_NAMES[model];
-  }
-
-  const parts = model.split('/');
-  const name = parts[parts.length - 1] || model;
-
-  return name
-    .split('-')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 }
 
 // =============================================================================
@@ -252,7 +222,12 @@ function UserGrowthChart({ totalUsers, isLoading }: UserGrowthChartProps) {
         <span>User Growth (30 days)</span>
         <span className="analytics-chart-badge">Live</span>
       </div>
-      <div className="analytics-chart-body">
+      {/* ISS-141: Chart accessibility - role="img" + aria-label for screen readers */}
+      <div
+        className="analytics-chart-body"
+        role="img"
+        aria-label={`User growth chart showing ${totalUsers} total users over 30 days with upward trend`}
+      >
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -269,11 +244,13 @@ function UserGrowthChart({ totalUsers, isLoading }: UserGrowthChartProps) {
               axisLine={{ stroke: 'var(--color-border)' }}
               interval="preserveStartEnd"
             />
+            {/* ISS-142: allowDecimals={false} prevents showing 0.5 for whole user counts */}
             <YAxis
               tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border)' }}
               width={40}
+              allowDecimals={false}
             />
             <RechartsTooltip
               contentStyle={{
@@ -328,7 +305,12 @@ function CompanyGrowthChart({ totalCompanies, isLoading }: CompanyGrowthChartPro
         <span>Company Growth (30 days)</span>
         <span className="analytics-chart-badge">Live</span>
       </div>
-      <div className="analytics-chart-body">
+      {/* ISS-141: Chart accessibility - role="img" + aria-label for screen readers */}
+      <div
+        className="analytics-chart-body"
+        role="img"
+        aria-label={`Company growth chart showing ${totalCompanies} total companies over 30 days`}
+      >
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -345,11 +327,13 @@ function CompanyGrowthChart({ totalCompanies, isLoading }: CompanyGrowthChartPro
               axisLine={{ stroke: 'var(--color-border)' }}
               interval="preserveStartEnd"
             />
+            {/* ISS-142: allowDecimals={false} prevents showing 0.5 for whole company counts */}
             <YAxis
               tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
               tickLine={false}
               axisLine={{ stroke: 'var(--color-border)' }}
               width={40}
+              allowDecimals={false}
             />
             <RechartsTooltip
               contentStyle={{
@@ -468,7 +452,12 @@ function ConversationActivityChart({
         </Tooltip>
         <span className="analytics-chart-badge">Live</span>
       </div>
-      <div className="analytics-chart-body">
+      {/* ISS-141: Chart accessibility - role="img" + aria-label for screen readers */}
+      <div
+        className="analytics-chart-body"
+        role="img"
+        aria-label={`Platform activity bar chart showing ${totalConversations} conversations and ${totalMessages} messages over ${dateRangeLabel}`}
+      >
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
@@ -521,6 +510,17 @@ function ConversationActivityChart({
 export function AnalyticsTab() {
   const { t } = useTranslation();
   const [dateRange, setDateRange] = useState('30d');
+  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date>(new Date());
+
+  // ISS-152: Manual refresh function for all analytics data
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['admin'] });
+    setLastRefreshTime(new Date());
+    setIsRefreshing(false);
+  };
 
   // Fetch real stats
   const {
@@ -668,7 +668,15 @@ export function AnalyticsTab() {
         <div className="analytics-header-left">
           <h2 className="analytics-title-premium">
             {t('admin.analytics.title', 'Analytics')}
-            {!useDummyData && <span className="analytics-live-dot" title="Real-time data" />}
+            {/* ISS-087: Live indicator shows when displaying real-time (not dummy) data */}
+            {!useDummyData && (
+              <span
+                className="analytics-live-dot"
+                title={t('admin.analytics.liveData', 'Real-time data')}
+                aria-label={t('admin.analytics.liveData', 'Real-time data')}
+                role="img"
+              />
+            )}
           </h2>
           <p className="analytics-subtitle-premium">
             {t('admin.analytics.description', 'Platform performance at a glance')}
@@ -753,14 +761,27 @@ export function AnalyticsTab() {
       {/* Status Overview - Compact side-by-side */}
       <div className="analytics-status-row">
         {/* User Status Donut */}
+        {/* FIX: Use displayStats.total_users for accurate total, breakdown is sampled */}
         <div className="analytics-status-card">
           <div className="analytics-status-header">
             <h3>User Status</h3>
             <span className="analytics-status-total">
-              {(displayStats?.total_users ?? 0).toLocaleString()} total
+              {(displayStats?.total_users ?? userStatusBreakdown.total).toLocaleString()} total
+              {displayStats?.total_users &&
+                displayStats.total_users > userStatusBreakdown.total && (
+                  <span className="analytics-sample-note" title="Breakdown based on sample">
+                    {' '}
+                    (sample: {userStatusBreakdown.total})
+                  </span>
+                )}
             </span>
           </div>
-          <div className="analytics-status-chart">
+          {/* ISS-141: Chart accessibility */}
+          <div
+            className="analytics-status-chart"
+            role="img"
+            aria-label={`User status breakdown: ${userStatusBreakdown.active} active, ${userStatusBreakdown.unverified} unverified, ${userStatusBreakdown.suspended} suspended`}
+          >
             {usersLoading ? (
               <div className="analytics-chart-skeleton" />
             ) : (
@@ -829,6 +850,7 @@ export function AnalyticsTab() {
               <div className="analytics-chart-skeleton" />
             ) : (
               <>
+                {/* ISS-150: Show clearer styling for zero-value bars */}
                 {[
                   { label: 'Pending', value: invitationFunnel.pending, color: '#3b82f6' },
                   { label: 'Accepted', value: invitationFunnel.accepted, color: '#22c55e' },
@@ -837,13 +859,20 @@ export function AnalyticsTab() {
                 ].map((item) => {
                   const pct =
                     invitationFunnel.total > 0 ? (item.value / invitationFunnel.total) * 100 : 0;
+                  const isZero = item.value === 0;
                   return (
-                    <div key={item.label} className="analytics-funnel-row">
+                    <div
+                      key={item.label}
+                      className={`analytics-funnel-row ${isZero ? 'analytics-funnel-row--zero' : ''}`}
+                    >
                       <span className="analytics-funnel-label">{item.label}</span>
                       <div className="analytics-funnel-bar-track">
                         <div
                           className="analytics-funnel-bar-fill"
-                          style={{ width: `${pct}%`, background: item.color }}
+                          style={{
+                            width: isZero ? '0%' : `${Math.max(pct, 3)}%`,
+                            background: isZero ? 'var(--color-border)' : item.color,
+                          }}
                         />
                       </div>
                       <span className="analytics-funnel-value">{item.value}</span>
@@ -886,8 +915,9 @@ export function AnalyticsTab() {
         <h3 className="analytics-section-title-premium">
           <BarChart3 className="h-5 w-5" />
           Model Performance
+          {/* ISS-085: Add space before session count badge */}
           {modelAnalytics && modelAnalytics.total_sessions > 0 && (
-            <span className="analytics-sessions-badge">
+            <span className="analytics-sessions-badge" style={{ marginLeft: '8px' }}>
               {modelAnalytics.total_sessions} sessions
             </span>
           )}
@@ -913,45 +943,52 @@ export function AnalyticsTab() {
                   </span>
                 )}
               </div>
-              <div className="analytics-model-chart">
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart
-                    data={modelAnalytics.overall_leaderboard.slice(0, 6)}
-                    layout="vertical"
-                    margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="var(--color-border)"
-                      opacity={0.5}
-                    />
-                    <XAxis
-                      type="number"
-                      tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
-                    />
-                    <YAxis
-                      dataKey="model"
-                      type="category"
-                      tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
-                      width={100}
-                      tickFormatter={formatModelName}
-                    />
-                    <RechartsTooltip
-                      content={<ModelTooltip />}
-                      contentStyle={{
-                        background: 'var(--color-bg-elevated)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                      }}
-                    />
-                    <Bar dataKey="win_rate" name="Win Rate %" radius={[0, 4, 4, 0]}>
-                      {modelAnalytics.overall_leaderboard.slice(0, 6).map((entry) => (
-                        <Cell key={entry.model} fill={getProviderColor(entry.model)} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+              {/* ISS-141: Chart accessibility, ISS-053: Prevent model names from being read as separate elements */}
+              <div
+                className="analytics-model-chart"
+                role="img"
+                aria-label={`Win rate comparison chart showing ${modelAnalytics.overall_leaderboard.length} AI models. Leading model: ${modelAnalytics.overall_leader ? formatModelName(modelAnalytics.overall_leader.model) : 'none'}`}
+              >
+                <div aria-hidden="true">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart
+                      data={modelAnalytics.overall_leaderboard.slice(0, 6)}
+                      layout="vertical"
+                      margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="var(--color-border)"
+                        opacity={0.5}
+                      />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
+                      />
+                      <YAxis
+                        dataKey="model"
+                        type="category"
+                        tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
+                        width={100}
+                        tickFormatter={formatModelName}
+                      />
+                      <RechartsTooltip
+                        content={<ModelTooltip />}
+                        contentStyle={{
+                          background: 'var(--color-bg-elevated)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Bar dataKey="win_rate" name="Win Rate %" radius={[0, 4, 4, 0]}>
+                        {modelAnalytics.overall_leaderboard.slice(0, 6).map((entry) => (
+                          <Cell key={entry.model} fill={getProviderColor(entry.model)} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
 
@@ -960,48 +997,55 @@ export function AnalyticsTab() {
               <div className="analytics-model-header">
                 <span className="analytics-model-card-title">Win Distribution</span>
               </div>
-              <div className="analytics-model-chart">
-                <ResponsiveContainer width="100%" height={280}>
-                  <RechartsPieChart>
-                    <Pie
-                      data={modelAnalytics.overall_leaderboard
-                        .filter((m) => m.wins > 0)
-                        .slice(0, 6)
-                        .map((m) => ({
-                          name: formatModelName(m.model),
-                          value: m.wins,
-                          model: m.model,
-                          fill: getProviderColor(m.model),
-                        }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={90}
-                      paddingAngle={2}
-                      dataKey="value"
-                      label={({ name, percent }: { name?: string; percent?: number }) =>
-                        `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`
-                      }
-                      labelLine={false}
-                    >
-                      {modelAnalytics.overall_leaderboard
-                        .filter((m) => m.wins > 0)
-                        .slice(0, 6)
-                        .map((entry) => (
-                          <Cell key={entry.model} fill={getProviderColor(entry.model)} />
-                        ))}
-                    </Pie>
-                    <RechartsTooltip
-                      formatter={(value, name) => [`${value} wins`, name]}
-                      contentStyle={{
-                        background: 'var(--color-bg-elevated)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                      }}
-                    />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
+              {/* ISS-141: Chart accessibility, ISS-053: Prevent model names from being read as separate elements */}
+              <div
+                className="analytics-model-chart"
+                role="img"
+                aria-label={`Win distribution pie chart showing total wins across ${modelAnalytics.overall_leaderboard.filter((m) => m.wins > 0).length} models`}
+              >
+                <div aria-hidden="true">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={modelAnalytics.overall_leaderboard
+                          .filter((m) => m.wins > 0)
+                          .slice(0, 6)
+                          .map((m) => ({
+                            name: formatModelName(m.model),
+                            value: m.wins,
+                            model: m.model,
+                            fill: getProviderColor(m.model),
+                          }))}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={90}
+                        paddingAngle={2}
+                        dataKey="value"
+                        label={({ name, percent }: { name?: string; percent?: number }) =>
+                          `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`
+                        }
+                        labelLine={false}
+                      >
+                        {modelAnalytics.overall_leaderboard
+                          .filter((m) => m.wins > 0)
+                          .slice(0, 6)
+                          .map((entry) => (
+                            <Cell key={entry.model} fill={getProviderColor(entry.model)} />
+                          ))}
+                      </Pie>
+                      <RechartsTooltip
+                        formatter={(value, name) => [`${value} wins`, name]}
+                        contentStyle={{
+                          background: 'var(--color-bg-elevated)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                        }}
+                      />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
 
@@ -1115,9 +1159,28 @@ export function AnalyticsTab() {
         </div>
       </details>
 
-      {/* Footer */}
+      {/* Footer - ISS-152: Added manual refresh button, ISS-153: Consistent time format */}
       <div className="analytics-footer-premium">
-        <p>Data refreshes hourly • Last updated {new Date().toLocaleTimeString()}</p>
+        <p>
+          Data refreshes hourly • Last updated{' '}
+          {lastRefreshTime.toLocaleString(undefined, {
+            dateStyle: 'short',
+            timeStyle: 'short',
+          })}
+        </p>
+        <button
+          className="analytics-refresh-btn"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          title={t('admin.refreshData', 'Refresh analytics data')}
+        >
+          <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span>
+            {isRefreshing
+              ? t('common.refreshing', 'Refreshing...')
+              : t('common.refresh', 'Refresh')}
+          </span>
+        </button>
       </div>
     </div>
   );

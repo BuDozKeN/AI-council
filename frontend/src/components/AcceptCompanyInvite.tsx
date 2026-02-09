@@ -15,7 +15,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getIntlLocale } from '../i18n';
-import { Building2, CheckCircle, XCircle, Loader2, Clock, AlertCircle, LogOut } from 'lucide-react';
+import { Building2, CheckCircle, XCircle, Clock, AlertCircle, LogOut } from 'lucide-react';
+import { Spinner } from './ui/Spinner';
 import { supabase } from '../supabase';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
@@ -177,10 +178,14 @@ export default function AcceptCompanyInvite() {
 
         {/* Content based on state */}
         <div className="accept-invite-card">
-          {/* Loading state */}
+          {/* Loading state - ISS-342: Use unified Spinner */}
           {(pageState === 'loading' || authLoading) && (
             <div className="accept-invite-state">
-              <Loader2 className="accept-invite-spinner" />
+              <Spinner
+                size="xl"
+                variant="brand"
+                label={t('acceptCompanyInvite.validating', 'Validating invitation...')}
+              />
               <p>{t('acceptCompanyInvite.validating', 'Validating invitation...')}</p>
             </div>
           )}
@@ -283,10 +288,14 @@ export default function AcceptCompanyInvite() {
             </>
           )}
 
-          {/* Accepting state */}
+          {/* Accepting state - ISS-342: Use unified Spinner */}
           {pageState === 'accepting' && (
             <div className="accept-invite-state">
-              <Loader2 className="accept-invite-spinner" />
+              <Spinner
+                size="xl"
+                variant="brand"
+                label={t('acceptCompanyInvite.accepting', 'Joining the team...')}
+              />
               <p>{t('acceptCompanyInvite.accepting', 'Joining the team...')}</p>
             </div>
           )}

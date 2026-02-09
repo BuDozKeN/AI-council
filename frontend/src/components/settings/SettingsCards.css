@@ -89,6 +89,12 @@
   color: var(--color-text-primary);
 }
 
+/* ISS-157: Required field indicator */
+.form-group label .required-indicator {
+  color: var(--color-error);
+  margin-left: var(--space-1);
+}
+
 .form-group input,
 .form-group textarea {
   width: 100%;
@@ -119,6 +125,27 @@
 .form-group textarea {
   resize: vertical;
   min-height: 80px;
+}
+
+/* ISS-158: Character counter for textarea fields */
+.form-group-with-counter {
+  position: relative;
+}
+
+.character-counter {
+  display: block;
+  text-align: right;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.character-counter--warning {
+  color: var(--color-warning);
+}
+
+.character-counter--error {
+  color: var(--color-error);
 }
 
 .input-disabled {

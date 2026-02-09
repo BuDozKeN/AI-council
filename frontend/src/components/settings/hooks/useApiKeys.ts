@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
 
@@ -22,9 +22,12 @@ export function useApiKeys(isOpen: boolean) {
   const [apiKeyError, setApiKeyError] = useState<string | null>(null);
   const [apiKeySuccess, setApiKeySuccess] = useState<string | null>(null);
   const [showReplaceKeyForm, setShowReplaceKeyForm] = useState<boolean>(false);
+  // ISS-200: Prevent duplicate API calls from StrictMode or tab re-opening
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !hasFetchedRef.current) {
+      hasFetchedRef.current = true;
       loadApiKeyStatus();
     }
   }, [isOpen]);

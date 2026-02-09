@@ -127,7 +127,7 @@
 }
 
 .add-more-images-btn:disabled {
-  opacity: 0.5;
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
 }
 
@@ -238,7 +238,7 @@
 }
 
 .attach-image-btn-inline:disabled {
-  opacity: 0.25;
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
 }
 

@@ -30,12 +30,19 @@
 
   /* Constrain table cell widths on tablet */
   .admin-table td {
-    max-width: 150px;
+    max-width: 200px; /* Increased from 150px for better content visibility */
+  }
+
+  /* ISS-131: Prevent user names from wrapping at tablet width */
+  .admin-table td:first-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .admin-user-cell,
   .admin-company-cell {
-    max-width: 130px;
+    max-width: 180px; /* Increased from 130px for better email visibility (ISS-056) */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

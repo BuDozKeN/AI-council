@@ -106,18 +106,9 @@
   flex-shrink: 0;
 }
 
+/* ISS-342: Use unified spinner-rotate animation from Spinner.css */
 .mc-ai-resync-btn:disabled svg {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+  animation: spinner-rotate 0.8s linear infinite;
 }
 
 /* ============================================================================

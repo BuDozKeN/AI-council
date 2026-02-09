@@ -125,6 +125,10 @@
     --color-indigo: #6366f1;
     --color-indigo-light: rgb(99 102 241 / 10%);
 
+    /* Focus ring color (ISS-372: matches brand for consistency) */
+    --color-focus: #4f46e5; /* Indigo-600, matches --color-primary */
+    --color-focus-rgb: 79 70 229; /* RGB for alpha variants */
+
     /* Button component tokens - direct values to avoid variable resolution issues */
     --color-primary: #4f46e5; /* WCAG AA: 6.39:1 (was #6366f1 4.47:1) - Indigo-600 */
     --color-primary-text: #fff;
@@ -620,6 +624,10 @@ html.dark,
   --color-brand-primary: #60a5fa;
   --color-brand-primary-hover: #3b82f6;
   --color-brand-primary-light: rgb(59 130 246 / 15%);
+
+  /* Focus ring color - brighter for dark mode visibility */
+  --color-focus: #818cf8; /* Indigo-400, brighter for dark backgrounds */
+  --color-focus-rgb: 129 140 248; /* RGB for alpha variants */
 
   /* Button component tokens - dark mode (direct values) */
   --color-primary: #6366f1; /* Indigo-500 */

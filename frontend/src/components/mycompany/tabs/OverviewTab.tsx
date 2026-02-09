@@ -129,6 +129,7 @@ export function OverviewTab({
                 context_md: contextMd,
               })
             }
+            title={t('mycompany.editContextTooltip', 'Edit your company business context document')}
           >
             <Pencil size={16} />
             {t('mycompany.edit')}

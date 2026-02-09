@@ -66,6 +66,9 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
     handleManageSubscription,
   } = useBilling(isOpen);
 
+  // ISS-148: Detect if usage exceeds current plan limit (e.g., downgraded from paid plan)
+  const isOverLimit = !isUnlimited && queriesUsed > queriesLimit;
+
   if (billingLoading) {
     return <BillingSkeleton />;
   }
@@ -77,25 +80,45 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
       {/* Usage Card */}
       <Card className="settings-card">
         <CardHeader>
+          {/* ISS-149: Show current plan indicator */}
+          <div className="usage-plan-badge">
+            {t('settings.currentPlan', 'Current Plan')}:{' '}
+            <strong>{plans.find((p) => p.id === currentTier)?.name || currentTier}</strong>
+          </div>
           <CardTitle>{t('settings.currentUsage')}</CardTitle>
           <CardDescription>{t('settings.usageDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="usage-bar">
+          <div className={`usage-bar ${isOverLimit ? 'over-limit' : ''}`}>
             <div
-              className="usage-fill"
+              className={`usage-fill ${isOverLimit ? 'over-limit' : ''}`}
               style={{
                 width: isUnlimited
                   ? '10%'
                   : `${Math.min((queriesUsed / queriesLimit) * 100, 100)}%`,
               }}
             />
+            {/* ISS-145: Show max limit marker */}
+            {!isUnlimited && (
+              <span className="usage-limit-marker" aria-hidden="true">
+                {queriesLimit}
+              </span>
+            )}
           </div>
-          <p className="usage-text">
+          <p className={`usage-text ${isOverLimit ? 'over-limit' : ''}`}>
             {isUnlimited
               ? t('settings.queriesUsed', { count: queriesUsed })
               : t('settings.queriesMonthly', { count: queriesUsed, limit: queriesLimit })}
           </p>
+          {/* ISS-148: Show helpful message when usage exceeds limit */}
+          {isOverLimit && (
+            <p className="usage-over-limit-hint">
+              {t(
+                'settings.usageExceedsLimit',
+                'Usage includes queries from a previous billing period. Upgrade to continue using the council.'
+              )}
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -121,7 +144,10 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                 <div className="plan-header">
                   <h4>{plan.name}</h4>
                   <div className="plan-price">
-                    {plan.is_free ? (
+                    {/* ISS-144: Enterprise plan should show "Contact Us" not "Free" */}
+                    {plan.id === 'enterprise' ? (
+                      <span className="price">{t('settings.contactUs', 'Contact Us')}</span>
+                    ) : plan.is_free ? (
                       <span className="price">{t('settings.free')}</span>
                     ) : (
                       <>

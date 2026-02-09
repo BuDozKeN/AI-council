@@ -31,6 +31,14 @@ function cleanContent(content: string): string {
   // Remove leading horizontal rule
   cleaned = cleaned.replace(/^---+\n+/, '');
 
+  // Remove [GAP: ...] markers - these are internal AI knowledge gap indicators
+  // that shouldn't be shown to users as raw template text
+  // Matches patterns like [GAP: description] or [GAP: Specific use case...]
+  cleaned = cleaned.replace(/\[GAP:\s*[^\]]*\]/gi, '');
+
+  // Clean up any double newlines left after GAP removal
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+
   // Trim any remaining leading whitespace
   cleaned = cleaned.trim();
 

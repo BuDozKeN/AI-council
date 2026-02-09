@@ -24,10 +24,10 @@ import {
   Shield,
   Settings,
   ArrowLeft,
-  Loader2,
   AlertCircle,
   BarChart3,
 } from 'lucide-react';
+import { Spinner } from '../ui/Spinner';
 import { useAuth } from '../../AuthContext';
 import { useAdminAccess } from '../../hooks';
 import { ThemeToggle } from '../ui/ThemeToggle';
@@ -106,13 +106,17 @@ export default function AdminPortal() {
     navigate('/');
   };
 
-  // Loading state (only show if no error)
+  // Loading state (only show if no error) - ISS-342: Use unified Spinner
   if ((authLoading || adminLoading) && !error) {
     return (
       <div className="admin-portal admin-portal--loading">
         <ThemeToggle />
         <div className="admin-loading-content">
-          <Loader2 className="admin-loading-spinner animate-spin" />
+          <Spinner
+            size="lg"
+            variant="brand"
+            label={t('admin.loading', 'Checking admin access...')}
+          />
           <p>{t('admin.loading', 'Checking admin access...')}</p>
         </div>
       </div>

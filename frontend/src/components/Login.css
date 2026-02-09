@@ -181,7 +181,7 @@
 }
 
 .google-button:disabled {
-  opacity: 0.7;
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
 }
 
@@ -352,12 +352,13 @@
   min-width: 40px;
 }
 
+/* ISS-016: Use brighter colors for better contrast on dark login background */
 .password-strength-bar.weak + .password-strength-text {
   color: var(--color-red-400);
 }
 
 .password-strength-bar.fair + .password-strength-text {
-  color: var(--color-yellow-400);
+  color: var(--color-amber-400);
 }
 
 .password-strength-bar.strong + .password-strength-text {
@@ -386,7 +387,7 @@
 }
 
 .submit-button:disabled {
-  opacity: 0.6;
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
 }
 

@@ -11,7 +11,7 @@
  * - InviteUserModal (new user invitation form)
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -62,6 +62,22 @@ import { useSortState, sortData } from './tableSortUtils';
 import { useTableKeyboardNav } from './useTableKeyboardNav';
 import { SkeletonCell, SkeletonBadge, SkeletonActions, Pagination } from './adminUtils';
 import { formatDate } from './adminConstants';
+
+/**
+ * ISS-130: Derive a display name from email when name is missing
+ * Converts "john.doe@email.com" → "John Doe"
+ */
+function getDisplayName(name: string | null, email: string): string {
+  if (name) return name;
+  // Extract username part before @
+  const username = email.split('@')[0] || email;
+  // Replace dots, underscores, hyphens with spaces and capitalize each word
+  return username
+    .replace(/[._-]/g, ' ')
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
 
 /** Users table skeleton rows */
 const UsersTableSkeleton = () => (
@@ -141,11 +157,26 @@ export function UsersTab() {
 
   const pageSize = 20;
 
+  // ISS-137 FIX: Track previous search to detect when search is cleared
+  // When search goes from non-empty to empty, force refetch to show all data
+  const prevSearchRef = useRef(search);
+  useEffect(() => {
+    if (prevSearchRef.current && !search) {
+      // Search was cleared - force refetch to get full list
+      // Using refetchQueries instead of invalidateQueries to ensure immediate refetch
+      queryClient.refetchQueries({ queryKey: ['admin', 'users', { search: '' }] });
+      queryClient.refetchQueries({ queryKey: ['admin', 'invitations', { search: '' }] });
+    }
+    prevSearchRef.current = search;
+  }, [search, queryClient]);
+
   // Check if current admin can impersonate
   const canImpersonate = adminRole === 'super_admin' || adminRole === 'admin';
 
   // Fetch users - DISABLE automatic refetching to preserve optimistic updates
   // Supabase Auth has eventual consistency - auto refetches return stale data and overwrite our updates
+  // ISS-137 FIX: Use 5-minute staleTime instead of Infinity to allow proper search clearing
+  // Optimistic updates still work because they use setQueryData which updates cache directly
   const {
     data: usersData,
     isLoading: usersLoading,
@@ -158,7 +189,7 @@ export function UsersTab() {
         page_size: 100, // Backend max is 100
         ...(search ? { search } : {}),
       }),
-    staleTime: Infinity, // NEVER auto-refetch - we use optimistic updates
+    staleTime: 5 * 60 * 1000, // ISS-137: 5 minutes instead of Infinity
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -177,7 +208,7 @@ export function UsersTab() {
         page_size: 100, // Backend max is 100
         ...(search ? { search } : {}),
       }),
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // ISS-137: 5 minutes instead of Infinity
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -908,10 +939,20 @@ export function UsersTab() {
         <div className="admin-table-empty">
           <Users className="h-8 w-8" />
           <span>{t('admin.users.noUsers', 'No users found')}</span>
-          {statusFilter !== 'all' && (
+          {statusFilter !== 'all' || search ? (
             <p className="admin-empty-hint">
               {t('admin.users.tryDifferentFilter', 'Try a different filter or search term.')}
             </p>
+          ) : (
+            /* ISS-139: Suggest inviting users when list is genuinely empty */
+            <button
+              className="admin-action-btn admin-action-btn--primary"
+              onClick={() => setShowInviteModal(true)}
+              style={{ marginTop: 'var(--space-4)' }}
+            >
+              <UserPlus className="h-4 w-4" />
+              <span>{t('admin.users.inviteFirstUser', 'Invite your first user')}</span>
+            </button>
           )}
         </div>
       ) : (
@@ -959,11 +1000,13 @@ export function UsersTab() {
                     return (
                       <tr key={row.id} {...getUserRowProps(rowIndex)}>
                         <td>
-                          <span>{row.name || '-'}</span>
+                          {/* ISS-130: Show email-derived name when name is missing */}
+                          <span>{getDisplayName(row.name, row.email)}</span>
                         </td>
                         <td>
-                          <div className="admin-user-cell">
-                            <Mail className="h-4 w-4" />
+                          {/* ISS-135: title attribute shows full email on hover when truncated */}
+                          <div className="admin-user-cell" title={row.email}>
+                            <Mail className="h-4 w-4" aria-hidden="true" />
                             <span>{row.email}</span>
                             {isCurrentUser && <span className="admin-you-badge">You</span>}
                           </div>
