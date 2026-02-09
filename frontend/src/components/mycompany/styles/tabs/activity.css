@@ -199,8 +199,7 @@
   gap: var(--gap-xs);
 }
 
-/* Source icon button - navigates to conversation */
-/* UXH-074: Made more visible with background and border */
+/* Source icon button - navigates to conversation (UXH-074: Made more visible) */
 .mc-source-icon-btn {
   display: flex;
   align-items: center;
