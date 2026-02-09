@@ -27,6 +27,11 @@ export const Default: Story = {
   args: { children: 'Button' },
 };
 
+/** Alias for Default - the primary button style */
+export const Primary: Story = {
+  args: { children: 'Primary', variant: 'default' },
+};
+
 export const Secondary: Story = {
   args: { children: 'Secondary', variant: 'secondary' },
 };
