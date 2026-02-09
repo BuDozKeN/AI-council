@@ -938,7 +938,7 @@ function App() {
       <button
         className={`sidebar-edge-indicator ${isMobileSidebarOpen || isMyCompanyOpen || isSettingsOpen || isLeaderboardOpen || isProjectModalOpen ? 'hidden' : ''}`}
         onClick={() => setIsMobileSidebarOpen(true)}
-        aria-label="Open sidebar"
+        aria-label={t('aria.openSidebar')}
       >
         <svg
           viewBox="0 0 24 24"

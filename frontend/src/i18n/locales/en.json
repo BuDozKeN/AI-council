@@ -548,6 +548,10 @@
         "name": "Pro",
         "queries": "Unlimited queries"
       },
+      "business": {
+        "name": "Business",
+        "queries": "750 queries/month"
+      },
       "enterprise": {
         "name": "Enterprise",
         "queries": "Unlimited queries + SLA"
@@ -556,6 +560,7 @@
     "planFeatures": {
       "councilQueries5": "5 council queries/month",
       "councilQueries50": "50 council queries/month",
+      "councilQueries750": "750 council queries/month",
       "unlimitedQueries": "Unlimited queries",
       "standardResponse": "Standard response time",
       "priorityResponse": "Priority response",
@@ -566,6 +571,9 @@
       "dedicatedSupport": "Dedicated support",
       "allModels": "All 5 AI models",
       "advancedAnalytics": "Advanced analytics",
+      "teamCollaboration": "Team collaboration",
+      "customDepartments": "Custom departments",
+      "auditLogs": "Audit logs",
       "customSLA": "Custom SLA",
       "ssoSaml": "SSO & SAML",
       "customIntegrations": "Custom integrations"

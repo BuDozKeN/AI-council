@@ -541,6 +541,10 @@
         "name": "Pro",
         "queries": "Consultas ilimitadas"
       },
+      "business": {
+        "name": "Business",
+        "queries": "750 consultas/mes"
+      },
       "enterprise": {
         "name": "Empresarial",
         "queries": "Consultas ilimitadas + SLA"
@@ -549,6 +553,7 @@
     "planFeatures": {
       "councilQueries5": "5 consultas al consejo/mes",
       "councilQueries50": "50 consultas al consejo/mes",
+      "councilQueries750": "750 consultas al consejo/mes",
       "unlimitedQueries": "Consultas ilimitadas",
       "standardResponse": "Tiempo de respuesta estándar",
       "priorityResponse": "Respuesta prioritaria",
@@ -559,6 +564,9 @@
       "dedicatedSupport": "Soporte dedicado",
       "allModels": "Los 5 modelos de IA",
       "advancedAnalytics": "Analíticas avanzadas",
+      "teamCollaboration": "Colaboración en equipo",
+      "customDepartments": "Departamentos personalizados",
+      "auditLogs": "Registros de auditoría",
       "customSLA": "SLA personalizado",
       "ssoSaml": "SSO y SAML",
       "customIntegrations": "Integraciones personalizadas"

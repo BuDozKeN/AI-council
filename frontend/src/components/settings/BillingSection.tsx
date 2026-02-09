@@ -75,6 +75,7 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
     free: ['councilQueries5', 'standardResponse', 'emailSupport'],
     starter: ['councilQueries50', 'allModels', 'priorityResponse', 'chatSupport'],
     pro: ['unlimitedQueries', 'allModels', 'fastestResponse', 'prioritySupport', 'advancedAnalytics'],
+    business: ['councilQueries750', 'teamCollaboration', 'customDepartments', 'auditLogs', 'dedicatedSupport'],
     enterprise: ['unlimitedQueries', 'customSLA', 'dedicatedSupport', 'ssoSaml', 'customIntegrations'],
   };
 
