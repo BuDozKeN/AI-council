@@ -82,9 +82,9 @@ jobs:
           echo ""
 
           # Performance Budget Check - FAIL if exceeded
-          # Budget: 1350KB (increased from 1300KB in PR #148 for comprehensive mobile UX fixes)
+          # Budget: 1370KB (increased from 1350KB in PR #187 for Stylelint compliance empty lines)
           echo "💰 CSS Source Performance Budget:"
-          MAX_CSS_SOURCE_KB=1350
+          MAX_CSS_SOURCE_KB=1370
           if [ $TOTAL_KB -gt $MAX_CSS_SOURCE_KB ]; then
             echo "  ❌ FAILED: ${TOTAL_KB}KB exceeds budget of ${MAX_CSS_SOURCE_KB}KB"
             echo "  Action required: Reduce CSS bundle size or increase budget"
