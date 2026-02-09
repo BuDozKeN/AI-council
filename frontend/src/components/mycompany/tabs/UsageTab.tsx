@@ -31,11 +31,7 @@ import type { UsageData, RateLimitStatus, BudgetAlert, UsagePeriod } from '../ho
 // Constants
 // ============================================================================
 
-const PERIOD_OPTIONS: { value: UsagePeriod; label: string }[] = [
-  { value: 7, label: '7 days' },
-  { value: 30, label: '30 days' },
-  { value: 90, label: '90 days' },
-];
+const PERIOD_VALUES: UsagePeriod[] = [7, 30, 90];
 
 // Responsive breakpoint (matches CSS media queries)
 const MOBILE_BREAKPOINT = 768;
@@ -310,14 +306,18 @@ export function UsageTab({
       <div className="mc-usage-header">
         <h2 className="mc-usage-title">{t('mycompany.usage')}</h2>
         <div className={`mc-usage-period-toggle ${isRefetching ? 'loading' : ''}`}>
-          {PERIOD_OPTIONS.map((opt) => (
+          {PERIOD_VALUES.map((days) => (
             <button
-              key={opt.value}
-              className={`mc-usage-period-opt ${period === opt.value ? 'active' : ''}`}
-              onClick={() => onPeriodChange?.(opt.value)}
+              key={days}
+              className={`mc-usage-period-opt ${period === days ? 'active' : ''}`}
+              onClick={() => onPeriodChange?.(days)}
               disabled={isRefetching}
             >
-              {opt.label}
+              {days === 7
+                ? t('myCompany.usage.days7')
+                : days === 30
+                  ? t('myCompany.usage.days30')
+                  : t('myCompany.usage.days90')}
             </button>
           ))}
         </div>
