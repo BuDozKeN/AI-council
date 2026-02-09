@@ -64,7 +64,13 @@ export const Icon: Story = {
 };
 
 export const WithIcon: Story = {
-  args: { children: <><Mail size={16} /> Send Email</> },
+  args: {
+    children: (
+      <>
+        <Mail size={16} /> Send Email
+      </>
+    ),
+  },
 };
 
 export const Loading: Story = {
@@ -83,8 +89,12 @@ export const AllVariants: Story = {
       <Button variant="secondary">Secondary</Button>
       <Button variant="outline">Outline</Button>
       <Button variant="ghost">Ghost</Button>
-      <Button variant="destructive"><Trash2 size={14} /> Delete</Button>
-      <Button variant="success"><Check size={14} /> Confirm</Button>
+      <Button variant="destructive">
+        <Trash2 size={14} /> Delete
+      </Button>
+      <Button variant="success">
+        <Check size={14} /> Confirm
+      </Button>
       <Button variant="link">Link</Button>
     </div>
   ),
@@ -97,7 +107,9 @@ export const AllSizes: Story = {
       <Button size="sm">Small</Button>
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
-      <Button size="icon"><Plus size={18} /></Button>
+      <Button size="icon">
+        <Plus size={18} />
+      </Button>
     </div>
   ),
 };
