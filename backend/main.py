@@ -23,6 +23,75 @@ from datetime import datetime, timezone
 # =============================================================================
 # Track in-flight requests and manage graceful shutdown
 
+# =============================================================================
+# ACTIVE TASK REGISTRY
+# =============================================================================
+# Track active council streaming tasks for cleanup during shutdown
+
+class ActiveTaskRegistry:
+    """
+    Global registry for tracking active asyncio tasks that need cleanup during shutdown.
+
+    This is needed because council streaming tasks (stream_single_model) are created
+    with asyncio.create_task() but not awaited until completion. During SIGTERM,
+    these tasks would otherwise be destroyed while pending, causing errors like:
+    "Task was destroyed but it is pending!"
+    """
+
+    def __init__(self):
+        self._tasks: set[asyncio.Task] = set()
+        self._lock = asyncio.Lock()
+
+    async def register(self, task: asyncio.Task) -> None:
+        """Register a task for tracking. Called when task is created."""
+        async with self._lock:
+            self._tasks.add(task)
+            # Auto-cleanup when task completes
+            task.add_done_callback(lambda t: asyncio.create_task(self._unregister(t)))
+
+    async def _unregister(self, task: asyncio.Task) -> None:
+        """Unregister a completed task."""
+        async with self._lock:
+            self._tasks.discard(task)
+
+    async def cancel_all(self) -> int:
+        """
+        Cancel all tracked tasks and wait for them to complete.
+        Returns the number of tasks that were cancelled.
+        """
+        async with self._lock:
+            tasks_to_cancel = list(self._tasks)
+
+        if not tasks_to_cancel:
+            return 0
+
+        cancelled_count = 0
+        for task in tasks_to_cancel:
+            if not task.done():
+                task.cancel()
+                cancelled_count += 1
+
+        # Wait for all tasks to handle cancellation
+        if tasks_to_cancel:
+            await asyncio.gather(*tasks_to_cancel, return_exceptions=True)
+
+        return cancelled_count
+
+    @property
+    def active_count(self) -> int:
+        """Return count of currently active tasks."""
+        return len([t for t in self._tasks if not t.done()])
+
+
+# Global task registry instance
+_active_task_registry = ActiveTaskRegistry()
+
+
+def get_active_task_registry() -> ActiveTaskRegistry:
+    """Get the global active task registry."""
+    return _active_task_registry
+
+
 class ShutdownManager:
     """
     Manages graceful shutdown with in-flight request tracking.
@@ -694,12 +763,14 @@ async def _graceful_shutdown():
     Graceful shutdown procedure:
     1. Stop accepting new requests
     2. Wait for in-flight requests to complete (with timeout)
-    3. Clean up resources
+    3. Cancel active streaming tasks
+    4. Clean up resources
     """
     log_app_event(
         "GRACEFUL_SHUTDOWN_INITIATED",
         level="WARNING",
-        active_requests=_shutdown_manager.active_requests
+        active_requests=_shutdown_manager.active_requests,
+        active_streaming_tasks=_active_task_registry.active_count
     )
 
     # Initiate shutdown (stops accepting new requests)
@@ -715,6 +786,16 @@ async def _graceful_shutdown():
             "GRACEFUL_SHUTDOWN_TIMEOUT",
             level="WARNING",
             remaining_requests=_shutdown_manager.active_requests
+        )
+
+    # Cancel any active streaming tasks (council deliberation tasks)
+    # This prevents "Task was destroyed but it is pending!" errors
+    cancelled_tasks = await _active_task_registry.cancel_all()
+    if cancelled_tasks > 0:
+        log_app_event(
+            "SHUTDOWN_STREAMING_TASKS_CANCELLED",
+            level="INFO",
+            cancelled_count=cancelled_tasks
         )
 
     # Clean up resources
