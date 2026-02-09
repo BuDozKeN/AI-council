@@ -249,6 +249,7 @@ async def _start_models_with_stagger(
     query_model_stream,
     log_app_event,
     get_model_timeout=None,
+    task_registry=None,
 ):
     """
     Start all model streams with staggered delays and yield early events.
@@ -265,6 +266,7 @@ async def _start_models_with_stagger(
         query_model_stream: Function to query models
         log_app_event: Logging function
         get_model_timeout: Optional function to get model-specific timeout
+        task_registry: Optional task registry for graceful shutdown tracking
 
     Yields:
         Events from queue during stagger delays, then final tuple
@@ -282,6 +284,10 @@ async def _start_models_with_stagger(
             get_model_timeout=get_model_timeout,
         )
         tasks.append(task)
+
+        # Register task for graceful shutdown tracking
+        if task_registry:
+            await task_registry.register(task)
 
         if i < total_models - 1:
             # Brief stagger to avoid rate limits, yield events during wait
