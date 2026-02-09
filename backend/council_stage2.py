@@ -216,7 +216,10 @@ def _create_stream_single_ranking_model(
             })
         except asyncio.CancelledError:
             log_app_event("MODEL_CANCELLED", level="INFO", model=model, stage="stage2")
-            raise
+            # Don't re-raise - let task complete cleanly during shutdown
+            # Re-raising while inside an async generator iteration causes
+            # "aclose(): asynchronous generator is already running" errors
+            return
         except Exception as e:
             await queue.put({"type": "stage2_model_error", "model": model, "error": str(e)})
 
@@ -233,7 +236,8 @@ async def _start_ranking_models_with_stagger(
     STAGGER_DELAY: float,
     PER_MODEL_TIMEOUT: float,
     query_model_stream,
-    log_app_event
+    log_app_event,
+    task_registry=None,
 ):
     """
     Start all ranking model streams with staggered delays.
@@ -249,6 +253,7 @@ async def _start_ranking_models_with_stagger(
         PER_MODEL_TIMEOUT: Timeout for individual models
         query_model_stream: Function to query models
         log_app_event: Logging function
+        task_registry: Optional task registry for graceful shutdown tracking
 
     Yields:
         Events from queue during stagger, then final tuple
@@ -265,6 +270,10 @@ async def _start_ranking_models_with_stagger(
             queue, model_content, model_start_times, PER_MODEL_TIMEOUT, log_app_event
         )
         tasks.append(task)
+
+        # Register task for graceful shutdown tracking
+        if task_registry:
+            await task_registry.register(task)
 
         if i < total_models - 1:
             wait_end = asyncio.get_event_loop().time() + STAGGER_DELAY

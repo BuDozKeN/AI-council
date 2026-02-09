@@ -330,7 +330,15 @@ export function useMessageStreaming({
   const createStreamEventHandler = useCallback(
     (conversationId: string) => (eventType: string, event: StreamEventData) => {
       if (eventType.includes('error') || eventType.includes('Error')) {
-        log.error('[SSE Event]', eventType, event);
+        // Per-model timeouts are expected and handled gracefully
+        const errorStr = String(event?.error || '');
+        const isModelTimeout =
+          eventType === 'stage1_model_error' && errorStr.toLowerCase().includes('timeout');
+        if (isModelTimeout) {
+          log.warn('[SSE Event]', eventType, event);
+        } else {
+          log.error('[SSE Event]', eventType, event);
+        }
       }
 
       switch (eventType) {
@@ -382,7 +390,14 @@ export function useMessageStreaming({
         case 'stage1_model_error': {
           const model = event.model as string;
           const error = event.error as string;
-          log.error(`[Stage1 Error] Model ${model}:`, error);
+          // Per-model timeouts are expected (council continues with remaining models)
+          // Only log as error for non-timeout failures
+          const isTimeout = error.toLowerCase().includes('timeout');
+          if (isTimeout) {
+            log.warn(`[Stage1] Model ${model} timed out - council continues with other models`);
+          } else {
+            log.error(`[Stage1 Error] Model ${model}:`, error);
+          }
           flushNow();
           setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;

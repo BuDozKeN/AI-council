@@ -17,7 +17,8 @@ from .context_loader import (
     detect_multi_turn_attack
 )
 from .config import (
-    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, PER_MODEL_TIMEOUT
+    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, PER_MODEL_TIMEOUT,
+    get_model_timeout,
 )
 from .model_registry import get_primary_model, get_models, get_models_sync
 from .security import log_app_event
@@ -190,9 +191,18 @@ async def stage1_stream_responses(
     STAGGER_DELAY = 0.0  # Removed per audit M14 - stagger adds 2.5s latency with no benefit
 
     # 7. Start all model streams with stagger, yielding early events
+    # Get task registry for graceful shutdown tracking
+    try:
+        from .main import get_active_task_registry
+        task_registry = get_active_task_registry()
+    except ImportError:
+        task_registry = None
+
     stagger_gen = _start_models_with_stagger(
         council_models, messages, stage1_config, queue, model_content, model_start_times,
-        STAGGER_DELAY, PER_MODEL_TIMEOUT, query_model_stream, log_app_event
+        STAGGER_DELAY, PER_MODEL_TIMEOUT, query_model_stream, log_app_event,
+        get_model_timeout=get_model_timeout,
+        task_registry=task_registry,
     )
     tasks, completed_count, successful_count = None, 0, 0
     async for item in stagger_gen:
@@ -306,9 +316,17 @@ async def stage2_stream_rankings(
     STAGGER_DELAY = 0.5
 
     # 9. Start all ranking models with stagger, yielding early events
+    # Get task registry for graceful shutdown tracking
+    try:
+        from .main import get_active_task_registry
+        task_registry = get_active_task_registry()
+    except ImportError:
+        task_registry = None
+
     stagger_gen = _start_ranking_models_with_stagger(
         stage2_models, messages, stage2_config, queue, model_content, model_start_times,
-        STAGGER_DELAY, PER_MODEL_TIMEOUT, query_model_stream, log_app_event
+        STAGGER_DELAY, PER_MODEL_TIMEOUT, query_model_stream, log_app_event,
+        task_registry=task_registry,
     )
     tasks, completed_count, successful_count = None, 0, 0
     async for item in stagger_gen:

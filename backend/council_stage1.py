@@ -156,7 +156,8 @@ def _create_stream_single_model_task(
     model_content: Dict[str, str],
     model_start_times: Dict[str, float],
     PER_MODEL_TIMEOUT: float,
-    log_app_event
+    log_app_event,
+    get_model_timeout=None,
 ):
     """
     Create async task for streaming a single model's response.
@@ -169,14 +170,17 @@ def _create_stream_single_model_task(
         queue: Queue for events
         model_content: Dict to store model responses
         model_start_times: Dict to track model start times
-        PER_MODEL_TIMEOUT: Timeout for individual models
+        PER_MODEL_TIMEOUT: Default timeout for individual models
         log_app_event: Logging function
+        get_model_timeout: Optional function to get model-specific timeout
 
     Returns:
         Async task
     """
     async def stream_single_model():
         """Stream tokens from a single model and put events on the queue."""
+        # Use model-specific timeout if available, otherwise fall back to default
+        effective_timeout = get_model_timeout(model) if get_model_timeout else PER_MODEL_TIMEOUT
         model_start_times[model] = time.time()
         content_chunks: list[str] = []
         usage_data = None
@@ -187,16 +191,21 @@ def _create_stream_single_model_task(
                 temperature=stage1_config.get("temperature"),
                 max_tokens=stage1_config.get("max_tokens"),
             ):
-                # Per-model timeout check
-                if time.time() - model_start_times[model] > PER_MODEL_TIMEOUT:
+                # Per-model timeout check (uses model-specific timeout)
+                elapsed = time.time() - model_start_times[model]
+                if elapsed > effective_timeout:
                     log_app_event(
                         "MODEL_TIMEOUT",
                         level="WARNING",
                         model=model,
-                        elapsed_seconds=time.time() - model_start_times[model],
-                        timeout_seconds=PER_MODEL_TIMEOUT
+                        elapsed_seconds=elapsed,
+                        timeout_seconds=effective_timeout
                     )
-                    await queue.put({"type": "stage1_model_error", "model": model, "error": "Model timeout"})
+                    await queue.put({
+                        "type": "stage1_model_error",
+                        "model": model,
+                        "error": f"Model timeout ({effective_timeout}s)",
+                    })
                     return
 
                 # Check for usage data marker
@@ -221,7 +230,10 @@ def _create_stream_single_model_task(
             })
         except asyncio.CancelledError:
             log_app_event("MODEL_CANCELLED", level="INFO", model=model)
-            raise
+            # Don't re-raise - let task complete cleanly during shutdown
+            # Re-raising while inside an async generator iteration causes
+            # "aclose(): asynchronous generator is already running" errors
+            return
         except Exception as e:
             await queue.put({"type": "stage1_model_error", "model": model, "error": str(e)})
 
@@ -238,7 +250,9 @@ async def _start_models_with_stagger(
     STAGGER_DELAY: float,
     PER_MODEL_TIMEOUT: float,
     query_model_stream,
-    log_app_event
+    log_app_event,
+    get_model_timeout=None,
+    task_registry=None,
 ):
     """
     Start all model streams with staggered delays and yield early events.
@@ -251,9 +265,11 @@ async def _start_models_with_stagger(
         model_content: Dict to store responses
         model_start_times: Dict to track start times
         STAGGER_DELAY: Delay between model starts (seconds)
-        PER_MODEL_TIMEOUT: Timeout for individual models
+        PER_MODEL_TIMEOUT: Default timeout for individual models
         query_model_stream: Function to query models
         log_app_event: Logging function
+        get_model_timeout: Optional function to get model-specific timeout
+        task_registry: Optional task registry for graceful shutdown tracking
 
     Yields:
         Events from queue during stagger delays, then final tuple
@@ -267,9 +283,14 @@ async def _start_models_with_stagger(
     for i, model in enumerate(council_models):
         task = _create_stream_single_model_task(
             model, messages, stage1_config, query_model_stream,
-            queue, model_content, model_start_times, PER_MODEL_TIMEOUT, log_app_event
+            queue, model_content, model_start_times, PER_MODEL_TIMEOUT, log_app_event,
+            get_model_timeout=get_model_timeout,
         )
         tasks.append(task)
+
+        # Register task for graceful shutdown tracking
+        if task_registry:
+            await task_registry.register(task)
 
         if i < total_models - 1:
             # Brief stagger to avoid rate limits, yield events during wait
