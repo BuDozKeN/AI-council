@@ -46,6 +46,12 @@
   color: var(--color-text-tertiary);
 }
 
+.analytics-sample-note {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-quaternary);
+  font-style: italic;
+}
+
 .analytics-status-chart {
   display: flex;
   justify-content: center;

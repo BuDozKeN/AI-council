@@ -761,12 +761,18 @@ export function AnalyticsTab() {
       {/* Status Overview - Compact side-by-side */}
       <div className="analytics-status-row">
         {/* User Status Donut */}
-        {/* ISS-084: Use userStatusBreakdown.total for consistency with the pie chart data */}
+        {/* FIX: Use displayStats.total_users for accurate total, breakdown is sampled */}
         <div className="analytics-status-card">
           <div className="analytics-status-header">
             <h3>User Status</h3>
             <span className="analytics-status-total">
-              {userStatusBreakdown.total.toLocaleString()} total
+              {(displayStats?.total_users ?? userStatusBreakdown.total).toLocaleString()} total
+              {displayStats?.total_users && displayStats.total_users > userStatusBreakdown.total && (
+                <span className="analytics-sample-note" title="Breakdown based on sample">
+                  {' '}
+                  (sample: {userStatusBreakdown.total})
+                </span>
+              )}
             </span>
           </div>
           {/* ISS-141: Chart accessibility */}
