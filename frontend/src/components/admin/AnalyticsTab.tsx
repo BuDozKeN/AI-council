@@ -767,12 +767,13 @@ export function AnalyticsTab() {
             <h3>User Status</h3>
             <span className="analytics-status-total">
               {(displayStats?.total_users ?? userStatusBreakdown.total).toLocaleString()} total
-              {displayStats?.total_users && displayStats.total_users > userStatusBreakdown.total && (
-                <span className="analytics-sample-note" title="Breakdown based on sample">
-                  {' '}
-                  (sample: {userStatusBreakdown.total})
-                </span>
-              )}
+              {displayStats?.total_users &&
+                displayStats.total_users > userStatusBreakdown.total && (
+                  <span className="analytics-sample-note" title="Breakdown based on sample">
+                    {' '}
+                    (sample: {userStatusBreakdown.total})
+                  </span>
+                )}
             </span>
           </div>
           {/* ISS-141: Chart accessibility */}
