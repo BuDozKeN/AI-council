@@ -230,7 +230,10 @@ def _create_stream_single_model_task(
             })
         except asyncio.CancelledError:
             log_app_event("MODEL_CANCELLED", level="INFO", model=model)
-            raise
+            # Don't re-raise - let task complete cleanly during shutdown
+            # Re-raising CancelledError while async generator is running causes
+            # "aclose(): asynchronous generator is already running" errors
+            return
         except Exception as e:
             await queue.put({"type": "stage1_model_error", "model": model, "error": str(e)})
 
