@@ -546,7 +546,7 @@ export function ChatInput({
               onClick={() => onSelectPreset('conservative')}
               disabled={disabled}
               role="radio"
-              aria-checked={selectedPreset === 'conservative'}
+              aria-checked={selectedPreset === 'conservative' || (!selectedPreset && departmentPreset === 'conservative')}
               title={t('chat.responseStyle.descriptions.conservative', 'Factual, focused answers - best for data and compliance')}
             >
               <Target size={20} aria-hidden="true" />
@@ -558,7 +558,7 @@ export function ChatInput({
               onClick={() => onSelectPreset('balanced')}
               disabled={disabled}
               role="radio"
-              aria-checked={selectedPreset === 'balanced'}
+              aria-checked={selectedPreset === 'balanced' || (!selectedPreset && departmentPreset === 'balanced')}
               title={t('chat.responseStyle.descriptions.balanced', 'Good for most questions - reliable and flexible')}
             >
               <Zap size={20} aria-hidden="true" />
@@ -570,7 +570,7 @@ export function ChatInput({
               onClick={() => onSelectPreset('creative')}
               disabled={disabled}
               role="radio"
-              aria-checked={selectedPreset === 'creative'}
+              aria-checked={selectedPreset === 'creative' || (!selectedPreset && departmentPreset === 'creative')}
               title={t('chat.responseStyle.descriptions.creative', 'More original ideas - great for brainstorming')}
             >
               <Sparkles size={20} aria-hidden="true" />
