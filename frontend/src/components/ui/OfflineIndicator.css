@@ -13,8 +13,8 @@
   justify-content: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  background: var(--color-warning-bg, #fef3c7);
-  color: var(--color-warning-text, #92400e);
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
   font-size: var(--font-size-sm);
   font-weight: 500;
   animation: offline-slide-down 0.3s ease-out;
@@ -24,6 +24,7 @@
   from {
     transform: translateY(-100%);
   }
+
   to {
     transform: translateY(0);
   }
@@ -32,6 +33,6 @@
 /* Dark mode */
 :root[data-theme="dark"] .offline-indicator,
 .dark .offline-indicator {
-  background: var(--color-amber-900, #78350f);
-  color: var(--color-amber-200, #fde68a);
+  background: var(--color-amber-900);
+  color: var(--color-amber-200);
 }

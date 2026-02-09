@@ -42,15 +42,18 @@
   transition: all 0.15s ease;
 }
 
-/* Touch target helper - ensures 44x44px minimum touch area via padding */
-/* NOTE: Only applied on mobile (<=640px) to prevent desktop click overlap (ISS-103) */
-/* On desktop, hover-actions are positioned right-side and don't need expanded targets */
-
-/* Desktop: reset the global .touch-target min-size to prevent overlap with content */
-/* The global .touch-target class in tailwind.css sets 44px - we override for sidebar buttons */
+/*
+ * Touch target helper - ensures 44x44px minimum touch area via padding
+ * NOTE: Only applied on mobile (<=640px) to prevent desktop click overlap (ISS-103)
+ * On desktop, hover-actions are positioned right-side and don't need expanded targets
+ *
+ * Desktop: reset the global .touch-target min-size to prevent overlap with content
+ * The global .touch-target class in tailwind.css sets 44px - we override for sidebar buttons
+ */
 .hover-action-btn.touch-target {
   min-width: unset;
   min-height: unset;
+
   /* Use base hover-action-btn sizing: 28x28px */
 }
 

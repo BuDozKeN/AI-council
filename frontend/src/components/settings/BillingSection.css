@@ -53,15 +53,15 @@
 
 /* ISS-148: Over limit styling */
 .usage-bar.over-limit {
-  background: var(--color-red-100, #fee2e2);
+  background: var(--color-red-100);
 }
 
 .usage-fill.over-limit {
-  background: var(--color-red-500, #ef4444);
+  background: var(--color-red-500);
 }
 
 .usage-text.over-limit {
-  color: var(--color-red-600, #dc2626);
+  color: var(--color-red-600);
   font-weight: 500;
 }
 
