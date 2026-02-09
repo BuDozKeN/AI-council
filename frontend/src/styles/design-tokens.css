@@ -258,6 +258,22 @@
 /* UTILITY CLASSES: Use Tailwind utilities instead. These are not used. */
 
 /* =============================================================================
+   GLOBAL SPINNER ANIMATION
+   Used by inline Suspense fallbacks in router.tsx before CSS modules load.
+   Note: The unified <Spinner /> component uses spinner-rotate in Spinner.css.
+   ============================================================================= */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =============================================================================
    COMPLETION & CELEBRATION ANIMATIONS
    Premium micro-celebrations for success moments
    ============================================================================= */
