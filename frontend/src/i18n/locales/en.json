@@ -1690,6 +1690,8 @@
     "filterResults": "{{filtered}} of {{total}} decisions",
     "clearFilters": "Clear filters",
     "pendingDecisionAriaLabel": "Pending decision awaiting promotion",
+    "statusLegend": "Status legend",
+    "statusPending": "Pending",
     "statusConnected": "Connected",
     "statusDisconnected": "Disconnected",
     "statusOnline": "Online",

@@ -67,6 +67,11 @@ export const router = createBrowserRouter([
       { path: 'my-company/:tab', element: <Navigate to="/company" replace /> },
       { path: 'my-company/:tab/:itemId', element: <Navigate to="/company" replace /> },
 
+      // UXH-052/053: /landing and /login redirect to / when logged in
+      // These URLs may be bookmarked or linked from external sources
+      { path: 'landing', element: <Navigate to="/" replace /> },
+      { path: 'login', element: <Navigate to="/" replace /> },
+
       // Leaderboard
       { path: 'leaderboard', element: null },
 

@@ -63,6 +63,33 @@
 }
 
 /* ============================================================================
+   STATUS LEGEND (UXH-022)
+   ============================================================================ */
+
+.mc-status-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lg);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-default);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.mc-status-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+}
+
+.mc-status-legend-item .mc-status-dot {
+  width: 8px;
+  height: 8px;
+}
+
+/* ============================================================================
    CONTENT AREA
    ============================================================================ */
 
