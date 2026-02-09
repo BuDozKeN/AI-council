@@ -39,11 +39,11 @@
     overflow: hidden; /* Prevent tab labels from overflowing into content panel */
   }
 
-  /* Mobile tabs - iOS tab bar style with icon + label stacked vertically */
+  /* UXH-032: Mobile tabs - compact icon-only for reduced horizontal footprint */
   .settings-sidebar .settings-tab {
     /* WCAG 44px minimum touch target */
-    width: 52px;
-    min-height: 52px;
+    width: 44px;
+    min-height: 44px;
     height: auto;
     padding: var(--space-1) var(--space-1);
     flex-direction: column;
@@ -86,16 +86,9 @@
     font-size: var(--text-base);
   }
 
-  /* Show small labels below icons like iOS tab bar */
+  /* UXH-032: Hide labels on mobile to reduce sidebar width - icon + tooltip only */
   .settings-tab .tab-label {
-    display: block;
-    font-size: 11px; /* Increased from text-2xs (10px) for better readability (ISS-062) */
-    line-height: 1;
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: visible; /* Allow full text display */
-    text-overflow: clip;
-    max-width: none; /* Remove constraint that truncates "Developer" */
+    display: none;
   }
 
   .settings-panel {
@@ -264,10 +257,11 @@
     gap: 0;
   }
 
+  /* UXH-032: Compact action buttons to match icon-only tabs */
   .settings-action-btn {
     /* Match settings-tab mobile styling */
-    width: 52px;
-    min-height: 52px;
+    width: 44px;
+    min-height: 44px;
     height: auto;
     padding: var(--space-1);
     flex-direction: column;
@@ -279,12 +273,9 @@
     font-size: var(--text-xs);
   }
 
+  /* UXH-032: Hide labels on action buttons too */
   .settings-action-btn .tab-label {
-    display: block;
-    font-size: var(--text-2xs);
-    line-height: 1;
-    margin-top: 2px;
-    white-space: nowrap;
+    display: none;
   }
 
   .settings-action-btn:hover {

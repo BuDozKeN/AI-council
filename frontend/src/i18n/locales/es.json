@@ -8,7 +8,7 @@
   },
   "landing": {
     "headline": "La única IA en la que",
-    "headlineEmphasis": "confiar.",
+    "headlineEmphasis": "confiar",
     "statsAI": "IA",
     "statsAIs": "IAs",
     "statsRound": "ronda",
@@ -528,6 +528,49 @@
     "manageSubscriptionDesc": "Actualiza método de pago, ve facturas o cancela",
     "manageBilling": "Gestionar facturación",
     "stripePowered": "Pagos seguros con Stripe",
+    "plans": {
+      "free": {
+        "name": "Gratis",
+        "queries": "5 consultas al consejo/mes"
+      },
+      "starter": {
+        "name": "Inicial",
+        "queries": "50 consultas al consejo/mes"
+      },
+      "pro": {
+        "name": "Pro",
+        "queries": "Consultas ilimitadas"
+      },
+      "business": {
+        "name": "Business",
+        "queries": "750 consultas/mes"
+      },
+      "enterprise": {
+        "name": "Empresarial",
+        "queries": "Consultas ilimitadas + SLA"
+      }
+    },
+    "planFeatures": {
+      "councilQueries5": "5 consultas al consejo/mes",
+      "councilQueries50": "50 consultas al consejo/mes",
+      "councilQueries750": "750 consultas al consejo/mes",
+      "unlimitedQueries": "Consultas ilimitadas",
+      "standardResponse": "Tiempo de respuesta estándar",
+      "priorityResponse": "Respuesta prioritaria",
+      "fastestResponse": "Respuesta más rápida",
+      "emailSupport": "Soporte por email",
+      "chatSupport": "Soporte por chat",
+      "prioritySupport": "Soporte prioritario",
+      "dedicatedSupport": "Soporte dedicado",
+      "allModels": "Los 5 modelos de IA",
+      "advancedAnalytics": "Analíticas avanzadas",
+      "teamCollaboration": "Colaboración en equipo",
+      "customDepartments": "Departamentos personalizados",
+      "auditLogs": "Registros de auditoría",
+      "customSLA": "SLA personalizado",
+      "ssoSaml": "SSO y SAML",
+      "customIntegrations": "Integraciones personalizadas"
+    },
     "teamMembers": "Miembros del equipo",
     "memberCount": "{{count}} miembro",
     "memberCount_other": "{{count}} miembros",
@@ -1091,7 +1134,15 @@
       "operations": "Operaciones",
       "executive": "Ejecutivo",
       "ux": "UX/Diseño",
-      "general": "General"
+      "general": "General",
+      "sales": "Ventas",
+      "finance": "Finanzas",
+      "legal": "Legal",
+      "hr": "Recursos Humanos",
+      "product": "Producto",
+      "engineering": "Ingeniería",
+      "customerSuccess": "Éxito del Cliente",
+      "support": "Soporte"
     },
     "autoInject": "Auto-inyectar en el consejo",
     "autoInjectDescription": "Incluir automáticamente esto en las discusiones del consejo"
@@ -1677,6 +1728,9 @@
     "clearSearch": "Limpiar búsqueda",
     "filterResults": "{{filtered}} de {{total}} decisiones",
     "clearFilters": "Limpiar filtros",
+    "pendingDecisionAriaLabel": "Decisión pendiente esperando promoción",
+    "statusLegend": "Leyenda de estados",
+    "statusPending": "Pendiente",
     "noMatchingDecisions": "No hay decisiones coincidentes",
     "tryAdjustingFilters": "Intenta ajustar tu búsqueda o filtro de departamento.",
     "viewOriginalConversation": "Ver conversación original",
@@ -1685,15 +1739,29 @@
     "allQuiet": "Todo tranquilo aquí",
     "eventsCount": "{{count}} eventos",
     "promotedType_sop": "SOP",
-    "promotedType_framework": "MARCO",
-    "promotedType_policy": "POLÍTICA",
-    "promotedType_project": "PROYECTO",
+    "promotedType_framework": "Marco",
+    "promotedType_policy": "Política",
+    "promotedType_project": "Proyecto",
     "eventType_decision": "Decisión",
     "eventType_playbook": "Playbook",
     "eventType_project": "Proyecto",
     "eventType_role": "Cambio de Rol",
     "eventType_department": "Departamento",
     "eventType_council_session": "Consejo",
+    "eventType_MEMBER_UPDATED": "Rol cambiado",
+    "eventType_MEMBER_INVITED": "Miembro invitado",
+    "eventType_MEMBER_REMOVED": "Miembro eliminado",
+    "eventType_CREATED": "Creado",
+    "eventType_UPDATED": "Actualizado",
+    "eventType_DELETED": "Eliminado",
+    "eventType_member_updated": "Rol cambiado",
+    "eventType_member_invited": "Miembro invitado",
+    "eventType_member_removed": "Miembro eliminado",
+    "eventType_created": "Creado",
+    "eventType_updated": "Actualizado",
+    "eventType_deleted": "Eliminado",
+    "eventType_consultation": "Consulta",
+    "eventType_Promoted": "Promovido",
     "viewSourceConversation": "Ver conversación fuente",
     "loading": "Cargando...",
     "loadMoreActivity": "Cargar más",
@@ -1704,6 +1772,7 @@
     "sessions": "Sesiones",
     "tokens": "Tokens",
     "cacheHitRate": "Tasa de Aciertos de Caché",
+    "noCacheActivity": "Sin actividad de caché aún",
     "saved": "Ahorrado {{amount}}",
     "usage": "Uso",
     "dailyCost": "Costo Diario",
@@ -1957,5 +2026,45 @@
     "showHelp": "Mostrar esta ayuda",
     "pressToClose": "Presiona",
     "orClickToClose": "o haz clic afuera para cerrar"
+  },
+  "myCompany": {
+    "tapToClose": "Toca para cerrar",
+    "commandCenter": "Centro de Comando",
+    "commandCenterTooltip": "Centro de gestión de decisiones, base de conocimiento y configuración de empresa",
+    "switchCompany": "Cambiar empresa",
+    "closeMyCompany": "Cerrar Mi Empresa",
+    "statusPending": "{{count}} pendientes",
+    "statusAllPromoted": "Todas las decisiones promovidas",
+    "tableOfContents": "Tabla de Contenidos",
+    "sections": {
+      "companyOverview": "Resumen de la Empresa",
+      "theProduct": "El Producto",
+      "founderProfile": "Perfil del Fundador",
+      "marketUsers": "Mercado y Usuarios",
+      "goToMarket": "Estrategia Go-to-Market",
+      "pricingBusiness": "Precios y Modelo de Negocio",
+      "technicalStack": "Stack Técnico",
+      "competitiveLandscape": "Panorama Competitivo",
+      "financialsMetrics": "Finanzas y Métricas",
+      "strategicDecisions": "Decisiones Estratégicas"
+    },
+    "usage": {
+      "days7": "7 días",
+      "days30": "30 días",
+      "days90": "90 días",
+      "totalCost": "Costo Total",
+      "sessions": "Sesiones",
+      "tokens": "Tokens",
+      "cacheHitRate": "Tasa de Aciertos de Caché",
+      "dailyCost": "Costo Diario",
+      "costByModel": "Costo por Modelo",
+      "monthlyBudget": "Presupuesto Mensual",
+      "sessionStats": "Estadísticas de Sesión",
+      "avgTokensPerSession": "Tokens promedio/sesión",
+      "rankingParseRate": "Tasa de parseo de ranking",
+      "inputTokens": "Tokens de entrada",
+      "outputTokens": "Tokens de salida",
+      "used": "usado"
+    }
   }
 }

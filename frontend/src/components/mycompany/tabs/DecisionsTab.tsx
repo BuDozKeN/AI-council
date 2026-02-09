@@ -278,6 +278,14 @@ export function DecisionsTab({
         </div>
       </div>
 
+      {/* UXH-022: Status legend for color meaning */}
+      <div className="mc-status-legend" role="note" aria-label={t('mycompany.statusLegend')}>
+        <div className="mc-status-legend-item">
+          <div className="mc-status-dot draft" aria-hidden="true" />
+          <span>{t('mycompany.statusPending', 'Pending')}</span>
+        </div>
+      </div>
+
       {/* Results count */}
       {(decisionSearch || decisionDeptFilter.length > 0) && (
         <div className="mc-filter-results">

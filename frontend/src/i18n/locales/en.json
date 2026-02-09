@@ -8,7 +8,7 @@
   },
   "landing": {
     "headline": "The only AI worth",
-    "headlineEmphasis": "trusting.",
+    "headlineEmphasis": "trusting",
     "statsAI": "AI",
     "statsAIs": "AIs",
     "statsRound": "round",
@@ -535,6 +535,49 @@
     "manageSubscriptionDesc": "Update payment method, view invoices, or cancel",
     "manageBilling": "Manage Billing",
     "stripePowered": "Secure payments powered by Stripe",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "queries": "5 council queries/month"
+      },
+      "starter": {
+        "name": "Starter",
+        "queries": "50 council queries/month"
+      },
+      "pro": {
+        "name": "Pro",
+        "queries": "Unlimited queries"
+      },
+      "business": {
+        "name": "Business",
+        "queries": "750 queries/month"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "queries": "Unlimited queries + SLA"
+      }
+    },
+    "planFeatures": {
+      "councilQueries5": "5 council queries/month",
+      "councilQueries50": "50 council queries/month",
+      "councilQueries750": "750 council queries/month",
+      "unlimitedQueries": "Unlimited queries",
+      "standardResponse": "Standard response time",
+      "priorityResponse": "Priority response",
+      "fastestResponse": "Fastest response",
+      "emailSupport": "Email support",
+      "chatSupport": "Chat support",
+      "prioritySupport": "Priority support",
+      "dedicatedSupport": "Dedicated support",
+      "allModels": "All 5 AI models",
+      "advancedAnalytics": "Advanced analytics",
+      "teamCollaboration": "Team collaboration",
+      "customDepartments": "Custom departments",
+      "auditLogs": "Audit logs",
+      "customSLA": "Custom SLA",
+      "ssoSaml": "SSO & SAML",
+      "customIntegrations": "Custom integrations"
+    },
     "teamMembers": "Team Members",
     "memberCount": "{{count}} member",
     "memberCount_other": "{{count}} members",
@@ -1690,6 +1733,8 @@
     "filterResults": "{{filtered}} of {{total}} decisions",
     "clearFilters": "Clear filters",
     "pendingDecisionAriaLabel": "Pending decision awaiting promotion",
+    "statusLegend": "Status legend",
+    "statusPending": "Pending",
     "statusConnected": "Connected",
     "statusDisconnected": "Disconnected",
     "statusOnline": "Online",
@@ -1702,9 +1747,9 @@
     "allQuiet": "All quiet here",
     "eventsCount": "{{count}} events",
     "promotedType_sop": "SOP",
-    "promotedType_framework": "FRAMEWORK",
-    "promotedType_policy": "POLICY",
-    "promotedType_project": "PROJECT",
+    "promotedType_framework": "Framework",
+    "promotedType_policy": "Policy",
+    "promotedType_project": "Project",
     "eventType_decision": "Decision",
     "eventType_playbook": "Playbook",
     "eventType_project": "Project",
@@ -1717,6 +1762,14 @@
     "eventType_CREATED": "Created",
     "eventType_UPDATED": "Updated",
     "eventType_DELETED": "Deleted",
+    "eventType_member_updated": "Role changed",
+    "eventType_member_invited": "Member invited",
+    "eventType_member_removed": "Member removed",
+    "eventType_created": "Created",
+    "eventType_updated": "Updated",
+    "eventType_deleted": "Deleted",
+    "eventType_consultation": "Consultation",
+    "eventType_Promoted": "Promoted",
     "actionViewedAuditLogs": "Viewed audit logs",
     "viewSourceConversation": "View source conversation",
     "loading": "Loading...",
@@ -1728,6 +1781,7 @@
     "sessions": "Sessions",
     "tokens": "Tokens",
     "cacheHitRate": "Cache Hit Rate",
+    "noCacheActivity": "No cache activity yet",
     "saved": "Saved {{amount}}",
     "usage": "Usage",
     "dailyCost": "Daily Cost",
@@ -1984,5 +2038,32 @@
     "showHelp": "Show this help",
     "pressToClose": "Press",
     "orClickToClose": "or click outside to close"
+  },
+  "myCompany": {
+    "tapToClose": "Tap to close",
+    "commandCenter": "Command Center",
+    "commandCenterTooltip": "Central hub for managing decisions, knowledge base, and company settings",
+    "switchCompany": "Switch company",
+    "closeMyCompany": "Close My Company",
+    "statusPending": "{{count}} pending",
+    "statusAllPromoted": "All decisions promoted",
+    "usage": {
+      "days7": "7 days",
+      "days30": "30 days",
+      "days90": "90 days",
+      "totalCost": "Total Cost",
+      "sessions": "Sessions",
+      "tokens": "Tokens",
+      "cacheHitRate": "Cache Hit Rate",
+      "dailyCost": "Daily Cost",
+      "costByModel": "Cost by Model",
+      "monthlyBudget": "Monthly Budget",
+      "sessionStats": "Session Stats",
+      "avgTokensPerSession": "Avg tokens/session",
+      "rankingParseRate": "Ranking parse rate",
+      "inputTokens": "Input tokens",
+      "outputTokens": "Output tokens",
+      "used": "used"
+    }
   }
 }

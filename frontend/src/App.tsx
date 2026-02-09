@@ -89,14 +89,16 @@ const preloadMyCompany = () => {
 
 // Minimal loading fallback for lazy modal components
 const LazyFallback = () => (
-  <div className="lazy-loading-fallback" aria-label="Loading...">
+  <div className="lazy-loading-fallback" role="status" aria-label="Loading...">
     <div className="lazy-loading-spinner" />
   </div>
 );
 
 // Subtle fallback for ChatInterface - no spinner, just empty space
 // The framer-motion animation handles the visual transition
-const ChatFallback = () => <div className="chat-loading-fallback" aria-label="Loading chat..." />;
+const ChatFallback = () => (
+  <div className="chat-loading-fallback" role="status" aria-label="Loading chat..." />
+);
 
 // Create scoped logger for App component
 const log = logger.scope('App');
@@ -938,7 +940,7 @@ function App() {
       <button
         className={`sidebar-edge-indicator ${isMobileSidebarOpen || isMyCompanyOpen || isSettingsOpen || isLeaderboardOpen || isProjectModalOpen ? 'hidden' : ''}`}
         onClick={() => setIsMobileSidebarOpen(true)}
-        aria-label="Open sidebar"
+        aria-label={t('aria.openSidebar')}
       >
         <svg
           viewBox="0 0 24 24"

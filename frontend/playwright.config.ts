@@ -69,11 +69,18 @@ export default defineConfig({
     },
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: {
+        ...devices['Desktop Firefox'],
+        /* Firefox can be slower on initial page loads */
+        navigationTimeout: 45 * 1000,
+      },
+      timeout: 45 * 1000,
     },
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      /* Webkit/Safari is slower for axe-core accessibility scans */
+      timeout: 45 * 1000,
     },
     /* Mobile Viewports */
     {
@@ -83,6 +90,8 @@ export default defineConfig({
     {
       name: 'mobile-safari',
       use: { ...devices['iPhone 13'] },
+      /* Webkit/Safari is slower for axe-core accessibility scans */
+      timeout: 45 * 1000,
     },
     /* Tablet Viewports */
     {

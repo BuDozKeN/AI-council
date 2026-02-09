@@ -98,13 +98,16 @@
   font-size: var(--font-size-sm);
 }
 
-/* Pie Chart Legend */
+/* UXH-097: Pie Chart Legend - More prominent styling */
 .analytics-pie-legend {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: var(--space-4);
-  padding-top: var(--space-2);
+  padding: var(--space-3);
+  margin-top: var(--space-2);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
 }
 
 .analytics-pie-legend-item {
@@ -112,17 +115,26 @@
   align-items: center;
   gap: var(--space-2);
   font-size: var(--font-size-sm);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: background 0.15s ease;
+}
+
+.analytics-pie-legend-item:hover {
+  background: var(--color-bg-hover);
 }
 
 .analytics-pie-legend-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
+  box-shadow: 0 1px 2px var(--overlay-black-10);
 }
 
 .analytics-pie-legend-label {
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+  font-weight: 500;
 }
 
 .analytics-pie-legend-value {
@@ -139,16 +151,39 @@
   background: var(--color-bg-tertiary);
 }
 
+/* UXH-097: Dark mode pie legend */
+.dark .analytics-pie-legend {
+  background: var(--color-bg-secondary);
+}
+
+.dark .analytics-pie-legend-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
 /* Recharts tooltip styling (inherited from component inline styles) */
 .recharts-tooltip-wrapper {
   z-index: 100;
 }
 
-/* Legend text styling - high specificity to override Recharts inline */
+/* UXH-097: Legend text styling - more prominent, high specificity to override Recharts */
 .analytics-tab .recharts-legend-item-text,
 .analytics-tab--premium .recharts-legend-item-text {
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+/* UXH-098: Chart focus indicators for keyboard accessibility */
+.analytics-tab .recharts-wrapper:focus-visible,
+.analytics-tab--premium .recharts-wrapper:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.analytics-pie-legend-item:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
 }
 
 /* =============================================================================

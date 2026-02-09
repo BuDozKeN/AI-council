@@ -106,9 +106,29 @@
   border-color: var(--color-border-dark);
 }
 
+/* UXH-171: Make current plan more visually prominent */
 .plan-card.current {
-  border-color: var(--color-brand-primary);
-  background: var(--color-brand-primary-light);
+  border-color: var(--color-green-500);
+  border-width: 3px;
+  background: var(--color-green-50);
+  box-shadow: 0 0 0 4px var(--color-green-100);
+}
+
+.plan-card.current::before {
+  content: '✓';
+  position: absolute;
+  top: -12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  background: var(--color-green-500);
+  color: var(--color-text-inverse);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .plan-card.popular {
@@ -235,8 +255,25 @@
 
 /* Mobile responsiveness */
 @media (width <= 640px) {
+  /* UXH-131: Horizontal scroll for plan cards on mobile */
   .plans-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: var(--gap);
+    padding-bottom: var(--space-2); /* Space for scrollbar */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .plans-grid::-webkit-scrollbar {
+    display: none; /* Hide scrollbar on WebKit */
+  }
+
+  .plan-card {
+    flex: 0 0 280px; /* Fixed width cards for horizontal scroll */
+    scroll-snap-align: start;
+    padding: var(--space-4) var(--space-3);
   }
 
   /* Feature list items - Min 44px touch target for accessibility */
@@ -251,11 +288,15 @@
     margin-right: var(--space-1-5);
   }
 
-  .plan-card {
-    padding: var(--space-4) var(--space-3);
-  }
-
   .plan-action button {
     min-height: 44px;
   }
+}
+
+/* Dark mode for current plan indicator */
+.dark .plan-card.current,
+[data-theme='dark'] .plan-card.current {
+  background: var(--overlay-green-15);
+  border-color: var(--color-green-400);
+  box-shadow: 0 0 0 4px var(--overlay-green-10);
 }

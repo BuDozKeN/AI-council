@@ -3,21 +3,17 @@
    Extracted from SettingsResponsive.css for CSS budget compliance
    ============================================================================= */
 
-/* Small phones — icon-only sidebar, tighter spacing */
+/* Small phones — tighter spacing (labels already hidden at ≤640px via UXH-032) */
 @media (width <= 400px) {
   .settings-sidebar {
     padding: var(--space-2) var(--space-1-5);
-    gap: var(--gap-sm);
+    gap: var(--gap-xs);
   }
 
   .settings-sidebar .settings-tab {
     width: 40px;
     height: 40px;
     min-height: 40px;
-  }
-
-  .settings-sidebar .settings-tab .tab-label {
-    display: none; /* Icon-only on small phones */
   }
 
   .settings-sidebar .settings-tab .tab-icon {

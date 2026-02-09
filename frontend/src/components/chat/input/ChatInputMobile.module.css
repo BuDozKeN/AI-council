@@ -40,15 +40,25 @@
     margin-top: var(--space-1-5);
   }
 
+  /* UXH-086: Move Send button to thumb zone (left side) on mobile */
+  .omniRight {
+    order: -1;
+    gap: var(--gap-2xs);
+    flex-shrink: 0;
+    padding-left: 0;
+    padding-right: var(--space-2);
+  }
+
+  /* UXH-086: Within right section, put Send before Attach for thumb priority */
+  .omniRight {
+    flex-direction: row-reverse;
+  }
+
   .omniLeft {
     gap: var(--gap-2xs);
     flex-wrap: nowrap;
     overflow: hidden;
-  }
-
-  .omniRight {
-    gap: var(--gap-2xs);
-    flex-shrink: 0;
+    order: 1;
   }
 
   .resetAll {
@@ -65,5 +75,15 @@
     padding: var(--space-2) var(--space-2-5);
     font-size: var(--text-xs);
     min-height: 44px;
+  }
+
+  /* UXH-031: Hide mode toggle on mobile - moved to context bottom sheet */
+  .inlineModeToggle {
+    display: none;
+  }
+
+  /* UXH-031: Hide response style selector on mobile - moved to context bottom sheet */
+  .hideOnMobile {
+    display: none;
   }
 }

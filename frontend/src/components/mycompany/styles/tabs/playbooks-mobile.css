@@ -5,6 +5,11 @@
 
 /* ========== PLAYBOOKS TAB - MOBILE ========== */
 
+/* UXH-168: Add padding-bottom to prevent FAB overlap */
+.mc-playbooks {
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+
 /* Playbook group headers */
 .mc-playbook-group {
   margin-bottom: var(--space-5);

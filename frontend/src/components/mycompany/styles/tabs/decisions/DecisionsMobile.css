@@ -37,11 +37,25 @@
   opacity: 1;
 }
 
-/* Right side: just the date */
+/* Right side: date + chevron indicator (UXH-166) */
 .mc-decision-row .mc-elegant-right {
   display: flex;
   align-items: center;
   min-width: auto;
+  gap: var(--gap-xs);
+}
+
+/* UXH-166: Add chevron to indicate row is tappable */
+.mc-decision-row .mc-elegant-right::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--color-text-tertiary);
+  border-bottom: 2px solid var(--color-text-tertiary);
+  transform: rotate(-45deg);
+  flex-shrink: 0;
+  margin-left: var(--space-1);
 }
 
 /* Content area */

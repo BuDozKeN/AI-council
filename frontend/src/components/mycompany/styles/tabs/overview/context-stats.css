@@ -88,6 +88,12 @@
   color: var(--color-text-tertiary);
 }
 
+/* UXH-078: Muted stat value for empty/inactive metrics */
+.mc-stat-value.muted {
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-medium);
+}
+
 .mc-stat-value.decisions {
   color: var(--color-amber-700);
 }
