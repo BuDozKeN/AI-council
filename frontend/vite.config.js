@@ -198,12 +198,41 @@ export default defineConfig(({ mode }) => ({
           return 'assets/[name].[hash].[ext]';
         },
 
-// DISABLED: Manual chunk splitting caused circular dependency errors
-        // ("Cannot access 'Wn' before initialization", "Cannot read properties of undefined (reading 'createContext')")
-        // The tab/stage/vendor chunking created import cycles where modules referenced
-        // each other before initialization. Let Vite's default chunking handle this.
-        // TODO: Re-enable with proper dependency analysis to avoid circular refs
-        // manualChunks(id) { ... },
+// Conservative chunk splitting - only split large, independent libraries
+        // Previous aggressive splitting caused circular dependency errors
+        manualChunks(id) {
+          // Recharts is 347KB - split it out (only used in analytics/charts)
+          if (id.includes('node_modules/recharts') ||
+              id.includes('node_modules/d3-') ||
+              id.includes('node_modules/victory-vendor')) {
+            return 'charts';
+          }
+          // React-markdown + dependencies is ~165KB
+          if (id.includes('node_modules/react-markdown') ||
+              id.includes('node_modules/remark-') ||
+              id.includes('node_modules/rehype-') ||
+              id.includes('node_modules/unified') ||
+              id.includes('node_modules/unist-') ||
+              id.includes('node_modules/mdast-') ||
+              id.includes('node_modules/hast-') ||
+              id.includes('node_modules/micromark')) {
+            return 'markdown';
+          }
+          // Framer Motion is ~100KB
+          if (id.includes('node_modules/framer-motion')) {
+            return 'motion';
+          }
+          // Radix UI components (~80KB total)
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'radix';
+          }
+          // i18next (~30KB)
+          if (id.includes('node_modules/i18next') ||
+              id.includes('node_modules/react-i18next')) {
+            return 'i18n';
+          }
+          // Keep everything else in default chunks to avoid circular deps
+        },
       },
     },
     // Warn if any chunk exceeds 500KB (reasonable target for code splitting)
