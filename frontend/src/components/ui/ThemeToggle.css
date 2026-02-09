@@ -56,8 +56,7 @@
 @media (width <= 640px) {
   .theme-toggle-container {
     /* UXH-087: Move to bottom-left for thumb accessibility */
-    inset-block-start: auto;
-    inset-block-end: calc(80px + env(safe-area-inset-bottom, 0px)); /* Above bottom nav */
+    inset-block: auto calc(80px + env(safe-area-inset-bottom, 0px)); /* Above bottom nav */
     right: auto;
     left: 12px;
   }
