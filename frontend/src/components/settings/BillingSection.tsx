@@ -69,6 +69,35 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
   // ISS-148: Detect if usage exceeds current plan limit (e.g., downgraded from paid plan)
   const isOverLimit = !isUnlimited && queriesUsed > queriesLimit;
 
+  // UXH-010/011: Get translated plan data - fallback to API data if translation missing
+  // Define feature keys for each plan (matches planFeatures translations)
+  const PLAN_FEATURE_KEYS: Record<string, string[]> = {
+    free: ['councilQueries5', 'standardResponse', 'emailSupport'],
+    starter: ['councilQueries50', 'allModels', 'priorityResponse', 'chatSupport'],
+    pro: ['unlimitedQueries', 'allModels', 'fastestResponse', 'prioritySupport', 'advancedAnalytics'],
+    enterprise: ['unlimitedQueries', 'customSLA', 'dedicatedSupport', 'ssoSaml', 'customIntegrations'],
+  };
+
+  const getPlanName = (planId: string): string => {
+    const translatedName = t(`settings.plans.${planId}.name` as never, '' as never) as unknown as string;
+    return translatedName || plans.find((p) => p.id === planId)?.name || planId;
+  };
+
+  const getPlanQueries = (planId: string): string => {
+    const translatedQueries = t(`settings.plans.${planId}.queries` as never, '' as never) as unknown as string;
+    return translatedQueries || plans.find((p) => p.id === planId)?.queries_display || '';
+  };
+
+  const getPlanFeatures = (planId: string): string[] => {
+    const featureKeys = PLAN_FEATURE_KEYS[planId];
+    if (featureKeys) {
+      return featureKeys.map(
+        (key) => t(`settings.planFeatures.${key}` as never, key as never) as unknown as string
+      );
+    }
+    return plans.find((p) => p.id === planId)?.features || [];
+  };
+
   if (billingLoading) {
     return <BillingSkeleton />;
   }
@@ -83,7 +112,7 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
           {/* ISS-149: Show current plan indicator */}
           <div className="usage-plan-badge">
             {t('settings.currentPlan', 'Current Plan')}:{' '}
-            <strong>{plans.find((p) => p.id === currentTier)?.name || currentTier}</strong>
+            <strong>{getPlanName(currentTier)}</strong>
           </div>
           <CardTitle>{t('settings.currentUsage')}</CardTitle>
           <CardDescription>{t('settings.usageDescription')}</CardDescription>
@@ -136,13 +165,13 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
               <li
                 key={plan.id}
                 className={`plan-card ${isCurrentPlan ? 'current' : ''} ${plan.id === 'pro' ? 'popular' : ''}`}
-                aria-label={`${plan.name} plan, ${plan.is_free ? 'Free' : `${formatCurrency(plan.price, { maximumFractionDigits: 0 })} per month`}`}
+                aria-label={`${getPlanName(plan.id)} plan, ${plan.is_free ? t('settings.free') : `${formatCurrency(plan.price, { maximumFractionDigits: 0 })} ${t('settings.perMonth')}`}`}
               >
                 {plan.id === 'pro' && (
                   <div className="popular-badge">{t('settings.mostPopular')}</div>
                 )}
                 <div className="plan-header">
-                  <h4>{plan.name}</h4>
+                  <h4>{getPlanName(plan.id)}</h4>
                   <div className="plan-price">
                     {/* ISS-144: Enterprise plan should show "Contact Us" not "Free" */}
                     {plan.id === 'enterprise' ? (
@@ -158,10 +187,10 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                       </>
                     )}
                   </div>
-                  <p className="plan-queries">{plan.queries_display}</p>
+                  <p className="plan-queries">{getPlanQueries(plan.id)}</p>
                 </div>
                 <ul className="plan-features">
-                  {plan.features.map((feature, idx) => (
+                  {getPlanFeatures(plan.id).map((feature, idx) => (
                     <li key={idx}>
                       <span className="check">✓</span>
                       {feature}

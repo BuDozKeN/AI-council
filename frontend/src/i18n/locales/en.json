@@ -535,6 +535,41 @@
     "manageSubscriptionDesc": "Update payment method, view invoices, or cancel",
     "manageBilling": "Manage Billing",
     "stripePowered": "Secure payments powered by Stripe",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "queries": "5 council queries/month"
+      },
+      "starter": {
+        "name": "Starter",
+        "queries": "50 council queries/month"
+      },
+      "pro": {
+        "name": "Pro",
+        "queries": "Unlimited queries"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "queries": "Unlimited queries + SLA"
+      }
+    },
+    "planFeatures": {
+      "councilQueries5": "5 council queries/month",
+      "councilQueries50": "50 council queries/month",
+      "unlimitedQueries": "Unlimited queries",
+      "standardResponse": "Standard response time",
+      "priorityResponse": "Priority response",
+      "fastestResponse": "Fastest response",
+      "emailSupport": "Email support",
+      "chatSupport": "Chat support",
+      "prioritySupport": "Priority support",
+      "dedicatedSupport": "Dedicated support",
+      "allModels": "All 5 AI models",
+      "advancedAnalytics": "Advanced analytics",
+      "customSLA": "Custom SLA",
+      "ssoSaml": "SSO & SAML",
+      "customIntegrations": "Custom integrations"
+    },
     "teamMembers": "Team Members",
     "memberCount": "{{count}} member",
     "memberCount_other": "{{count}} members",

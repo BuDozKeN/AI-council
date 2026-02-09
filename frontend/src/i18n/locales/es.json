@@ -528,6 +528,41 @@
     "manageSubscriptionDesc": "Actualiza método de pago, ve facturas o cancela",
     "manageBilling": "Gestionar facturación",
     "stripePowered": "Pagos seguros con Stripe",
+    "plans": {
+      "free": {
+        "name": "Gratis",
+        "queries": "5 consultas al consejo/mes"
+      },
+      "starter": {
+        "name": "Inicial",
+        "queries": "50 consultas al consejo/mes"
+      },
+      "pro": {
+        "name": "Pro",
+        "queries": "Consultas ilimitadas"
+      },
+      "enterprise": {
+        "name": "Empresarial",
+        "queries": "Consultas ilimitadas + SLA"
+      }
+    },
+    "planFeatures": {
+      "councilQueries5": "5 consultas al consejo/mes",
+      "councilQueries50": "50 consultas al consejo/mes",
+      "unlimitedQueries": "Consultas ilimitadas",
+      "standardResponse": "Tiempo de respuesta estándar",
+      "priorityResponse": "Respuesta prioritaria",
+      "fastestResponse": "Respuesta más rápida",
+      "emailSupport": "Soporte por email",
+      "chatSupport": "Soporte por chat",
+      "prioritySupport": "Soporte prioritario",
+      "dedicatedSupport": "Soporte dedicado",
+      "allModels": "Los 5 modelos de IA",
+      "advancedAnalytics": "Analíticas avanzadas",
+      "customSLA": "SLA personalizado",
+      "ssoSaml": "SSO y SAML",
+      "customIntegrations": "Integraciones personalizadas"
+    },
     "teamMembers": "Miembros del equipo",
     "memberCount": "{{count}} miembro",
     "memberCount_other": "{{count}} miembros",
