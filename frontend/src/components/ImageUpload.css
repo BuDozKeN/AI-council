@@ -12,8 +12,7 @@
   margin: 0;
   overflow: hidden;
   opacity: 0;
-  pointer-events: none;
-  /* Remove from accessibility tree since it's triggered via button */
+  pointer-events: none; /* Remove from accessibility tree since it's triggered via button */
 }
 
 /* Image previews container */
