@@ -6,6 +6,7 @@ import { AdaptiveModal } from './ui/AdaptiveModal';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/Skeleton';
 import { logger } from '../utils/logger';
+import { formatModelName } from '../utils/modelNames';
 import './Leaderboard.css';
 
 interface LeaderboardEntry {
@@ -75,7 +76,9 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     const isUuidLike = (str: string): boolean =>
       /^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$/.test(str);
 
-    const deptKeys = Object.keys(leaderboardData.departments ?? {}).filter((dept) => !isUuidLike(dept));
+    const deptKeys = Object.keys(leaderboardData.departments ?? {}).filter(
+      (dept) => !isUuidLike(dept)
+    );
 
     // Deduplicate by lowercase name (fixes ISS-019: duplicate tabs)
     const seen = new Set<string>();
@@ -89,7 +92,12 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
   const currentLeaderboard = getCurrentLeaderboard();
   const departments = getAvailableDepartments();
-  const totalSessions = leaderboardData?.overall?.total_sessions || 0;
+  // ISS-066: Calculate total sessions from the current tab's leaderboard entries
+  // Previously always showed overall.total_sessions regardless of selected category
+  const totalSessions =
+    selectedDepartment === 'overall'
+      ? leaderboardData?.overall?.total_sessions || 0
+      : currentLeaderboard.reduce((sum, entry) => Math.max(sum, entry.sessions), 0);
 
   return (
     <AdaptiveModal
@@ -203,7 +211,13 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
           </div>
 
           <div className="leaderboard-stats">
-            <span className="stat-item">
+            <span
+              className="stat-item"
+              title={t(
+                'leaderboard.totalSessionsTooltip',
+                'Total council sessions in this category'
+              )}
+            >
               {t('leaderboard.totalSessions')}: <strong>{totalSessions}</strong>
             </span>
           </div>
@@ -377,30 +391,77 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                 </p>
               </div>
             ) : (
-              <table>
+              /* ISS-253, ISS-273: Accessible table with proper semantics and keyboard navigation */
+              <table
+                role="table"
+                aria-label={t('leaderboard.tableLabel', 'AI model performance rankings')}
+              >
                 <thead>
                   <tr>
-                    <th className="rank-col">#</th>
-                    <th className="model-col">{t('leaderboard.model')}</th>
-                    <th className="score-col">{t('leaderboard.avgRank')}</th>
-                    <th className="wins-col">{t('leaderboard.wins')}</th>
-                    <th className="rate-col">{t('leaderboard.winRate')}</th>
-                    <th className="sessions-col">{t('leaderboard.sessionsCol')}</th>
+                    {/* ISS-253: scope="col" ensures proper columnheader role for screen readers */}
+                    <th scope="col" className="rank-col">
+                      #
+                    </th>
+                    <th scope="col" className="model-col">
+                      {t('leaderboard.model')}
+                    </th>
+                    <th scope="col" className="score-col" title={t('leaderboard.avgRankHint')}>
+                      {t('leaderboard.avgRank')}
+                    </th>
+                    <th scope="col" className="wins-col" title={t('leaderboard.winsHint')}>
+                      {t('leaderboard.wins')}
+                    </th>
+                    <th scope="col" className="rate-col">
+                      {t('leaderboard.winRate')}
+                    </th>
+                    <th scope="col" className="sessions-col">
+                      {t('leaderboard.sessionsCol')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentLeaderboard.map((entry: LeaderboardEntry, index: number) => (
-                    <tr key={entry.model} className={index === 0 ? 'leader' : ''}>
-                      <td className="rank-col">
-                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                      </td>
-                      <td className="model-col">{entry.model.split('/')[1] || entry.model}</td>
-                      <td className="score-col">{entry.avg_rank.toFixed(2)}</td>
-                      <td className="wins-col">{entry.wins}</td>
-                      <td className="rate-col">{entry.win_rate}%</td>
-                      <td className="sessions-col">{entry.sessions}</td>
-                    </tr>
-                  ))}
+                  {currentLeaderboard.map((entry: LeaderboardEntry, index: number) => {
+                    // ISS-256: Use friendly display names instead of technical IDs
+                    const modelName = formatModelName(entry.model);
+                    const rankLabel =
+                      index === 0
+                        ? 'First place'
+                        : index === 1
+                          ? 'Second place'
+                          : index === 2
+                            ? 'Third place'
+                            : `Rank ${index + 1}`;
+                    return (
+                      /* ISS-273: tabIndex enables keyboard navigation, ISS-070: use "no wins yet" for 0% */
+                      <tr
+                        key={entry.model}
+                        className={index === 0 ? 'leader' : ''}
+                        tabIndex={0}
+                        aria-label={`${rankLabel}: ${modelName}, ${entry.win_rate === 0 ? 'no wins yet' : `win rate ${entry.win_rate}%`}, ${entry.wins} wins in ${entry.sessions} sessions`}
+                      >
+                        <td className="rank-col">
+                          {/* ISS-255: Hide medal emoji from screen readers - row has full aria-label */}
+                          {index < 3 ? (
+                            <span aria-hidden="true">
+                              {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                            </span>
+                          ) : (
+                            index + 1
+                          )}
+                        </td>
+                        <td className="model-col">{modelName}</td>
+                        <td className="score-col">{entry.avg_rank.toFixed(2)}</td>
+                        <td className="wins-col">{entry.wins}</td>
+                        {/* ISS-070: Show user-friendly text for 0% win rate */}
+                        <td className="rate-col">
+                          {entry.win_rate === 0
+                            ? t('leaderboard.noWinsYet', 'No wins')
+                            : `${entry.win_rate}%`}
+                        </td>
+                        <td className="sessions-col">{entry.sessions}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}

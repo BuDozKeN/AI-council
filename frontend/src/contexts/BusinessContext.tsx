@@ -183,10 +183,12 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Query: Projects for selected business
   // ═══════════════════════════════════════════════════════════════════════════
+  // ISS-006-008: Only fetch projects when authenticated AND a business is selected
+  // This prevents API calls on unauthenticated pages (login, terms, privacy)
   const { data: projectsData, error: projectsError } = useQuery({
     queryKey: businessKeys.projects(selectedBusiness || ''),
     queryFn: () => api.listProjects(selectedBusiness!),
-    enabled: !!selectedBusiness,
+    enabled: isAuthenticated && !!selectedBusiness,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -201,10 +203,12 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Query: Playbooks for selected business
   // ═══════════════════════════════════════════════════════════════════════════
+  // ISS-006-008: Only fetch playbooks when authenticated AND a business is selected
+  // This prevents API calls on unauthenticated pages (login, terms, privacy)
   const { data: playbooksData, error: playbooksError } = useQuery({
     queryKey: businessKeys.playbooks(selectedBusiness || ''),
     queryFn: () => api.getCompanyPlaybooks(selectedBusiness!),
-    enabled: !!selectedBusiness,
+    enabled: isAuthenticated && !!selectedBusiness,
     staleTime: 1000 * 60 * 5,
   });
 

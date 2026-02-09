@@ -212,7 +212,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           try {
             const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
             // Handle stale refresh token (ISS-004)
-            if (refreshError?.message?.includes('refresh_token') || refreshError?.code === 'refresh_token_not_found') {
+            if (
+              refreshError?.message?.includes('refresh_token') ||
+              refreshError?.code === 'refresh_token_not_found'
+            ) {
               logger.debug('Stale refresh token, clearing session');
               await supabase.auth.signOut().catch(() => {});
               setUser(null);
@@ -241,7 +244,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
           // Handle stale refresh token (ISS-004)
-          if (refreshError?.message?.includes('refresh_token') || refreshError?.code === 'refresh_token_not_found') {
+          if (
+            refreshError?.message?.includes('refresh_token') ||
+            refreshError?.code === 'refresh_token_not_found'
+          ) {
             logger.debug('Stale refresh token, clearing session');
             await supabase.auth.signOut().catch(() => {});
             setUser(null);

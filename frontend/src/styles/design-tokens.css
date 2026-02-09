@@ -159,6 +159,13 @@
   /* Z-INDEX SCALE: Defined in tailwind.css (canonical source) */
 
   /* ============================================================================
+     OPACITY SCALE (ISS-365: Standardized disabled/muted states)
+     ============================================================================ */
+  --opacity-disabled: 0.5; /* Standard disabled state for buttons, inputs, controls */
+  --opacity-muted: 0.6; /* Slightly visible but de-emphasized */
+  --opacity-subtle: 0.7; /* Visible but secondary */
+
+  /* ============================================================================
      COLORS - Single Source of Truth: tailwind.css
 
      ALL color tokens are defined in tailwind.css to prevent conflicts.
@@ -249,6 +256,22 @@
 }
 
 /* UTILITY CLASSES: Use Tailwind utilities instead. These are not used. */
+
+/* =============================================================================
+   GLOBAL SPINNER ANIMATION
+   Used by inline Suspense fallbacks in router.tsx before CSS modules load.
+   Note: The unified <Spinner /> component uses spinner-rotate in Spinner.css.
+   ============================================================================= */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* =============================================================================
    COMPLETION & CELEBRATION ANIMATIONS

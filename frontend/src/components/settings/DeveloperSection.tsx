@@ -10,7 +10,7 @@
  * - Show token usage toggle (displays per-stage token counts)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlaskConical, Zap, AlertTriangle, CheckCircle, Activity, Ruler, Lock } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../ui/card';
@@ -55,10 +55,13 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
   const [isTogglingCaching, setIsTogglingCaching] = useState(false);
   const [isChangingLength, setIsChangingLength] = useState(false);
   const [loading, setLoading] = useState(true);
+  // ISS-201/202: Prevent duplicate API calls from StrictMode or tab re-opening
+  const hasFetchedRef = useRef(false);
 
   // Fetch mock mode and caching mode status when section opens
   useEffect(() => {
-    if (!isOpen || !isAuthenticated) return;
+    if (!isOpen || !isAuthenticated || hasFetchedRef.current) return;
+    hasFetchedRef.current = true;
 
     const fetchStatus = async () => {
       setLoading(true);

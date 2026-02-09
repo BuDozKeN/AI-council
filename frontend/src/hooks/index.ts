@@ -31,6 +31,7 @@ export { useFAQSchema } from './useFAQSchema';
 export { useArticleSchema } from './useArticleSchema';
 export { useKeyboardShortcuts, useListNavigation } from './useKeyboardShortcuts';
 export { useDragAndDrop } from './useDragAndDrop';
+export { useOnlineStatus } from './useOnlineStatus';
 
 // SEO and i18n Hooks
 export { useSEO, useHreflangLinks, useCanonicalURL, useFullSEO } from './useSEO';

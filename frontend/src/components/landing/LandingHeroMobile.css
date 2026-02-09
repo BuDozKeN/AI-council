@@ -15,7 +15,8 @@
     justify-content: stretch;
   }
 
-  .landing-hero {
+  /* Higher specificity to override base .landing-hero { padding: var(--space-6) } */
+  .landing-hero-aurora .landing-hero {
     flex: 1;
     height: 100%;
     padding: var(--space-4);
@@ -76,11 +77,14 @@
 
 /* Small phones - merged into standard mobile breakpoint */
 @media (width <= 640px) {
-  .landing-hero {
+  /* Higher specificity to override base .landing-hero { padding: var(--space-6) } */
+  .landing-hero-aurora .landing-hero {
     /* Use specific properties to preserve padding-bottom for mobile nav */
     padding-inline: var(--space-3);
     padding-top: var(--space-3);
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); /* Re-apply for mobile nav clearance */
+    padding-bottom: calc(
+      72px + env(safe-area-inset-bottom, 0px)
+    ); /* Re-apply for mobile nav clearance */
   }
 
   .landing-headline {

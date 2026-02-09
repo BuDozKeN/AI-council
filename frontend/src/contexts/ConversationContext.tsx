@@ -281,9 +281,31 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     error: conversationError,
   } = useQuery({
     queryKey: conversationKeys.detail(currentConversationId || ''),
-    queryFn: () => api.getConversation(currentConversationId!),
+    queryFn: async () => {
+      try {
+        return await api.getConversation(currentConversationId!);
+      } catch (error) {
+        // ISS-109: Show error toast immediately when conversation fetch fails
+        // This ensures toast appears even if component state changes rapidly
+        log.error('Failed to load conversation:', error);
+        toast.error(t('errors.conversationNotFound', 'Conversation not found'), {
+          description: t(
+            'errors.conversationNotFoundHint',
+            'This conversation may have been deleted or you may not have access.'
+          ),
+          duration: 5000,
+        });
+        // Clear the conversation ID after a short delay to allow toast to show
+        setTimeout(() => {
+          setCurrentConversationId(null);
+        }, 100);
+        throw error; // Re-throw so TanStack Query marks this as failed
+      }
+    },
     enabled: shouldFetchConversation,
     staleTime: 1000 * 60 * 5,
+    // ISS-109: Don't retry on 404/500 - show error immediately for invalid conversation URLs
+    retry: false,
   });
 
   // Derive loading state: loading if query is fetching OR if we're expecting to fetch
@@ -338,18 +360,14 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     return undefined;
   }, [fetchedConversation, shouldFetchConversation, isLoading, currentConversation]);
 
+  // ISS-109: Error handling moved to queryFn for immediate feedback
+  // (keeping conversationError for debugging/logging purposes only)
   useEffect(() => {
     if (conversationError) {
-      log.error('Failed to load conversation:', conversationError);
-      // Defer state update to avoid synchronous setState in effect
-      const frameId = requestAnimationFrame(() => {
-        setCurrentConversationId(null);
-      });
-      toast.error("We couldn't load that conversation. Please try again.");
-      return () => cancelAnimationFrame(frameId);
+      // Already handled in queryFn - this effect is for debugging only
+      log.debug('Conversation error state set:', conversationError);
     }
-    return undefined;
-  }, [conversationError, setCurrentConversationId]);
+  }, [conversationError]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Wrapper functions (maintain existing API for components)

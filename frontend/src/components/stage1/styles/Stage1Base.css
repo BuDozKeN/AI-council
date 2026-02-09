@@ -179,7 +179,9 @@
   }
 }
 
-/* Stage hint - explains what this stage does (mum test) */
+/* Stage hint - explains what this stage does (mum test)
+   ISS-167: Increased max-width from 40% to 65% to prevent truncation of
+   longer hint text like "Top insights combined into one response" */
 .stage-hint {
   margin-left: var(--space-2);
   font-size: var(--text-xs-plus);
@@ -188,7 +190,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 40%;
+  max-width: 65%;
   cursor: help;
 }
 

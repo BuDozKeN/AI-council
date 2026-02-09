@@ -1,14 +1,15 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, MessageSquare, Building2, Settings } from 'lucide-react';
+import { Plus, MessageSquare, Building2, Settings, Trophy } from 'lucide-react';
 import './MobileBottomNav.css';
 
 interface MobileBottomNavProps {
   onNewChat: () => void;
   onOpenHistory: () => void;
+  onOpenLeaderboard: () => void;
   onOpenMyCompany: () => void;
   onOpenSettings: () => void;
-  activeTab?: 'chat' | 'history' | 'company' | 'settings';
+  activeTab?: 'chat' | 'history' | 'leaderboard' | 'company' | 'settings';
 }
 
 /**
@@ -17,12 +18,14 @@ interface MobileBottomNavProps {
  * Provides quick access to main app sections on mobile:
  * - New Chat: Start a new council conversation
  * - History: Open sidebar with conversation history
+ * - Leaderboard: View AI model rankings
  * - My Company: Open company management
  * - Settings: Open settings modal
  */
 function MobileBottomNav({
   onNewChat,
   onOpenHistory,
+  onOpenLeaderboard,
   onOpenMyCompany,
   onOpenSettings,
   activeTab = 'chat',
@@ -49,6 +52,16 @@ function MobileBottomNav({
       >
         <MessageSquare className="mobile-nav-icon" size={24} />
         <span className="mobile-nav-label">{t('mobileNav.history')}</span>
+      </button>
+
+      <button
+        className={`mobile-nav-item ${activeTab === 'leaderboard' ? 'active' : ''}`}
+        onClick={onOpenLeaderboard}
+        aria-label={t('sidebar.leaderboard')}
+        aria-current={activeTab === 'leaderboard' ? 'page' : undefined}
+      >
+        <Trophy className="mobile-nav-icon" size={24} />
+        <span className="mobile-nav-label">{t('mobileNav.leaderboard')}</span>
       </button>
 
       <button

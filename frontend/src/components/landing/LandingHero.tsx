@@ -217,7 +217,7 @@ export function LandingHero({
             onImageClick={onImagesChange ? imageUpload.openFilePicker : undefined}
             hasImages={attachedImages.length > 0}
             showShortcutHint={false}
-            autoFocus={true}
+            autoFocus={false} // Disabled to allow skip-to-main-content link to work (ISS-010)
             // Context icons (inside the bar like ChatInput)
             showContextIcons={true}
             // Company selection

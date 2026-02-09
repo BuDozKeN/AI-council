@@ -132,16 +132,19 @@ export function ContextIndicator({
   return (
     <StickyHeader>
       <div className="context-indicator" data-stage="question">
-        {/* Question line */}
-        <div className="context-indicator-question">
+        {/* Question line - ISS-163: aria-hidden since ChatInterface has sr-only h1 for page title */}
+        <div className="context-indicator-question" aria-hidden="true">
           <MessageCircleQuestion className="context-question-icon" size={14} />
           <span className="context-question-text">{displayQuestion || 'Question'}</span>
         </div>
 
         {/* Context pills - company, project, departments, roles */}
+        {/* ISS-172: Properly structured context for accessibility */}
         {selectedBusiness && (
-          <div className="context-indicator-pills">
-            <span className="context-indicator-label">Context:</span>
+          <div className="context-indicator-pills" role="group" aria-label="Context settings">
+            <span className="context-indicator-label" aria-hidden="true">
+              Context:
+            </span>
             <span className="context-indicator-item company">
               {businesses.find((b) => b.id === selectedBusiness)?.name || 'Company'}
             </span>

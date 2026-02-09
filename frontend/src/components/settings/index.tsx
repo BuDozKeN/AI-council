@@ -5,7 +5,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 import { AdaptiveModal } from '../ui/AdaptiveModal';
 import { ConfirmModal } from '../ui/ConfirmModal';
 import { Skeleton } from '../ui/Skeleton';
-import { User, CreditCard, Users, Key, FlaskConical, Cpu } from 'lucide-react';
+import { User, CreditCard, Users, Key, FlaskConical, Cpu, Shield, LogOut } from 'lucide-react';
 import { ProfileSection } from './ProfileSection';
 import { BillingSection } from './BillingSection';
 import { TeamSection } from './TeamSection';
@@ -40,6 +40,12 @@ interface SettingsProps {
   onMockModeChange?: (enabled: boolean) => void;
   /** Initial tab to show when opening */
   initialTab?: SettingsTab;
+  /** Callback for sign out - ISS-185: Makes sign out accessible from Settings on mobile */
+  onSignOut?: () => void;
+  /** Callback for opening Admin Portal - ISS-183: Makes Admin Portal accessible on mobile */
+  onOpenAdmin?: () => void;
+  /** Whether user is admin - used to show Admin Portal button */
+  isAdmin?: boolean;
 }
 
 export default function Settings({
@@ -48,6 +54,9 @@ export default function Settings({
   companyId,
   onMockModeChange,
   initialTab = 'profile',
+  onSignOut,
+  onOpenAdmin,
+  isAdmin = false,
 }: SettingsProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -186,6 +195,36 @@ export default function Settings({
               <Cpu size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.llmHub', 'LLM Hub')}</span>
             </button>
+
+            {/* ISS-183/185: Action buttons for Admin Portal and Sign Out - accessible on mobile */}
+            <div className="settings-sidebar-actions">
+              {/* ISS-183: Admin Portal button for admin users */}
+              {isAdmin && onOpenAdmin && (
+                <button
+                  className="settings-action-btn admin-btn"
+                  onClick={() => {
+                    onClose();
+                    onOpenAdmin();
+                  }}
+                  aria-label={t('sidebar.adminPortal', 'Admin Portal')}
+                >
+                  <Shield size={18} className="tab-icon" aria-hidden="true" />
+                  <span className="tab-label">{t('sidebar.adminPortal', 'Admin Portal')}</span>
+                </button>
+              )}
+
+              {/* ISS-185: Sign Out button accessible from Settings on mobile */}
+              {onSignOut && (
+                <button
+                  className="settings-action-btn sign-out-btn"
+                  onClick={onSignOut}
+                  aria-label={t('sidebar.signOut', 'Sign out')}
+                >
+                  <LogOut size={18} className="tab-icon" aria-hidden="true" />
+                  <span className="tab-label">{t('sidebar.signOut', 'Sign out')}</span>
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Tab content */}

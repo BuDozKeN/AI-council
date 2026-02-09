@@ -98,3 +98,49 @@
 
 /* NOTE: .loading-state styles are in ui/LoadingState.css
    Use the <LoadingState /> component instead of custom loading divs */
+
+/* ==========================================================================
+   ISS-183/185: Sidebar action buttons (Admin Portal, Sign Out)
+   These are action buttons at the bottom of the sidebar, separated from tabs
+   ========================================================================== */
+
+.settings-sidebar-actions {
+  margin-top: auto; /* Push to bottom of sidebar */
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.settings-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-action-btn:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+/* Admin Portal button - subtle admin styling */
+.settings-action-btn.admin-btn:hover {
+  color: var(--color-indigo-600);
+}
+
+/* Sign out button - danger color on hover */
+.settings-action-btn.sign-out-btn:hover {
+  background: var(--color-red-50);
+  color: var(--color-red-600);
+}

@@ -135,6 +135,7 @@ export function ViewPlaybookModal({
       size="lg"
       showCloseButton={false}
       contentClassName="mc-modal-no-padding"
+      title={playbook.title || t('modals.playbook')}
     >
       {/* Clean header with title and close */}
       <div className="mc-modal-header-clean">

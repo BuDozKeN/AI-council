@@ -307,13 +307,24 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                 <li
                   key={member.id}
                   className={`member-row-compact ${isCurrentUser ? 'current' : ''}`}
-                  aria-label={`${isCurrentUser ? t('settings.you') : `User ${member.user_id.slice(0, 8)}`}, ${t(`settings.${roleConfig.roleKey}`)}`}
+                  aria-label={`${isCurrentUser ? t('settings.you') : member.display_name || member.email || t('settings.teamMember', 'Team Member')}, ${t(`settings.${roleConfig.roleKey}`)}`}
                 >
                   <div className="member-role-icon" style={{ color: roleConfig.color }}>
                     <RoleIcon size={16} />
                   </div>
-                  <span className="member-name">
-                    {isCurrentUser ? t('settings.you') : `User ${member.user_id.slice(0, 8)}...`}
+                  {/* ISS-146: Show display name, email, or fallback - never truncated UUID */}
+                  {/* ISS-147: For current user, show "You" but reveal name/email on hover */}
+                  <span
+                    className="member-name"
+                    title={
+                      isCurrentUser ? member.display_name || member.email || undefined : undefined
+                    }
+                  >
+                    {isCurrentUser
+                      ? t('settings.you')
+                      : member.display_name ||
+                        member.email ||
+                        t('settings.teamMember', 'Team Member')}
                   </span>
                   <span className="member-role-badge" style={{ color: roleConfig.color }}>
                     {t(`settings.${roleConfig.roleKey}`)}

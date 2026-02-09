@@ -39,6 +39,10 @@ import { HelpButton } from './components/ui/HelpButton';
 import { ImpersonationBanner } from './components/admin/ImpersonationBanner';
 import MobileBottomNav from './components/ui/MobileBottomNav';
 import { CommandPalette } from './components/ui/CommandPalette';
+import { KeyboardShortcutsHelp } from './components/ui/KeyboardShortcutsHelp';
+import { PWAInstallPrompt } from './components/ui/PWAInstallPrompt';
+import { OfflineIndicator } from './components/ui/OfflineIndicator';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from 'next-themes';
 import { logger } from './utils/logger';
 import { consumeReturnUrl } from './utils/authRedirect';
@@ -266,18 +270,40 @@ function App() {
   // Command palette state (Cmd+K)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
-  // Register Cmd+K keyboard shortcut at App level so it works even when
-  // CommandPalette is conditionally unmounted for performance
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsCommandPaletteOpen((prev) => !prev);
+  // Keyboard shortcuts help modal state (?)
+  const [isShortcutsHelpOpen, setIsShortcutsHelpOpen] = useState(false);
+
+  // Global keyboard shortcuts - works even when CommandPalette is unmounted
+  useKeyboardShortcuts({
+    onFocusSearch: useCallback(() => {
+      setIsCommandPaletteOpen((prev) => !prev);
+    }, []),
+    onNewConversation: useCallback(() => {
+      if (isAuthenticated) {
+        contextNewConversation();
       }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    }, [isAuthenticated, contextNewConversation]),
+    onOpenHistory: useCallback(() => {
+      // Toggle mobile sidebar to show history
+      if (isAuthenticated) {
+        setIsMobileSidebarOpen((prev) => !prev);
+      }
+    }, [isAuthenticated]),
+    onOpenSettings: useCallback(() => {
+      if (isAuthenticated) {
+        navigateToSettings();
+      }
+    }, [isAuthenticated, navigateToSettings]),
+    onOpenLeaderboard: useCallback(() => {
+      if (isAuthenticated) {
+        navigateToLeaderboard();
+      }
+    }, [isAuthenticated, navigateToLeaderboard]),
+    onOpenHelp: useCallback(() => {
+      setIsShortcutsHelpOpen(true);
+    }, []),
+    enabled: true,
+  });
 
   // Theme state from next-themes
   const { theme, setTheme } = useTheme();
@@ -370,8 +396,16 @@ function App() {
   }, [i18nInstance.language]);
 
   // SEO: Dynamic meta tags, hreflang links, and Open Graph tags
+  // ISS-004: When not authenticated, use home title (Login page manages its own title)
+  // ISS-310: Include conversation title in page title for better context
+  const pageTitle =
+    !isAuthenticated || showLandingHero
+      ? t('seo.homeTitle')
+      : currentConversation?.title && !currentConversation.isTemp
+        ? `${currentConversation.title} - AxCouncil`
+        : t('seo.conversationTitle');
   useFullSEO({
-    title: showLandingHero ? t('seo.homeTitle') : t('seo.conversationTitle'),
+    title: pageTitle,
     description: t('seo.defaultDescription'),
   });
 
@@ -557,7 +591,9 @@ function App() {
 
   // Sign out with confirmation (ISS-045)
   const handleSignOut = useCallback(() => {
-    const confirmed = window.confirm(t('auth.signOutConfirm', 'Are you sure you want to sign out?'));
+    const confirmed = window.confirm(
+      t('auth.signOutConfirm', 'Are you sure you want to sign out?')
+    );
     if (confirmed) {
       signOut();
     }
@@ -880,11 +916,14 @@ function App() {
     >
       {/* Skip to main content link - FIRST focusable element for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only">
-        Skip to main content
+        {t('a11y.skipToMainContent', 'Skip to main content')}
       </a>
 
       {/* Impersonation banner - shown when admin is impersonating a user */}
       <ImpersonationBanner />
+
+      {/* Offline indicator - shown when network is disconnected */}
+      <OfflineIndicator />
 
       {/* Mock mode banner - shown when mock mode is enabled */}
       {mockModeEnabled && <MockModeBanner />}
@@ -945,7 +984,8 @@ function App() {
 
       <div className="app">
         {/* Sidebar navigation - semantic aside landmark for screen readers */}
-        <aside aria-label="Conversation history and navigation">
+        {/* ISS-117: Use translated aria-label for i18n support */}
+        <aside aria-label={t('aria.conversationHistory', 'Conversation history and navigation')}>
           <Sidebar
             conversations={conversations}
             currentConversationId={currentConversationId}
@@ -979,7 +1019,8 @@ function App() {
 
         {/* Main content area - Landing Hero or Chat Interface */}
         {/* Semantic main landmark with ID for skip-to-content link */}
-        <main id="main-content" aria-label="Chat interface">
+        {/* ISS-281/282: tabIndex={-1} makes main focusable for skip link navigation */}
+        <main id="main-content" aria-label={t('aria.chatInterface')} tabIndex={-1}>
           {/* Transition: Landing slides up and fades out while chat slides up from below */}
           <AnimatePresence mode="wait">
             {showLandingHero ? (
@@ -1168,6 +1209,10 @@ function App() {
               companyId={selectedBusiness}
               onMockModeChange={handleMockModeChange}
               initialTab={settingsInitialTab}
+              // ISS-183/185: Pass sign out and admin handlers for mobile accessibility
+              onSignOut={handleSignOut}
+              onOpenAdmin={handleOpenAdmin}
+              isAdmin={isAdmin}
             />
           </Suspense>
         )}
@@ -1271,14 +1316,24 @@ function App() {
           />
         )}
 
+        {/* Keyboard shortcuts help modal - press ? to open */}
+        <KeyboardShortcutsHelp
+          isOpen={isShortcutsHelpOpen}
+          onClose={() => setIsShortcutsHelpOpen(false)}
+        />
+
         {/* Toast notifications for undo actions */}
         <Toaster />
+
+        {/* PWA install prompt - shown when app can be installed */}
+        <PWAInstallPrompt />
 
         {/* Mobile bottom navigation - thumb-friendly access to main sections */}
         {!isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && (
           <MobileBottomNav
             onNewChat={handleNewConversation}
             onOpenHistory={handleOpenSidebar}
+            onOpenLeaderboard={handleOpenLeaderboard}
             onOpenMyCompany={handleOpenMyCompany}
             onOpenSettings={handleOpenSettings}
             activeTab={isMobileSidebarOpen ? 'history' : 'chat'}

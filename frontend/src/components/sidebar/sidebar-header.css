@@ -56,6 +56,17 @@ button.sidebar-new-btn:hover {
 
 .sidebar-btn-text {
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ISS-124: Ensure New Chat button has minimum width at tablet to prevent text cutoff */
+@media (width <= 1024px) {
+  .sidebar .sidebar-new-btn,
+  .sidebar-header .sidebar-new-btn,
+  button.sidebar-new-btn {
+    min-width: 100px;
+  }
 }
 
 /* Button component wraps children in span - ensure icon + text are inline */

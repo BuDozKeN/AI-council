@@ -31,6 +31,15 @@ import type { Project } from '../../types/business';
 import type { Conversation, StreamingState } from '../../types/conversation';
 import type { AggregateRanking } from '../../types/stages';
 
+/**
+ * Remove [GAP: ...] markers from AI responses.
+ * These are internal knowledge gap indicators that shouldn't be shown to users.
+ * Fixes issue ISS-162.
+ */
+function cleanGapMarkers(text: string): string {
+  return text.replace(/\[GAP:\s*[^\]]*\]/gi, '');
+}
+
 interface MessageMetadata {
   aggregate_rankings?: AggregateRanking[];
   label_to_model?: Record<string, string>;
@@ -192,10 +201,21 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
     return <code className="inline-code">{children}</code>;
   }
 
+  // ISS-286: tabIndex={0} makes code blocks keyboard navigable for scrolling
   return (
-    <div className="code-block-wrapper copyable">
-      {language && <span className="code-language">{language}</span>}
-      <CopyButton text={code} size="sm" />
+    <div
+      className="code-block-wrapper copyable"
+      role="region"
+      aria-label={language ? `${language} code block` : 'Code block'}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- ISS-286: Intentional tabIndex for keyboard scrolling of code blocks
+      tabIndex={0}
+    >
+      {language && (
+        <span className="code-language" aria-label={`Language: ${language}`}>
+          {language}
+        </span>
+      )}
+      <CopyButton text={code} size="sm" tooltip="Copy code" />
       <pre className={className}>
         <code>{children}</code>
       </pre>
@@ -225,9 +245,20 @@ function UserMessage({ content }: { content: string }) {
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       >
         {/* Sticky copy button - stays visible when scrolling long content */}
-        <CopyButton text={content} size="sm" className="user-copy-btn no-touch-target" />
+        <CopyButton
+          text={content}
+          size="sm"
+          className="user-copy-btn no-touch-target"
+          tooltip="Copy your question"
+        />
 
-        <div className="user-collapse-row" {...makeClickable(() => setIsCollapsed(!isCollapsed))}>
+        {/* ISS-219: aria-expanded announces collapsed/expanded state to screen readers */}
+        <div
+          className="user-collapse-row"
+          aria-expanded={!isCollapsed}
+          aria-label={isCollapsed ? 'Expand your question' : 'Collapse your question'}
+          {...makeClickable(() => setIsCollapsed(!isCollapsed))}
+        >
           {isCollapsed ? (
             <ChevronRight size={16} className="collapse-arrow" aria-hidden="true" />
           ) : (
@@ -374,7 +405,7 @@ export function MessageList({
                           },
                         }}
                       >
-                        {msg.stage3Streaming.text || ''}
+                        {cleanGapMarkers(msg.stage3Streaming.text || '')}
                       </ReactMarkdown>
                       {msg.loading?.stage3 && <span className="cursor-blink">|</span>}
                     </article>
@@ -420,7 +451,7 @@ export function MessageList({
                           },
                         }}
                       >
-                        {msg.stage3.response || msg.stage3.content || ''}
+                        {cleanGapMarkers(msg.stage3.response || msg.stage3.content || '')}
                       </ReactMarkdown>
                     </article>
                   ) : null}

@@ -93,7 +93,8 @@ export default function Login() {
 
   // Get current language info (ISS-002)
   const currentLang = i18n.language?.split('-')[0] || 'en';
-  const currentLanguage = supportedLanguages.find((l) => l.code === currentLang) || supportedLanguages[0];
+  const currentLanguage =
+    supportedLanguages.find((l) => l.code === currentLang) || supportedLanguages[0];
 
   const handleLanguageChange = (langCode: string) => {
     i18n.changeLanguage(langCode);
@@ -278,7 +279,11 @@ export default function Login() {
             <span>{currentLanguage.nativeName}</span>
           </button>
           {showLangMenu && (
-            <div className="lang-menu" role="listbox" aria-label={t('settings.language', 'Language')}>
+            <div
+              className="lang-menu"
+              role="listbox"
+              aria-label={t('settings.language', 'Language')}
+            >
               {supportedLanguages.map((lang) => (
                 <button
                   key={lang.code}
@@ -372,7 +377,16 @@ export default function Login() {
             readOnly
             tabIndex={-1}
             aria-hidden="true"
-            style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0, 0, 0, 0)', border: 0 }}
+            style={{
+              position: 'absolute',
+              width: 1,
+              height: 1,
+              padding: 0,
+              margin: -1,
+              overflow: 'hidden',
+              clip: 'rect(0, 0, 0, 0)',
+              border: 0,
+            }}
           />
           {mode !== 'resetPassword' && (
             <div className="form-group">
@@ -413,7 +427,11 @@ export default function Login() {
                   type="button"
                   className="password-toggle-btn"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? t('auth.hidePassword', 'Hide password') : t('auth.showPassword', 'Show password')}
+                  aria-label={
+                    showPassword
+                      ? t('auth.hidePassword', 'Hide password')
+                      : t('auth.showPassword', 'Show password')
+                  }
                   tabIndex={0}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -429,17 +447,25 @@ export default function Login() {
                     <div className="password-strength" aria-live="polite">
                       <div
                         className={`password-strength-bar ${
-                          password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)
+                          password.length >= 12 &&
+                          /[A-Z]/.test(password) &&
+                          /[0-9]/.test(password) &&
+                          /[^A-Za-z0-9]/.test(password)
                             ? 'strong'
-                            : password.length >= 8 && (/[A-Z]/.test(password) || /[0-9]/.test(password))
+                            : password.length >= 8 &&
+                                (/[A-Z]/.test(password) || /[0-9]/.test(password))
                               ? 'fair'
                               : 'weak'
                         }`}
                       />
                       <span className="password-strength-text">
-                        {password.length >= 12 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^A-Za-z0-9]/.test(password)
+                        {password.length >= 12 &&
+                        /[A-Z]/.test(password) &&
+                        /[0-9]/.test(password) &&
+                        /[^A-Za-z0-9]/.test(password)
                           ? t('auth.passwordStrong', 'Strong')
-                          : password.length >= 8 && (/[A-Z]/.test(password) || /[0-9]/.test(password))
+                          : password.length >= 8 &&
+                              (/[A-Z]/.test(password) || /[0-9]/.test(password))
                             ? t('auth.passwordFair', 'Fair')
                             : t('auth.passwordWeak', 'Weak')}
                       </span>
@@ -452,7 +478,9 @@ export default function Login() {
 
           {(mode === 'signUp' || mode === 'resetPassword') && (
             <div className="form-group">
-              <label htmlFor="confirmPassword">{t('auth.confirmPassword', 'Confirm Password')}</label>
+              <label htmlFor="confirmPassword">
+                {t('auth.confirmPassword', 'Confirm Password')}
+              </label>
               <div className="password-input-wrapper">
                 <input
                   id="confirmPassword"
@@ -468,7 +496,11 @@ export default function Login() {
                   type="button"
                   className="password-toggle-btn"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  aria-label={showConfirmPassword ? t('auth.hidePassword', 'Hide password') : t('auth.showPassword', 'Show password')}
+                  aria-label={
+                    showConfirmPassword
+                      ? t('auth.hidePassword', 'Hide password')
+                      : t('auth.showPassword', 'Show password')
+                  }
                   tabIndex={0}
                 >
                   {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}

@@ -36,6 +36,9 @@ def resolve_company_id(company_id_or_slug: str, access_token: Optional[str] = No
     Resolve a company identifier to its UUID.
     If it's already a UUID, return it. If it's a slug, look up the UUID.
     If create_if_missing is True and the company doesn't exist, create it.
+
+    When creating a new company with access_token, the user_id is set from the
+    token, triggering the auto_add_company_owner database trigger.
     """
     # Check if it looks like a UUID (contains dashes and is 36 chars)
     if len(company_id_or_slug) == 36 and '-' in company_id_or_slug:
@@ -51,10 +54,24 @@ def resolve_company_id(company_id_or_slug: str, access_token: Optional[str] = No
     if create_if_missing:
         # Create a friendly name from the slug
         name = company_id_or_slug.replace('-', ' ').title()
-        result = client.table('companies').insert({
+
+        # Get user_id from access_token if available
+        # This enables the auto_add_company_owner trigger to work
+        company_data = {
             'name': name,
             'slug': company_id_or_slug
-        }).execute()
+        }
+
+        if access_token:
+            try:
+                supabase = get_supabase()
+                user_response = supabase.auth.get_user(access_token)
+                if user_response and user_response.user:
+                    company_data['user_id'] = str(user_response.user.id)
+            except Exception as e:
+                logger.warning(f"Could not extract user_id from token: {e}")
+
+        result = client.table('companies').insert(company_data).execute()
         if result.data:
             return result.data[0]['id']
 

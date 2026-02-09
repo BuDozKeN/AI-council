@@ -505,6 +505,9 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
   // Persona editing state
   const [editingPersona, setEditingPersona] = useState<string | null>(null);
   const [personaEditValue, setPersonaEditValue] = useState<string>('');
+
+  // ISS-203/204/205: Prevent duplicate API calls from StrictMode or re-renders
+  const hasFetchedRef = useRef(false);
   const [savingPersona, setSavingPersona] = useState(false);
 
   // Toggle top-level section
@@ -549,7 +552,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
   }, [companyId, t]);
 
   useEffect(() => {
-    fetchData();
+    if (!hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      fetchData();
+    }
   }, [fetchData]);
 
   const togglePreset = (id: string) => {

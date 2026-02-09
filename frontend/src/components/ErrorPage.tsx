@@ -7,7 +7,7 @@
 
 import { useRouteError, isRouteErrorResponse, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { logger } from '../utils/logger';
@@ -43,6 +43,11 @@ export function ErrorPage() {
       message = t('errorBoundary.serverErrorMessage');
     }
   }
+
+  // ISS-015: Set page title for accessibility and SEO
+  useEffect(() => {
+    document.title = `${title} - AxCouncil`;
+  }, [title]);
 
   const handleGoHome = () => {
     navigate('/', { replace: true });

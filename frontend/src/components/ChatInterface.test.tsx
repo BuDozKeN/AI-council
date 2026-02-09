@@ -28,7 +28,11 @@ beforeEach(() => {
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, opts?: { defaultValue?: string }) => opts?.defaultValue ?? key,
+    // Handle both t(key, defaultValue) and t(key, { defaultValue }) patterns
+    t: (key: string, optsOrDefault?: string | { defaultValue?: string }) => {
+      if (typeof optsOrDefault === 'string') return optsOrDefault;
+      return optsOrDefault?.defaultValue ?? key;
+    },
     i18n: { language: 'en', changeLanguage: vi.fn() },
   }),
   Trans: ({ children }: { children: React.ReactNode }) => children,

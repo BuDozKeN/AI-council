@@ -161,6 +161,7 @@ function MultiSelectDropdown({
               className="context-field-count"
               onClick={handleBadgeClick}
               aria-label={`${selectedIds.length} selected. Click to see list.`}
+              title={`${selectedIds.length} selected. Click to see list.`}
             >
               {selectedIds.length}
             </button>
@@ -187,9 +188,14 @@ function MultiSelectDropdown({
         />
       </button>
 
-      {/* Dropdown list */}
+      {/* ISS-208: Dropdown list with proper listbox/option roles */}
       {isOpen && (
-        <div className="context-multiselect-dropdown">
+        <div
+          className="context-multiselect-dropdown"
+          role="listbox"
+          aria-multiselectable="true"
+          aria-label={label}
+        >
           {items.map((item) => {
             const isSelected = selectedIds.includes(item.id);
             const style = getItemStyle ? getItemStyle(item.id, isSelected) : {};
@@ -197,12 +203,14 @@ function MultiSelectDropdown({
               <button
                 key={item.id}
                 type="button"
+                role="option"
+                aria-selected={isSelected}
                 className={`context-multiselect-item ${isSelected ? 'selected' : ''}`}
                 onClick={() => onToggle(item.id)}
                 style={style}
               >
                 <span className="context-multiselect-item-text">{item.name}</span>
-                {isSelected && <Check size={16} />}
+                {isSelected && <Check size={16} aria-hidden="true" />}
               </button>
             );
           })}
@@ -404,8 +412,14 @@ export function ContextChip({
   };
 
   // Desktop content - same dropdown pattern as mobile for consistency
+  // ISS-207: Added title heading for accessibility
   const renderDesktopContent = () => (
-    <div className="context-desktop-wrapper">
+    <div
+      className="context-desktop-wrapper"
+      role="dialog"
+      aria-label={t('contextChip.selectContext')}
+    >
+      <h2 className="context-popover-title">{t('contextChip.selectContext')}</h2>
       {/* Company - single select */}
       {businesses.length > 0 && (
         <div className="context-field-mobile">
@@ -489,7 +503,14 @@ export function ContextChip({
             <FileText size={16} className="context-select-icon" />
             <span>{t('playbooks.title')}</span>
             {selectedPlaybooks.length > 0 && (
-              <span className="context-more-badge">{selectedPlaybooks.length}</span>
+              <span
+                className="context-more-badge"
+                title={t('contextChip.playbooksSelected', '{{count}} playbook(s) selected', {
+                  count: selectedPlaybooks.length,
+                })}
+              >
+                {selectedPlaybooks.length}
+              </span>
             )}
             <ChevronDown
               size={16}
@@ -635,7 +656,14 @@ export function ContextChip({
             <FileText size={16} className="context-select-icon" />
             <span>{t('playbooks.title')}</span>
             {selectedPlaybooks.length > 0 && (
-              <span className="context-more-badge">{selectedPlaybooks.length}</span>
+              <span
+                className="context-more-badge"
+                title={t('contextChip.playbooksSelected', '{{count}} playbook(s) selected', {
+                  count: selectedPlaybooks.length,
+                })}
+              >
+                {selectedPlaybooks.length}
+              </span>
             )}
             <ChevronDown
               size={16}
