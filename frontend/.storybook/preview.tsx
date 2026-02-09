@@ -1,7 +1,9 @@
 import type { Preview } from '@storybook/react';
 
 // Import global styles so stories render with correct theming
-import '../src/styles/index.css';
+import '../src/styles/design-tokens.css';
+import '../src/index.css';
+import '../src/styles/tailwind.css';
 
 const preview: Preview = {
   parameters: {

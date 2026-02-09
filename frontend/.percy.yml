@@ -21,6 +21,14 @@ snapshot:
   # Minimum height to capture
   min-height: 1024
 
+  # Increase timeout for slow pages (default 30s)
+  enable-javascript: true
+
+# Upload settings
+upload:
+  # Increase timeout for large builds with many snapshots
+  timeout: 60000
+
 # Discovery settings
 discovery:
   # Wait for network idle
