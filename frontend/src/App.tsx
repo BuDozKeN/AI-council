@@ -96,7 +96,9 @@ const LazyFallback = () => (
 
 // Subtle fallback for ChatInterface - no spinner, just empty space
 // The framer-motion animation handles the visual transition
-const ChatFallback = () => <div className="chat-loading-fallback" role="status" aria-label="Loading chat..." />;
+const ChatFallback = () => (
+  <div className="chat-loading-fallback" role="status" aria-label="Loading chat..." />
+);
 
 // Create scoped logger for App component
 const log = logger.scope('App');

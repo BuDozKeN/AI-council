@@ -74,18 +74,42 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
   const PLAN_FEATURE_KEYS: Record<string, string[]> = {
     free: ['councilQueries5', 'standardResponse', 'emailSupport'],
     starter: ['councilQueries50', 'allModels', 'priorityResponse', 'chatSupport'],
-    pro: ['unlimitedQueries', 'allModels', 'fastestResponse', 'prioritySupport', 'advancedAnalytics'],
-    business: ['councilQueries750', 'teamCollaboration', 'customDepartments', 'auditLogs', 'dedicatedSupport'],
-    enterprise: ['unlimitedQueries', 'customSLA', 'dedicatedSupport', 'ssoSaml', 'customIntegrations'],
+    pro: [
+      'unlimitedQueries',
+      'allModels',
+      'fastestResponse',
+      'prioritySupport',
+      'advancedAnalytics',
+    ],
+    business: [
+      'councilQueries750',
+      'teamCollaboration',
+      'customDepartments',
+      'auditLogs',
+      'dedicatedSupport',
+    ],
+    enterprise: [
+      'unlimitedQueries',
+      'customSLA',
+      'dedicatedSupport',
+      'ssoSaml',
+      'customIntegrations',
+    ],
   };
 
   const getPlanName = (planId: string): string => {
-    const translatedName = t(`settings.plans.${planId}.name` as never, '' as never) as unknown as string;
+    const translatedName = t(
+      `settings.plans.${planId}.name` as never,
+      '' as never
+    ) as unknown as string;
     return translatedName || plans.find((p) => p.id === planId)?.name || planId;
   };
 
   const getPlanQueries = (planId: string): string => {
-    const translatedQueries = t(`settings.plans.${planId}.queries` as never, '' as never) as unknown as string;
+    const translatedQueries = t(
+      `settings.plans.${planId}.queries` as never,
+      '' as never
+    ) as unknown as string;
     return translatedQueries || plans.find((p) => p.id === planId)?.queries_display || '';
   };
 
@@ -112,8 +136,7 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
         <CardHeader>
           {/* ISS-149: Show current plan indicator */}
           <div className="usage-plan-badge">
-            {t('settings.currentPlan', 'Current Plan')}:{' '}
-            <strong>{getPlanName(currentTier)}</strong>
+            {t('settings.currentPlan', 'Current Plan')}: <strong>{getPlanName(currentTier)}</strong>
           </div>
           <CardTitle>{t('settings.currentUsage')}</CardTitle>
           <CardDescription>{t('settings.usageDescription')}</CardDescription>

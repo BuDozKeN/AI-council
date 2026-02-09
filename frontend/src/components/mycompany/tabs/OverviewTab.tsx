@@ -100,7 +100,11 @@ export function OverviewTab({
   const { lastUpdated, version } = parseContextMetadata(contextMd);
 
   return (
-    <div ref={scrollContainerRef} className={`mc-overview ${isScrolledEnd ? 'scrolled-end' : ''}`} onScroll={handleScroll}>
+    <div
+      ref={scrollContainerRef}
+      className={`mc-overview ${isScrolledEnd ? 'scrolled-end' : ''}`}
+      onScroll={handleScroll}
+    >
       {/* Hero section - scrolls with content */}
       <div className="mc-overview-hero">
         <div className="mc-overview-hero-content">

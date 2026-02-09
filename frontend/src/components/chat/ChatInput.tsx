@@ -506,7 +506,11 @@ export function ChatInput({
             <Users size={18} aria-hidden="true" />
             <span>{t('chat.responseMode', 'Response Mode')}</span>
           </div>
-          <div className={c.modeToggleButtons} role="radiogroup" aria-label={t('aria.aiModeToggle', 'AI response mode')}>
+          <div
+            className={c.modeToggleButtons}
+            role="radiogroup"
+            aria-label={t('aria.aiModeToggle', 'AI response mode')}
+          >
             <button
               type="button"
               className={cn(c.modeToggleBtn, chatMode === 'chat' && c.active)}
@@ -538,40 +542,77 @@ export function ChatInput({
             <Zap size={18} aria-hidden="true" />
             <span>{t('chat.responseStyle.title', 'Response Style')}</span>
           </div>
-          <div className={c.responseStyleOptions} role="radiogroup" aria-label={t('chat.responseStyle.label', 'Response style')}>
+          <div
+            className={c.responseStyleOptions}
+            role="radiogroup"
+            aria-label={t('chat.responseStyle.label', 'Response style')}
+          >
             {/* UXH-086: Added title tooltips to explain each response style */}
             <button
               type="button"
-              className={cn(c.responseStyleOption, (selectedPreset === 'conservative' || (!selectedPreset && departmentPreset === 'conservative')) && c.active)}
+              className={cn(
+                c.responseStyleOption,
+                (selectedPreset === 'conservative' ||
+                  (!selectedPreset && departmentPreset === 'conservative')) &&
+                  c.active
+              )}
               onClick={() => onSelectPreset('conservative')}
               disabled={disabled}
               role="radio"
-              aria-checked={selectedPreset === 'conservative' || (!selectedPreset && departmentPreset === 'conservative')}
-              title={t('chat.responseStyle.descriptions.conservative', 'Factual, focused answers - best for data and compliance')}
+              aria-checked={
+                selectedPreset === 'conservative' ||
+                (!selectedPreset && departmentPreset === 'conservative')
+              }
+              title={t(
+                'chat.responseStyle.descriptions.conservative',
+                'Factual, focused answers - best for data and compliance'
+              )}
             >
               <Target size={20} aria-hidden="true" />
               <span>{t('chat.responseStyle.presets.conservative', 'Precise')}</span>
             </button>
             <button
               type="button"
-              className={cn(c.responseStyleOption, (selectedPreset === 'balanced' || (!selectedPreset && departmentPreset === 'balanced')) && c.active)}
+              className={cn(
+                c.responseStyleOption,
+                (selectedPreset === 'balanced' ||
+                  (!selectedPreset && departmentPreset === 'balanced')) &&
+                  c.active
+              )}
               onClick={() => onSelectPreset('balanced')}
               disabled={disabled}
               role="radio"
-              aria-checked={selectedPreset === 'balanced' || (!selectedPreset && departmentPreset === 'balanced')}
-              title={t('chat.responseStyle.descriptions.balanced', 'Good for most questions - reliable and flexible')}
+              aria-checked={
+                selectedPreset === 'balanced' ||
+                (!selectedPreset && departmentPreset === 'balanced')
+              }
+              title={t(
+                'chat.responseStyle.descriptions.balanced',
+                'Good for most questions - reliable and flexible'
+              )}
             >
               <Zap size={20} aria-hidden="true" />
               <span>{t('chat.responseStyle.presets.balanced', 'Balanced')}</span>
             </button>
             <button
               type="button"
-              className={cn(c.responseStyleOption, (selectedPreset === 'creative' || (!selectedPreset && departmentPreset === 'creative')) && c.active)}
+              className={cn(
+                c.responseStyleOption,
+                (selectedPreset === 'creative' ||
+                  (!selectedPreset && departmentPreset === 'creative')) &&
+                  c.active
+              )}
               onClick={() => onSelectPreset('creative')}
               disabled={disabled}
               role="radio"
-              aria-checked={selectedPreset === 'creative' || (!selectedPreset && departmentPreset === 'creative')}
-              title={t('chat.responseStyle.descriptions.creative', 'More original ideas - great for brainstorming')}
+              aria-checked={
+                selectedPreset === 'creative' ||
+                (!selectedPreset && departmentPreset === 'creative')
+              }
+              title={t(
+                'chat.responseStyle.descriptions.creative',
+                'More original ideas - great for brainstorming'
+              )}
             >
               <Sparkles size={20} aria-hidden="true" />
               <span>{t('chat.responseStyle.presets.creative', 'Creative')}</span>
