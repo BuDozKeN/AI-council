@@ -3,6 +3,7 @@
 import os
 import sys
 from pathlib import Path
+from typing import Dict
 from dotenv import load_dotenv
 
 # Import logging utilities
@@ -174,8 +175,31 @@ STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman sy
 
 # Per-model timeout - individual models that hang get marked as error
 # This catches truly stuck models without cancelling healthy ones
-# Reduced from 120s to 90s per audit M13 - 99th percentile latency is ~60s
-PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "90"))  # 90s per individual model
+# Increased from 90s to 120s to match STAGE1_TIMEOUT - newer premium models
+# (gpt-5.1, kimi-k2.5) frequently need >90s for complex reasoning queries
+PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "120"))  # 120s per individual model
+
+# Model-specific timeout overrides (seconds) - some models are consistently slower
+# Use model ID substring matching (e.g., "kimi" matches "moonshotai/kimi-k2.5")
+# Override PER_MODEL_TIMEOUT for specific models that need more/less time
+MODEL_TIMEOUT_OVERRIDES: Dict[str, int] = {
+    # Premium reasoning models that may need extra time
+    "kimi-k2.5": 150,      # Kimi K2.5 has complex agentic reasoning
+    "gpt-5.1": 150,        # GPT-5.1 extended reasoning can be slow
+    "claude-opus": 150,    # Opus models are thorough but slower
+    # Fast models that should fail quicker if stuck
+    "gpt-4o-mini": 60,     # Should respond quickly
+    "gemini-2.5-flash": 60,  # Flash models are fast by design
+}
+
+
+def get_model_timeout(model: str) -> int:
+    """Get the timeout for a specific model, checking overrides first."""
+    for pattern, timeout in MODEL_TIMEOUT_OVERRIDES.items():
+        if pattern in model.lower():
+            return timeout
+    return PER_MODEL_TIMEOUT
+
 
 # =============================================================================
 # CIRCUIT BREAKER CONFIGURATION

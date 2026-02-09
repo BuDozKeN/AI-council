@@ -17,7 +17,8 @@ from .context_loader import (
     detect_multi_turn_attack
 )
 from .config import (
-    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, PER_MODEL_TIMEOUT
+    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, PER_MODEL_TIMEOUT,
+    get_model_timeout,
 )
 from .model_registry import get_primary_model, get_models, get_models_sync
 from .security import log_app_event
@@ -192,7 +193,8 @@ async def stage1_stream_responses(
     # 7. Start all model streams with stagger, yielding early events
     stagger_gen = _start_models_with_stagger(
         council_models, messages, stage1_config, queue, model_content, model_start_times,
-        STAGGER_DELAY, PER_MODEL_TIMEOUT, query_model_stream, log_app_event
+        STAGGER_DELAY, PER_MODEL_TIMEOUT, query_model_stream, log_app_event,
+        get_model_timeout=get_model_timeout,
     )
     tasks, completed_count, successful_count = None, 0, 0
     async for item in stagger_gen:
