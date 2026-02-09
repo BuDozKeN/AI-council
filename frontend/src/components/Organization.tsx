@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus } from 'lucide-react';
 import { api } from '../api';
 import { Spinner } from './ui/Spinner';
 import { AppModal } from './ui/AppModal';
@@ -369,7 +369,9 @@ export default function Organization({
     >
       {/* Quick Actions */}
       <div className="org-actions">
+        {/* UXH-090: Added Plus icon to New Department button */}
         <Button variant="default" onClick={() => setShowAddDept(true)}>
+          <Plus size={16} aria-hidden="true" />
           {t('organization.newDepartment')}
         </Button>
         <Button variant="outline" onClick={() => onOpenKnowledgeBase && onOpenKnowledgeBase()}>
@@ -397,6 +399,7 @@ export default function Organization({
             <p className="org-empty-title">{t('organization.noDepartments')}</p>
             <p className="org-empty-hint">{t('organization.addFirstDept')}</p>
             <Button variant="default" onClick={() => setShowAddDept(true)}>
+              <Plus size={16} aria-hidden="true" />
               {t('organization.newDepartment')}
             </Button>
           </div>

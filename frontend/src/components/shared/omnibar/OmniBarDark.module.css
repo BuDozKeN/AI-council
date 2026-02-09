@@ -9,9 +9,10 @@
    MAIN BAR - DARK MODE
    ============================================================================= */
 
+/* UXH-094: More prominent border in dark mode */
 :global(.dark) .bar {
   background: var(--glass-bg);
-  border-color: var(--glass-border);
+  border-color: var(--color-border);
   box-shadow:
     0 4px 16px var(--overlay-black-30),
     0 1px 4px var(--overlay-black-20),

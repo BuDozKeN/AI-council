@@ -430,6 +430,7 @@
    MOBILE CONTEXT BUTTON
    ============================================================================= */
 
+/* UXH-106: Increase context button text to 14px minimum for readability */
 .mobileContextBtn {
   display: flex;
   align-items: center;
@@ -439,7 +440,7 @@
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-full);
   color: var(--color-text-secondary);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -475,17 +476,18 @@
   color: var(--color-indigo-700);
 }
 
+/* UXH-107: Increase badge count to 12px for readability */
 .mobileContextBadge {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 16px;
-  height: 16px;
+  min-width: 18px;
+  height: 18px;
   padding: 0 var(--space-1);
   margin-right: var(--space-1);
   background: var(--color-bg-tertiary);
   color: var(--color-text-secondary);
-  font-size: var(--text-2xs);
+  font-size: var(--text-xs);
   font-weight: 600;
   border-radius: var(--radius-full);
 }
@@ -585,4 +587,146 @@
 .contextSectionContent .popoverItem {
   padding: var(--space-3) var(--space-3-5);
   min-height: 48px;
+}
+
+/* =============================================================================
+   UXH-031: Mobile Mode Toggle in Context Menu
+   ============================================================================= */
+
+.modeToggleSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-lg);
+}
+
+.modeToggleLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm-plus);
+  font-weight: 500;
+}
+
+.modeToggleLabel svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-tertiary);
+}
+
+.modeToggleButtons {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  padding: 3px;
+}
+
+.modeToggleBtn {
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 36px;
+}
+
+.modeToggleBtn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+}
+
+.modeToggleBtn.active {
+  background: var(--color-indigo-500);
+  color: var(--color-text-inverse);
+}
+
+.modeToggleBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   UXH-031: Mobile Response Style in Context Menu
+   ============================================================================= */
+
+.responseStyleSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  padding: var(--space-2);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-lg);
+}
+
+.responseStyleHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--space-2);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm-plus);
+  font-weight: 500;
+}
+
+.responseStyleHeader svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-tertiary);
+}
+
+.responseStyleOptions {
+  display: flex;
+  gap: var(--gap-xs);
+  padding: 0 var(--space-1);
+}
+
+.responseStyleOption {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-2xs);
+  padding: var(--space-3) var(--space-2);
+  background: var(--color-bg-primary);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.responseStyleOption:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+}
+
+.responseStyleOption.active {
+  border-color: var(--color-indigo-400);
+  background: var(--color-indigo-50);
+}
+
+.responseStyleOption svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-tertiary);
+}
+
+.responseStyleOption.active svg {
+  color: var(--color-indigo-600);
+}
+
+.responseStyleOption span {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.responseStyleOption.active span {
+  color: var(--color-indigo-700);
 }

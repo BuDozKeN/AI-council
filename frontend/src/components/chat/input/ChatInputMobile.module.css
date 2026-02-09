@@ -76,4 +76,14 @@
     font-size: var(--text-xs);
     min-height: 44px;
   }
+
+  /* UXH-031: Hide mode toggle on mobile - moved to context bottom sheet */
+  .inlineModeToggle {
+    display: none;
+  }
+
+  /* UXH-031: Hide response style selector on mobile - moved to context bottom sheet */
+  .hideOnMobile {
+    display: none;
+  }
 }

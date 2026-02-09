@@ -286,20 +286,32 @@ export function UsageTab({
             <span className="mc-stat-label">{t('mycompany.tokens')}</span>
           </div>
         </div>
-        <div className="mc-stat-card accent">
-          <Zap size={20} className="mc-stat-icon" />
-          <div className="mc-stat-content">
-            <span className="mc-stat-value">
-              {hasData ? `${usage.summary.cache_hit_rate.toFixed(1)}%` : '0%'}
-            </span>
-            <span className="mc-stat-label">{t('mycompany.cacheHitRate')}</span>
-            {hasData && cacheSavings > 0 && (
-              <span className="mc-stat-sublabel">
-                {t('mycompany.saved', { amount: formatCost(cacheSavings) })}
+        {/* UXH-078: Only show cache hit rate card when there's actual cache activity */}
+        {hasData && usage.summary.total_cache_read_tokens > 0 ? (
+          <div className="mc-stat-card accent">
+            <Zap size={20} className="mc-stat-icon" />
+            <div className="mc-stat-content">
+              <span className="mc-stat-value">
+                {`${usage.summary.cache_hit_rate.toFixed(1)}%`}
               </span>
-            )}
+              <span className="mc-stat-label">{t('mycompany.cacheHitRate')}</span>
+              {cacheSavings > 0 && (
+                <span className="mc-stat-sublabel">
+                  {t('mycompany.saved', { amount: formatCost(cacheSavings) })}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="mc-stat-card">
+            <Zap size={20} className="mc-stat-icon" />
+            <div className="mc-stat-content">
+              <span className="mc-stat-value muted">—</span>
+              <span className="mc-stat-label">{t('mycompany.cacheHitRate')}</span>
+              <span className="mc-stat-sublabel">{t('mycompany.noCacheActivity', 'No cache activity yet')}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Header with period selector */}

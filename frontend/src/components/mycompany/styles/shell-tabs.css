@@ -211,6 +211,23 @@
   }
 }
 
+/* UXH-186: iPhone SE (320px) - ultra compact tabs */
+@media (width <= 320px) {
+  .mc-tabs {
+    padding: var(--space-1-5) var(--space-2);
+    gap: var(--gap-2xs);
+  }
+
+  .mc-tab {
+    padding: var(--space-1-5) var(--space-2);
+    min-width: 44px;
+  }
+
+  .mc-tab-icon {
+    font-size: 0.9rem;
+  }
+}
+
 /* Desktop+ screens - show labels and allow normal layout */
 @media (width >= 641px) {
   .mc-tab-label {

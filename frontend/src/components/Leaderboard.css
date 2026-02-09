@@ -142,6 +142,25 @@
   .leaderboard-table table {
     min-width: max-content;
   }
+
+  /* UXH-064: Increase row height for better touch targets */
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: var(--space-4) var(--space-2);
+    min-height: 56px;
+  }
+
+  /* UXH-069: Increase spacing for tab buttons (category filters) */
+  .leaderboard-tabs {
+    gap: var(--gap-sm-plus);
+    padding: var(--space-3) var(--space-3);
+  }
+
+  .tab-btn {
+    padding: var(--space-2) var(--space-4);
+    min-height: 44px;
+    font-size: var(--text-sm);
+  }
 }
 
 .leaderboard-table .score-col,
@@ -244,4 +263,38 @@
 .dark .leaderboard-legend {
   background: var(--color-bg-secondary);
   border-block-start-color: var(--color-border);
+}
+
+/* =============================================================================
+   UXH-187: iPhone SE (320px) - ultra compact leaderboard
+   ============================================================================= */
+
+@media (width <= 320px) {
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: var(--space-2-5) var(--space-1);
+    font-size: var(--text-xs);
+  }
+
+  .leaderboard-table .score-col,
+  .leaderboard-table .wins-col,
+  .leaderboard-table .rate-col,
+  .leaderboard-table .sessions-col {
+    width: 55px;
+  }
+
+  .leaderboard-table .rank-col {
+    width: 32px;
+  }
+
+  .tab-btn {
+    padding: var(--space-1-5) var(--space-2-5);
+    font-size: var(--text-xs);
+    min-height: 40px;
+  }
+
+  .leaderboard-stats {
+    font-size: var(--text-xs);
+    padding: var(--space-2) var(--space-3);
+  }
 }
