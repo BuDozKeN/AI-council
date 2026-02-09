@@ -332,7 +332,8 @@ export function useMessageStreaming({
       if (eventType.includes('error') || eventType.includes('Error')) {
         // Per-model timeouts are expected and handled gracefully
         const errorStr = String(event?.error || '');
-        const isModelTimeout = eventType === 'stage1_model_error' && errorStr.toLowerCase().includes('timeout');
+        const isModelTimeout =
+          eventType === 'stage1_model_error' && errorStr.toLowerCase().includes('timeout');
         if (isModelTimeout) {
           log.warn('[SSE Event]', eventType, event);
         } else {
