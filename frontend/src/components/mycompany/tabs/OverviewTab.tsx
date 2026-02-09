@@ -71,10 +71,15 @@ export function OverviewTab({
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isScrolledEnd, setIsScrolledEnd] = useState(false);
 
-  // Track scroll position to show/hide scroll-to-top button
+  // Track scroll position to show/hide scroll-to-top button and scroll indicator
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    setShowScrollTop(e.currentTarget.scrollTop > 200);
+    const el = e.currentTarget;
+    setShowScrollTop(el.scrollTop > 200);
+    // UXH-127: Check if scrolled to bottom (within 20px tolerance)
+    const isAtEnd = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
+    setIsScrolledEnd(isAtEnd);
   }, []);
 
   const scrollToTop = useCallback(() => {
@@ -95,7 +100,7 @@ export function OverviewTab({
   const { lastUpdated, version } = parseContextMetadata(contextMd);
 
   return (
-    <div ref={scrollContainerRef} className="mc-overview" onScroll={handleScroll}>
+    <div ref={scrollContainerRef} className={`mc-overview ${isScrolledEnd ? 'scrolled-end' : ''}`} onScroll={handleScroll}>
       {/* Hero section - scrolls with content */}
       <div className="mc-overview-hero">
         <div className="mc-overview-hero-content">

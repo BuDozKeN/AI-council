@@ -212,6 +212,25 @@
   /* Content just flows - no scroll here */
 }
 
+/* UXH-127: Scroll indicator - fade gradient at bottom when content is scrollable */
+.mc-overview::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: linear-gradient(to top, var(--color-bg-primary) 0%, transparent 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Show fade indicator when not scrolled to bottom */
+.mc-overview:not(.scrolled-end)::after {
+  opacity: 1;
+}
+
 /* =============================================================================
    SCROLL TO TOP FAB - Floating action button for quick return to top
    Positioned at bottom right, vertically aligned with copy button
