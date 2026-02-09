@@ -337,8 +337,8 @@ export function ProjectsTab({
         }
         aria-label={`Project: ${project.name}, Status: ${project.status}, ${project.decision_count || 0} decisions`}
       >
-        {/* Status indicator dot */}
-        <div className={`mc-status-dot ${project.status}`} />
+        {/* Status indicator dot - UXH-065: aria-hidden since parent has full aria-label */}
+        <div className={`mc-status-dot ${project.status}`} aria-hidden="true" />
 
         {/* Title group: name + ALL department badges */}
         <div className="mc-project-title-group">
