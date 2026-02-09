@@ -181,7 +181,11 @@ export default function AcceptCompanyInvite() {
           {/* Loading state - ISS-342: Use unified Spinner */}
           {(pageState === 'loading' || authLoading) && (
             <div className="accept-invite-state">
-              <Spinner size="xl" variant="brand" label={t('acceptCompanyInvite.validating', 'Validating invitation...')} />
+              <Spinner
+                size="xl"
+                variant="brand"
+                label={t('acceptCompanyInvite.validating', 'Validating invitation...')}
+              />
               <p>{t('acceptCompanyInvite.validating', 'Validating invitation...')}</p>
             </div>
           )}
@@ -287,7 +291,11 @@ export default function AcceptCompanyInvite() {
           {/* Accepting state - ISS-342: Use unified Spinner */}
           {pageState === 'accepting' && (
             <div className="accept-invite-state">
-              <Spinner size="xl" variant="brand" label={t('acceptCompanyInvite.accepting', 'Joining the team...')} />
+              <Spinner
+                size="xl"
+                variant="brand"
+                label={t('acceptCompanyInvite.accepting', 'Joining the team...')}
+              />
               <p>{t('acceptCompanyInvite.accepting', 'Joining the team...')}</p>
             </div>
           )}

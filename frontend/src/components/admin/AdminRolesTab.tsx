@@ -217,9 +217,13 @@ export function AdminRolesTab() {
                           className="admin-icon-btn admin-icon-btn--danger"
                           disabled
                           title={t('admin.admins.removeAdmin', 'Remove admin (coming soon)')}
-                          aria-label={t('admin.admins.removeAdminLabel', 'Remove {{email}} as admin', {
-                            email: admin.email,
-                          })}
+                          aria-label={t(
+                            'admin.admins.removeAdminLabel',
+                            'Remove {{email}} as admin',
+                            {
+                              email: admin.email,
+                            }
+                          )}
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>

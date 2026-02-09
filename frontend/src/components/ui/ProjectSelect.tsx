@@ -181,7 +181,9 @@ export function ProjectSelect({
                   </div>
                   <FolderKanban className="h-4 w-4 project-select-icon-mobile" />
                   {/* ISS-213: title attribute shows full name on hover when truncated */}
-                  <span className="project-select-item-label" title={project.name}>{project.name}</span>
+                  <span className="project-select-item-label" title={project.name}>
+                    {project.name}
+                  </span>
                   {isCurrent && (
                     <span className="project-select-current-badge">{currentBadgeLabel}</span>
                   )}

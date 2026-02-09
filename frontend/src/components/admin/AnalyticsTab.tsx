@@ -945,40 +945,40 @@ export function AnalyticsTab() {
                 <div aria-hidden="true">
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart
-                    data={modelAnalytics.overall_leaderboard.slice(0, 6)}
-                    layout="vertical"
-                    margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="var(--color-border)"
-                      opacity={0.5}
-                    />
-                    <XAxis
-                      type="number"
-                      tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
-                    />
-                    <YAxis
-                      dataKey="model"
-                      type="category"
-                      tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
-                      width={100}
-                      tickFormatter={formatModelName}
-                    />
-                    <RechartsTooltip
-                      content={<ModelTooltip />}
-                      contentStyle={{
-                        background: 'var(--color-bg-elevated)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                      }}
-                    />
-                    <Bar dataKey="win_rate" name="Win Rate %" radius={[0, 4, 4, 0]}>
-                      {modelAnalytics.overall_leaderboard.slice(0, 6).map((entry) => (
-                        <Cell key={entry.model} fill={getProviderColor(entry.model)} />
-                      ))}
-                    </Bar>
+                      data={modelAnalytics.overall_leaderboard.slice(0, 6)}
+                      layout="vertical"
+                      margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="var(--color-border)"
+                        opacity={0.5}
+                      />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
+                      />
+                      <YAxis
+                        dataKey="model"
+                        type="category"
+                        tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
+                        width={100}
+                        tickFormatter={formatModelName}
+                      />
+                      <RechartsTooltip
+                        content={<ModelTooltip />}
+                        contentStyle={{
+                          background: 'var(--color-bg-elevated)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                        }}
+                      />
+                      <Bar dataKey="win_rate" name="Win Rate %" radius={[0, 4, 4, 0]}>
+                        {modelAnalytics.overall_leaderboard.slice(0, 6).map((entry) => (
+                          <Cell key={entry.model} fill={getProviderColor(entry.model)} />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -999,43 +999,43 @@ export function AnalyticsTab() {
                 <div aria-hidden="true">
                   <ResponsiveContainer width="100%" height={280}>
                     <RechartsPieChart>
-                    <Pie
-                      data={modelAnalytics.overall_leaderboard
-                        .filter((m) => m.wins > 0)
-                        .slice(0, 6)
-                        .map((m) => ({
-                          name: formatModelName(m.model),
-                          value: m.wins,
-                          model: m.model,
-                          fill: getProviderColor(m.model),
-                        }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={90}
-                      paddingAngle={2}
-                      dataKey="value"
-                      label={({ name, percent }: { name?: string; percent?: number }) =>
-                        `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`
-                      }
-                      labelLine={false}
-                    >
-                      {modelAnalytics.overall_leaderboard
-                        .filter((m) => m.wins > 0)
-                        .slice(0, 6)
-                        .map((entry) => (
-                          <Cell key={entry.model} fill={getProviderColor(entry.model)} />
-                        ))}
-                    </Pie>
-                    <RechartsTooltip
-                      formatter={(value, name) => [`${value} wins`, name]}
-                      contentStyle={{
-                        background: 'var(--color-bg-elevated)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                      }}
-                    />
+                      <Pie
+                        data={modelAnalytics.overall_leaderboard
+                          .filter((m) => m.wins > 0)
+                          .slice(0, 6)
+                          .map((m) => ({
+                            name: formatModelName(m.model),
+                            value: m.wins,
+                            model: m.model,
+                            fill: getProviderColor(m.model),
+                          }))}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={90}
+                        paddingAngle={2}
+                        dataKey="value"
+                        label={({ name, percent }: { name?: string; percent?: number }) =>
+                          `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`
+                        }
+                        labelLine={false}
+                      >
+                        {modelAnalytics.overall_leaderboard
+                          .filter((m) => m.wins > 0)
+                          .slice(0, 6)
+                          .map((entry) => (
+                            <Cell key={entry.model} fill={getProviderColor(entry.model)} />
+                          ))}
+                      </Pie>
+                      <RechartsTooltip
+                        formatter={(value, name) => [`${value} wins`, name]}
+                        contentStyle={{
+                          background: 'var(--color-bg-elevated)',
+                          border: '1px solid var(--color-border)',
+                          borderRadius: '8px',
+                          fontSize: '12px',
+                        }}
+                      />
                     </RechartsPieChart>
                   </ResponsiveContainer>
                 </div>
@@ -1168,7 +1168,11 @@ export function AnalyticsTab() {
           title={t('admin.refreshData', 'Refresh analytics data')}
         >
           <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-          <span>{isRefreshing ? t('common.refreshing', 'Refreshing...') : t('common.refresh', 'Refresh')}</span>
+          <span>
+            {isRefreshing
+              ? t('common.refreshing', 'Refreshing...')
+              : t('common.refresh', 'Refresh')}
+          </span>
         </button>
       </div>
     </div>

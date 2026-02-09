@@ -570,7 +570,11 @@ function Sidebar({
     .join(' ');
 
   return (
-    <aside ref={sidebarRef} className={sidebarClasses} aria-label={t('aria.conversationHistory', 'Conversation history and navigation')}>
+    <aside
+      ref={sidebarRef}
+      className={sidebarClasses}
+      aria-label={t('aria.conversationHistory', 'Conversation history and navigation')}
+    >
       {/* Header with New Chat and Pin toggle */}
       <div
         className="sidebar-header"

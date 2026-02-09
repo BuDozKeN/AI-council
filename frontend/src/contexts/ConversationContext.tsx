@@ -289,7 +289,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         // This ensures toast appears even if component state changes rapidly
         log.error('Failed to load conversation:', error);
         toast.error(t('errors.conversationNotFound', 'Conversation not found'), {
-          description: t('errors.conversationNotFoundHint', 'This conversation may have been deleted or you may not have access.'),
+          description: t(
+            'errors.conversationNotFoundHint',
+            'This conversation may have been deleted or you may not have access.'
+          ),
           duration: 5000,
         });
         // Clear the conversation ID after a short delay to allow toast to show

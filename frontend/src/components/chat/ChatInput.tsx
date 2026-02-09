@@ -889,7 +889,9 @@ export function ChatInput({
                     aria-label={t('aria.aiModeToggle', 'AI response mode')}
                   >
                     {/* ISS-154: Screen reader only label for radio group */}
-                    <span className="sr-only">{t('chat.aiModeLabel', 'Choose how many AIs respond:')}</span>
+                    <span className="sr-only">
+                      {t('chat.aiModeLabel', 'Choose how many AIs respond:')}
+                    </span>
                     <Tooltip.Root>
                       <Tooltip.Trigger asChild>
                         <button

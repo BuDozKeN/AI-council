@@ -126,9 +126,7 @@ export function ResponseStyleSelector({
   const dropdownContent = (
     <div className={styles.list}>
       {/* Title heading - ISS-077 */}
-      <div className={styles.title}>
-        {t('chat.responseStyle.title', 'Response Style')}
-      </div>
+      <div className={styles.title}>{t('chat.responseStyle.title', 'Response Style')}</div>
 
       {/* Department Default Option */}
       <label

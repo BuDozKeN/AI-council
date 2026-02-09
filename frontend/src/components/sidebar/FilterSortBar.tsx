@@ -47,7 +47,11 @@ export function FilterSortBar({
         <SelectTrigger
           variant="compact"
           className="filter-select-trigger"
-          title={filter === 'all' ? t('sidebar.allConversationsCount', { count: activeCount }) : undefined}
+          title={
+            filter === 'all'
+              ? t('sidebar.allConversationsCount', { count: activeCount })
+              : undefined
+          }
         >
           <SelectValue placeholder={t('sidebar.allConversations')} />
         </SelectTrigger>

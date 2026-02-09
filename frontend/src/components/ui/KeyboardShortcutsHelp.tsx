@@ -30,9 +30,15 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
     {
       title: t('shortcuts.navigation', 'Navigation'),
       shortcuts: [
-        { keys: `${modKey}+K`, description: t('shortcuts.focusSearch', 'Focus search / Open command palette') },
+        {
+          keys: `${modKey}+K`,
+          description: t('shortcuts.focusSearch', 'Focus search / Open command palette'),
+        },
         { keys: `${modKey}+N`, description: t('shortcuts.newChat', 'Start new conversation') },
-        { keys: `${modKey}+H`, description: t('shortcuts.openHistory', 'Open conversation history') },
+        {
+          keys: `${modKey}+H`,
+          description: t('shortcuts.openHistory', 'Open conversation history'),
+        },
         { keys: `${modKey}+L`, description: t('shortcuts.openLeaderboard', 'Open AI leaderboard') },
         { keys: `${modKey}+,`, description: t('shortcuts.openSettings', 'Open settings') },
       ],
@@ -86,7 +92,8 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
 
         <div className="shortcuts-footer">
           <p>
-            {t('shortcuts.pressToClose', 'Press')} <kbd>Esc</kbd> {t('shortcuts.orClickToClose', 'or click outside to close')}
+            {t('shortcuts.pressToClose', 'Press')} <kbd>Esc</kbd>{' '}
+            {t('shortcuts.orClickToClose', 'or click outside to close')}
           </p>
         </div>
       </div>

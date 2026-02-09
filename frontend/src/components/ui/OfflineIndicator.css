@@ -31,7 +31,7 @@
 }
 
 /* Dark mode */
-:root[data-theme="dark"] .offline-indicator,
+:root[data-theme='dark'] .offline-indicator,
 .dark .offline-indicator {
   background: var(--color-amber-900);
   color: var(--color-amber-200);

@@ -398,7 +398,12 @@ function Stage3({
           {/* Sticky toolbar - copy button only (TOC hidden for now) */}
           {isComplete && displayText && (
             <div className="stage3-sticky-toolbar">
-              <CopyButton text={displayText} size="sm" className="stage3-copy-btn" tooltip="Copy answer" />
+              <CopyButton
+                text={displayText}
+                size="sm"
+                className="stage3-copy-btn"
+                tooltip="Copy answer"
+              />
             </div>
           )}
 

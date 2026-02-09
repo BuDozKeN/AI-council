@@ -213,7 +213,10 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
           <div className="leaderboard-stats">
             <span
               className="stat-item"
-              title={t('leaderboard.totalSessionsTooltip', 'Total council sessions in this category')}
+              title={t(
+                'leaderboard.totalSessionsTooltip',
+                'Total council sessions in this category'
+              )}
             >
               {t('leaderboard.totalSessions')}: <strong>{totalSessions}</strong>
             </span>
@@ -396,19 +399,38 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                 <thead>
                   <tr>
                     {/* ISS-253: scope="col" ensures proper columnheader role for screen readers */}
-                    <th scope="col" className="rank-col">#</th>
-                    <th scope="col" className="model-col">{t('leaderboard.model')}</th>
-                    <th scope="col" className="score-col" title={t('leaderboard.avgRankHint')}>{t('leaderboard.avgRank')}</th>
-                    <th scope="col" className="wins-col" title={t('leaderboard.winsHint')}>{t('leaderboard.wins')}</th>
-                    <th scope="col" className="rate-col">{t('leaderboard.winRate')}</th>
-                    <th scope="col" className="sessions-col">{t('leaderboard.sessionsCol')}</th>
+                    <th scope="col" className="rank-col">
+                      #
+                    </th>
+                    <th scope="col" className="model-col">
+                      {t('leaderboard.model')}
+                    </th>
+                    <th scope="col" className="score-col" title={t('leaderboard.avgRankHint')}>
+                      {t('leaderboard.avgRank')}
+                    </th>
+                    <th scope="col" className="wins-col" title={t('leaderboard.winsHint')}>
+                      {t('leaderboard.wins')}
+                    </th>
+                    <th scope="col" className="rate-col">
+                      {t('leaderboard.winRate')}
+                    </th>
+                    <th scope="col" className="sessions-col">
+                      {t('leaderboard.sessionsCol')}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentLeaderboard.map((entry: LeaderboardEntry, index: number) => {
                     // ISS-256: Use friendly display names instead of technical IDs
                     const modelName = formatModelName(entry.model);
-                    const rankLabel = index === 0 ? 'First place' : index === 1 ? 'Second place' : index === 2 ? 'Third place' : `Rank ${index + 1}`;
+                    const rankLabel =
+                      index === 0
+                        ? 'First place'
+                        : index === 1
+                          ? 'Second place'
+                          : index === 2
+                            ? 'Third place'
+                            : `Rank ${index + 1}`;
                     return (
                       /* ISS-273: tabIndex enables keyboard navigation, ISS-070: use "no wins yet" for 0% */
                       <tr

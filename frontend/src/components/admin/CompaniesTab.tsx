@@ -291,7 +291,10 @@ export function CompaniesTab() {
                           <button
                             className="admin-icon-btn"
                             disabled
-                            title={t('admin.companies.viewDetails', 'View company details (coming soon)')}
+                            title={t(
+                              'admin.companies.viewDetails',
+                              'View company details (coming soon)'
+                            )}
                             aria-label={t('admin.companies.viewCompany', 'View {{name}}', {
                               name: company.name,
                             })}
@@ -311,7 +314,10 @@ export function CompaniesTab() {
                           <button
                             className="admin-icon-btn admin-icon-btn--danger"
                             disabled
-                            title={t('admin.companies.deleteCompany', 'Delete company (coming soon)')}
+                            title={t(
+                              'admin.companies.deleteCompany',
+                              'Delete company (coming soon)'
+                            )}
                             aria-label={t('admin.companies.deleteCompanyLabel', 'Delete {{name}}', {
                               name: company.name,
                             })}

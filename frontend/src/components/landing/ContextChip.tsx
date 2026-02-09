@@ -414,7 +414,11 @@ export function ContextChip({
   // Desktop content - same dropdown pattern as mobile for consistency
   // ISS-207: Added title heading for accessibility
   const renderDesktopContent = () => (
-    <div className="context-desktop-wrapper" role="dialog" aria-label={t('contextChip.selectContext')}>
+    <div
+      className="context-desktop-wrapper"
+      role="dialog"
+      aria-label={t('contextChip.selectContext')}
+    >
       <h2 className="context-popover-title">{t('contextChip.selectContext')}</h2>
       {/* Company - single select */}
       {businesses.length > 0 && (
@@ -501,7 +505,9 @@ export function ContextChip({
             {selectedPlaybooks.length > 0 && (
               <span
                 className="context-more-badge"
-                title={t('contextChip.playbooksSelected', '{{count}} playbook(s) selected', { count: selectedPlaybooks.length })}
+                title={t('contextChip.playbooksSelected', '{{count}} playbook(s) selected', {
+                  count: selectedPlaybooks.length,
+                })}
               >
                 {selectedPlaybooks.length}
               </span>
@@ -652,7 +658,9 @@ export function ContextChip({
             {selectedPlaybooks.length > 0 && (
               <span
                 className="context-more-badge"
-                title={t('contextChip.playbooksSelected', '{{count}} playbook(s) selected', { count: selectedPlaybooks.length })}
+                title={t('contextChip.playbooksSelected', '{{count}} playbook(s) selected', {
+                  count: selectedPlaybooks.length,
+                })}
               >
                 {selectedPlaybooks.length}
               </span>

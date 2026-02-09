@@ -240,7 +240,9 @@ function Stage2({
               avg: winnerAvg,
             })}
           >
-            <span className="winner-medal" aria-hidden="true">🥇</span>
+            <span className="winner-medal" aria-hidden="true">
+              🥇
+            </span>
             {winnerIconPath && (
               <img
                 src={winnerIconPath}

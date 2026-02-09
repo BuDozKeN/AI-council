@@ -82,7 +82,8 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
         <CardHeader>
           {/* ISS-149: Show current plan indicator */}
           <div className="usage-plan-badge">
-            {t('settings.currentPlan', 'Current Plan')}: <strong>{plans.find((p) => p.id === currentTier)?.name || currentTier}</strong>
+            {t('settings.currentPlan', 'Current Plan')}:{' '}
+            <strong>{plans.find((p) => p.id === currentTier)?.name || currentTier}</strong>
           </div>
           <CardTitle>{t('settings.currentUsage')}</CardTitle>
           <CardDescription>{t('settings.usageDescription')}</CardDescription>

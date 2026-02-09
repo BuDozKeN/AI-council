@@ -418,10 +418,7 @@ export function TableOfContents({
               aria-label="Table of contents"
             >
               {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-              <div
-                className="stage3-mobile-outline-sheet"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <div className="stage3-mobile-outline-sheet" onClick={(e) => e.stopPropagation()}>
                 {/* Drag handle */}
                 <div className="stage3-mobile-sheet-handle" />
 

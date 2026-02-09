@@ -142,7 +142,9 @@ export function ContextIndicator({
         {/* ISS-172: Properly structured context for accessibility */}
         {selectedBusiness && (
           <div className="context-indicator-pills" role="group" aria-label="Context settings">
-            <span className="context-indicator-label" aria-hidden="true">Context:</span>
+            <span className="context-indicator-label" aria-hidden="true">
+              Context:
+            </span>
             <span className="context-indicator-item company">
               {businesses.find((b) => b.id === selectedBusiness)?.name || 'Company'}
             </span>

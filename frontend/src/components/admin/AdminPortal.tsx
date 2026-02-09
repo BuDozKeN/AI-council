@@ -112,7 +112,11 @@ export default function AdminPortal() {
       <div className="admin-portal admin-portal--loading">
         <ThemeToggle />
         <div className="admin-loading-content">
-          <Spinner size="lg" variant="brand" label={t('admin.loading', 'Checking admin access...')} />
+          <Spinner
+            size="lg"
+            variant="brand"
+            label={t('admin.loading', 'Checking admin access...')}
+          />
           <p>{t('admin.loading', 'Checking admin access...')}</p>
         </div>
       </div>

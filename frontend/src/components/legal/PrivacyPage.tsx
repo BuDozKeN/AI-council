@@ -121,16 +121,12 @@ export default function PrivacyPage() {
                 <strong>Legal Requirements:</strong> When required by law or to protect our rights
               </li>
             </ul>
-            <p>
-              We do not sell your personal information to third parties for marketing purposes.
-            </p>
+            <p>We do not sell your personal information to third parties for marketing purposes.</p>
           </section>
 
           <section>
             <h2>6. {t('legal.privacySecurity', 'Data Security')}</h2>
-            <p>
-              We implement industry-standard security measures to protect your data, including:
-            </p>
+            <p>We implement industry-standard security measures to protect your data, including:</p>
             <ul>
               <li>Encryption in transit (TLS/SSL) and at rest</li>
               <li>Row-Level Security (RLS) for multi-tenant data isolation</li>

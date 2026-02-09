@@ -199,7 +199,11 @@ export default function AcceptInvite() {
           {/* Loading state - ISS-342: Use unified Spinner */}
           {pageState === 'loading' && (
             <div className="accept-invite-state">
-              <Spinner size="xl" variant="brand" label={t('acceptInvite.validating', 'Validating invitation...')} />
+              <Spinner
+                size="xl"
+                variant="brand"
+                label={t('acceptInvite.validating', 'Validating invitation...')}
+              />
               <p>{t('acceptInvite.validating', 'Validating invitation...')}</p>
             </div>
           )}
@@ -333,7 +337,11 @@ export default function AcceptInvite() {
           {/* Submitting state - ISS-342: Use unified Spinner */}
           {pageState === 'submitting' && (
             <div className="accept-invite-state">
-              <Spinner size="xl" variant="brand" label={t('acceptInvite.creatingAccount', 'Creating your account...')} />
+              <Spinner
+                size="xl"
+                variant="brand"
+                label={t('acceptInvite.creatingAccount', 'Creating your account...')}
+              />
               <p>{t('acceptInvite.creatingAccount', 'Creating your account...')}</p>
             </div>
           )}
