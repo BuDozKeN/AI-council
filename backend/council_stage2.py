@@ -216,7 +216,10 @@ def _create_stream_single_ranking_model(
             })
         except asyncio.CancelledError:
             log_app_event("MODEL_CANCELLED", level="INFO", model=model, stage="stage2")
-            raise
+            # Don't re-raise - let task complete cleanly during shutdown
+            # Re-raising while inside an async generator iteration causes
+            # "aclose(): asynchronous generator is already running" errors
+            return
         except Exception as e:
             await queue.put({"type": "stage2_model_error", "model": model, "error": str(e)})
 
