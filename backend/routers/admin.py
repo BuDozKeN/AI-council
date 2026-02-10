@@ -16,7 +16,7 @@ from typing import Optional, List, Literal
 import uuid
 
 from ..auth import get_current_user
-from ..database import get_supabase_service, get_supabase_with_auth
+from ..database import get_supabase_service, get_supabase_with_auth, with_retry, DatabaseRetryError
 from ..security import SecureHTTPException, log_app_event, escape_sql_like_pattern
 from ..services.email import send_invitation_email
 from .. import leaderboard as leaderboard_module
@@ -227,15 +227,32 @@ async def check_is_platform_admin(user_id: str) -> tuple[bool, Optional[str]]:
     Returns (is_admin, role).
 
     Uses is_active=true to indicate active admin status.
+    Includes retry logic for transient connection errors (e.g., "Server disconnected").
     """
-    try:
+    def _query_admin():
         supabase = get_supabase_service()
-        result = supabase.table("platform_admins").select(
+        return supabase.table("platform_admins").select(
             "role"
         ).eq("user_id", user_id).eq("is_active", True).maybe_single().execute()
 
+    try:
+        result = await with_retry(
+            _query_admin,
+            max_retries=2,
+            operation="check_platform_admin"
+        )
+
         if result and result.data:
             return True, result.data.get("role")
+        return False, None
+    except DatabaseRetryError as e:
+        log_app_event(
+            "ADMIN: Failed to check admin status after retries",
+            level="ERROR",
+            user_id=user_id,
+            attempts=e.attempts,
+            error=str(e.last_error)
+        )
         return False, None
     except Exception as e:
         log_app_event(

@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
-from .database import get_supabase, get_supabase_with_auth, get_supabase_service
+from .database import get_supabase, get_supabase_with_auth, get_supabase_service, with_retry_sync, DatabaseRetryError
 from .security import log_app_event, escape_sql_like_pattern, verify_user_company_access, log_security_event
 
 logger = logging.getLogger(__name__)
@@ -186,88 +186,108 @@ def get_conversation(
     Returns:
         Conversation dict or None if not found.
         Includes 'message_count' for total messages and 'messages_truncated' if limited.
-    """
-    supabase = _get_client(access_token)
 
+    Note:
+        Includes retry logic for transient network errors (httpx.WriteError, etc.).
+    """
     # Enforce message limit to prevent memory issues
     if message_limit > 0:
         message_limit = min(message_limit, 1000)  # Hard cap at 1000 messages
 
-    # First get conversation metadata
-    conv_result = supabase.table('conversations').select('*').eq('id', conversation_id).execute()
+    def _fetch():
+        supabase = _get_client(access_token)
 
-    if not conv_result.data:
-        return None
+        # First get conversation metadata
+        conv_result = supabase.table('conversations').select('*').eq('id', conversation_id).execute()
 
-    conv = conv_result.data[0]
+        if not conv_result.data:
+            return None
 
-    # Get messages separately with limit and order
-    # This prevents unbounded queries on conversations with thousands of messages
-    messages_query = supabase.table('messages').select('*').eq(
-        'conversation_id', conversation_id
-    ).order('created_at', desc=False)  # Oldest first
+        conv = conv_result.data[0]
 
-    if message_limit > 0:
-        # Get total count for pagination info
-        count_result = supabase.table('messages').select(
-            'id', count='exact'
-        ).eq('conversation_id', conversation_id).execute()
-        total_messages = count_result.count if hasattr(count_result, 'count') else len(count_result.data or [])
-
-        # For limit, we want the MOST RECENT messages, so order desc and take limit, then reverse
-        messages_result = supabase.table('messages').select('*').eq(
+        # Get messages separately with limit and order
+        # This prevents unbounded queries on conversations with thousands of messages
+        messages_query = supabase.table('messages').select('*').eq(
             'conversation_id', conversation_id
-        ).order('created_at', desc=True).limit(message_limit).execute()
+        ).order('created_at', desc=False)  # Oldest first
 
-        raw_messages = messages_result.data or []
-        # Reverse to get chronological order (oldest first)
-        raw_messages.reverse()
-        messages_truncated = total_messages > message_limit
-    else:
-        messages_result = messages_query.execute()
-        raw_messages = messages_result.data or []
-        total_messages = len(raw_messages)
-        messages_truncated = False
+        if message_limit > 0:
+            # Get total count for pagination info
+            count_result = supabase.table('messages').select(
+                'id', count='exact'
+            ).eq('conversation_id', conversation_id).execute()
+            total_messages = count_result.count if hasattr(count_result, 'count') else len(count_result.data or [])
 
-    messages = []
-    for msg in raw_messages:
-        if msg['role'] == 'user':
-            messages.append({
-                "role": "user",
-                "content": msg['content']
-            })
+            # For limit, we want the MOST RECENT messages, so order desc and take limit, then reverse
+            messages_result = supabase.table('messages').select('*').eq(
+                'conversation_id', conversation_id
+            ).order('created_at', desc=True).limit(message_limit).execute()
+
+            raw_messages = messages_result.data or []
+            # Reverse to get chronological order (oldest first)
+            raw_messages.reverse()
+            messages_truncated = total_messages > message_limit
         else:
-            # Assistant message
-            message = {
-                "role": "assistant",
-                "stage1": msg.get('stage1') or [],
-                "stage2": msg.get('stage2') or [],
-                "stage3": msg.get('stage3') or {}
-            }
-            if msg.get('label_to_model'):
-                message['label_to_model'] = msg['label_to_model']
-            if msg.get('aggregate_rankings'):
-                message['aggregate_rankings'] = msg['aggregate_rankings']
-            messages.append(message)
+            messages_result = messages_query.execute()
+            raw_messages = messages_result.data or []
+            total_messages = len(raw_messages)
+            messages_truncated = False
 
-    result = {
-        "id": conv['id'],
-        "created_at": conv['created_at'],
-        "last_updated": conv['updated_at'],
-        "title": conv.get('title', 'New Conversation'),
-        "archived": conv.get('archived', False),
-        "messages": messages,
-        "curator_history": conv.get('curator_history') or [],
-        "user_id": conv.get('user_id'),
-        "message_count": total_messages,
-    }
+        messages = []
+        for msg in raw_messages:
+            if msg['role'] == 'user':
+                messages.append({
+                    "role": "user",
+                    "content": msg['content']
+                })
+            else:
+                # Assistant message
+                message = {
+                    "role": "assistant",
+                    "stage1": msg.get('stage1') or [],
+                    "stage2": msg.get('stage2') or [],
+                    "stage3": msg.get('stage3') or {}
+                }
+                if msg.get('label_to_model'):
+                    message['label_to_model'] = msg['label_to_model']
+                if msg.get('aggregate_rankings'):
+                    message['aggregate_rankings'] = msg['aggregate_rankings']
+                messages.append(message)
 
-    # Only include truncation info if messages were limited
-    if messages_truncated:
-        result["messages_truncated"] = True
-        result["messages_shown"] = len(messages)
+        result = {
+            "id": conv['id'],
+            "created_at": conv['created_at'],
+            "last_updated": conv['updated_at'],
+            "title": conv.get('title', 'New Conversation'),
+            "archived": conv.get('archived', False),
+            "messages": messages,
+            "curator_history": conv.get('curator_history') or [],
+            "user_id": conv.get('user_id'),
+            "message_count": total_messages,
+        }
 
-    return result
+        # Only include truncation info if messages were limited
+        if messages_truncated:
+            result["messages_truncated"] = True
+            result["messages_shown"] = len(messages)
+
+        return result
+
+    try:
+        return with_retry_sync(
+            _fetch,
+            max_retries=2,
+            operation=f"get_conversation:{conversation_id[:8]}"
+        )
+    except DatabaseRetryError as e:
+        log_app_event(
+            "STORAGE: Failed to get conversation after retries",
+            level="ERROR",
+            conversation_id=conversation_id,
+            attempts=e.attempts,
+            error=str(e.last_error)
+        )
+        raise  # Re-raise to trigger 500 error in router
 
 
 def save_conversation(conversation: Dict[str, Any], access_token: Optional[str] = None):
