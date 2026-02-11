@@ -349,7 +349,9 @@ function ChatInterface({
     if (!conversation?.messages?.length) return;
 
     // UXH-188: Restore saved scroll position when returning to a conversation
-    const savedPosition = conversation?.id ? scrollPositionsRef.current[conversation.id] : undefined;
+    const savedPosition = conversation?.id
+      ? scrollPositionsRef.current[conversation.id]
+      : undefined;
     if (savedPosition !== undefined && savedPosition > 0 && !scrollToStage3) {
       const timer = setTimeout(() => {
         messagesContainerRef.current?.scrollTo({ top: savedPosition, behavior: 'instant' });

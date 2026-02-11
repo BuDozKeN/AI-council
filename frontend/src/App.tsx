@@ -1349,16 +1349,21 @@ function App() {
 
         {/* Mobile bottom navigation - thumb-friendly access to main sections */}
         {/* Hide on landing page (clean hero), when modals open, or sidebar open */}
-        {!showLandingHero && !isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && !isMobileSidebarOpen && (
-          <MobileBottomNav
-            onNewChat={handleNewConversation}
-            onOpenHistory={handleOpenSidebar}
-            onOpenLeaderboard={handleOpenLeaderboard}
-            onOpenMyCompany={handleOpenMyCompany}
-            onOpenSettings={handleOpenSettings}
-            activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
-          />
-        )}
+        {!showLandingHero &&
+          !isMyCompanyOpen &&
+          !isSettingsOpen &&
+          !isLeaderboardOpen &&
+          !isProjectModalOpen &&
+          !isMobileSidebarOpen && (
+            <MobileBottomNav
+              onNewChat={handleNewConversation}
+              onOpenHistory={handleOpenSidebar}
+              onOpenLeaderboard={handleOpenLeaderboard}
+              onOpenMyCompany={handleOpenMyCompany}
+              onOpenSettings={handleOpenSettings}
+              activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
+            />
+          )}
       </div>
     </motion.div>
   );

@@ -450,7 +450,10 @@ export function AuditTab() {
                     return (
                       <Fragment key={log.id}>
                         {showDateHeader && (
-                          <tr className="admin-date-group-header" aria-label={formatDateLabel(log.timestamp)}>
+                          <tr
+                            className="admin-date-group-header"
+                            aria-label={formatDateLabel(log.timestamp)}
+                          >
                             <td colSpan={6}>
                               <span className="admin-date-group-label">
                                 {formatDateLabel(log.timestamp)}
@@ -461,73 +464,75 @@ export function AuditTab() {
                         <tr
                           className={useDummyData ? 'admin-demo-row' : ''}
                           {...getAuditRowProps(rowIndex)}
-                      aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)}${log.resource_type ? ` on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
-                    >
-                      <td>
-                        <div className="admin-date-cell">
-                          <Clock className="h-4 w-4" aria-hidden="true" />
-                          <span>{formatTimestamp(log.timestamp)}</span>
-                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="admin-user-cell">
-                          {log.actor_type === 'admin' ? (
-                            <Shield className="h-4 w-4" aria-hidden="true" />
-                          ) : log.actor_type === 'system' ? (
-                            <Activity className="h-4 w-4" aria-hidden="true" />
-                          ) : (
-                            <Users className="h-4 w-4" aria-hidden="true" />
-                          )}
-                          <span title={log.actor_email || undefined}>
-                            {log.actor_email || log.actor_type}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        {/* Show tooltip with reason for impersonation actions */}
-                        {log.metadata?.reason ? (
-                          <Tooltip
-                            content={
-                              <div className="admin-audit-reason-tooltip">
-                                <strong>{t('admin.audit.reason', 'Reason')}:</strong>
-                                <p>{String(log.metadata.reason)}</p>
-                              </div>
-                            }
-                            side="top"
-                          >
-                            <span className="admin-action-text admin-action-text--has-reason">
-                              {formatActionName(log.action)}
-                              <Eye className="h-3 w-3" aria-hidden="true" />
-                            </span>
-                          </Tooltip>
-                        ) : (
-                          <span className="admin-action-text">{formatActionName(log.action)}</span>
-                        )}
-                      </td>
-                      <td>
-                        <span
-                          className={`admin-category-badge admin-category-badge--${getCategoryColor(log.action_category)}`}
+                          aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)}${log.resource_type ? ` on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
                         >
-                          {log.action_category}
-                        </span>
-                      </td>
-                      <td>
-                        {log.resource_type ? (
-                          <div className="admin-resource-cell">
-                            <span className="admin-resource-type">{log.resource_type}</span>
-                            {log.resource_name && (
-                              <span className="admin-resource-name">{log.resource_name}</span>
+                          <td>
+                            <div className="admin-date-cell">
+                              <Clock className="h-4 w-4" aria-hidden="true" />
+                              <span>{formatTimestamp(log.timestamp)}</span>
+                              {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="admin-user-cell">
+                              {log.actor_type === 'admin' ? (
+                                <Shield className="h-4 w-4" aria-hidden="true" />
+                              ) : log.actor_type === 'system' ? (
+                                <Activity className="h-4 w-4" aria-hidden="true" />
+                              ) : (
+                                <Users className="h-4 w-4" aria-hidden="true" />
+                              )}
+                              <span title={log.actor_email || undefined}>
+                                {log.actor_email || log.actor_type}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            {/* Show tooltip with reason for impersonation actions */}
+                            {log.metadata?.reason ? (
+                              <Tooltip
+                                content={
+                                  <div className="admin-audit-reason-tooltip">
+                                    <strong>{t('admin.audit.reason', 'Reason')}:</strong>
+                                    <p>{String(log.metadata.reason)}</p>
+                                  </div>
+                                }
+                                side="top"
+                              >
+                                <span className="admin-action-text admin-action-text--has-reason">
+                                  {formatActionName(log.action)}
+                                  <Eye className="h-3 w-3" aria-hidden="true" />
+                                </span>
+                              </Tooltip>
+                            ) : (
+                              <span className="admin-action-text">
+                                {formatActionName(log.action)}
+                              </span>
                             )}
-                          </div>
-                        ) : (
-                          <span className="admin-muted">-</span>
-                        )}
-                      </td>
-                      <td className="admin-audit-ip-col">
-                        <span className="admin-ip-text">{log.ip_address || '-'}</span>
-                      </td>
-                    </tr>
+                          </td>
+                          <td>
+                            <span
+                              className={`admin-category-badge admin-category-badge--${getCategoryColor(log.action_category)}`}
+                            >
+                              {log.action_category}
+                            </span>
+                          </td>
+                          <td>
+                            {log.resource_type ? (
+                              <div className="admin-resource-cell">
+                                <span className="admin-resource-type">{log.resource_type}</span>
+                                {log.resource_name && (
+                                  <span className="admin-resource-name">{log.resource_name}</span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="admin-muted">-</span>
+                            )}
+                          </td>
+                          <td className="admin-audit-ip-col">
+                            <span className="admin-ip-text">{log.ip_address || '-'}</span>
+                          </td>
+                        </tr>
                       </Fragment>
                     );
                   })
