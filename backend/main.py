@@ -496,6 +496,8 @@ class RequestDurationMiddleware(BaseHTTPMiddleware):
         "/merge-decision",     # Decision merging
         "/triage/analyze",     # Triage analysis
         "/triage/continue",    # Triage continuation
+        "/ai/write-assist",    # AI write assist (single LLM call)
+        "/utils/polish-text",  # Text polishing (single LLM call)
     )
 
     def _is_llm_endpoint(self, path: str) -> bool:
