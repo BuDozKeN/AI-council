@@ -97,18 +97,18 @@ async def get_company_members(request: Request, company_id: ValidCompanyId,
         if not profiles_map.get(uid, {}).get("email")
     ]
     if members_missing_email:
-        try:
-            auth_response = client.auth.admin.list_users()
-            auth_users = auth_response.users if hasattr(auth_response, 'users') else (
-                auth_response if isinstance(auth_response, list) else []
-            )
-            for au in auth_users:
-                uid = au.id if hasattr(au, 'id') else au.get("id")
-                email = au.email if hasattr(au, 'email') else au.get("email")
-                if uid and email:
-                    auth_emails_map[uid] = email
-        except Exception as e:
-            logger.debug("Could not fetch auth emails for members: %s", e)
+        for uid in members_missing_email:
+            try:
+                auth_user = client.auth.admin.get_user_by_id(uid)
+                user_obj = auth_user.user if hasattr(auth_user, 'user') else auth_user
+                if user_obj:
+                    email = user_obj.email if hasattr(user_obj, 'email') else (
+                        user_obj.get("email") if isinstance(user_obj, dict) else None
+                    )
+                    if email:
+                        auth_emails_map[uid] = email
+            except Exception as e:
+                logger.debug("Could not fetch auth email for user %s: %s", uid, e)
 
     members = []
     for member in result.data:
