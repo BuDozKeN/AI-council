@@ -33,8 +33,7 @@
 
   /* UXH-163: MarkdownViewer inside modals needs proper overflow handling */
   .app-modal-body .mc-content-section .markdown-viewer {
-    overflow-wrap: break-word;
-    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 
   /* Footer inside app-modal-body - don't shrink, respect safe area */

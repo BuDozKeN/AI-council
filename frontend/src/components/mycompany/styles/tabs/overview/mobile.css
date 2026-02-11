@@ -134,8 +134,8 @@
     width: 100%;
   }
 
-  /* Content inside card - constrain width, allow vertical flow */
-  /* UXH-061: cursor:text so content area doesn't feel like a giant button */
+  /* Content inside card - constrain width, allow vertical flow.
+     UXH-061: cursor:text so content area doesn't feel like a giant button */
   .mc-context-card .mc-context-content {
     height: auto;
     min-height: 0;
@@ -145,7 +145,6 @@
     overflow: hidden visible;
     cursor: text;
     user-select: text;
-    -webkit-user-select: text;
   }
 
   /* MarkdownViewer prose inside card - constrain width for mobile */

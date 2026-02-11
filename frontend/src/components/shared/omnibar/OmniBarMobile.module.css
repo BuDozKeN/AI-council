@@ -128,12 +128,12 @@
   }
 
   /* UXH-215: Make inactive send button slightly more visible */
-  .barSubmit:not(.active):not(:disabled) {
+  .barSubmit:not(.active, :disabled) {
     background: var(--color-bg-quaternary);
     color: var(--color-text-secondary);
   }
 
-  .barSubmit:not(.active):not(:disabled):hover {
+  .barSubmit:not(.active, :disabled):hover {
     background: var(--color-bg-tertiary);
   }
 }
