@@ -114,13 +114,13 @@
   }
 
   /* UXH-113: Make inactive send button more visible on mobile (not gray) */
-  .sendBtn:not(.active):not(:disabled) {
+  .sendBtn:not(.active, :disabled) {
     background: var(--color-bg-quaternary);
     color: var(--color-text-secondary);
     border: 1px solid var(--color-border);
   }
 
-  .sendBtn:not(.active):not(:disabled):hover {
+  .sendBtn:not(.active, :disabled):hover {
     background: var(--color-bg-tertiary);
     border-color: var(--color-border-dark);
   }

@@ -87,7 +87,7 @@
   /* UXH-087/090/094/105: Prevent text truncation in dropdown items on mobile */
   .select-item {
     white-space: normal;
-    word-break: break-word;
+    overflow-wrap: anywhere;
     line-height: 1.4;
     padding-top: var(--space-2-5);
     padding-bottom: var(--space-2-5);

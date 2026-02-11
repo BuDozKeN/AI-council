@@ -110,7 +110,7 @@
   /* UXH-071: Allow title to wrap on mobile to prevent cut-off */
   .mc-title-display {
     white-space: normal;
-    word-break: break-word;
+    overflow-wrap: anywhere;
     line-height: 1.3;
     font-size: 1.125rem;
   }

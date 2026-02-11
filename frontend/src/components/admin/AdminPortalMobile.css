@@ -42,8 +42,8 @@
     display: none; /* Hide "Admin Portal" title on mobile - save space */
   }
 
-  /* Mobile nav - horizontal with consistent padding */
-  /* UXH-165/166: Horizontal scrollable tabs for 6+ admin tabs */
+  /* Mobile nav - horizontal with consistent padding.
+     UXH-165/166: Horizontal scrollable tabs for 6+ admin tabs */
   .admin-nav {
     flex-direction: row;
     overflow-x: auto;

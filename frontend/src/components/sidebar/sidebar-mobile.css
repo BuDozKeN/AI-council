@@ -291,7 +291,7 @@
     overflow: hidden;
     line-height: 1.4;
     white-space: normal; /* Override single-line truncation */
-    word-break: break-word;
+    overflow-wrap: anywhere;
   }
 
   /* ==========================================================================

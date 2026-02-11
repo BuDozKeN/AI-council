@@ -1,5 +1,5 @@
-/* Leaderboard content styles (modal handled by AppModal) */
-/* Mobile responsive: See LeaderboardMobile.css */
+/* Leaderboard content styles (modal handled by AppModal).
+   Mobile responsive: See LeaderboardMobile.css */
 @import url('./LeaderboardMobile.css');
 
 /* Skeleton loading state - matches real content structure */
