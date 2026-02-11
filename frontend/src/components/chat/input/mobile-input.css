@@ -13,7 +13,7 @@
      to ensure it's above the bottom nav on all screens */
 
   .messages-container {
-    padding: 0 var(--space-3) 12px;
+    padding: 0 var(--space-3) var(--space-3); /* P3: Use design token instead of hardcoded 12px */
   }
 
   /* Remove max-width constraint on tablet - content fills available space */
@@ -36,7 +36,7 @@
   }
 
   .input-row {
-    padding: var(--space-1) var(--space-1) 4px var(--space-2-5);
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-2-5); /* P3: Use design token */
   }
 
   .message-input {

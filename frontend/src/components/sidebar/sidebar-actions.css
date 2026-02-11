@@ -174,7 +174,7 @@
   font-size: var(--text-xs-plus);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,5 +263,18 @@
   .hover-actions {
     gap: 0;
     right: calc(-1 * var(--space-1));
+  }
+
+  /* UXH-170: On mobile, show only essential actions (delete + more menu)
+     Other actions should be in the context menu accessed via long-press or more button */
+  .hover-action-btn.star-btn,
+  .hover-action-btn.archive-btn {
+    display: none;
+  }
+
+  /* Reduce reserved space since fewer buttons are shown */
+  .conversation-item:hover .conversation-content,
+  .conversation-item.focused .conversation-content {
+    max-width: calc(100% - 60px); /* Space for 2 buttons instead of 4 */
   }
 }

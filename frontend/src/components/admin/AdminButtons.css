@@ -15,7 +15,7 @@
   font-weight: 500;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   border: 1px solid transparent;
 }
 
@@ -87,7 +87,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .admin-icon-btn--secondary {
@@ -203,7 +203,7 @@
   font-size: var(--font-size-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
   margin-top: var(--space-4);
 }
 

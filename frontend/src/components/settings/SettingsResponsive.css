@@ -82,8 +82,9 @@
     border-radius: var(--radius-xs);
   }
 
+  /* UXH-129: Larger icons in settings sidebar on mobile for visibility */
   .settings-sidebar .settings-tab .tab-icon {
-    font-size: var(--text-base);
+    font-size: var(--text-lg);
   }
 
   /* UXH-032: Hide labels on mobile to reduce sidebar width - icon + tooltip only */
@@ -96,7 +97,6 @@
     min-height: 0;
     overflow-y: auto;
     padding: var(--space-4) var(--space-5) 24px 16px; /* Top, Right, Bottom, Left - better breathing room */
-    -webkit-overflow-scrolling: touch;
     touch-action: pan-y pan-x; /* Allow vertical scroll + horizontal browser gestures (swipe-back) */
   }
 
@@ -202,7 +202,6 @@
     overflow-y: auto;
     flex: 1;
     min-height: 0; /* Critical: allow shrinking */
-    -webkit-overflow-scrolling: touch;
     touch-action: pan-y pan-x; /* Allow vertical scroll + horizontal browser gestures (swipe-back) */
     overscroll-behavior-y: contain; /* Prevent vertical scroll chaining; allow horizontal for browser back */
   }
@@ -290,5 +289,11 @@
   .settings-action-btn.sign-out-btn:hover {
     color: var(--color-red-500);
     background: transparent;
+  }
+
+  /* UXH-134/148: Hide advanced tabs on mobile - Developer and LLM Hub are power-user features */
+  #developer-tab,
+  #ai-config-tab {
+    display: none;
   }
 }

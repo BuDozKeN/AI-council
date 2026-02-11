@@ -84,7 +84,7 @@
   padding: var(--space-1);
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
 
 .accept-invite-toggle-pw:hover {
@@ -106,7 +106,7 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
   margin-top: var(--space-2);
 }
 

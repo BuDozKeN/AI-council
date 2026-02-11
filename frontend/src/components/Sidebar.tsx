@@ -492,7 +492,7 @@ function Sidebar({
     });
 
     if (!groups['standard']) {
-      groups['standard'] = { name: 'Standard', conversations: [], deptId: 'standard' };
+      groups['standard'] = { name: 'General', conversations: [], deptId: 'standard' };
     }
 
     convsToGroup.forEach((conv) => {

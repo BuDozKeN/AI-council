@@ -109,4 +109,25 @@
     flex: 1;
     min-width: 0;
   }
+
+  /* UXH-175: Larger dropdown on mobile for better touch target */
+  .analytics-date-select,
+  .analytics-date-select-premium {
+    min-height: 44px;
+    font-size: var(--text-sm);
+  }
+
+  /* UXH-176: Ensure refresh button has proper touch target */
+  .analytics-refresh-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  /* UXH-174: Hide grayed download button on mobile */
+  .analytics-export-btn,
+  .analytics-export-btn-premium {
+    display: none;
+  }
 }

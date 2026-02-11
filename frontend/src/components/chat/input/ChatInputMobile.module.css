@@ -31,8 +31,8 @@
   }
 
   .sendBtn svg {
-    width: 16px;
-    height: 16px;
+    width: 20px; /* P3: Standardize icon size (matches active state) */
+    height: 20px;
   }
 
   .omniBottom {
@@ -85,5 +85,53 @@
   /* UXH-031: Hide response style selector on mobile - moved to context bottom sheet */
   .hideOnMobile {
     display: none;
+  }
+
+  /* UXH-125: Visible focus indicators for accessibility */
+  .omniInput:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  .iconBtn:focus-visible,
+  .sendBtn:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-full);
+  }
+
+  /* UXH-126/127: Input auto-expand behavior on focus */
+  .omniInput:focus {
+    min-height: 52px; /* Slightly larger when focused */
+    transition: min-height 0.15s ease; /* P3: Smooth expansion */
+  }
+
+  /* UXH-128: Better spacing for bottom controls */
+  .omniBottom {
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  /* UXH-113: Make inactive send button more visible on mobile (not gray) */
+  .sendBtn:not(.active):not(:disabled) {
+    background: var(--color-bg-quaternary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+  }
+
+  .sendBtn:not(.active):not(:disabled):hover {
+    background: var(--color-bg-tertiary);
+    border-color: var(--color-border-dark);
+  }
+
+  /* UXH-113: Make active send button more prominent on mobile */
+  .sendBtn.active {
+    box-shadow: 0 4px 12px var(--overlay-indigo-30);
+  }
+
+  .sendBtn svg {
+    width: 20px;
+    height: 20px;
   }
 }

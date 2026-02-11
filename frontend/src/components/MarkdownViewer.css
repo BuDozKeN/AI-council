@@ -147,7 +147,6 @@
   width: 100%;
   max-width: 100%;
   overflow: auto hidden;
-  -webkit-overflow-scrolling: touch;
   margin-block: 1.25rem;
 }
 
@@ -232,11 +231,33 @@
   background-color: var(--color-warning-light);
 }
 
-/* Mobile: Increase table cell padding for better readability */
+/* Mobile: Increase table cell padding and prevent overflow */
 @media (width <= 640px) {
   .prose td,
   .prose th {
     padding: var(--space-3) var(--space-2-5);
+  }
+
+  /* UXH-156/203: Ensure code blocks fit mobile width */
+  .prose pre {
+    max-width: calc(100vw - 2rem);
+    padding: var(--space-3);
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .prose table {
+    font-size: 0.8125rem;
+  }
+
+  /* UXH-202: Style task list checkboxes as non-interactive visual indicators */
+  .prose input[type='checkbox'] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-green-500);
+    pointer-events: none;
+    vertical-align: middle;
+    margin-right: var(--space-1);
   }
 }
 

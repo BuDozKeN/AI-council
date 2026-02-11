@@ -210,3 +210,52 @@
   border-color: var(--color-indigo-400);
   background: var(--color-bg-primary);
 }
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* UXH-050: Reduce text wall with better spacing */
+  .mc-content-section {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .mc-markdown-raw {
+    padding: var(--space-3);
+    font-size: 0.75rem;
+    max-height: 280px;
+    line-height: 1.55;
+  }
+
+  /* UXH-046: Smaller metadata badges to declutter */
+  .mc-role-meta {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+  }
+
+  .mc-role-dept-badge,
+  .mc-role-title-badge,
+  .mc-role-desc-badge {
+    font-size: var(--text-2xs); /* P3: 10px → 11px for readability */
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* Section headers */
+  .mc-section {
+    margin-top: var(--space-3);
+  }
+
+  .mc-section h4 {
+    font-size: 0.8125rem;
+    margin-bottom: var(--space-2);
+  }
+
+  /* Edit mode textarea */
+  .mc-edit-textarea-full {
+    font-size: 0.8125rem;
+    padding: var(--space-3);
+    min-height: 200px;
+  }
+}

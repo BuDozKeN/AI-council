@@ -197,7 +197,7 @@ describe('AdminPortal', () => {
       expect(screen.getByText('Connection Error')).toBeInTheDocument();
       expect(screen.getByText('Network timeout')).toBeInTheDocument();
       expect(screen.getByText('Retry')).toBeInTheDocument();
-      expect(screen.getByText('Back to App')).toBeInTheDocument();
+      expect(screen.getByText('Exit Admin')).toBeInTheDocument();
     });
 
     it('shows not-logged-in state when user is null', () => {
@@ -262,9 +262,9 @@ describe('AdminPortal', () => {
       expect(screen.getByText('Platform Admin')).toBeInTheDocument();
     });
 
-    it('renders the Back to App button', () => {
+    it('renders the Exit Admin button', () => {
       renderAdminPortal();
-      expect(screen.getByText('Back to App')).toBeInTheDocument();
+      expect(screen.getByText('Exit Admin')).toBeInTheDocument();
     });
 
     it('renders the skip-to-content accessibility link', () => {

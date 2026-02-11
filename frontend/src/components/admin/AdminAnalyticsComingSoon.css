@@ -1,0 +1,84 @@
+/* Analytics Coming Soon Section - Extracted from AdminAnalyticsPremiumCards.css */
+
+.analytics-coming-soon {
+  margin-top: var(--space-8);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-xl, 16px);
+  overflow: hidden;
+}
+
+.analytics-coming-soon-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-secondary);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: background 0.15s ease;
+}
+
+.analytics-coming-soon-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.analytics-coming-soon-trigger:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.analytics-coming-soon-badge {
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.analytics-coming-soon-content {
+  padding: var(--space-5);
+  background: var(--color-bg-primary);
+}
+
+.analytics-placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+}
+
+.analytics-placeholder-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-6);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.analytics-placeholder-card svg {
+  color: var(--color-text-quaternary);
+  margin-bottom: var(--space-4);
+  opacity: 0.5;
+}
+
+.analytics-placeholder-card h4 {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-2) 0;
+}
+
+.analytics-placeholder-card p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  line-height: 1.5;
+}

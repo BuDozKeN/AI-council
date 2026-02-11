@@ -149,14 +149,15 @@
     gap: var(--gap-sm-plus);
   }
 
+  /* UXH-216: Larger chevrons for better tap feedback */
   .context-popover-group-header .section-chevron {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 
   .context-popover-group-header svg {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 
   .context-popover-group-header .section-count {
@@ -188,6 +189,21 @@
 
   .dark .context-popover-item.selected {
     background: var(--color-bg-hover);
+  }
+
+  /* UXH-204: Larger badges on mobile for better readability */
+  .context-icon-badge {
+    min-width: 18px;
+    height: 18px;
+    font-size: var(--text-xs);
+    line-height: 18px;
+    padding: 0 var(--space-1-5);
+  }
+
+  /* Larger touch targets for context icon buttons */
+  .context-icon-btn {
+    width: 44px;
+    height: 44px;
   }
 }
 

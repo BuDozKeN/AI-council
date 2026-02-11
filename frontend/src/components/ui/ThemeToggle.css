@@ -52,13 +52,11 @@
   cursor: default;
 }
 
-/* Mobile adjustments - move to bottom-left thumb zone (UXH-087) */
+/* Mobile adjustments - keep top-right (conventional placement) */
 @media (width <= 640px) {
   .theme-toggle-container {
-    /* UXH-087: Move to bottom-left for thumb accessibility */
-    inset-block: auto calc(80px + env(safe-area-inset-bottom, 0px)); /* Above bottom nav */
-    right: auto;
-    left: 12px;
+    inset-block-start: 12px;
+    right: 12px;
   }
 
   /* Mobile: Keep visible with subtle background (Issue #10 fix) */

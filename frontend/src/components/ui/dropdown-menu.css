@@ -243,3 +243,42 @@
 .dark .dropdown-menu-sub-content {
   border-color: var(--color-border-secondary);
 }
+
+/* =============================================================================
+   MOBILE RESPONSIVE - Better touch targets and text handling
+   UXH-087/090/094/105: Prevent truncation
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .dropdown-menu-content {
+    min-width: min(200px, 85vw);
+    max-width: 90vw;
+  }
+
+  .dropdown-menu-item,
+  .dropdown-menu-checkbox-item,
+  .dropdown-menu-radio-item,
+  .dropdown-menu-sub-trigger {
+    min-height: 44px;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-base);
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+  }
+
+  .dropdown-menu-checkbox-item,
+  .dropdown-menu-radio-item {
+    padding-left: var(--space-10);
+  }
+
+  .dropdown-menu-item svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .dropdown-menu-label {
+    padding: var(--space-2-5) var(--space-4);
+    font-size: var(--text-xs-plus);
+  }
+}

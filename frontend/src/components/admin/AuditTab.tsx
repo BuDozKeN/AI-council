@@ -4,7 +4,7 @@
  * Extracted from AdminPortal.tsx during CRITICAL-2 split.
  */
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Activity, Clock, Shield, Users, Eye } from 'lucide-react';
@@ -239,12 +239,27 @@ export function AuditTab() {
     rowCount: logs.length,
   });
 
-  // Format timestamp for display
+  // UXH-220: Compact timestamp — time-only for today/yesterday (date headers provide context),
+  // short date+time for older entries (drop year when current year)
   const formatTimestamp = (ts: string): string => {
     try {
       const date = new Date(ts);
+      const now = new Date();
+      const isToday = date.toDateString() === now.toDateString();
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const isYesterday = date.toDateString() === yesterday.toDateString();
+
+      if (isToday || isYesterday) {
+        return date.toLocaleTimeString(getIntlLocale(), {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+
+      const sameYear = date.getFullYear() === now.getFullYear();
       return date.toLocaleString(getIntlLocale(), {
-        year: 'numeric',
+        ...(sameYear ? {} : { year: 'numeric' }),
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -252,6 +267,36 @@ export function AuditTab() {
       });
     } catch {
       return ts;
+    }
+  };
+
+  // UXH-183: Format date label for group headers (Today, Yesterday, or date)
+  const formatDateLabel = (ts: string): string => {
+    try {
+      const date = new Date(ts);
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const dateStr = date.toDateString();
+      if (dateStr === today.toDateString()) return t('admin.audit.today', 'Today');
+      if (dateStr === yesterday.toDateString()) return t('admin.audit.yesterday', 'Yesterday');
+      return date.toLocaleDateString(getIntlLocale(), {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return '';
+    }
+  };
+
+  // UXH-183: Get date key for grouping (YYYY-MM-DD)
+  const getDateKey = (ts: string): string => {
+    try {
+      return new Date(ts).toDateString();
+    } catch {
+      return '';
     }
   };
 
@@ -396,11 +441,26 @@ export function AuditTab() {
                 {isLoading ? (
                   <AuditTableSkeleton />
                 ) : (
-                  logs.map((log, rowIndex) => (
-                    <tr
-                      key={log.id}
-                      className={useDummyData ? 'admin-demo-row' : ''}
-                      {...getAuditRowProps(rowIndex)}
+                  logs.map((log, rowIndex) => {
+                    // UXH-183: Insert date group header when date changes
+                    const prevLog = rowIndex > 0 ? logs[rowIndex - 1] : null;
+                    const showDateHeader =
+                      !prevLog || getDateKey(log.timestamp) !== getDateKey(prevLog.timestamp);
+
+                    return (
+                      <Fragment key={log.id}>
+                        {showDateHeader && (
+                          <tr className="admin-date-group-header" aria-label={formatDateLabel(log.timestamp)}>
+                            <td colSpan={6}>
+                              <span className="admin-date-group-label">
+                                {formatDateLabel(log.timestamp)}
+                              </span>
+                            </td>
+                          </tr>
+                        )}
+                        <tr
+                          className={useDummyData ? 'admin-demo-row' : ''}
+                          {...getAuditRowProps(rowIndex)}
                       aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)}${log.resource_type ? ` on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
                     >
                       <td>
@@ -468,7 +528,9 @@ export function AuditTab() {
                         <span className="admin-ip-text">{log.ip_address || '-'}</span>
                       </td>
                     </tr>
-                  ))
+                      </Fragment>
+                    );
+                  })
                 )}
               </tbody>
             </table>

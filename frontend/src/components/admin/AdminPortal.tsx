@@ -138,7 +138,7 @@ export default function AdminPortal() {
             </button>
             <button className="admin-back-btn" onClick={handleBackToApp}>
               <ArrowLeft className="h-4 w-4" />
-              {t('admin.backToApp', 'Back to App')}
+              {t('admin.backToApp', 'Exit Admin')}
             </button>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function AdminPortal() {
           <p>{t('admin.pleaseLogin', 'Please log in to access the admin portal.')}</p>
           <button className="admin-back-btn" onClick={handleBackToApp}>
             <ArrowLeft className="h-4 w-4" />
-            {t('admin.backToApp', 'Back to App')}
+            {t('admin.backToApp', 'Exit Admin')}
           </button>
         </div>
       </div>
@@ -180,7 +180,7 @@ export default function AdminPortal() {
           </p>
           <button className="admin-back-btn" onClick={handleBackToApp}>
             <ArrowLeft className="h-4 w-4" />
-            {t('admin.backToApp', 'Back to App')}
+            {t('admin.backToApp', 'Exit Admin')}
           </button>
         </div>
       </div>
@@ -202,7 +202,7 @@ export default function AdminPortal() {
         <div className="admin-sidebar-header">
           <button className="admin-back-link" onClick={handleBackToApp}>
             <ArrowLeft className="h-4 w-4" />
-            <span>{t('admin.backToApp', 'Back to App')}</span>
+            <span>{t('admin.backToApp', 'Exit Admin')}</span>
           </button>
           <h1 className="admin-title">{t('admin.title', 'Admin Portal')}</h1>
         </div>

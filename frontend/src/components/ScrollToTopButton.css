@@ -52,8 +52,9 @@
 
 @media (width <= 1024px) {
   .scroll-to-top-fab {
-    /* Position above bottom nav: nav height (~72px) + spacing (16px) + safe area */
-    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+    /* UXH-036/069/085: Position above bottom nav with generous clearance */
+    /* Nav height (~72px) + spacing (24px) + safe area = 96px */
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
     right: 16px;
     width: 40px;
     height: 40px;

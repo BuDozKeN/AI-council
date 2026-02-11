@@ -270,34 +270,33 @@ export function TableOfContents({
 
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+      // Helper to scroll to element - uses containerRef when available
+      // scrollIntoView doesn't work properly when the scroll container is a custom element
+      const scrollToElement = () => {
+        if (containerRef?.current) {
+          const container = containerRef.current;
+          const containerRect = container.getBoundingClientRect();
+          const elementRect = el.getBoundingClientRect();
+          const offsetTop = elementRect.top - containerRect.top + container.scrollTop;
+          container.scrollTo({
+            top: Math.max(0, offsetTop - 16), // 16px padding from top
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          });
+        } else {
+          // Fallback to scrollIntoView when no containerRef
+          el.scrollIntoView({
+            behavior: prefersReducedMotion ? 'auto' : 'smooth',
+            block: 'start',
+          });
+        }
+      };
+
       // Close sheet first, then scroll after animation
       if (variant === 'sheet') {
         setIsSheetOpen(false);
-        setTimeout(() => {
-          // Use containerRef for scrolling when available - scrollIntoView doesn't work
-          // properly when the scroll container is a custom element (not document)
-          if (containerRef?.current) {
-            const container = containerRef.current;
-            const containerRect = container.getBoundingClientRect();
-            const elementRect = el.getBoundingClientRect();
-            const offsetTop = elementRect.top - containerRect.top + container.scrollTop;
-            container.scrollTo({
-              top: Math.max(0, offsetTop - 16), // 16px padding from top
-              behavior: prefersReducedMotion ? 'auto' : 'smooth',
-            });
-          } else {
-            // Fallback to scrollIntoView when no containerRef
-            el.scrollIntoView({
-              behavior: prefersReducedMotion ? 'auto' : 'smooth',
-              block: 'start',
-            });
-          }
-        }, 150);
+        setTimeout(scrollToElement, 150);
       } else {
-        el.scrollIntoView({
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
-          block: 'start',
-        });
+        scrollToElement();
       }
 
       setActiveId(id);

@@ -442,7 +442,6 @@ export function OmniBar({
   );
 
   // Project list content - single select (radio-style like company)
-  // Sort selected project to top for better UX
   const sortedProjects = [...projects]
     .filter((p) => p.status === 'active')
     .sort((a, b) => {
@@ -481,7 +480,6 @@ export function OmniBar({
   );
 
   // Department list content - uses shared DepartmentCheckboxItem
-  // Sort selected items to top for better UX
   const sortedDepartments = [...departments].sort((a, b) => {
     const aSelected = selectedDepartments.includes(a.id);
     const bSelected = selectedDepartments.includes(b.id);
@@ -509,7 +507,6 @@ export function OmniBar({
   );
 
   // Role list content
-  // Sort selected items to top for better UX
   const sortedRoles = [...roles].sort((a, b) => {
     const aSelected = selectedRoles.includes(a.id);
     const bSelected = selectedRoles.includes(b.id);
@@ -577,7 +574,6 @@ export function OmniBar({
           .map((type) => {
             const config = playbookTypeConfig[type]!;
             const items = groupedPlaybooks[type] ?? [];
-            // Sort selected items to top
             const sortedItems = [...items].sort((a, b) => {
               const aSelected = selectedPlaybooks.includes(a.id);
               const bSelected = selectedPlaybooks.includes(b.id);

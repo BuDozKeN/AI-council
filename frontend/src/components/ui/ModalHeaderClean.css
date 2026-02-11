@@ -97,3 +97,26 @@
   border-color: var(--color-orange-500);
   box-shadow: var(--shadow-focus);
 }
+
+/* =============================================================================
+   MOBILE - Title wrapping (UXH-071)
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .mc-modal-header-clean {
+    padding: var(--space-4) var(--space-5);
+  }
+
+  /* UXH-071: Allow title to wrap on mobile to prevent cut-off */
+  .mc-title-display {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.3;
+    font-size: 1.125rem;
+  }
+
+  /* Ensure header row doesn't force single line */
+  .mc-header-title-row {
+    flex-wrap: wrap;
+  }
+}
