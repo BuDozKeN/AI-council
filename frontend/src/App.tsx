@@ -1361,7 +1361,7 @@ function App() {
               onOpenLeaderboard={handleOpenLeaderboard}
               onOpenMyCompany={handleOpenMyCompany}
               onOpenSettings={handleOpenSettings}
-              activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
+              activeTab="chat"
             />
           )}
       </div>
