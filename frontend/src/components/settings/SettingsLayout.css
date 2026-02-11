@@ -59,7 +59,7 @@
   font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   margin-bottom: var(--space-1);
 }
 
@@ -126,7 +126,7 @@
   font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .settings-action-btn:hover {

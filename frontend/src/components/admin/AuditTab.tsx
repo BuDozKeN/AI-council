@@ -4,7 +4,7 @@
  * Extracted from AdminPortal.tsx during CRITICAL-2 split.
  */
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Search, Activity, Clock, Shield, Users, Eye } from 'lucide-react';
@@ -239,12 +239,27 @@ export function AuditTab() {
     rowCount: logs.length,
   });
 
-  // Format timestamp for display
+  // UXH-220: Compact timestamp — time-only for today/yesterday (date headers provide context),
+  // short date+time for older entries (drop year when current year)
   const formatTimestamp = (ts: string): string => {
     try {
       const date = new Date(ts);
+      const now = new Date();
+      const isToday = date.toDateString() === now.toDateString();
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const isYesterday = date.toDateString() === yesterday.toDateString();
+
+      if (isToday || isYesterday) {
+        return date.toLocaleTimeString(getIntlLocale(), {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+
+      const sameYear = date.getFullYear() === now.getFullYear();
       return date.toLocaleString(getIntlLocale(), {
-        year: 'numeric',
+        ...(sameYear ? {} : { year: 'numeric' }),
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -252,6 +267,36 @@ export function AuditTab() {
       });
     } catch {
       return ts;
+    }
+  };
+
+  // UXH-183: Format date label for group headers (Today, Yesterday, or date)
+  const formatDateLabel = (ts: string): string => {
+    try {
+      const date = new Date(ts);
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const dateStr = date.toDateString();
+      if (dateStr === today.toDateString()) return t('admin.audit.today', 'Today');
+      if (dateStr === yesterday.toDateString()) return t('admin.audit.yesterday', 'Yesterday');
+      return date.toLocaleDateString(getIntlLocale(), {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return '';
+    }
+  };
+
+  // UXH-183: Get date key for grouping (YYYY-MM-DD)
+  const getDateKey = (ts: string): string => {
+    try {
+      return new Date(ts).toDateString();
+    } catch {
+      return '';
     }
   };
 
@@ -396,79 +441,101 @@ export function AuditTab() {
                 {isLoading ? (
                   <AuditTableSkeleton />
                 ) : (
-                  logs.map((log, rowIndex) => (
-                    <tr
-                      key={log.id}
-                      className={useDummyData ? 'admin-demo-row' : ''}
-                      {...getAuditRowProps(rowIndex)}
-                      aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)}${log.resource_type ? ` on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
-                    >
-                      <td>
-                        <div className="admin-date-cell">
-                          <Clock className="h-4 w-4" aria-hidden="true" />
-                          <span>{formatTimestamp(log.timestamp)}</span>
-                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="admin-user-cell">
-                          {log.actor_type === 'admin' ? (
-                            <Shield className="h-4 w-4" aria-hidden="true" />
-                          ) : log.actor_type === 'system' ? (
-                            <Activity className="h-4 w-4" aria-hidden="true" />
-                          ) : (
-                            <Users className="h-4 w-4" aria-hidden="true" />
-                          )}
-                          <span title={log.actor_email || undefined}>
-                            {log.actor_email || log.actor_type}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        {/* Show tooltip with reason for impersonation actions */}
-                        {log.metadata?.reason ? (
-                          <Tooltip
-                            content={
-                              <div className="admin-audit-reason-tooltip">
-                                <strong>{t('admin.audit.reason', 'Reason')}:</strong>
-                                <p>{String(log.metadata.reason)}</p>
-                              </div>
-                            }
-                            side="top"
+                  logs.map((log, rowIndex) => {
+                    // UXH-183: Insert date group header when date changes
+                    const prevLog = rowIndex > 0 ? logs[rowIndex - 1] : null;
+                    const showDateHeader =
+                      !prevLog || getDateKey(log.timestamp) !== getDateKey(prevLog.timestamp);
+
+                    return (
+                      <Fragment key={log.id}>
+                        {showDateHeader && (
+                          <tr
+                            className="admin-date-group-header"
+                            aria-label={formatDateLabel(log.timestamp)}
                           >
-                            <span className="admin-action-text admin-action-text--has-reason">
-                              {formatActionName(log.action)}
-                              <Eye className="h-3 w-3" aria-hidden="true" />
-                            </span>
-                          </Tooltip>
-                        ) : (
-                          <span className="admin-action-text">{formatActionName(log.action)}</span>
+                            <td colSpan={6}>
+                              <span className="admin-date-group-label">
+                                {formatDateLabel(log.timestamp)}
+                              </span>
+                            </td>
+                          </tr>
                         )}
-                      </td>
-                      <td>
-                        <span
-                          className={`admin-category-badge admin-category-badge--${getCategoryColor(log.action_category)}`}
+                        <tr
+                          className={useDummyData ? 'admin-demo-row' : ''}
+                          {...getAuditRowProps(rowIndex)}
+                          aria-label={`${formatTimestamp(log.timestamp)}: ${log.actor_email || log.actor_type} (${log.actor_type}) performed ${formatActionName(log.action)}${log.resource_type ? ` on ${log.resource_type}${log.resource_name ? ` - ${log.resource_name}` : ''}` : ''}, Category: ${log.action_category}, IP: ${log.ip_address || 'Unknown'}`}
                         >
-                          {log.action_category}
-                        </span>
-                      </td>
-                      <td>
-                        {log.resource_type ? (
-                          <div className="admin-resource-cell">
-                            <span className="admin-resource-type">{log.resource_type}</span>
-                            {log.resource_name && (
-                              <span className="admin-resource-name">{log.resource_name}</span>
+                          <td>
+                            <div className="admin-date-cell">
+                              <Clock className="h-4 w-4" aria-hidden="true" />
+                              <span>{formatTimestamp(log.timestamp)}</span>
+                              {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="admin-user-cell">
+                              {log.actor_type === 'admin' ? (
+                                <Shield className="h-4 w-4" aria-hidden="true" />
+                              ) : log.actor_type === 'system' ? (
+                                <Activity className="h-4 w-4" aria-hidden="true" />
+                              ) : (
+                                <Users className="h-4 w-4" aria-hidden="true" />
+                              )}
+                              <span title={log.actor_email || undefined}>
+                                {log.actor_email || log.actor_type}
+                              </span>
+                            </div>
+                          </td>
+                          <td>
+                            {/* Show tooltip with reason for impersonation actions */}
+                            {log.metadata?.reason ? (
+                              <Tooltip
+                                content={
+                                  <div className="admin-audit-reason-tooltip">
+                                    <strong>{t('admin.audit.reason', 'Reason')}:</strong>
+                                    <p>{String(log.metadata.reason)}</p>
+                                  </div>
+                                }
+                                side="top"
+                              >
+                                <span className="admin-action-text admin-action-text--has-reason">
+                                  {formatActionName(log.action)}
+                                  <Eye className="h-3 w-3" aria-hidden="true" />
+                                </span>
+                              </Tooltip>
+                            ) : (
+                              <span className="admin-action-text">
+                                {formatActionName(log.action)}
+                              </span>
                             )}
-                          </div>
-                        ) : (
-                          <span className="admin-muted">-</span>
-                        )}
-                      </td>
-                      <td className="admin-audit-ip-col">
-                        <span className="admin-ip-text">{log.ip_address || '-'}</span>
-                      </td>
-                    </tr>
-                  ))
+                          </td>
+                          <td>
+                            <span
+                              className={`admin-category-badge admin-category-badge--${getCategoryColor(log.action_category)}`}
+                            >
+                              {log.action_category}
+                            </span>
+                          </td>
+                          <td>
+                            {log.resource_type ? (
+                              <div className="admin-resource-cell">
+                                <span className="admin-resource-type">{log.resource_type}</span>
+                                {log.resource_name && (
+                                  <span className="admin-resource-name">{log.resource_name}</span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="admin-muted">-</span>
+                            )}
+                          </td>
+                          <td className="admin-audit-ip-col">
+                            <span className="admin-ip-text">{log.ip_address || '-'}</span>
+                          </td>
+                        </tr>
+                      </Fragment>
+                    );
+                  })
                 )}
               </tbody>
             </table>

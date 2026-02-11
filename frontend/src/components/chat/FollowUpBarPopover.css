@@ -245,3 +245,56 @@
 .context-popover-group-header.policy {
   color: var(--color-purple-600);
 }
+
+/* =============================================================================
+   MOBILE RESPONSIVE - Larger touch targets (UXH-121)
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .context-popover-content {
+    min-width: 200px;
+    max-width: 300px;
+    max-height: 350px;
+  }
+
+  /* UXH-121: Larger checkboxes on mobile for better touch targets */
+  .context-popover-checkbox {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+  }
+
+  .context-popover-checkbox svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .context-popover-radio {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+  }
+
+  .context-popover-radio svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Larger touch targets for popover items */
+  .context-popover-item {
+    min-height: 44px;
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-sm);
+    gap: var(--gap-sm-plus);
+  }
+
+  .context-popover-header {
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--text-xs-plus);
+  }
+
+  .context-popover-clear {
+    min-height: 44px; /* P3: WCAG 44px touch target */
+    padding: var(--space-2-5) var(--space-3);
+  }
+}

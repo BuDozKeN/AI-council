@@ -38,11 +38,15 @@ Use the Task tool to launch the `app-explorer` agent with this prompt:
 
 **Captures:** Broken buttons, modal issues, form bugs, navigation failures, console errors, network errors, interaction failures.
 
+**Note:** Agent has built-in deviceScaleFactor: 1 to prevent screenshot size errors.
+
 ### 1d. Launch mobile-ux-tester agent
 Use the Task tool to launch the `mobile-ux-tester` agent with this prompt:
 > "Test the AxCouncil app at http://localhost:5173 across all mobile viewports (iPhone SE 320x568, iPhone 14 390x844, iPhone 14 Pro Max 430x932, Pixel 7 412x915). Test every interaction: buttons, tabs, modals, forms, scroll areas. Report issues with severity ratings."
 
 **Captures:** Mobile-specific interaction bugs, viewport-specific layout breaks, touch target size violations, scroll container issues, keyboard overlay problems.
+
+**Note:** Agent has built-in deviceScaleFactor: 1 to prevent screenshot size errors.
 
 ### 1e. Run browser-use Python explorer (if available)
 ```bash
@@ -125,7 +129,19 @@ For EVERY issue found, record:
 
 ## Phase 3: Manual Deep Inspection
 
-After automated tools have swept, YOU manually inspect the areas they commonly miss:
+After automated tools have swept, YOU manually inspect the areas they commonly miss.
+
+### CRITICAL: Image Size Limit for Screenshots
+
+Before taking ANY screenshots with Chrome DevTools MCP, you MUST set deviceScaleFactor: 1:
+```
+mcp__chrome-devtools__emulate viewport={"width": 1280, "height": 800, "deviceScaleFactor": 1}
+```
+
+**Rules:**
+- **NEVER use `fullPage: true`** - exceeds Claude API 2000px limit
+- **Always use emulate** (not resize_page) to ensure deviceScaleFactor is set
+- High-DPI displays without this fix will cause API errors
 
 ### 3a. State Transitions
 Navigate each screen and verify:

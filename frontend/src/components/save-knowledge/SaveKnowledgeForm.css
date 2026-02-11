@@ -35,7 +35,7 @@
   color: var(--color-text-primary);
   font-size: 0.9rem;
   font-family: inherit;
-  transition: border-color 0.15s;
+  transition: border-color 0.15s ease;
 }
 
 .form-group input:focus,
@@ -107,7 +107,7 @@
   cursor: pointer;
   padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
-  transition: background 0.15s;
+  transition: background 0.15s ease;
 }
 
 .expand-btn:hover {
@@ -253,7 +253,7 @@
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s ease;
 }
 
 .success-message .success-dismiss-btn:hover {

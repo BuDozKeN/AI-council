@@ -240,3 +240,48 @@
 .dark .mode-toggle-btn:focus-visible {
   outline-color: var(--color-blue-500);
 }
+
+/* =============================================================================
+   MOBILE RESPONSIVE - Larger touch targets and icons (UXH-008)
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .sidebar-footer-buttons {
+    gap: var(--gap-xs);
+  }
+
+  .footer-btn {
+    min-height: 44px;
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-xs-plus);
+  }
+
+  /* UXH-008: Larger icons on mobile for better visibility */
+  .footer-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Mode toggle buttons need 44px touch targets */
+  .mode-toggle-btn {
+    min-height: 44px;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .mode-toggle-btn .mode-indicator {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* UXH-169: Hide user email on mobile for privacy */
+  .user-email {
+    display: none;
+  }
+
+  /* UXH-014/002: Hide Company & Settings buttons in sidebar on mobile -
+     bottom nav already provides these, preventing duplicate navigation */
+  .footer-btn.company-btn,
+  .footer-btn.settings-btn {
+    display: none;
+  }
+}

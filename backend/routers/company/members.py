@@ -89,17 +89,40 @@ async def get_company_members(request: Request, company_id: ValidCompanyId,
         # profiles table might not exist - log and continue
         logger.debug("Could not fetch profiles for members: %s", e)
 
+    # UXH-141: Fall back to auth user emails when profiles table is empty/incomplete
+    # This prevents all members showing as "Team Member" in the UI
+    auth_emails_map: dict = {}
+    members_missing_email = [
+        uid for uid in user_ids
+        if not profiles_map.get(uid, {}).get("email")
+    ]
+    if members_missing_email:
+        for uid in members_missing_email:
+            try:
+                auth_user = client.auth.admin.get_user_by_id(uid)
+                user_obj = auth_user.user if hasattr(auth_user, 'user') else auth_user
+                if user_obj:
+                    email = user_obj.email if hasattr(user_obj, 'email') else (
+                        user_obj.get("email") if isinstance(user_obj, dict) else None
+                    )
+                    if email:
+                        auth_emails_map[uid] = email
+            except Exception as e:
+                logger.debug("Could not fetch auth email for user %s: %s", uid, e)
+
     members = []
     for member in result.data:
         profile = profiles_map.get(member["user_id"], {})
+        email = profile.get("email") or auth_emails_map.get(member["user_id"])
+        display_name = profile.get("full_name")
         members.append({
             "id": member["id"],
             "user_id": member["user_id"],
             "role": member["role"],
             "joined_at": member["joined_at"],
             "created_at": member["created_at"],
-            "email": profile.get("email"),
-            "display_name": profile.get("full_name"),
+            "email": email,
+            "display_name": display_name,
         })
 
     return {"members": members}

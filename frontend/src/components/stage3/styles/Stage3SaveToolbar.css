@@ -27,6 +27,14 @@
   flex-wrap: wrap;
 }
 
+/* UXH-219: Label for save toolbar discoverability */
+.save-toolbar-label {
+  font-size: var(--text-xs-plus);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 /* Options group - visually contained */
 .save-options-group {
   display: inline-flex;

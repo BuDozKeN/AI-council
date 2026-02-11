@@ -257,6 +257,22 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
                 e.preventDefault();
               }
             }}
+            onEscapeKeyDown={(e) => {
+              // UXH-079: Don't close AppModal when a nested BottomSheet is open
+              // Let the BottomSheet's own Escape handler close it first
+              const openBottomSheet = document.querySelector(
+                '.bottom-sheet-content, .bottom-sheet-overlay'
+              );
+              if (openBottomSheet) {
+                e.preventDefault();
+                return;
+              }
+              // Also check for open Radix Select menus
+              const openSelect = document.querySelector('[data-radix-select-content]');
+              if (openSelect) {
+                e.preventDefault();
+              }
+            }}
             onInteractOutside={(e) => {
               // Don't close if clicking the theme toggle
               const target = e.target as HTMLElement;

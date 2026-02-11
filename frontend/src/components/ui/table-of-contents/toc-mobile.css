@@ -197,7 +197,6 @@
   padding: var(--space-2) var(--space-3) 32px;
   max-height: calc(70vh - 80px);
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 
   /* Explicit background to prevent gap artifacts in margin spaces between items */
   background: var(--color-bg-primary);

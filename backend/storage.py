@@ -963,6 +963,31 @@ def get_projects_with_stats(
         .execute()
     dept_map = {d["id"]: d for d in (dept_result.data or [])}
 
+    # UXH-062: Batch knowledge_entries queries to avoid N+1 problem
+    # (previously 2 queries per project; now 2 queries total)
+    project_ids = [p["id"] for p in projects]
+    decision_counts: dict = {}
+    first_questions: dict = {}
+
+    if project_ids:
+        try:
+            # Batch query: get all active knowledge entries for all projects at once
+            all_entries = client.table("knowledge_entries")\
+                .select("id, project_id, question, created_at")\
+                .in_("project_id", project_ids)\
+                .eq("is_active", True)\
+                .order("created_at", desc=False)\
+                .execute()
+
+            # Aggregate counts and find first question per project
+            for entry in (all_entries.data or []):
+                pid = entry["project_id"]
+                decision_counts[pid] = decision_counts.get(pid, 0) + 1
+                if pid not in first_questions:
+                    first_questions[pid] = entry.get("question")
+        except Exception as e:
+            logger.warning("Failed to batch-fetch decision stats: %s", e)
+
     # Enrich projects with decision counts and department names
     for project in projects:
         dept_ids = project.get("department_ids") or []
@@ -975,31 +1000,9 @@ def get_projects_with_stats(
         # Set department_name to first one for backwards compat
         project["department_name"] = project["department_names"][0] if project["department_names"] else None
 
-        # Get decision count and first decision's user question (for "what was asked")
-        try:
-            count_result = client.table("knowledge_entries")\
-                .select("id", count="exact")\
-                .eq("project_id", project["id"])\
-                .eq("is_active", True)\
-                .execute()
-            project["decision_count"] = count_result.count or 0
-
-            # Get the first decision's question (the question that created this project)
-            first_decision = client.table("knowledge_entries")\
-                .select("question")\
-                .eq("project_id", project["id"])\
-                .eq("is_active", True)\
-                .order("created_at", desc=False)\
-                .limit(1)\
-                .execute()
-            if first_decision.data and len(first_decision.data) > 0:
-                project["source_question"] = first_decision.data[0].get("question")
-            else:
-                project["source_question"] = None
-        except Exception as e:
-            logger.warning("Failed to get decision stats for project %s: %s", project.get("id"), e)
-            project["decision_count"] = 0
-            project["source_question"] = None
+        # Use pre-fetched batch data (no per-project queries)
+        project["decision_count"] = decision_counts.get(project["id"], 0)
+        project["source_question"] = first_questions.get(project["id"])
 
     return projects
 

@@ -54,3 +54,21 @@
   width: 100%;
   min-height: 400px;
 }
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* UXH-158: Add bottom clearance for mobile bottom nav */
+  .chat-interface {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Triage - compact on mobile */
+  .triage-analyzing {
+    padding: var(--space-4);
+    margin: var(--space-2);
+    font-size: var(--text-xs);
+  }
+}

@@ -290,9 +290,9 @@ function App() {
       }
     }, [isAuthenticated, contextNewConversation]),
     onOpenHistory: useCallback(() => {
-      // Toggle mobile sidebar to show history
+      // UXH-192: Always open sidebar (not toggle) so History reliably shows conversations
       if (isAuthenticated) {
-        setIsMobileSidebarOpen((prev) => !prev);
+        setIsMobileSidebarOpen(true);
       }
     }, [isAuthenticated]),
     onOpenSettings: useCallback(() => {
@@ -1348,16 +1348,22 @@ function App() {
         <PWAInstallPrompt />
 
         {/* Mobile bottom navigation - thumb-friendly access to main sections */}
-        {!isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && (
-          <MobileBottomNav
-            onNewChat={handleNewConversation}
-            onOpenHistory={handleOpenSidebar}
-            onOpenLeaderboard={handleOpenLeaderboard}
-            onOpenMyCompany={handleOpenMyCompany}
-            onOpenSettings={handleOpenSettings}
-            activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
-          />
-        )}
+        {/* Hide on landing page (clean hero), when modals open, or sidebar open */}
+        {!showLandingHero &&
+          !isMyCompanyOpen &&
+          !isSettingsOpen &&
+          !isLeaderboardOpen &&
+          !isProjectModalOpen &&
+          !isMobileSidebarOpen && (
+            <MobileBottomNav
+              onNewChat={handleNewConversation}
+              onOpenHistory={handleOpenSidebar}
+              onOpenLeaderboard={handleOpenLeaderboard}
+              onOpenMyCompany={handleOpenMyCompany}
+              onOpenSettings={handleOpenSettings}
+              activeTab="chat"
+            />
+          )}
       </div>
     </motion.div>
   );

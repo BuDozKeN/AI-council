@@ -15,6 +15,20 @@ Before starting, verify Chrome DevTools MCP is connected:
 3. Navigate to: http://localhost:5173
 ```
 
+### CRITICAL: Image Size Limit
+
+The Claude API has a **2000px limit per dimension** for multi-image requests. High-DPI displays (2x/3x scaling) can cause screenshots to exceed this limit.
+
+**ALWAYS set deviceScaleFactor: 1 before taking screenshots:**
+```
+mcp__chrome-devtools__emulate viewport={"width": 1440, "height": 900, "deviceScaleFactor": 1}
+```
+
+**Additional rules:**
+- **NEVER use `fullPage: true`** - Full-page screenshots easily exceed 2000px height
+- **Max viewport: 1920x1080** - Stay well under the limit
+- If you need to capture more, take multiple viewport-sized screenshots
+
 ---
 
 ## Audit Standards
@@ -50,9 +64,9 @@ Before starting, verify Chrome DevTools MCP is connected:
 
 ### Step 1.0: Setup
 ```
-1. mcp__chrome-devtools__resize_page width=1440 height=900
+1. mcp__chrome-devtools__emulate viewport={"width": 1440, "height": 900, "deviceScaleFactor": 1}
 2. mcp__chrome-devtools__navigate_page url="http://localhost:5173" type="url"
-3. mcp__chrome-devtools__take_screenshot
+3. mcp__chrome-devtools__take_screenshot (NEVER use fullPage: true)
 4. mcp__chrome-devtools__take_snapshot
 ```
 
@@ -416,7 +430,7 @@ Press Ctrl+K (or Cmd+K on Mac)
 ## PHASE 2: Mobile Audit (375×812)
 
 ```
-mcp__chrome-devtools__resize_page width=375 height=812
+mcp__chrome-devtools__emulate viewport={"width": 375, "height": 812, "deviceScaleFactor": 1, "isMobile": true, "hasTouch": true}
 mcp__chrome-devtools__navigate_page url="http://localhost:5173" type="url"
 ```
 

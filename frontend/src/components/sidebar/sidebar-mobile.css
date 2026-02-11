@@ -6,7 +6,7 @@
    ============================================================================= */
 
 @media (width <= 640px) {
-  /* Mobile sidebar - full-width drawer overlay */
+  /* UXH-006: Mobile sidebar - native drawer pattern (85% width like iOS/Android) */
   .sidebar.sidebar--collapsed,
   .sidebar.sidebar--hovered,
   .sidebar.sidebar--pinned,
@@ -14,8 +14,8 @@
     position: fixed;
     left: 0;
     top: 0;
-    width: 100%;
-    max-width: 100%;
+    width: 85%; /* UXH-006: Show edge of main content (native pattern) */
+    max-width: 320px; /* Cap width for larger phones */
     min-width: auto;
     height: 100vh;
     height: 100dvh; /* Dynamic viewport height for mobile browsers */
@@ -31,18 +31,7 @@
 
   .sidebar.mobile-open {
     transform: translateX(0);
-    box-shadow: none; /* No shadow needed for full-width */
-  }
-}
-
-@media (width <= 640px) {
-  /* Full-width mobile drawer overlay */
-  .sidebar.sidebar--collapsed,
-  .sidebar.sidebar--hovered,
-  .sidebar.sidebar--pinned,
-  .sidebar {
-    width: 100%;
-    max-width: 100%;
+    box-shadow: var(--shadow-xl); /* Add shadow when open for depth */
   }
 }
 
@@ -85,7 +74,6 @@
     flex: 1 1 0;
     min-height: 0;
     overflow: hidden auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Panel controls stay fixed at top */
@@ -202,11 +190,18 @@
     visibility: hidden;
   }
 
-  /* Starred indicator */
+  /* UXH-213: Starred indicator - larger on mobile */
   .sidebar .conversation-item.starred .title-star,
   .conversation-item-swipeable.starred .title-star {
     display: inline-flex;
     margin-left: var(--space-1);
+    font-size: var(--text-base); /* Larger star icon */
+  }
+
+  /* UXH-211: Conversation count - larger for readability */
+  .group-count {
+    font-size: var(--text-sm);
+    padding: var(--space-1-5) var(--space-2-5);
   }
 
   /* Make bulk action bar touch-friendly on mobile */
@@ -282,5 +277,50 @@
   .conversation-list {
     scrollbar-width: thin;
     scrollbar-color: var(--sidebar-scrollbar-thumb) var(--sidebar-scrollbar-track);
+  }
+
+  /* ==========================================================================
+     UXH-007: CONVERSATION TITLE TRUNCATION FIX
+     Show more of the title on mobile with multi-line support
+     ========================================================================== */
+
+  .conversation-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Show up to 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+    white-space: normal; /* Override single-line truncation */
+    overflow-wrap: anywhere;
+  }
+
+  /* ==========================================================================
+     UXH-191: VISIBLE CLOSE BUTTON
+     Add explicit close button for sidebar on mobile
+     ========================================================================== */
+
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all 0.15s ease;
+  }
+
+  .sidebar-close-btn:hover {
+    background: var(--sidebar-hover-bg);
+    color: var(--color-text-primary);
+  }
+
+  .sidebar-close-btn svg {
+    width: 24px;
+    height: 24px;
   }
 }

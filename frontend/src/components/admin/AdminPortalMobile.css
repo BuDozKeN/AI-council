@@ -42,16 +42,30 @@
     display: none; /* Hide "Admin Portal" title on mobile - save space */
   }
 
-  /* Mobile nav - horizontal with consistent padding */
+  /* Mobile nav - horizontal with consistent padding.
+     UXH-165/166: Horizontal scrollable tabs for 6+ admin tabs */
   .admin-nav {
     flex-direction: row;
     overflow-x: auto;
     gap: var(--space-1);
     padding: var(--space-2) var(--space-4); /* Match header padding */
+    padding-right: var(--space-8); /* Extra padding for scroll fade */
     scrollbar-width: none; /* Firefox */
-    -webkit-overflow-scrolling: touch;
     background: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border);
+    position: relative;
+  }
+
+  /* Scroll fade indicator - shows more tabs to the right */
+  .admin-nav::after {
+    content: '';
+    position: sticky;
+    right: 0;
+    flex-shrink: 0;
+    width: 32px;
+    height: 100%;
+    background: linear-gradient(to right, transparent, var(--color-bg-primary));
+    pointer-events: none;
   }
 
   .admin-nav::-webkit-scrollbar {
@@ -72,13 +86,14 @@
 
   .admin-nav-item span {
     display: block;
-    font-size: 11px; /* Increased from 10px for better readability (ISS-050) */
+    font-size: 12px; /* P3: 10px → 11px (ISS-050) → 12px for mobile readability */
     white-space: nowrap;
   }
 
+  /* UXH-165/166: Larger icons for better visibility in horizontal scroll */
   .admin-nav-icon {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
   }
 
   /* Hide user info on mobile - declutter */
@@ -156,4 +171,138 @@
 
 .dark .admin-search-input {
   background: var(--color-bg-tertiary);
+}
+
+/* =============================================================================
+   UXH-172: MOBILE BOTTOM NAVIGATION
+   Mirrors MobileBottomNav pattern for consistency across app
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Reserve space for bottom nav */
+  .admin-main {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Hide top horizontal nav on mobile - using bottom nav instead */
+  .admin-nav {
+    display: none;
+  }
+
+  /* Create sticky bottom navigation */
+  .admin-sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: var(--z-fixed);
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .admin-sidebar-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-fixed);
+    padding: var(--space-2-5) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+  }
+
+  /* Bottom nav tabs - re-show in bottom position */
+  .admin-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    background: var(--color-bg-primary);
+    border-top: 1px solid var(--color-border);
+    border-bottom: none;
+    padding: var(--space-2) var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+    overflow-x: visible;
+    gap: 0;
+  }
+
+  /* Remove scroll fade indicator for bottom nav */
+  .admin-nav::after {
+    display: none;
+  }
+
+  /* Bottom nav items - smaller, icon-focused */
+  .admin-nav-item {
+    flex: 1;
+    min-width: 0;
+    max-width: 80px;
+    min-height: 56px;
+    padding: var(--space-1-5) var(--space-1);
+  }
+
+  .admin-nav-item span {
+    font-size: 11px; /* P3: 10px → 11px minimum for readability */
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* P3: Standardized icons at 24px for consistency with horizontal scroll mode */
+  .admin-nav-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Add top padding to content to account for fixed header */
+  .admin-content {
+    padding-top: 56px;
+  }
+
+  /* =============================================================================
+     UXH-180/181/182: COMPANIES SECTION - Better header layout on mobile
+     ============================================================================= */
+
+  /* Stack header vertically on mobile for more space */
+  .admin-tab-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Title row - title + action buttons side by side */
+  .admin-tab-header > div:first-child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* Header actions - inline with proper spacing */
+  .admin-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: flex-end;
+    flex-shrink: 0;
+  }
+
+  /* Search box - full width on separate row */
+  .admin-tab-header .admin-search-box {
+    width: 100%;
+    order: 10; /* Push to bottom */
+  }
+
+  .admin-tab-header .admin-search-input {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  /* Reduce empty space by compacting vertical padding */
+  .admin-tab-panel {
+    margin: 0;
+  }
+
+  .admin-tab-panel > .admin-table-container {
+    padding: 0;
+  }
 }

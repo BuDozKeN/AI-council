@@ -6,6 +6,25 @@
    ============================================================================= */
 
 @media (width <= 640px) {
+  /* UXH-147: Reduce empty space - compact intro and accordion */
+  .api-page-intro {
+    margin-bottom: var(--space-1);
+  }
+
+  .api-page-intro h2 {
+    font-size: var(--text-base);
+    margin-bottom: var(--space-1);
+  }
+
+  .api-page-intro p {
+    font-size: var(--text-xs-plus);
+    line-height: 1.4;
+  }
+
+  .api-provider-accordion {
+    gap: var(--gap-sm);
+  }
+
   .api-key-status {
     flex-wrap: wrap;
   }
@@ -43,16 +62,9 @@
     font-size: var(--text-xs);
   }
 
+  /* UXH-144: Hide verbose explainer on mobile - users just need the form */
   .provider-explainer {
-    padding: var(--space-4);
-  }
-
-  .explainer-section h4 {
-    font-size: var(--text-xs-plus);
-  }
-
-  .explainer-section p {
-    font-size: var(--text-xs);
+    display: none;
   }
 
   .provider-connection {

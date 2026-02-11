@@ -1078,18 +1078,16 @@ export function ChatInput({
                 </Tooltip.Provider>
 
                 {/* Response Style Selector - Quick toggle for Precise/Balanced/Creative */}
-                {/* UXH-031: Hidden on mobile - now available in context bottom sheet */}
+                {/* Shows as popover on desktop, BottomSheet on mobile */}
                 {onSelectPreset && (
-                  <div className={s.hideOnMobile}>
-                    <ResponseStyleSelector
-                      selectedPreset={selectedPreset}
-                      departmentPreset={departmentPreset}
-                      departmentName={departmentName}
-                      onSelectPreset={onSelectPreset}
-                      onOpenLLMHub={onOpenLLMHub}
-                      disabled={disabled}
-                    />
-                  </div>
+                  <ResponseStyleSelector
+                    selectedPreset={selectedPreset}
+                    departmentPreset={departmentPreset}
+                    departmentName={departmentName}
+                    onSelectPreset={onSelectPreset}
+                    onOpenLLMHub={onOpenLLMHub}
+                    disabled={disabled}
+                  />
                 )}
               </>
             )}

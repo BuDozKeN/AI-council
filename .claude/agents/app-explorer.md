@@ -134,14 +134,31 @@ For each modal discovered:
 5. Test 404 handling
 ```
 
+## CRITICAL: Image Size Limit
+
+The Claude API has a **2000px limit per dimension** for multi-image requests. High-DPI displays (2x/3x scaling) can cause screenshots to exceed this limit.
+
+**ALWAYS set deviceScaleFactor: 1 before taking screenshots:**
+```
+mcp__chrome-devtools__emulate viewport={"width": 1280, "height": 800, "deviceScaleFactor": 1}
+```
+
+**Rules:**
+- **NEVER use `fullPage: true`** - Full-page screenshots easily exceed 2000px height
+- **Always use emulate with deviceScaleFactor: 1** before each viewport switch
+- If you need to capture more content, take multiple viewport-sized screenshots
+
 ## Viewports to Test
 
 ```javascript
 const VIEWPORTS = [
-  { name: "Desktop", width: 1280, height: 800 },
-  { name: "Tablet", width: 768, height: 1024 },
-  { name: "Mobile", width: 390, height: 844 },
+  { name: "Desktop", width: 1280, height: 800, deviceScaleFactor: 1 },
+  { name: "Tablet", width: 768, height: 1024, deviceScaleFactor: 1 },
+  { name: "Mobile", width: 390, height: 844, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
 ];
+
+// Use emulate command for each viewport:
+// mcp__chrome-devtools__emulate viewport={"width": 1280, "height": 800, "deviceScaleFactor": 1}
 ```
 
 ## Test Data

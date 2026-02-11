@@ -13,8 +13,8 @@
   }
 
   .mc-usage-empty-banner {
-    padding: var(--space-1-5) var(--space-2);
-    font-size: 0.625rem;
+    padding: var(--space-2) var(--space-2-5);
+    font-size: var(--text-2xs); /* P3: 10px → 11px for readability */
   }
 
   .mc-stats-grid {

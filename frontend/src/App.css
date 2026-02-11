@@ -92,9 +92,8 @@
     z-index: calc(var(--z-modal) - 2);
   }
 
-  /* Add bottom padding for mobile bottom navigation */
-  .main-content-chat,
-  .main-content-landing {
+  /* Add bottom padding for mobile bottom navigation (chat only - landing hides nav) */
+  .main-content-chat {
     padding-bottom: 72px; /* Height of mobile bottom nav + safe area */
   }
 

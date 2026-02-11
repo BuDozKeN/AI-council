@@ -1,4 +1,43 @@
 /* =============================================================================
+   GLOBAL TOUCH INTERACTION UTILITIES
+   Canonical source for touch/mobile interaction patterns.
+   DO NOT redeclare these in component CSS files.
+   ============================================================================= */
+
+/* Prevent tap highlight on all interactive elements */
+button,
+[role='button'],
+a,
+label,
+summary,
+.btn,
+.nav-item,
+.tab-btn {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent text selection on non-content interactive elements */
+button,
+[role='button'],
+.btn,
+.tab-btn,
+.nav-item,
+.sidebar-item,
+.stat-pill,
+.badge,
+.mobile-nav-item {
+  user-select: none;
+}
+
+/* Optimize touch responsiveness on interactive elements */
+button,
+[role='button'],
+a,
+.btn {
+  touch-action: manipulation;
+}
+
+/* =============================================================================
    GLOBAL DISABLED STATE STYLING (ISSUE-014)
    Ensure disabled buttons are clearly visually distinct
    ============================================================================= */

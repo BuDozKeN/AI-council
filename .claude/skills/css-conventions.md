@@ -53,6 +53,21 @@ Is it truly global (button reset, body font)?
   └─ NO → You probably need ComponentName.css
 ```
 
+## DO NOT REDECLARE (Global Properties)
+
+These properties are already declared globally in `AppTouchTargets.css`. **Never** redeclare them in component CSS files:
+
+| Property | Global Selector | File |
+|----------|----------------|------|
+| `-webkit-tap-highlight-color: transparent` | `button, [role='button'], a, label, summary, .btn, .nav-item, .tab-btn` | AppTouchTargets.css |
+| `user-select: none` | `button, [role='button'], .btn, .tab-btn, .nav-item, .sidebar-item, .stat-pill, .badge, .mobile-nav-item` | AppTouchTargets.css |
+| `touch-action: manipulation` | `button, [role='button'], a, .btn` | AppTouchTargets.css |
+| `-webkit-overflow-scrolling: touch` | All scrollable containers | tailwind.css (global) |
+
+**Exception**: CSS Module files (`.module.css`) use scoped/hashed class names — global selectors won't match. Redeclaring in modules is acceptable.
+
+**Exception**: Non-button elements (select items, drag handles, sliders) that need `user-select: none` are NOT covered by the global rule. Declare per-component.
+
 ## NEVER Do This
 
 ```
@@ -64,6 +79,7 @@ Is it truly global (button reset, body font)?
 ❌ Use hardcoded colors (#fff, rgba(255,0,0)) - use CSS variables
 ❌ Use !important (increase specificity instead)
 ❌ Exceed 300 lines in a CSS file
+❌ Redeclare global touch properties (see DO NOT REDECLARE section above)
 ```
 
 ## ALWAYS Do This
@@ -160,11 +176,15 @@ Is it truly global (button reset, body font)?
 
 | Metric | Budget | Current | Status |
 |--------|--------|---------|--------|
-| **Source CSS** | 1350KB | ~1309KB | 97% used, ~41KB headroom |
+| **Source CSS** | 1420KB | ~1405KB | 99% used, ~15KB headroom |
 | **Built CSS** | 700KB target | ~700KB | Under target |
-| **Gzipped** | N/A | ~110KB | Excellent |
+| **Gzipped** | N/A | ~131KB | Excellent |
 
-**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1350KB.
+**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1420KB.
+
+> **Budget rationale**: Raised from 1350KB to 1420KB to accommodate enterprise-grade
+> responsive CSS (mobile touch targets, WCAG 2.1 AA compliance, responsive layouts)
+> added during the mobile UX audit. These additions support $25M exit readiness.
 
 ### If CI Budget Check Fails
 
@@ -176,6 +196,25 @@ Is it truly global (button reset, body font)?
    - Split large component into smaller ones
    - Use existing design tokens instead of creating new ones
    - Check for accidental CSS duplication
+
+## File Splitting with @import
+
+When a component CSS file exceeds 300 lines, extract a logical section into a new file and `@import` it at the top:
+
+```css
+/* Login.css */
+@import url('./LoginPassword.css');
+@import url('./LoginLanguage.css');
+
+/* ... remaining base styles ... */
+```
+
+**Rules for @import splits:**
+1. Import at the TOP of the parent file
+2. Imported file has LOWER cascade priority (appears earlier)
+3. To override parent styles from imported file, increase specificity: `.parent .child` (0,2,0) beats `.child` (0,1,0)
+4. Name pattern: `ComponentSection.css` (e.g., `LoginPassword.css`, `LeaderboardMobile.css`)
+5. Keep imports to 2-3 max per parent file
 
 ## CSS Specificity Notes
 

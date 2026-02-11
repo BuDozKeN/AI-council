@@ -203,3 +203,76 @@
   border-color: var(--color-indigo-400);
   background: var(--color-bg-primary);
 }
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* UXH-072/073: Better content spacing on mobile */
+  .mc-content-section {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* Activity source links - larger touch targets */
+  .mc-activity-source,
+  .mc-activity-source-link {
+    font-size: var(--text-xs);
+    padding: var(--space-2) var(--space-3);
+    min-height: 44px; /* P3: WCAG AA 44px touch target */
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* Edit mode textarea */
+  .mc-edit-textarea-full {
+    font-size: 0.8125rem;
+    padding: var(--space-3);
+    min-height: 200px;
+  }
+
+  /* Activity right column - stack vertically on mobile */
+  .mc-activity-right {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* UXH-073: Compact badges on mobile - wrap instead of clutter */
+  .mc-status-badge,
+  .mc-source-badge {
+    font-size: var(--text-xs);
+    padding: var(--space-0-5) var(--space-2);
+  }
+
+  /* UXH-075: Segmented control style for project tabs on mobile
+     Visually distinct from the bottom nav tabs to avoid "nested tabs" confusion */
+  .mc-project-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-1);
+    border-bottom: none;
+    margin-bottom: var(--space-3);
+  }
+
+  .mc-project-tab {
+    flex: 1;
+    justify-content: center;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs-plus);
+    min-height: 40px;
+    border-radius: var(--radius-md);
+    border-bottom: none;
+    margin-bottom: 0;
+    transition: all 0.15s ease;
+  }
+
+  .mc-project-tab.active {
+    background: var(--color-bg-primary);
+    color: var(--color-indigo-600);
+    border-bottom-color: transparent;
+    box-shadow: var(--shadow-sm);
+  }
+}

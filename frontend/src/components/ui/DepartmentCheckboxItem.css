@@ -103,8 +103,6 @@
   font-size: var(--text-base);
 
   /* Ensure touch events work properly inside Framer Motion drag containers */
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
   pointer-events: auto;
   position: relative;
   z-index: var(--z-base);

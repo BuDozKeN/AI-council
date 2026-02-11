@@ -179,3 +179,42 @@
 .mc-elegant-row .mc-type-dot {
   display: none;
 }
+
+/* =============================================================================
+   UXH-082: PLAYBOOKS FILTERS - Horizontal scroll instead of cluttered wrap
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .mc-playbooks-filters {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--gap-sm);
+    overflow-x: auto;
+    scrollbar-width: none; /* Firefox */
+    margin: 0 calc(-1 * var(--space-4));
+    padding: var(--space-1) var(--space-4) var(--space-2);
+  }
+
+  .mc-playbooks-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Filter selects - compact pill style */
+  .mc-playbooks-filters .mc-filter-select,
+  .mc-playbooks-filters select {
+    flex-shrink: 0;
+    min-width: auto;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs-plus);
+    min-height: 44px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+
+  /* Search input in filters */
+  .mc-playbooks-filters .mc-search-input-wrapper {
+    flex: 0 0 140px;
+    min-width: 0;
+    order: -1; /* Search first */
+  }
+}

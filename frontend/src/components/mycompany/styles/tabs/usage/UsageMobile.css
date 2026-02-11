@@ -98,7 +98,6 @@
     flex: 1;
     min-height: 0;
     overflow: hidden auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Sections - compact cards */
@@ -144,7 +143,7 @@
   }
 
   .mc-usage-model-tokens {
-    font-size: 0.625rem;
+    font-size: var(--text-2xs); /* P3: 10px → 11px for readability */
   }
 
   .mc-usage-models-empty {
@@ -200,7 +199,7 @@
   }
 
   .mc-usage-roster-provider {
-    font-size: 0.625rem;
+    font-size: var(--text-2xs); /* P3: 10px → 11px for readability */
   }
 
   .mc-usage-roster-note {
@@ -269,6 +268,5 @@
   .mc-usage .scrollable-content-inner {
     flex: 1;
     overflow: hidden auto;
-    -webkit-overflow-scrolling: touch;
   }
 }
