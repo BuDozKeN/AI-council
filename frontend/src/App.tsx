@@ -590,6 +590,16 @@ function App() {
     navigateToCompany('overview');
   }, [navigateToCompany]);
 
+  const handleSelectProject = useCallback(
+    (id: string | null) => {
+      if (id) {
+        openMyCompany({ tab: 'projects', projectId: id });
+      }
+      setSelectedProject(id);
+    },
+    [openMyCompany, setSelectedProject]
+  );
+
   // Handler for opening admin portal (full-page navigation)
   const handleOpenAdmin = useCallback(() => {
     navigate('/admin');
@@ -1314,7 +1324,7 @@ function App() {
             conversations={conversations}
             currentConversationId={currentConversationId}
             projects={projects}
-            onSelectProject={setSelectedProject}
+            onSelectProject={handleSelectProject}
             selectedProject={selectedProject}
             departments={availableDepartments}
             playbooks={availablePlaybooks}
