@@ -24,11 +24,7 @@ import {
   FolderKanban,
   RotateCcw,
   Send,
-  Settings2,
   Paperclip,
-  Target,
-  Zap,
-  Sparkles,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -497,130 +493,10 @@ export function ChatInput({
   // Mobile unified context menu content (Perplexity-inspired)
   // Shows all categories in accordion style within a single bottom sheet
   // UXH-031: Now includes Mode Toggle and Response Style for reduced clutter
+  // Mode toggle and response style are now visible inline (matching OmniBar).
+  // Bottom sheet only contains context selections (projects, departments, roles, playbooks).
   const mobileContextMenuContent = (
     <div className={c.mobileContextMenu}>
-      {/* UXH-031: Mode Toggle Section */}
-      {onChatModeChange && (
-        <div className={c.modeToggleSection}>
-          <div className={c.modeToggleLabel}>
-            <Users size={18} aria-hidden="true" />
-            <span>{t('chat.responseMode', 'Response Mode')}</span>
-          </div>
-          <div
-            className={c.modeToggleButtons}
-            role="radiogroup"
-            aria-label={t('aria.aiModeToggle', 'AI response mode')}
-          >
-            <button
-              type="button"
-              className={cn(c.modeToggleBtn, chatMode === 'chat' && c.active)}
-              onClick={() => onChatModeChange('chat')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={chatMode === 'chat'}
-            >
-              1 AI
-            </button>
-            <button
-              type="button"
-              className={cn(c.modeToggleBtn, chatMode === 'council' && c.active)}
-              onClick={() => onChatModeChange('council')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={chatMode === 'council'}
-            >
-              {aiCount} {aiCount === 1 ? 'AI' : 'AIs'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* UXH-031: Response Style Section */}
-      {onSelectPreset && (
-        <div className={c.responseStyleSection}>
-          <div className={c.responseStyleHeader}>
-            <Zap size={18} aria-hidden="true" />
-            <span>{t('chat.responseStyle.title', 'Response Style')}</span>
-          </div>
-          <div
-            className={c.responseStyleOptions}
-            role="radiogroup"
-            aria-label={t('chat.responseStyle.label', 'Response style')}
-          >
-            {/* UXH-086: Added title tooltips to explain each response style */}
-            <button
-              type="button"
-              className={cn(
-                c.responseStyleOption,
-                (selectedPreset === 'conservative' ||
-                  (!selectedPreset && departmentPreset === 'conservative')) &&
-                  c.active
-              )}
-              onClick={() => onSelectPreset('conservative')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={
-                selectedPreset === 'conservative' ||
-                (!selectedPreset && departmentPreset === 'conservative')
-              }
-              title={t(
-                'chat.responseStyle.descriptions.conservative',
-                'Factual, focused answers - best for data and compliance'
-              )}
-            >
-              <Target size={20} aria-hidden="true" />
-              <span>{t('chat.responseStyle.presets.conservative', 'Precise')}</span>
-            </button>
-            <button
-              type="button"
-              className={cn(
-                c.responseStyleOption,
-                (selectedPreset === 'balanced' ||
-                  (!selectedPreset && departmentPreset === 'balanced')) &&
-                  c.active
-              )}
-              onClick={() => onSelectPreset('balanced')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={
-                selectedPreset === 'balanced' ||
-                (!selectedPreset && departmentPreset === 'balanced')
-              }
-              title={t(
-                'chat.responseStyle.descriptions.balanced',
-                'Good for most questions - reliable and flexible'
-              )}
-            >
-              <Zap size={20} aria-hidden="true" />
-              <span>{t('chat.responseStyle.presets.balanced', 'Balanced')}</span>
-            </button>
-            <button
-              type="button"
-              className={cn(
-                c.responseStyleOption,
-                (selectedPreset === 'creative' ||
-                  (!selectedPreset && departmentPreset === 'creative')) &&
-                  c.active
-              )}
-              onClick={() => onSelectPreset('creative')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={
-                selectedPreset === 'creative' ||
-                (!selectedPreset && departmentPreset === 'creative')
-              }
-              title={t(
-                'chat.responseStyle.descriptions.creative',
-                'More original ideas - great for brainstorming'
-              )}
-            >
-              <Sparkles size={20} aria-hidden="true" />
-              <span>{t('chat.responseStyle.presets.creative', 'Creative')}</span>
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Project Section */}
       {hasProjects && (
         <div className={c.contextSection}>
@@ -784,7 +660,6 @@ export function ChatInput({
                             : t('context.configure')
                         }
                       >
-                        <Settings2 size={16} aria-hidden="true" />
                         <span className={c.mobileContextLabel}>{t('context.context')}</span>
                         {totalSelectionCount > 0 && (
                           <span className={c.mobileContextBadge} aria-hidden="true">

@@ -41,7 +41,7 @@
   row-gap: var(--gap-sm);
 }
 
-/* Hide action buttons on mobile - tap opens detail */
+/* Hide action buttons on mobile only - desktop uses hover reveal from mc-list.css */
 
 /* Double class for specificity over hover states */
 @media (max-width: 640px) {
