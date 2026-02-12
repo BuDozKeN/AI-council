@@ -120,7 +120,7 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .admin-pagination-btn:hover:not(:disabled) {

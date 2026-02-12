@@ -1,120 +1,91 @@
 /**
  * LandingHero - Mobile Responsive Styles
  * Extracted from LandingHero.css for CSS budget compliance.
+ *
+ * IMPORTANT: Because this file is @imported BEFORE base styles in LandingHero.css,
+ * all selectors MUST have higher specificity than the base (0,2,0 minimum)
+ * to win the CSS cascade. Prefix with .landing-hero or .landing-hero-aurora.
  */
 
 /* =============================================================================
-   MOBILE RESPONSIVE - Tiered breakpoints for proper cascade
+   MOBILE RESPONSIVE - Hero landing: big title top, OmniBar center-low
    ============================================================================= */
 
-/* Tablet/Large phones (641px and below) */
 @media (width <= 640px) {
-  /* Mobile: Fill height and position OmniBar at bottom like Perplexity */
-  .landing-hero-aurora {
+  /* Fill viewport */
+  .landing-hero-aurora.aurora-container {
     align-items: stretch;
     justify-content: stretch;
   }
 
-  /* Higher specificity to override base .landing-hero { padding: var(--space-6) } */
+  /* Title in upper third, OmniBar in lower third — Perplexity-style split. */
   .landing-hero-aurora .landing-hero {
     flex: 1;
     height: 100%;
-    padding: var(--space-4);
-
-    /* Account for mobile bottom navigation (72px) + iOS safe area */
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-    gap: var(--space-5);
-    justify-content: flex-end;
+    padding: var(--space-5);
+    padding-top: 22vh; /* Title lands at ~25% from top */
+    padding-bottom: 12vh; /* Breathing room from bottom edge */
+    gap: var(--space-3);
+    justify-content: flex-start;
+    align-items: center;
   }
 
-  /* Header section - positioned higher to reduce empty space (ISSUE-020) */
-  .landing-header {
-    flex: 1;
+  /* Hide logo on mobile - brand visible in nav */
+  .landing-hero .landing-logo {
+    display: none;
+  }
+
+  /* Header block */
+  .landing-hero .landing-header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* Push content toward top */
-    padding-top: var(--space-8); /* Controlled spacing from top */
+    flex: 0;
   }
 
-  .landing-headline {
+  /* Hero headline - big and bold, this is the first thing users see */
+  .landing-hero .landing-headline {
     font-size: var(--text-4xl);
+    line-height: 1.1;
+    margin-bottom: 0;
+    text-align: center;
+    letter-spacing: -0.025em;
   }
 
-  .landing-stats {
-    gap: var(--gap-sm);
+  /* Stats row - compact but visible */
+  .landing-hero .landing-stats {
+    gap: var(--gap-xs);
+    margin: var(--space-3) 0 0;
   }
 
-  .stat-pill {
+  .landing-hero .stat-pill {
     padding: var(--space-1-5) var(--space-3);
     gap: var(--gap-xs);
   }
 
-  .stat-number {
-    font-size: var(--text-lg);
-  }
-
-  .stat-label {
-    font-size: var(--text-xs-plus);
-  }
-
-  .stat-arrow {
-    width: 16px;
-    height: 16px;
-  }
-
-  /* OmniBar container stays at bottom */
-  .omni-bar-container {
-    flex-shrink: 0;
-    margin-top: var(--space-6);
-  }
-
-  /* Hide keyboard hint on mobile - keyboard shortcuts less relevant */
-  .keyboard-hint {
-    display: none;
-  }
-}
-
-/* Small phones - merged into standard mobile breakpoint */
-@media (width <= 640px) {
-  /* Higher specificity to override base .landing-hero { padding: var(--space-6) } */
-  .landing-hero-aurora .landing-hero {
-    /* Use specific properties to preserve padding-bottom for mobile nav */
-    padding-inline: var(--space-3);
-    padding-top: var(--space-3);
-    padding-bottom: calc(
-      72px + env(safe-area-inset-bottom, 0px)
-    ); /* Re-apply for mobile nav clearance */
-  }
-
-  .landing-headline {
-    font-size: var(--text-3xl);
-    line-height: 1.25;
-  }
-
-  .landing-stats {
-    gap: var(--gap-xs-plus);
-  }
-
-  .stat-pill {
-    padding: var(--space-1) var(--space-2-5);
-  }
-
-  .stat-number {
+  .landing-hero .stat-number {
     font-size: var(--text-base);
   }
 
-  .stat-label {
-    font-size: var(--text-xs);
+  .landing-hero .stat-label {
+    font-size: var(--text-xs-plus);
   }
 
-  .stat-arrow {
+  .landing-hero .stat-arrow {
     width: 14px;
     height: 14px;
   }
 
-  .landing-logo-text {
-    font-size: var(--text-2xl);
+  /* OmniBar — margin-top:auto eats all remaining space, pushing it to the bottom */
+  .landing-hero .omni-bar-container {
+    margin-top: auto;
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  /* Hide keyboard hint on mobile */
+  .landing-hero .keyboard-hint {
+    display: none;
   }
 }
 
@@ -122,7 +93,6 @@
    ACCESSIBILITY: Focus-visible styles for interactive elements
    ============================================================================= */
 
-/* Stats pills and interactive elements on landing page */
 .stat-pill:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;

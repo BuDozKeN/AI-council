@@ -242,7 +242,12 @@ export function ActivityTab({
                 const action = log.promoted_to_type ? 'Promoted' : log.action;
                 const actionColors = action ? ACTION_COLORS[action.toLowerCase()] : null;
                 const isDeleted = log.action?.toLowerCase() === 'deleted';
-                const cleanTitle = log.title;
+                // UXH-097: Build descriptive title from available fields when title is missing/generic
+                const cleanTitle =
+                  log.title ||
+                  (log.action && log.event_type
+                    ? `${log.action} ${log.event_type.replace(/_/g, ' ')}`
+                    : log.event_type.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase()));
 
                 // Deleted items are never clickable (the item no longer exists)
                 // For other items, check if we have related_id and related_type

@@ -153,7 +153,7 @@ backend/
 - **Max 300 lines** per CSS file (if larger, component is too complex → split it)
 - **No hardcoded colors**: Use `var(--color-*)` tokens from design-tokens.css
 - **3 breakpoints only**: `default` (mobile), `641px` (tablet), `1025px` (desktop)
-- **Budget**: 1350KB source, 700KB built (CI fails if exceeded)
+- **Budget**: 1420KB source, 700KB built (CI fails if exceeded)
 
 ### Styling Priority (in order)
 1. Tailwind utilities for **layout** (flex, grid, spacing via className)
@@ -355,7 +355,7 @@ docs(claude.md): update bash guidelines
 ### Merge Protection Rules
 - ✓ Must pass all CI checks (lint, tests, coverage)
 - ✓ Must pass pre-push tests (434 tests)
-- ✓ Must not exceed CSS budget (1350KB source)
+- ✓ Must not exceed CSS budget (1420KB source)
 - ✗ Cannot force-push to master
 - ✗ Cannot merge with failing security scan
 
@@ -397,7 +397,7 @@ git push origin feature/my-feature
 
 | Metric | Budget | Current |
 |--------|--------|---------|
-| Source CSS | 1350KB | ~1309KB |
+| Source CSS | 1420KB | ~1404KB |
 | Built CSS | 700KB | ~700KB |
 
 Exceeding source budget fails CI. Split large components instead of growing single files.

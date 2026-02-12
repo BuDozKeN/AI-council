@@ -117,4 +117,23 @@
     align-items: center;
     justify-content: center;
   }
+
+  /* UXH-204: Larger badges on mobile for better readability */
+  .iconBadge {
+    min-width: 18px;
+    height: 18px;
+    font-size: var(--text-xs);
+    line-height: 18px;
+    padding: 0 var(--space-1-5);
+  }
+
+  /* UXH-215: Make inactive send button slightly more visible */
+  .barSubmit:not(.active, :disabled) {
+    background: var(--color-bg-quaternary);
+    color: var(--color-text-secondary);
+  }
+
+  .barSubmit:not(.active, :disabled):hover {
+    background: var(--color-bg-tertiary);
+  }
 }

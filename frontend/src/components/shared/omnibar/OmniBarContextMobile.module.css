@@ -3,28 +3,40 @@
  *
  * Mobile-specific overrides for context menu and selection UI.
  * Imported by OmniBarContext.module.css
+ *
+ * IMPORTANT: Because this file is @imported BEFORE base styles in
+ * OmniBarContext.module.css, all selectors that compete with base
+ * styles MUST have higher specificity (0,2,0 minimum) to win the
+ * CSS cascade. Use .popoverList prefix or double-class patterns.
  */
 
 @media (width <= 640px) {
+  /* UXH-119: Fill available space to eliminate empty bottom area */
   .popoverList {
     gap: var(--gap-xs-plus);
     padding: var(--space-2);
+    flex: 1;
+    min-height: 0;
   }
 
-  .popoverItem {
+  /* Specificity 0,2,0 to beat base .popoverItem (0,1,0) in cascade */
+  .popoverList .popoverItem {
     padding: var(--space-3-5) var(--space-4);
     font-size: var(--text-base);
     min-height: 56px;
+    gap: var(--gap-sm-plus);
     background: var(--color-bg-tertiary);
     border-radius: var(--radius-lg);
+    justify-content: flex-start;
+    text-align: left;
   }
 
-  .popoverItem:active {
+  .popoverList .popoverItem:active {
     background: var(--color-bg-hover);
     transform: scale(0.98);
   }
 
-  .popoverItem.selected {
+  .popoverList .popoverItem.selected {
     background: var(--color-bg-hover);
   }
 
@@ -33,6 +45,14 @@
     width: 24px;
     height: 24px;
     border-radius: var(--radius-md);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .popoverCheckbox svg,
+  .popoverRadio svg {
+    display: block;
+    flex-shrink: 0;
   }
 
   .popoverCheckbox svg {
@@ -52,14 +72,15 @@
     gap: var(--gap-sm-plus);
   }
 
+  /* UXH-216: Larger chevrons for better tap feedback */
   .popoverGroupHeader .sectionChevron {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 
   .popoverGroupHeader svg {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 
   .popoverGroupHeader .sectionCount {

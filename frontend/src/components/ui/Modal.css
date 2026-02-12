@@ -35,7 +35,6 @@
     min-height: 0;
     padding: var(--space-5);
     overflow: hidden auto;
-    -webkit-overflow-scrolling: touch;
   }
 }
 

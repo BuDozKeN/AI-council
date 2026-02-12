@@ -208,8 +208,10 @@
     padding: 0 var(--space-2);
   }
 
+  /* UXH-204: Larger badge on mobile for readability */
   .analytics-chart-badge {
-    font-size: 9px;
-    padding: 1px var(--space-1-5, 6px);
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    min-height: 24px;
   }
 }

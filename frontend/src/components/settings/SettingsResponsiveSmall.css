@@ -38,9 +38,9 @@
 
   /* Icon-only mode: labels already hidden from ≤400px */
   .settings-sidebar .settings-tab {
-    width: 36px;
-    height: 36px;
-    min-height: 36px;
+    width: 40px; /* P3: Closer to 44px WCAG target, space-constrained */
+    height: 40px;
+    min-height: 40px;
   }
 
   .settings-sidebar .settings-tab .tab-icon {

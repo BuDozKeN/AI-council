@@ -90,8 +90,9 @@ export function Stage3Actions({
         </div>
       )}
 
-      {/* Save toolbar */}
+      {/* UXH-219: Save toolbar with label for discoverability */}
       <div className="save-toolbar-unified">
+        <span className="save-toolbar-label">{t('stages.saveTo', 'Save to:')}</span>
         {/* Left group: Department + Project + Type */}
         <div className="save-options-group">
           {/* Multi-department selector */}

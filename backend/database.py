@@ -80,6 +80,7 @@ DEFAULT_JITTER = 0.3  # 30% jitter
 # Transient error indicators (substrings to match in error messages)
 TRANSIENT_ERRORS = [
     "connection",
+    "disconnect",
     "timeout",
     "too many clients",
     "temporarily unavailable",
@@ -88,9 +89,23 @@ TRANSIENT_ERRORS = [
     "ETIMEDOUT",
     "socket",
     "refused",
+    "eof occurred",    # SSL EOF errors (connection closed unexpectedly)
+    "ssl",             # SSL/TLS errors (often transient)
     "503",
     "502",
     "504",
+]
+
+# Exception type names that indicate transient errors (httpx, grpc, etc.)
+TRANSIENT_EXCEPTION_TYPES = [
+    "writeerror",      # httpx.WriteError - network write failure
+    "readerror",       # httpx.ReadError - network read failure
+    "connecterror",    # httpx.ConnectError - connection failure
+    "networkerror",    # httpx.NetworkError - general network error
+    "timeouterror",    # Various timeout errors
+    "connectionerror", # General connection errors
+    "ssleoferror",     # ssl.SSLEOFError - SSL connection closed unexpectedly
+    "sslerror",        # ssl.SSLError - general SSL errors
 ]
 
 
@@ -109,7 +124,17 @@ class DatabaseRetryError(Exception):
 def _is_transient_error(error: Exception) -> bool:
     """Check if an error is transient and worth retrying."""
     error_str = str(error).lower()
-    return any(indicator in error_str for indicator in TRANSIENT_ERRORS)
+    error_type = type(error).__name__.lower()
+
+    # Check error message for transient indicators
+    if any(indicator in error_str for indicator in TRANSIENT_ERRORS):
+        return True
+
+    # Check exception type name (e.g., httpx.WriteError, httpx.ReadError)
+    if any(exc_type in error_type for exc_type in TRANSIENT_EXCEPTION_TYPES):
+        return True
+
+    return False
 
 
 def _calculate_delay(attempt: int, base_delay: float, max_delay: float, jitter: float) -> float:
@@ -188,6 +213,64 @@ async def with_retry(
             delay = _calculate_delay(attempt, base_delay, max_delay, jitter)
             logger.debug(f"Retrying {operation} in {delay:.2f}s")
             await asyncio.sleep(delay)
+
+    # All retries exhausted
+    raise DatabaseRetryError(max_retries + 1, last_error, operation)
+
+
+def with_retry_sync(
+    func: Callable[[], T],
+    max_retries: int = DEFAULT_MAX_RETRIES,
+    base_delay: float = DEFAULT_BASE_DELAY,
+    max_delay: float = DEFAULT_MAX_DELAY,
+    jitter: float = DEFAULT_JITTER,
+    operation: str = "query",
+) -> T:
+    """
+    Synchronous version of with_retry for non-async code paths.
+
+    Execute a database operation with retry logic for transient failures.
+    Uses exponential backoff with jitter to prevent thundering herd.
+
+    Args:
+        func: Synchronous function to execute
+        max_retries: Maximum number of retry attempts
+        base_delay: Base delay in seconds for exponential backoff
+        max_delay: Maximum delay between retries
+        jitter: Jitter factor (0.3 = ±30% randomization)
+        operation: Description of the operation for logging
+
+    Returns:
+        Result of the operation
+
+    Raises:
+        DatabaseRetryError: If all retry attempts fail
+    """
+    import time
+
+    last_error: Optional[Exception] = None
+
+    for attempt in range(max_retries + 1):
+        try:
+            return func()
+
+        except Exception as e:
+            last_error = e
+
+            # Only retry transient errors
+            if not _is_transient_error(e):
+                logger.error(f"Database {operation} failed with non-transient error: {e}")
+                raise
+
+            logger.warning(
+                f"Database {operation} transient error (attempt {attempt + 1}/{max_retries + 1}): {e}"
+            )
+
+        # Don't sleep after the last attempt
+        if attempt < max_retries:
+            delay = _calculate_delay(attempt, base_delay, max_delay, jitter)
+            logger.debug(f"Retrying {operation} in {delay:.2f}s")
+            time.sleep(delay)
 
     # All retries exhausted
     raise DatabaseRetryError(max_retries + 1, last_error, operation)

@@ -128,4 +128,10 @@
   .analytics-placeholder-card {
     padding: var(--space-6) var(--space-4);
   }
+
+  /* UXH-204: Larger live indicator dot on mobile for visibility */
+  .analytics-live-dot {
+    width: 10px;
+    height: 10px;
+  }
 }

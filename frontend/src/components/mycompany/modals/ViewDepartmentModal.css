@@ -111,7 +111,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   text-align: left;
 }
 
@@ -154,7 +154,7 @@
 
 .mc-role.clickable {
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .mc-role.clickable:hover {
@@ -200,12 +200,92 @@
   color: var(--color-text-tertiary);
 }
 
-/* Mobile: stack vertically */
+/* =============================================================================
+   MOBILE RESPONSIVE - UXH-041: Reduce nested card visual clutter
+   ============================================================================= */
+
 @media (width <= 640px) {
+  /* Stack preset row vertically */
   .mc-preset-row {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--gap);
+  }
+
+  /* UXH-041: Flatten cards on mobile - remove borders and shadows */
+  .mc-section {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border-light);
+  }
+
+  .mc-section:first-of-type {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  /* UXH-041: Reduce visual weight of code/raw blocks */
+  .mc-markdown-raw {
+    background: var(--color-bg-secondary);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+    max-height: 200px;
+    font-size: var(--text-xs-plus);
+  }
+
+  /* UXH-041: Flatten role cards - remove border, use divider lines */
+  .mc-role.clickable {
+    border: none;
+    border-bottom: 1px solid var(--color-border-light);
+    border-radius: 0;
+    padding: var(--space-3) 0;
+  }
+
+  .mc-role.clickable:last-child {
+    border-bottom: none;
+  }
+
+  .mc-role.clickable:hover {
+    background: var(--color-bg-hover);
+    border: none;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  /* UXH-041: Compact view context button */
+  .mc-view-context-btn {
+    width: 100%;
+    margin: var(--space-2) 0;
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  /* UXH-041: Compact metadata badges */
+  .mc-dept-meta,
+  .mc-role-meta {
+    flex-wrap: wrap;
+    gap: var(--gap-xs);
+    margin-bottom: var(--space-3);
+  }
+
+  .mc-role-dept-badge,
+  .mc-role-title-badge,
+  .mc-role-desc-badge {
+    font-size: var(--text-xs);
+    padding: var(--space-0-5) var(--space-1-5);
+  }
+
+  /* Compact description */
+  .mc-dept-description {
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-3);
+  }
+
+  /* Compact section headers */
+  .mc-section h4,
+  .mc-roles-title {
+    font-size: var(--text-xs);
+    margin-bottom: var(--space-2);
   }
 }
 

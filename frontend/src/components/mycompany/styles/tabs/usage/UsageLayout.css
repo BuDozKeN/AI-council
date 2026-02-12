@@ -39,7 +39,6 @@
   flex: 1;
   min-height: 0;
   overflow: hidden auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Add padding to scroll content for sections */

@@ -42,7 +42,6 @@
   transition:
     color 0.15s ease,
     background-color 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .mobile-nav-item:hover {
@@ -103,7 +102,7 @@
 /* Mobile - merged into standard breakpoint */
 @media (width <= 640px) {
   .mobile-nav-label {
-    font-size: 11px;
+    font-size: 12px; /* P3: 11px → 12px for better readability */
   }
 
   .mobile-nav-item {
@@ -111,14 +110,15 @@
     flex: 1;
   }
 
+  /* UXH-015: Slightly larger icons on mobile for better visibility */
   .mobile-nav-icon {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 
   .mobile-nav-icon svg {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 }
 

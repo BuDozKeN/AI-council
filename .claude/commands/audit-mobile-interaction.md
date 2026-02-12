@@ -22,17 +22,27 @@ Visual audits miss critical issues:
 
 ## Pre-Audit Setup
 
+### CRITICAL: Image Size Limit
+
+The Claude API has a **2000px limit per dimension** for multi-image requests. High-DPI displays (2x/3x scaling) can cause screenshots to exceed this limit.
+
+**ALWAYS set deviceScaleFactor: 1 before taking screenshots:**
+```
+mcp__chrome-devtools__emulate viewport={"width": 390, "height": 844, "deviceScaleFactor": 1, "isMobile": true, "hasTouch": true}
+```
+
+**Additional rules:**
+- **NEVER use `fullPage: true`** - Full-page screenshots easily exceed 2000px height
+- If you need to capture more content, take multiple viewport-sized screenshots
+
 ### 1. Chrome DevTools Mobile Emulation
 
 ```
 REQUIRED STEPS:
 1. Ensure dev.bat or start-chrome-debug.bat is running
 2. Navigate to http://localhost:5173
-3. Open DevTools (F12)
-4. Toggle Device Toolbar (Ctrl+Shift+M)
-5. Select: iPhone 14 Pro (390x844)
-6. Enable: Touch simulation
-7. Throttle: Mid-tier mobile (optional but recommended)
+3. Run: mcp__chrome-devtools__emulate viewport={"width": 390, "height": 844, "deviceScaleFactor": 1, "isMobile": true, "hasTouch": true}
+4. Throttle: Mid-tier mobile (optional but recommended)
 ```
 
 ### 2. Test Viewports

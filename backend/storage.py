@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
-from .database import get_supabase, get_supabase_with_auth, get_supabase_service
+from .database import get_supabase, get_supabase_with_auth, get_supabase_service, with_retry_sync, DatabaseRetryError
 from .security import log_app_event, escape_sql_like_pattern, verify_user_company_access, log_security_event
 
 logger = logging.getLogger(__name__)
@@ -186,88 +186,108 @@ def get_conversation(
     Returns:
         Conversation dict or None if not found.
         Includes 'message_count' for total messages and 'messages_truncated' if limited.
-    """
-    supabase = _get_client(access_token)
 
+    Note:
+        Includes retry logic for transient network errors (httpx.WriteError, etc.).
+    """
     # Enforce message limit to prevent memory issues
     if message_limit > 0:
         message_limit = min(message_limit, 1000)  # Hard cap at 1000 messages
 
-    # First get conversation metadata
-    conv_result = supabase.table('conversations').select('*').eq('id', conversation_id).execute()
+    def _fetch():
+        supabase = _get_client(access_token)
 
-    if not conv_result.data:
-        return None
+        # First get conversation metadata
+        conv_result = supabase.table('conversations').select('*').eq('id', conversation_id).execute()
 
-    conv = conv_result.data[0]
+        if not conv_result.data:
+            return None
 
-    # Get messages separately with limit and order
-    # This prevents unbounded queries on conversations with thousands of messages
-    messages_query = supabase.table('messages').select('*').eq(
-        'conversation_id', conversation_id
-    ).order('created_at', desc=False)  # Oldest first
+        conv = conv_result.data[0]
 
-    if message_limit > 0:
-        # Get total count for pagination info
-        count_result = supabase.table('messages').select(
-            'id', count='exact'
-        ).eq('conversation_id', conversation_id).execute()
-        total_messages = count_result.count if hasattr(count_result, 'count') else len(count_result.data or [])
-
-        # For limit, we want the MOST RECENT messages, so order desc and take limit, then reverse
-        messages_result = supabase.table('messages').select('*').eq(
+        # Get messages separately with limit and order
+        # This prevents unbounded queries on conversations with thousands of messages
+        messages_query = supabase.table('messages').select('*').eq(
             'conversation_id', conversation_id
-        ).order('created_at', desc=True).limit(message_limit).execute()
+        ).order('created_at', desc=False)  # Oldest first
 
-        raw_messages = messages_result.data or []
-        # Reverse to get chronological order (oldest first)
-        raw_messages.reverse()
-        messages_truncated = total_messages > message_limit
-    else:
-        messages_result = messages_query.execute()
-        raw_messages = messages_result.data or []
-        total_messages = len(raw_messages)
-        messages_truncated = False
+        if message_limit > 0:
+            # Get total count for pagination info
+            count_result = supabase.table('messages').select(
+                'id', count='exact'
+            ).eq('conversation_id', conversation_id).execute()
+            total_messages = count_result.count if hasattr(count_result, 'count') else len(count_result.data or [])
 
-    messages = []
-    for msg in raw_messages:
-        if msg['role'] == 'user':
-            messages.append({
-                "role": "user",
-                "content": msg['content']
-            })
+            # For limit, we want the MOST RECENT messages, so order desc and take limit, then reverse
+            messages_result = supabase.table('messages').select('*').eq(
+                'conversation_id', conversation_id
+            ).order('created_at', desc=True).limit(message_limit).execute()
+
+            raw_messages = messages_result.data or []
+            # Reverse to get chronological order (oldest first)
+            raw_messages.reverse()
+            messages_truncated = total_messages > message_limit
         else:
-            # Assistant message
-            message = {
-                "role": "assistant",
-                "stage1": msg.get('stage1') or [],
-                "stage2": msg.get('stage2') or [],
-                "stage3": msg.get('stage3') or {}
-            }
-            if msg.get('label_to_model'):
-                message['label_to_model'] = msg['label_to_model']
-            if msg.get('aggregate_rankings'):
-                message['aggregate_rankings'] = msg['aggregate_rankings']
-            messages.append(message)
+            messages_result = messages_query.execute()
+            raw_messages = messages_result.data or []
+            total_messages = len(raw_messages)
+            messages_truncated = False
 
-    result = {
-        "id": conv['id'],
-        "created_at": conv['created_at'],
-        "last_updated": conv['updated_at'],
-        "title": conv.get('title', 'New Conversation'),
-        "archived": conv.get('archived', False),
-        "messages": messages,
-        "curator_history": conv.get('curator_history') or [],
-        "user_id": conv.get('user_id'),
-        "message_count": total_messages,
-    }
+        messages = []
+        for msg in raw_messages:
+            if msg['role'] == 'user':
+                messages.append({
+                    "role": "user",
+                    "content": msg['content']
+                })
+            else:
+                # Assistant message
+                message = {
+                    "role": "assistant",
+                    "stage1": msg.get('stage1') or [],
+                    "stage2": msg.get('stage2') or [],
+                    "stage3": msg.get('stage3') or {}
+                }
+                if msg.get('label_to_model'):
+                    message['label_to_model'] = msg['label_to_model']
+                if msg.get('aggregate_rankings'):
+                    message['aggregate_rankings'] = msg['aggregate_rankings']
+                messages.append(message)
 
-    # Only include truncation info if messages were limited
-    if messages_truncated:
-        result["messages_truncated"] = True
-        result["messages_shown"] = len(messages)
+        result = {
+            "id": conv['id'],
+            "created_at": conv['created_at'],
+            "last_updated": conv['updated_at'],
+            "title": conv.get('title', 'New Conversation'),
+            "archived": conv.get('archived', False),
+            "messages": messages,
+            "curator_history": conv.get('curator_history') or [],
+            "user_id": conv.get('user_id'),
+            "message_count": total_messages,
+        }
 
-    return result
+        # Only include truncation info if messages were limited
+        if messages_truncated:
+            result["messages_truncated"] = True
+            result["messages_shown"] = len(messages)
+
+        return result
+
+    try:
+        return with_retry_sync(
+            _fetch,
+            max_retries=2,
+            operation=f"get_conversation:{conversation_id[:8]}"
+        )
+    except DatabaseRetryError as e:
+        log_app_event(
+            "STORAGE: Failed to get conversation after retries",
+            level="ERROR",
+            conversation_id=conversation_id,
+            attempts=e.attempts,
+            error=str(e.last_error)
+        )
+        raise  # Re-raise to trigger 500 error in router
 
 
 def save_conversation(conversation: Dict[str, Any], access_token: Optional[str] = None):
@@ -943,6 +963,31 @@ def get_projects_with_stats(
         .execute()
     dept_map = {d["id"]: d for d in (dept_result.data or [])}
 
+    # UXH-062: Batch knowledge_entries queries to avoid N+1 problem
+    # (previously 2 queries per project; now 2 queries total)
+    project_ids = [p["id"] for p in projects]
+    decision_counts: dict = {}
+    first_questions: dict = {}
+
+    if project_ids:
+        try:
+            # Batch query: get all active knowledge entries for all projects at once
+            all_entries = client.table("knowledge_entries")\
+                .select("id, project_id, question, created_at")\
+                .in_("project_id", project_ids)\
+                .eq("is_active", True)\
+                .order("created_at", desc=False)\
+                .execute()
+
+            # Aggregate counts and find first question per project
+            for entry in (all_entries.data or []):
+                pid = entry["project_id"]
+                decision_counts[pid] = decision_counts.get(pid, 0) + 1
+                if pid not in first_questions:
+                    first_questions[pid] = entry.get("question")
+        except Exception as e:
+            logger.warning("Failed to batch-fetch decision stats: %s", e)
+
     # Enrich projects with decision counts and department names
     for project in projects:
         dept_ids = project.get("department_ids") or []
@@ -955,31 +1000,9 @@ def get_projects_with_stats(
         # Set department_name to first one for backwards compat
         project["department_name"] = project["department_names"][0] if project["department_names"] else None
 
-        # Get decision count and first decision's user question (for "what was asked")
-        try:
-            count_result = client.table("knowledge_entries")\
-                .select("id", count="exact")\
-                .eq("project_id", project["id"])\
-                .eq("is_active", True)\
-                .execute()
-            project["decision_count"] = count_result.count or 0
-
-            # Get the first decision's question (the question that created this project)
-            first_decision = client.table("knowledge_entries")\
-                .select("question")\
-                .eq("project_id", project["id"])\
-                .eq("is_active", True)\
-                .order("created_at", desc=False)\
-                .limit(1)\
-                .execute()
-            if first_decision.data and len(first_decision.data) > 0:
-                project["source_question"] = first_decision.data[0].get("question")
-            else:
-                project["source_question"] = None
-        except Exception as e:
-            logger.warning("Failed to get decision stats for project %s: %s", project.get("id"), e)
-            project["decision_count"] = 0
-            project["source_question"] = None
+        # Use pre-fetched batch data (no per-project queries)
+        project["decision_count"] = decision_counts.get(project["id"], 0)
+        project["source_question"] = first_questions.get(project["id"])
 
     return projects
 

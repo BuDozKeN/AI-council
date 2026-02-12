@@ -62,3 +62,41 @@
 [data-state='open'] .context-chip-chevron {
   transform: rotate(180deg);
 }
+
+/* =============================================================================
+   UXH-003/017: MOBILE - Larger chevron and better visibility
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .context-chip-trigger {
+    padding: var(--space-2-5) var(--space-3-5);
+    min-height: 44px; /* WCAG touch target */
+    font-size: var(--text-base);
+    gap: var(--gap-sm);
+  }
+
+  /* UXH-003/017: Larger chevron - 18px instead of 14px */
+  .context-chip-chevron {
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-secondary); /* More visible than tertiary */
+  }
+
+  /* Larger icons on mobile */
+  .context-chip-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .context-chip-label {
+    font-size: var(--text-sm);
+  }
+
+  .context-chip-value {
+    font-size: var(--text-sm);
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}

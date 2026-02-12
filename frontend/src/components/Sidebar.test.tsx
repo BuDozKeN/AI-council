@@ -428,7 +428,7 @@ describe('Sidebar', () => {
     it('renders conversation groups', () => {
       localStorage.setItem('sidebar-pinned', 'true');
       renderSidebar();
-      expect(screen.getByTestId('conv-group-Standard')).toBeInTheDocument();
+      expect(screen.getByTestId('conv-group-General')).toBeInTheDocument();
     });
 
     it('renders SidebarFooter with user info when pinned', () => {

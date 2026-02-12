@@ -31,7 +31,7 @@
   background: transparent;
   font-size: var(--text-xs-plus);
   color: var(--sidebar-text-primary);
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
 .search-input:hover {
@@ -65,7 +65,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
 
 .search-clear:hover {
@@ -102,4 +102,26 @@
 .sidebar-filter .sort-select-trigger {
   flex: 1;
   min-width: 0;
+}
+
+/* UXH-190: Prevent dropdown text truncation on mobile */
+@media (width <= 640px) {
+  .sidebar-filter {
+    overflow: visible;
+  }
+
+  .sidebar-filter .filter-select-trigger,
+  .sidebar-filter .sort-select-trigger {
+    min-width: 0;
+    font-size: var(--text-xs-plus);
+  }
+
+  /* Allow text to show fully in trigger */
+  .sidebar-filter .filter-select-trigger [data-radix-select-value],
+  .sidebar-filter .sort-select-trigger [data-radix-select-value] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
 }

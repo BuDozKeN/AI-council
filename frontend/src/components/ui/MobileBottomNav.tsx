@@ -1,15 +1,16 @@
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, MessageSquare, Building2, Settings, Trophy } from 'lucide-react';
+import { Plus, MessageSquare, Building2, Settings } from 'lucide-react';
 import './MobileBottomNav.css';
 
 interface MobileBottomNavProps {
   onNewChat: () => void;
   onOpenHistory: () => void;
-  onOpenLeaderboard: () => void;
+  /** @deprecated Leaderboard removed from mobile nav (UXH-001) */
+  onOpenLeaderboard?: () => void;
   onOpenMyCompany: () => void;
   onOpenSettings: () => void;
-  activeTab?: 'chat' | 'history' | 'leaderboard' | 'company' | 'settings';
+  activeTab?: 'chat' | 'history' | 'company' | 'settings';
 }
 
 /**
@@ -18,14 +19,14 @@ interface MobileBottomNavProps {
  * Provides quick access to main app sections on mobile:
  * - New Chat: Start a new council conversation
  * - History: Open sidebar with conversation history
- * - Leaderboard: View AI model rankings
  * - My Company: Open company management
  * - Settings: Open settings modal
+ *
+ * Note: Leaderboard removed from mobile nav (UXH-001) - users can access via desktop
  */
 function MobileBottomNav({
   onNewChat,
   onOpenHistory,
-  onOpenLeaderboard,
   onOpenMyCompany,
   onOpenSettings,
   activeTab = 'chat',
@@ -54,15 +55,7 @@ function MobileBottomNav({
         <span className="mobile-nav-label">{t('mobileNav.history')}</span>
       </button>
 
-      <button
-        className={`mobile-nav-item ${activeTab === 'leaderboard' ? 'active' : ''}`}
-        onClick={onOpenLeaderboard}
-        aria-label={t('sidebar.leaderboard')}
-        aria-current={activeTab === 'leaderboard' ? 'page' : undefined}
-      >
-        <Trophy className="mobile-nav-icon" size={24} />
-        <span className="mobile-nav-label">{t('mobileNav.leaderboard')}</span>
-      </button>
+      {/* UXH-001: Leaderboard removed from mobile nav - not relevant for mobile users */}
 
       <button
         className={`mobile-nav-item ${activeTab === 'company' ? 'active' : ''}`}
