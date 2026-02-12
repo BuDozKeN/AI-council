@@ -40,25 +40,18 @@
     margin-top: var(--space-1-5);
   }
 
-  /* UXH-086: Move Send button to thumb zone (left side) on mobile */
+  /* Match OmniBar layout: Context+controls left, Attach+Send right */
   .omniRight {
-    order: -1;
     gap: var(--gap-2xs);
     flex-shrink: 0;
-    padding-left: 0;
-    padding-right: var(--space-2);
-  }
-
-  /* UXH-086: Within right section, put Send before Attach for thumb priority */
-  .omniRight {
-    flex-direction: row-reverse;
   }
 
   .omniLeft {
     gap: var(--gap-2xs);
     flex-wrap: nowrap;
     overflow: hidden;
-    order: 1;
+    flex: 1 1 0%;
+    min-width: 0;
   }
 
   .resetAll {
@@ -77,15 +70,7 @@
     min-height: 44px;
   }
 
-  /* UXH-031: Hide mode toggle on mobile - moved to context bottom sheet */
-  .inlineModeToggle {
-    display: none;
-  }
-
-  /* UXH-031: Hide response style selector on mobile - moved to context bottom sheet */
-  .hideOnMobile {
-    display: none;
-  }
+  /* Mode toggle + response style now visible inline (matching OmniBar) */
 
   /* UXH-125: Visible focus indicators for accessibility */
   .omniInput:focus-visible {
