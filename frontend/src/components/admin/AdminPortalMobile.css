@@ -179,9 +179,9 @@
    ============================================================================= */
 
 @media (width <= 640px) {
-  /* Reserve space for bottom nav */
+  /* Nav is now a hidden drag-up tray — only safe area inset needed */
   .admin-main {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   /* Hide top horizontal nav on mobile - using bottom nav instead */

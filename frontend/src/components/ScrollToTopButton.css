@@ -52,9 +52,8 @@
 
 @media (width <= 1024px) {
   .scroll-to-top-fab {
-    /* UXH-036/069/085: Position above bottom nav with generous clearance.
-       Nav height (~72px) + spacing (24px) + safe area = 96px */
-    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    /* Nav is now a hidden drag-up tray — only 24px spacing needed */
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
     right: 16px;
     width: 40px;
     height: 40px;

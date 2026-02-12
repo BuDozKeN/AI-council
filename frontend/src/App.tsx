@@ -248,6 +248,8 @@ function App() {
 
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isMobileNavExpanded, setIsMobileNavExpanded] = useState(false);
+  const toggleMobileNav = useCallback(() => setIsMobileNavExpanded(prev => !prev), []);
 
   // Image upload state for landing hero
   const [landingImages, setLandingImages] = useState<
@@ -1362,6 +1364,8 @@ function App() {
               onOpenMyCompany={handleOpenMyCompany}
               onOpenSettings={handleOpenSettings}
               activeTab="chat"
+              isExpanded={isMobileNavExpanded}
+              onToggle={toggleMobileNav}
             />
           )}
       </div>

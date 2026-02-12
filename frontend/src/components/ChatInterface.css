@@ -60,9 +60,9 @@
    ============================================================================= */
 
 @media (width <= 640px) {
-  /* UXH-158: Add bottom clearance for mobile bottom nav */
+  /* Nav is now a hidden drag-up tray — only safe area inset needed */
   .chat-interface {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   /* Triage - compact on mobile */
