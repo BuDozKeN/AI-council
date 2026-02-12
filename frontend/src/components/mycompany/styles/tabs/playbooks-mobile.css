@@ -44,9 +44,11 @@
 /* Hide action buttons on mobile - tap opens detail */
 
 /* Double class for specificity over hover states */
-.mc-elegant-row.mc-elegant-row .mc-elegant-actions,
-.mc-elegant-row .mc-elegant-actions[class] {
-  display: none;
+@media (max-width: 640px) {
+  .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
+  .mc-elegant-row .mc-elegant-actions[class] {
+    display: none;
+  }
 }
 
 /* Activity tab: SHOW source link on mobile - important for navigation */
