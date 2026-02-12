@@ -30,7 +30,7 @@
 @media (width <= 640px) {
   /* UXH-168: Safe area inset only (nav is now a hidden drag-up tray) */
   .mc-projects {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Project row: clean card-like appearance */

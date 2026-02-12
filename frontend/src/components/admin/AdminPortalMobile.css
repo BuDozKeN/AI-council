@@ -181,7 +181,7 @@
 @media (width <= 640px) {
   /* Safe area inset only (nav is now a hidden drag-up tray) */
   .admin-main {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Hide top horizontal nav on mobile - using bottom nav instead */

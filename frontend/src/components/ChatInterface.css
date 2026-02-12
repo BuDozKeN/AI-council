@@ -62,7 +62,7 @@
 @media (width <= 640px) {
   /* Nav is now a hidden drag-up tray — only safe area inset needed */
   .chat-interface {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Triage - compact on mobile */

@@ -8,7 +8,7 @@
 
   /* UXH-168: Safe area inset only (nav is now a hidden drag-up tray) */
   .mc-team {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Department rows - touch friendly */

@@ -25,7 +25,7 @@
     position: fixed;
 
     /* Nav is now a hidden drag-up tray — 24px spacing from bottom + safe area */
-    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(24px + env(safe-area-inset-bottom));
     right: 16px;
     width: 56px;
     height: 56px;
