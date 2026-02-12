@@ -5,9 +5,9 @@
 
 /* ========== PLAYBOOKS TAB - MOBILE ========== */
 
-/* UXH-168: Add padding-bottom to prevent FAB overlap */
+/* UXH-168: Safe area inset only (nav is now a hidden drag-up tray) */
 .mc-playbooks {
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Playbook group headers */

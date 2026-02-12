@@ -279,6 +279,10 @@ function App() {
   // Sign out confirmation modal state (ISS-045: use styled modal instead of browser confirm)
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
+  // Mobile bottom nav drag-up tray state
+  const [isMobileNavExpanded, setIsMobileNavExpanded] = useState(false);
+  const toggleMobileNav = useCallback(() => setIsMobileNavExpanded(prev => !prev), []);
+
   // Global keyboard shortcuts - works even when CommandPalette is unmounted
   useKeyboardShortcuts({
     onFocusSearch: useCallback(() => {
@@ -1372,6 +1376,8 @@ function App() {
               onOpenMyCompany={handleOpenMyCompany}
               onOpenSettings={handleOpenSettings}
               activeTab="chat"
+              isExpanded={isMobileNavExpanded}
+              onToggle={toggleMobileNav}
             />
           )}
       </div>
