@@ -28,6 +28,7 @@
       4vh,
       env(safe-area-inset-bottom)
     ); /* Nav is now a hidden tray — minimal bottom padding */
+
     gap: var(--space-3);
     justify-content: flex-start;
     align-items: center;
