@@ -4,7 +4,7 @@
 .mobile-nav-handle-wrapper {
   display: none; /* Hidden on desktop */
   position: fixed;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom);
   left: 0;
   right: 0;
   height: 20px;
@@ -12,7 +12,6 @@
   justify-content: center;
   z-index: calc(var(--z-modal) - 1);
   cursor: pointer;
-  padding-bottom: env(safe-area-inset-bottom);
   -webkit-tap-highlight-color: transparent;
 }
 
