@@ -83,7 +83,11 @@ function MobileBottomNav({
         }}
         role="button"
         tabIndex={0}
-        aria-label={isExpanded ? t('mobileNav.hideNavigation', 'Hide navigation') : t('mobileNav.showNavigation', 'Show navigation')}
+        aria-label={
+          isExpanded
+            ? t('mobileNav.hideNavigation', 'Hide navigation')
+            : t('mobileNav.showNavigation', 'Show navigation')
+        }
         aria-expanded={isExpanded}
       >
         <div className="mobile-nav-handle" />

@@ -24,7 +24,10 @@
     height: 100%;
     padding: var(--space-5);
     padding-top: 22vh; /* Title lands at ~25% from top */
-    padding-bottom: max(4vh, env(safe-area-inset-bottom)); /* Nav is now a hidden tray — minimal bottom padding */
+    padding-bottom: max(
+      4vh,
+      env(safe-area-inset-bottom)
+    ); /* Nav is now a hidden tray — minimal bottom padding */
     gap: var(--space-3);
     justify-content: flex-start;
     align-items: center;

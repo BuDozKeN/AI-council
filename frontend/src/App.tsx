@@ -281,7 +281,7 @@ function App() {
 
   // Mobile bottom nav drag-up tray state
   const [isMobileNavExpanded, setIsMobileNavExpanded] = useState(false);
-  const toggleMobileNav = useCallback(() => setIsMobileNavExpanded(prev => !prev), []);
+  const toggleMobileNav = useCallback(() => setIsMobileNavExpanded((prev) => !prev), []);
 
   // Global keyboard shortcuts - works even when CommandPalette is unmounted
   useKeyboardShortcuts({
@@ -397,7 +397,13 @@ function App() {
   }, [showLandingHero]);
 
   // Auto-collapse nav tray when a modal/sidebar hides it (prevents stale expanded state on remount)
-  const mobileNavHidden = showLandingHero || isMyCompanyOpen || isSettingsOpen || isLeaderboardOpen || isProjectModalOpen || isMobileSidebarOpen;
+  const mobileNavHidden =
+    showLandingHero ||
+    isMyCompanyOpen ||
+    isSettingsOpen ||
+    isLeaderboardOpen ||
+    isProjectModalOpen ||
+    isMobileSidebarOpen;
   useEffect(() => {
     if (mobileNavHidden) setIsMobileNavExpanded(false);
   }, [mobileNavHidden]);
