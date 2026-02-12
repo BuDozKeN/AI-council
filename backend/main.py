@@ -490,12 +490,26 @@ class RequestDurationMiddleware(BaseHTTPMiddleware):
     VERY_SLOW_THRESHOLD = 5.0  # seconds - log error
     EXCLUDED_PATHS = {"/health", "/health/live", "/health/ready", "/"}
     # LLM-heavy endpoints that naturally take longer (5-30s is normal)
+    # Uses substring matching — any path containing these patterns is exempt
     LLM_PATH_PATTERNS = (
-        "/messages",           # Council deliberation
-        "/chat/stream",        # Chat mode
-        "/merge-decision",     # Decision merging
-        "/triage/analyze",     # Triage analysis
-        "/triage/continue",    # Triage continuation
+        "/messages",             # Council deliberation
+        "/chat/stream",          # Chat mode
+        "/merge-decision",       # Decision merging
+        "/triage/analyze",       # Triage analysis
+        "/triage/continue",      # Triage continuation
+        "/ai/write-assist",      # AI write assist
+        "/utils/polish-text",    # Text polishing
+        "/roles/structure",      # Role structuring (2 LLM calls)
+        "/departments/structure", # Department structuring
+        "/playbooks/structure",  # Playbook generation (2 LLM calls)
+        "/context/merge",        # Context merge
+        "/context/structure",    # Context structuring
+        "/structure-context",    # Project context structuring
+        "/create-project",       # Project from decision
+        "/generate-summary",     # Decision summary generation
+        "/projects/extract",     # Project extraction
+        "/regenerate-context",   # Context regeneration
+        "/knowledge/extract",    # Knowledge extraction
     )
 
     def _is_llm_endpoint(self, path: str) -> bool:
