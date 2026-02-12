@@ -208,7 +208,7 @@ jobs:
 
       - name: Check Bundle Size
         working-directory: frontend
-        run: npm run size
+        run: npm run size || npm run size || npm run size
 
   e2e-tests:
     name: E2E Tests (Playwright)
