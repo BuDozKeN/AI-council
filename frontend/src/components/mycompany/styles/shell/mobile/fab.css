@@ -24,9 +24,8 @@
     justify-content: center;
     position: fixed;
 
-    /* UXH-036/069/085: Position above bottom nav with generous clearance.
-       Bottom nav is ~72px (56px item + 16px padding), +24px spacing = 96px base */
-    bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    /* Nav is now a hidden drag-up tray — 24px spacing from bottom + safe area */
+    bottom: calc(24px + env(safe-area-inset-bottom));
     right: 16px;
     width: 56px;
     height: 56px;
