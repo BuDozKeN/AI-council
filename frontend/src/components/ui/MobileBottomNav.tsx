@@ -94,6 +94,7 @@ function MobileBottomNav({
         ref={navRef}
         className="mobile-bottom-nav"
         aria-label={t('aria.mainNavigation')}
+        initial={{ y: '100%' }}
         animate={{ y: isExpanded ? 0 : '100%' }}
         transition={transition}
         drag="y"

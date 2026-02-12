@@ -396,6 +396,12 @@ function App() {
     }
   }, [showLandingHero]);
 
+  // Auto-collapse nav tray when a modal/sidebar hides it (prevents stale expanded state on remount)
+  const mobileNavHidden = showLandingHero || isMyCompanyOpen || isSettingsOpen || isLeaderboardOpen || isProjectModalOpen || isMobileSidebarOpen;
+  useEffect(() => {
+    if (mobileNavHidden) setIsMobileNavExpanded(false);
+  }, [mobileNavHidden]);
+
   // i18n: Update HTML lang attribute dynamically for SEO and accessibility
   // Note: Uses i18nInstance from useTranslation() hook (not the direct import)
   // because the hook provides reactive updates when language changes
