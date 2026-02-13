@@ -30,6 +30,7 @@ import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
+import { toast } from '../ui/sonner';
 import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
 import type { Department, Role, Playbook, Project, LLMPresetId } from '../../types/business';
 import { ResponseStyleSelector } from './ResponseStyleSelector';
@@ -904,7 +905,13 @@ export function ChatInput({
                           )}
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (!disabled) onChatModeChange?.('chat');
+                            if (!disabled && chatMode !== 'chat') {
+                              onChatModeChange?.('chat');
+                              // Mobile: show toast since tooltips don't work on touch
+                              if (isMobile) {
+                                toast.info(TOOLTIPS.chatMode, { duration: 3000 });
+                              }
+                            }
                           }}
                           onPointerDown={(e) => e.stopPropagation()}
                           disabled={disabled}
@@ -932,7 +939,13 @@ export function ChatInput({
                           )}
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (!disabled) onChatModeChange?.('council');
+                            if (!disabled && chatMode !== 'council') {
+                              onChatModeChange?.('council');
+                              // Mobile: show toast since tooltips don't work on touch
+                              if (isMobile) {
+                                toast.info(TOOLTIPS.councilMode, { duration: 3000 });
+                              }
+                            }
                           }}
                           onPointerDown={(e) => e.stopPropagation()}
                           disabled={disabled}

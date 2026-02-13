@@ -32,9 +32,14 @@
   }
 }
 
-/* Hide on touch devices - tooltips don't work well with touch */
+/*
+ * Touch devices: hide tooltip completely via CSS as a safety net.
+ * The Tooltip component itself avoids rendering the portal on touch,
+ * but this catches any edge cases (e.g. external trackpad + touch).
+ */
 @media (hover: none) {
   .tooltip-content {
-    display: none;
+    display: none !important;
+    pointer-events: none;
   }
 }
