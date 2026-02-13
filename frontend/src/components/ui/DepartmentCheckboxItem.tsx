@@ -1,20 +1,16 @@
 /**
- * DepartmentCheckboxItem - Shared department checkbox item for dropdowns
+ * DepartmentCheckboxItem - Department-specific checkbox item
  *
- * SINGLE SOURCE OF TRUTH for department selection UI.
- * Used by both Omnibar (ChatInput) and Stage3 (MultiDepartmentSelect).
+ * Thin wrapper around ContextSelectItem that adds department-specific
+ * colored borders and checkbox fills via getDeptColor().
  *
- * Features:
- * - Colored left border when selected (department-specific color)
- * - Colored checkbox when checked (department-specific color)
- * - Consistent sizing across desktop and mobile
+ * Used by Omnibar (ChatInput/OmniBar) and Stage3 (MultiDepartmentSelect).
+ * External API is unchanged — no changes needed in consumers.
  */
 
-import { Check } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
-import { cn } from '../../lib/utils';
 import type { Department } from '../../types/business';
-import './DepartmentCheckboxItem.css';
+import { ContextSelectItem } from './ContextSelectItem';
 
 interface DepartmentCheckboxItemProps {
   department: Department;
@@ -33,33 +29,19 @@ export function DepartmentCheckboxItem({
   const colors = getDeptColor(department.id);
 
   return (
-    <label
-      className={cn('dept-checkbox-item', isMobile && 'mobile', isSelected && 'selected')}
-      style={
-        {
-          '--dept-color': colors.text,
-          '--dept-bg': colors.bg,
-        } as React.CSSProperties
-      }
-    >
-      <input
-        type="checkbox"
-        checked={isSelected}
-        onChange={() => {
-          // Set timestamp to prevent parent modal from closing when selecting departments
-          (window as Window & { __multiDeptSelectClickTime?: number }).__multiDeptSelectClickTime =
-            Date.now();
-          onToggle(department.id);
-        }}
-        className="dept-checkbox-input"
-        aria-label={department.name}
-        onMouseDown={(e) => e.preventDefault()}
-      />
-      <div className={cn('dept-checkbox', isSelected && 'checked')} aria-hidden="true">
-        {isSelected && <Check className="dept-checkbox-icon" />}
-      </div>
-      <span className="dept-checkbox-label">{department.name}</span>
-    </label>
+    <ContextSelectItem
+      label={department.name}
+      isSelected={isSelected}
+      onToggle={() => {
+        // Set timestamp to prevent parent modal from closing when selecting departments
+        (window as Window & { __multiDeptSelectClickTime?: number }).__multiDeptSelectClickTime =
+          Date.now();
+        onToggle(department.id);
+      }}
+      mode="checkbox"
+      isMobile={isMobile}
+      accentColor={colors.text}
+    />
   );
 }
 

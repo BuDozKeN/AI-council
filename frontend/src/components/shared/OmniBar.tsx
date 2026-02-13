@@ -27,7 +27,6 @@ import {
   Users,
   BookOpen,
   FolderKanban,
-  Check,
   FileText,
   ScrollText,
   Shield,
@@ -39,6 +38,7 @@ import { cn } from '../../lib/utils';
 import { springs, interactionStates } from '../../lib/animations';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
+import { ContextSelectItem } from '../ui/ContextSelectItem';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { ResponseStyleSelector } from '../chat/ResponseStyleSelector';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
@@ -419,24 +419,16 @@ export function OmniBar({
       {businesses.length === 0 ? (
         <div className={c.popoverEmpty}>{t('omnibar.noCompanies')}</div>
       ) : (
-        businesses.map((biz) => {
-          const isSelected = selectedBusiness === biz.id;
-          return (
-            <button
-              key={biz.id}
-              className={cn(c.popoverItem, isSelected && c.selected)}
-              onClick={() => {
-                onSelectBusiness?.(isSelected ? null : biz.id);
-              }}
-              type="button"
-            >
-              <div className={cn(c.popoverRadio, isSelected && c.checked)}>
-                {isSelected && <Check />}
-              </div>
-              <span>{biz.name}</span>
-            </button>
-          );
-        })
+        businesses.map((biz) => (
+          <ContextSelectItem
+            key={biz.id}
+            label={biz.name}
+            isSelected={selectedBusiness === biz.id}
+            onToggle={() => onSelectBusiness?.(selectedBusiness === biz.id ? null : biz.id)}
+            mode="radio"
+            isMobile={isMobile}
+          />
+        ))
       )}
     </div>
   );
@@ -457,24 +449,16 @@ export function OmniBar({
       {projects.length === 0 ? (
         <div className={c.popoverEmpty}>{t('context.noProjects')}</div>
       ) : (
-        sortedProjects.map((proj) => {
-          const isSelected = selectedProject === proj.id;
-          return (
-            <button
-              key={proj.id}
-              className={cn(c.popoverItem, isSelected && c.selected)}
-              onClick={() => {
-                onSelectProject?.(isSelected ? null : proj.id);
-              }}
-              type="button"
-            >
-              <div className={cn(c.popoverRadio, isSelected && c.checked)}>
-                {isSelected && <Check />}
-              </div>
-              <span>{proj.name}</span>
-            </button>
-          );
-        })
+        sortedProjects.map((proj) => (
+          <ContextSelectItem
+            key={proj.id}
+            label={proj.name}
+            isSelected={selectedProject === proj.id}
+            onToggle={() => onSelectProject?.(selectedProject === proj.id ? null : proj.id)}
+            mode="radio"
+            isMobile={isMobile}
+          />
+        ))
       )}
     </div>
   );
@@ -520,22 +504,16 @@ export function OmniBar({
       {roles.length === 0 ? (
         <div className={c.popoverEmpty}>{t('context.noRoles')}</div>
       ) : (
-        sortedRoles.map((role) => {
-          const isSelected = selectedRoles.includes(role.id);
-          return (
-            <button
-              key={role.id}
-              className={cn(c.popoverItem, isSelected && c.selected)}
-              onClick={() => toggleRole(role.id)}
-              type="button"
-            >
-              <div className={cn(c.popoverCheckbox, isSelected && c.checked)}>
-                {isSelected && <Check />}
-              </div>
-              <span>{role.name}</span>
-            </button>
-          );
-        })
+        sortedRoles.map((role) => (
+          <ContextSelectItem
+            key={role.id}
+            label={role.name}
+            isSelected={selectedRoles.includes(role.id)}
+            onToggle={() => toggleRole(role.id)}
+            mode="checkbox"
+            isMobile={isMobile}
+          />
+        ))
       )}
     </div>
   );
@@ -603,22 +581,16 @@ export function OmniBar({
                 </button>
                 {isExpanded && (
                   <div className={c.popoverGroupItems}>
-                    {sortedItems.map((pb) => {
-                      const isSelected = selectedPlaybooks.includes(pb.id);
-                      return (
-                        <button
-                          key={pb.id}
-                          className={cn(c.popoverItem, isSelected && c.selected)}
-                          onClick={() => togglePlaybook(pb.id)}
-                          type="button"
-                        >
-                          <div className={cn(c.popoverCheckbox, isSelected && c.checked)}>
-                            {isSelected && <Check />}
-                          </div>
-                          <span>{pb.title || pb.name}</span>
-                        </button>
-                      );
-                    })}
+                    {sortedItems.map((pb) => (
+                      <ContextSelectItem
+                        key={pb.id}
+                        label={pb.title || pb.name || pb.id}
+                        isSelected={selectedPlaybooks.includes(pb.id)}
+                        onToggle={() => togglePlaybook(pb.id)}
+                        mode="checkbox"
+                        isMobile={isMobile}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
