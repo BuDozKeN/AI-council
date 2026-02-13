@@ -65,7 +65,7 @@
     padding: var(--space-0-5);
     min-height: 44px;
     flex-shrink: 1;
-    min-width: 0;
+    min-width: 60px; /* Prevent total collapse on iPhone SE (320px) */
     overflow: hidden;
   }
 
@@ -73,6 +73,9 @@
     padding: var(--space-1-5) var(--space-2); /* Compact padding — saves ~12px for Zap icon */
     font-size: var(--text-xs);
     min-height: 44px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Mode toggle + response style now visible inline (matching OmniBar) */
