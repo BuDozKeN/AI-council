@@ -27,7 +27,9 @@
   width: 48px; /* was 36px — more visible drag indicator */
   height: 5px; /* was 4px */
   border-radius: 3px;
-  background: var(--color-text-quaternary); /* was --color-border-secondary — too subtle on real devices */
+  background: var(
+    --color-text-quaternary
+  ); /* was --color-border-secondary — too subtle on real devices */
   opacity: 0.6;
 }
 

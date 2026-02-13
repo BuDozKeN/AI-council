@@ -89,7 +89,9 @@ export function ResponseStyleSelector({
       onSelectPreset(preset);
       setOpen(false);
       if (isMobile) {
-        const label = preset ? getLabel(preset) : t('chat.responseStyle.departmentDefault', 'Department Default');
+        const label = preset
+          ? getLabel(preset)
+          : t('chat.responseStyle.departmentDefault', 'Department Default');
         toast.info(
           t('chat.responseStyle.switched', 'Response style: {{style}}', { style: label }),
           { duration: 3000 }

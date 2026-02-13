@@ -14,8 +14,7 @@ import './Tooltip.css';
  * Detect touch-only device via media query.
  * Cached at module load — covers phones/tablets reliably.
  */
-const isTouchDevice =
-  typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
+const isTouchDevice = typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches;
 
 interface TooltipProps {
   children: React.ReactNode;
