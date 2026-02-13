@@ -76,13 +76,31 @@
     gap: var(--gap-sm);
   }
 
-  /* Model cards - proper padding */
+  /* Model cards - compact single-row on mobile */
   .stage1 .model-card {
-    padding: var(--space-3-5);
+    padding: var(--space-2-5) var(--space-3);
   }
 
+  /* Hide preview text on mobile — collapsed cards show rank + icon + name only */
+  .stage1 .model-card-preview-wrapper {
+    display: none;
+  }
+
+  /* No gap below header when preview is hidden */
   .stage1 .model-card-header {
-    margin-bottom: var(--space-2-5);
+    margin-bottom: 0;
+  }
+
+  /* Rank badge: move before icon, larger font for scannability */
+  .stage1 .model-card-rank {
+    margin-left: 0;
+    margin-right: var(--space-2);
+    font-size: var(--text-base);
+    order: -1;
+  }
+
+  .stage1 .model-card-header-left {
+    flex: 1;
   }
 
   .stage1 .model-card-name {
@@ -132,6 +150,11 @@
     min-height: 44px;
     min-width: 44px;
     padding: var(--space-2-5);
+  }
+
+  /* Restore header margin when card is expanded (content visible) */
+  .stage1 .model-card.expanded .model-card-header {
+    margin-bottom: var(--space-2-5);
   }
 
   /* Expand button - proper touch target */

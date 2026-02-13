@@ -449,11 +449,13 @@ const ModelCard = memo(function ModelCard({
             </ReactMarkdown>
           </article>
         ) : (
-          // Preview text when collapsed
-          <div className="model-card-preview">
-            {previewText}
-            {hasMore && <span className="text-slate-400">...</span>}
-            {data.isStreaming && <span className="model-card-cursor" />}
+          // Preview text when collapsed (hidden on mobile via CSS)
+          <div className="model-card-preview-wrapper">
+            <div className="model-card-preview">
+              {previewText}
+              {hasMore && <span className="text-slate-400">...</span>}
+              {data.isStreaming && <span className="model-card-cursor" />}
+            </div>
           </div>
         )}
       </div>

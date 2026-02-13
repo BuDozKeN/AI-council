@@ -214,7 +214,10 @@ async def stage1_stream_responses(
     # 8. Process queue until all models complete or timeout
     async for event in _process_queue_until_complete(
         queue, tasks, completed_count, successful_count, len(council_models),
-        stage_start_time, STAGE1_TIMEOUT, log_app_event
+        stage_start_time, STAGE1_TIMEOUT, log_app_event,
+        model_content=model_content,
+        council_models=council_models,
+        min_stage1_responses=MIN_STAGE1_RESPONSES,
     ):
         yield event
 

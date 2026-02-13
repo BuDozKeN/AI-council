@@ -319,7 +319,10 @@ async def _process_queue_until_complete(
     total_models: int,
     stage_start_time: float,
     STAGE1_TIMEOUT: float,
-    log_app_event
+    log_app_event,
+    model_content: Optional[Dict[str, str]] = None,
+    council_models: Optional[List[str]] = None,
+    min_stage1_responses: int = 3,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Process queue events until all models complete or timeout.
@@ -333,6 +336,9 @@ async def _process_queue_until_complete(
         stage_start_time: Stage start timestamp
         STAGE1_TIMEOUT: Hard timeout for stage
         log_app_event: Logging function
+        model_content: Model responses collected so far (for identifying timed-out models)
+        council_models: All council model names (for identifying timed-out models)
+        min_stage1_responses: Minimum responses needed to continue pipeline
 
     Yields:
         Events from queue
@@ -342,14 +348,25 @@ async def _process_queue_until_complete(
 
         # Check for absolute stage timeout (hard limit)
         if elapsed > STAGE1_TIMEOUT:
+            # Identify which models didn't finish
+            timed_out_models = []
+            if council_models and model_content is not None:
+                timed_out_models = [
+                    m for m in council_models if m not in model_content
+                ]
+
+            # Use WARNING if we have enough responses to continue the pipeline,
+            # ERROR only if the council is genuinely degraded below minimum
+            severity = "WARNING" if successful_count >= min_stage1_responses else "ERROR"
             log_app_event(
                 "STAGE1_TIMEOUT",
-                level="ERROR",
+                level=severity,
                 elapsed_seconds=elapsed,
                 timeout_seconds=STAGE1_TIMEOUT,
                 completed_models=completed_count,
                 successful_models=successful_count,
-                total_models=total_models
+                total_models=total_models,
+                timed_out_models=timed_out_models,
             )
             # Cancel remaining tasks
             for task in tasks:
@@ -363,7 +380,8 @@ async def _process_queue_until_complete(
                 "timeout": STAGE1_TIMEOUT,
                 "completed": completed_count,
                 "successful": successful_count,
-                "total": total_models
+                "total": total_models,
+                "timed_out_models": timed_out_models,
             }
             break
 
