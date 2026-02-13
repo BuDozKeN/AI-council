@@ -246,7 +246,7 @@
   }
 
   .analytics-model-chart {
-    min-height: 220px;
+    min-height: 200px; /* Tighter fit with legend below chart */
   }
 
   .analytics-model-table {
@@ -260,5 +260,43 @@
 
   .analytics-sessions-badge {
     display: none;
+  }
+
+  /* Rankings table: hide Avg Rank (col 3) and Sessions (col 4) on mobile
+     — keep #, Model, Wins, Win Rate which are the most meaningful columns */
+  .analytics-model-card--full .admin-table th:nth-child(3),
+  .analytics-model-card--full .admin-table td:nth-child(3),
+  .analytics-model-card--full .admin-table th:nth-child(4),
+  .analytics-model-card--full .admin-table td:nth-child(4) {
+    display: none;
+  }
+
+  /* Keep rankings as a proper table on mobile (don't convert to card layout) */
+  .analytics-model-card--full .admin-table {
+    display: table;
+  }
+
+  .analytics-model-card--full .admin-table thead {
+    display: table-header-group;
+  }
+
+  .analytics-model-card--full .admin-table tbody {
+    display: table-row-group;
+  }
+
+  .analytics-model-card--full .admin-table tbody tr {
+    display: table-row;
+    padding: 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .analytics-model-card--full .admin-table td {
+    display: table-cell;
+    padding: var(--space-2);
+  }
+
+  .analytics-model-card--full .admin-table th {
+    display: table-cell;
+    padding: var(--space-2);
   }
 }

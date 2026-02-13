@@ -243,13 +243,18 @@ describe('AdminPortal', () => {
       // Title
       expect(screen.getByText('Admin Portal')).toBeInTheDocument();
 
-      // All 6 nav tabs present
-      expect(screen.getByText('Analytics')).toBeInTheDocument();
-      expect(screen.getByText('Users')).toBeInTheDocument();
-      expect(screen.getByText('Companies')).toBeInTheDocument();
-      expect(screen.getByText('Audit Logs')).toBeInTheDocument();
-      expect(screen.getByText('Admin Roles')).toBeInTheDocument();
-      expect(screen.getByText('Settings')).toBeInTheDocument();
+      // All 6 nav tabs present (check full labels via class selector to avoid
+      // matching duplicate short labels that are hidden on desktop via CSS)
+      const fullLabels = document.querySelectorAll('.admin-nav-label-full');
+      const labelTexts = Array.from(fullLabels).map((el) => el.textContent);
+      expect(labelTexts).toEqual([
+        'Analytics',
+        'Users',
+        'Companies',
+        'Audit Logs',
+        'Admin Roles',
+        'Settings',
+      ]);
     });
 
     it('displays the admin user email in the sidebar', () => {
