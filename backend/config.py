@@ -168,15 +168,8 @@ MIN_STAGE2_RANKINGS = int(os.getenv("MIN_STAGE2_RANKINGS", "2"))    # Need 2 of 
 MAX_QUERY_CHARS = int(os.getenv("MAX_QUERY_CHARS", "50000"))  # ~12.5K tokens
 MAX_QUERY_TOKENS_ESTIMATE = MAX_QUERY_CHARS // 4  # Rough estimate
 
-# Per-stage timeouts (seconds) - prevents hanging requests
-STAGE1_TIMEOUT = int(os.getenv("STAGE1_TIMEOUT", "120"))  # 120s absolute max for Stage 1
-STAGE2_TIMEOUT = int(os.getenv("STAGE2_TIMEOUT", "90"))   # 90s for 3 ranking models
-STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman synthesis
-
 # Per-model timeout - individual models that hang get marked as error
 # This catches truly stuck models without cancelling healthy ones
-# Increased from 90s to 120s to match STAGE1_TIMEOUT - newer premium models
-# (gpt-5.1, kimi-k2.5) frequently need >90s for complex reasoning queries
 PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "120"))  # 120s per individual model
 
 # Model-specific timeout overrides (seconds) - some models are consistently slower
@@ -201,6 +194,24 @@ def get_model_timeout(model: str) -> int:
     return PER_MODEL_TIMEOUT
 
 
+# Per-stage timeouts (seconds) - prevents hanging requests
+# Stage 1 default auto-computes from the slowest model override + 10s buffer,
+# so adding/changing MODEL_TIMEOUT_OVERRIDES won't silently break the pipeline.
+_STAGE1_TIMEOUT_BUFFER = 10  # seconds for queue drain after last model finishes
+_stage1_env = os.getenv("STAGE1_TIMEOUT")
+if _stage1_env:
+    STAGE1_TIMEOUT = int(_stage1_env)
+else:
+    _max_model_timeout = max(
+        max(MODEL_TIMEOUT_OVERRIDES.values(), default=PER_MODEL_TIMEOUT),
+        PER_MODEL_TIMEOUT
+    )
+    STAGE1_TIMEOUT = _max_model_timeout + _STAGE1_TIMEOUT_BUFFER  # 160s with current config
+
+STAGE2_TIMEOUT = int(os.getenv("STAGE2_TIMEOUT", "90"))   # 90s for 3 ranking models
+STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman synthesis
+
+
 # =============================================================================
 # CIRCUIT BREAKER CONFIGURATION
 # =============================================================================
@@ -221,8 +232,9 @@ CIRCUIT_BREAKER_HALF_OPEN_MAX_CALLS = int(os.getenv("CIRCUIT_BREAKER_HALF_OPEN_M
 # =============================================================================
 # Timeouts for OpenRouter API calls
 
-# Total request timeout (read + write)
-HTTP_REQUEST_TIMEOUT = float(os.getenv("HTTP_REQUEST_TIMEOUT", "120.0"))
+# Total request timeout (read + write) — must be >= STAGE1_TIMEOUT so the HTTP
+# layer never kills a model call before the stage timeout can handle it gracefully.
+HTTP_REQUEST_TIMEOUT = float(os.getenv("HTTP_REQUEST_TIMEOUT", str(float(STAGE1_TIMEOUT))))
 
 # Connection establishment timeout
 HTTP_CONNECT_TIMEOUT = float(os.getenv("HTTP_CONNECT_TIMEOUT", "30.0"))
