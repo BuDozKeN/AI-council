@@ -275,21 +275,26 @@
   .analytics-model-card--full .admin-table {
     display: table;
   }
+
   .analytics-model-card--full .admin-table thead {
     display: table-header-group;
   }
+
   .analytics-model-card--full .admin-table tbody {
     display: table-row-group;
   }
+
   .analytics-model-card--full .admin-table tbody tr {
     display: table-row;
     padding: 0;
     border-bottom: 1px solid var(--color-border);
   }
+
   .analytics-model-card--full .admin-table td {
     display: table-cell;
     padding: var(--space-2);
   }
+
   .analytics-model-card--full .admin-table th {
     display: table-cell;
     padding: var(--space-2);
