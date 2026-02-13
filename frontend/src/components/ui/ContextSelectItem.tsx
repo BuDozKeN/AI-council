@@ -43,7 +43,7 @@ export function ContextSelectItem({
         'ctx-select-item',
         isMobile && 'mobile',
         isSelected && 'selected',
-        accentColor && 'has-accent',
+        accentColor && 'has-accent'
       )}
       style={accentColor ? ({ '--accent-color': accentColor } as React.CSSProperties) : undefined}
     >
@@ -56,11 +56,7 @@ export function ContextSelectItem({
         onMouseDown={(e) => e.preventDefault()}
       />
       <div
-        className={cn(
-          'ctx-select-indicator',
-          mode === 'radio' && 'radio',
-          isSelected && 'checked',
-        )}
+        className={cn('ctx-select-indicator', mode === 'radio' && 'radio', isSelected && 'checked')}
         aria-hidden="true"
       >
         {isSelected && <Check className="ctx-select-icon" />}
