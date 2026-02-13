@@ -50,7 +50,7 @@
     /* was --gap-2xs (2px), now 6px — fixes cramped icons on high-DPI devices like S24 */
     gap: var(--gap-xs-plus);
     flex-wrap: nowrap;
-    overflow: visible; /* was hidden — clipped ResponseStyleSelector icon on narrow screens */
+    overflow: hidden; /* Prevent Zap icon from overflowing into Paperclip touch target */
     flex: 1 1 0%;
     min-width: 0;
   }
@@ -60,13 +60,17 @@
     height: 44px;
   }
 
+  /* Allow mode toggle to shrink on narrow screens (S24 ~360px) so Zap icon fits */
   .inlineModeToggle {
     padding: var(--space-0-5);
     min-height: 44px;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .inlineModeBtn {
-    padding: var(--space-2) var(--space-2-5);
+    padding: var(--space-1-5) var(--space-2); /* Compact padding — saves ~12px for Zap icon */
     font-size: var(--text-xs);
     min-height: 44px;
   }
