@@ -1301,17 +1301,27 @@ async def list_companies(
     try:
         supabase = get_supabase_service()
 
-        # Get all companies
-        query = supabase.table("companies").select("id, name, created_at, user_id, is_demo")
+        # Get all companies (is_demo column may not exist if migration hasn't been applied)
+        try:
+            query = supabase.table("companies").select("id, name, created_at, user_id, is_demo")
 
-        if search:
-            query = query.ilike("name", f"%{search}%")
+            if search:
+                query = query.ilike("name", f"%{search}%")
 
-        # UXH-117/167: Filter out demo/test companies by default
-        if not include_demo:
-            query = query.neq("is_demo", True)
+            # UXH-117/167: Filter out demo/test companies by default
+            if not include_demo:
+                query = query.neq("is_demo", True)
 
-        result = query.order("created_at", desc=True).execute()
+            result = query.order("created_at", desc=True).execute()
+        except Exception:
+            # Fallback: is_demo column doesn't exist yet, query without it
+            logger.warning("is_demo column not found on companies table — run migration 20260211000000")
+            query = supabase.table("companies").select("id, name, created_at, user_id")
+
+            if search:
+                query = query.ilike("name", f"%{search}%")
+
+            result = query.order("created_at", desc=True).execute()
         all_companies = result.data or []
 
         # Enrich with counts
