@@ -134,6 +134,11 @@
   color: var(--color-primary);
 }
 
+/* Short labels only shown on mobile via AdminPortalMobile.css */
+.admin-nav-label-short {
+  display: none;
+}
+
 .admin-nav-icon {
   width: 18px;
   height: 18px;

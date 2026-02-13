@@ -231,19 +231,25 @@
     display: none;
   }
 
-  /* Bottom nav items - smaller, icon-focused */
+  /* Bottom nav items - evenly distributed with short labels */
   .admin-nav-item {
     flex: 1;
     min-width: 0;
-    max-width: 80px;
+    max-width: none; /* was 80px — let flex distribute evenly */
     min-height: 56px;
-    padding: var(--space-1-5) var(--space-1);
+    padding: var(--space-1) var(--space-0-5);
   }
 
-  .admin-nav-item span {
-    font-size: 11px; /* P3: 10px → 11px minimum for readability */
-    overflow: hidden;
-    text-overflow: ellipsis;
+  /* Hide full labels, show short labels on mobile */
+  .admin-nav-item .admin-nav-label-full {
+    display: none;
+  }
+
+  .admin-nav-item .admin-nav-label-short {
+    display: block;
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
   }
 
   /* P3: Standardized icons at 24px for consistency with horizontal scroll mode */
