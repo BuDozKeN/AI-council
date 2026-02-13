@@ -393,6 +393,7 @@
         "balanced": "Good for most questions - reliable and flexible",
         "creative": "More original ideas - great for brainstorming"
       },
+      "switched": "Response style: {{style}}",
       "usesDefault": "Uses department defaults",
       "llmHubTooltip": "Configure LLM models and presets",
       "tooltip": {

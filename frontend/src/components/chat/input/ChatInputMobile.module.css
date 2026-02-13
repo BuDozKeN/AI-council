@@ -47,9 +47,10 @@
   }
 
   .omniLeft {
-    gap: var(--gap-2xs);
+    /* was --gap-2xs (2px), now 6px — fixes cramped icons on high-DPI devices like S24 */
+    gap: var(--gap-xs-plus);
     flex-wrap: nowrap;
-    overflow: hidden;
+    overflow: visible; /* was hidden — clipped ResponseStyleSelector icon on narrow screens */
     flex: 1 1 0%;
     min-width: 0;
   }
