@@ -15,7 +15,6 @@ import {
   Building2,
   Users,
   BookOpen,
-  Check,
   FileText,
   ScrollText,
   Shield,
@@ -28,6 +27,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
+import { ContextSelectItem } from '../ui/ContextSelectItem';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
 import { toast } from '../ui/sonner';
@@ -272,33 +272,16 @@ export function ChatInput({
         {projects.length === 0 ? (
           <div className={c.popoverEmpty}>{t('context.noProjects')}</div>
         ) : (
-          sortedProjects.map((proj) => {
-            const isSelected = selectedProject === proj.id;
-            return (
-              <label key={proj.id} className={cn(c.popoverItem, isSelected && c.selected)}>
-                <input
-                  type="radio"
-                  name="project"
-                  value={proj.id}
-                  checked={isSelected}
-                  onChange={() => {
-                    // onChange only fires for newly selected (unchecked -> checked)
-                    if (!isSelected) onSelectProject?.(proj.id);
-                  }}
-                  onClick={() => {
-                    // onClick fires even when already checked, enabling deselect
-                    if (isSelected) onSelectProject?.(null);
-                  }}
-                  className={c.popoverInput}
-                  aria-label={proj.name}
-                />
-                <div className={cn(c.popoverRadio, isSelected && c.checked)} aria-hidden="true">
-                  {isSelected && <Check />}
-                </div>
-                <span>{proj.name}</span>
-              </label>
-            );
-          })
+          sortedProjects.map((proj) => (
+            <ContextSelectItem
+              key={proj.id}
+              label={proj.name}
+              isSelected={selectedProject === proj.id}
+              onToggle={() => onSelectProject?.(selectedProject === proj.id ? null : proj.id)}
+              mode="radio"
+              isMobile={isMobile}
+            />
+          ))
         )}
       </div>
       <div className={c.contextHelpText}>
@@ -356,26 +339,16 @@ export function ChatInput({
         {roles.length === 0 ? (
           <div className={c.popoverEmpty}>{t('context.noRoles')}</div>
         ) : (
-          sortedRoles.map((role) => {
-            const isSelected = selectedRoles.includes(role.id);
-            return (
-              <label key={role.id} className={cn(c.popoverItem, isSelected && c.selected)}>
-                <input
-                  type="checkbox"
-                  name="role"
-                  value={role.id}
-                  checked={isSelected}
-                  onChange={() => toggleRole(role.id)}
-                  className={c.popoverInput}
-                  aria-label={role.name}
-                />
-                <div className={cn(c.popoverCheckbox, isSelected && c.checked)} aria-hidden="true">
-                  {isSelected && <Check />}
-                </div>
-                <span>{role.name}</span>
-              </label>
-            );
-          })
+          sortedRoles.map((role) => (
+            <ContextSelectItem
+              key={role.id}
+              label={role.name}
+              isSelected={selectedRoles.includes(role.id)}
+              onToggle={() => toggleRole(role.id)}
+              mode="checkbox"
+              isMobile={isMobile}
+            />
+          ))
         )}
       </div>
       <div className={c.contextHelpText}>
@@ -459,29 +432,16 @@ export function ChatInput({
                 </button>
                 {isExpanded && (
                   <div className={c.popoverGroupItems}>
-                    {sortedItems.map((pb) => {
-                      const isSelected = selectedPlaybooks.includes(pb.id);
-                      return (
-                        <label key={pb.id} className={cn(c.popoverItem, isSelected && c.selected)}>
-                          <input
-                            type="checkbox"
-                            name="playbook"
-                            value={pb.id}
-                            checked={isSelected}
-                            onChange={() => togglePlaybook(pb.id)}
-                            className={c.popoverInput}
-                            aria-label={pb.title || pb.name}
-                          />
-                          <div
-                            className={cn(c.popoverCheckbox, isSelected && c.checked)}
-                            aria-hidden="true"
-                          >
-                            {isSelected && <Check />}
-                          </div>
-                          <span>{pb.title || pb.name}</span>
-                        </label>
-                      );
-                    })}
+                    {sortedItems.map((pb) => (
+                      <ContextSelectItem
+                        key={pb.id}
+                        label={pb.title || pb.name || pb.id}
+                        isSelected={selectedPlaybooks.includes(pb.id)}
+                        onToggle={() => togglePlaybook(pb.id)}
+                        mode="checkbox"
+                        isMobile={isMobile}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
