@@ -1038,12 +1038,11 @@ export function AnalyticsTab() {
                         iconSize={8}
                         wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
                         formatter={(value: string) => {
-                          const entry = modelAnalytics.overall_leaderboard.find(
-                            (m) => formatModelName(m.model) === value
-                          );
-                          const total = modelAnalytics.overall_leaderboard
+                          const top6 = modelAnalytics.overall_leaderboard
                             .filter((m) => m.wins > 0)
-                            .reduce((sum, m) => sum + m.wins, 0);
+                            .slice(0, 6);
+                          const entry = top6.find((m) => formatModelName(m.model) === value);
+                          const total = top6.reduce((sum, m) => sum + m.wins, 0);
                           const pct =
                             entry && total > 0 ? ((entry.wins / total) * 100).toFixed(0) : '0';
                           return `${value}: ${pct}%`;
