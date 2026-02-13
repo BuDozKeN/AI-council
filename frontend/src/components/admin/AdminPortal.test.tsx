@@ -247,7 +247,14 @@ describe('AdminPortal', () => {
       // matching duplicate short labels that are hidden on desktop via CSS)
       const fullLabels = document.querySelectorAll('.admin-nav-label-full');
       const labelTexts = Array.from(fullLabels).map((el) => el.textContent);
-      expect(labelTexts).toEqual(['Analytics', 'Users', 'Companies', 'Audit Logs', 'Admin Roles', 'Settings']);
+      expect(labelTexts).toEqual([
+        'Analytics',
+        'Users',
+        'Companies',
+        'Audit Logs',
+        'Admin Roles',
+        'Settings',
+      ]);
     });
 
     it('displays the admin user email in the sidebar', () => {

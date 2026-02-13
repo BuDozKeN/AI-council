@@ -1044,7 +1044,8 @@ export function AnalyticsTab() {
                           const total = modelAnalytics.overall_leaderboard
                             .filter((m) => m.wins > 0)
                             .reduce((sum, m) => sum + m.wins, 0);
-                          const pct = entry && total > 0 ? ((entry.wins / total) * 100).toFixed(0) : '0';
+                          const pct =
+                            entry && total > 0 ? ((entry.wins / total) * 100).toFixed(0) : '0';
                           return `${value}: ${pct}%`;
                         }}
                       />

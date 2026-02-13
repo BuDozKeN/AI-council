@@ -65,13 +65,37 @@ import { SettingsTab } from './SettingsTab';
 
 type AdminTab = 'analytics' | 'users' | 'companies' | 'audit' | 'admins' | 'settings';
 
-const ADMIN_TABS: { id: AdminTab; label: string; shortLabel: string; icon: typeof Users; path: string }[] = [
-  { id: 'analytics', label: 'Analytics', shortLabel: 'Stats', icon: BarChart3, path: '/admin/analytics' },
+const ADMIN_TABS: {
+  id: AdminTab;
+  label: string;
+  shortLabel: string;
+  icon: typeof Users;
+  path: string;
+}[] = [
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    shortLabel: 'Stats',
+    icon: BarChart3,
+    path: '/admin/analytics',
+  },
   { id: 'users', label: 'Users', shortLabel: 'Users', icon: Users, path: '/admin/users' },
-  { id: 'companies', label: 'Companies', shortLabel: 'Orgs', icon: Building2, path: '/admin/companies' },
+  {
+    id: 'companies',
+    label: 'Companies',
+    shortLabel: 'Orgs',
+    icon: Building2,
+    path: '/admin/companies',
+  },
   { id: 'audit', label: 'Audit Logs', shortLabel: 'Audit', icon: FileText, path: '/admin/audit' },
   { id: 'admins', label: 'Admin Roles', shortLabel: 'Admin', icon: Shield, path: '/admin/admins' },
-  { id: 'settings', label: 'Settings', shortLabel: 'Config', icon: Settings, path: '/admin/settings' },
+  {
+    id: 'settings',
+    label: 'Settings',
+    shortLabel: 'Config',
+    icon: Settings,
+    path: '/admin/settings',
+  },
 ];
 
 export default function AdminPortal() {
