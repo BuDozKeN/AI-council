@@ -1017,14 +1017,11 @@ export function AnalyticsTab() {
                             fill: getProviderColor(m.model),
                           }))}
                         cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={90}
+                        cy="45%"
+                        innerRadius={40}
+                        outerRadius={70}
                         paddingAngle={2}
                         dataKey="value"
-                        label={({ name, percent }: { name?: string; percent?: number }) =>
-                          `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`
-                        }
                         labelLine={false}
                       >
                         {modelAnalytics.overall_leaderboard
@@ -1034,6 +1031,23 @@ export function AnalyticsTab() {
                             <Cell key={entry.model} fill={getProviderColor(entry.model)} />
                           ))}
                       </Pie>
+                      <Legend
+                        verticalAlign="bottom"
+                        align="center"
+                        iconType="circle"
+                        iconSize={8}
+                        wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
+                        formatter={(value: string) => {
+                          const entry = modelAnalytics.overall_leaderboard.find(
+                            (m) => formatModelName(m.model) === value
+                          );
+                          const total = modelAnalytics.overall_leaderboard
+                            .filter((m) => m.wins > 0)
+                            .reduce((sum, m) => sum + m.wins, 0);
+                          const pct = entry && total > 0 ? ((entry.wins / total) * 100).toFixed(0) : '0';
+                          return `${value}: ${pct}%`;
+                        }}
+                      />
                       <RechartsTooltip
                         formatter={(value, name) => [`${value} wins`, name]}
                         contentStyle={{
