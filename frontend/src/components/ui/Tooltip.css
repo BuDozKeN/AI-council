@@ -39,6 +39,7 @@
  */
 @media (hover: none) {
   .tooltip-content {
+    /* stylelint-disable-next-line declaration-no-important -- safety net for hybrid touch+trackpad devices */
     display: none !important;
     pointer-events: none;
   }
