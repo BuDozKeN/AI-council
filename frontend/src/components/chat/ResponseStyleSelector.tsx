@@ -16,6 +16,7 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import { Target, Zap, Sparkles, Settings2, Check, ChevronDown, Building2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
+import { toast } from '../ui/sonner';
 import type { LLMPresetId } from '../../types/business';
 import '../ui/Tooltip.css';
 import styles from './ResponseStyleSelector.module.css';
@@ -82,13 +83,22 @@ export function ResponseStyleSelector({
     [t]
   );
 
-  // Handle preset selection
+  // Handle preset selection — show toast on mobile so users know what changed
   const handleSelect = useCallback(
     (preset: LLMPresetId | null) => {
       onSelectPreset(preset);
       setOpen(false);
+      if (isMobile) {
+        const label = preset
+          ? getLabel(preset)
+          : t('chat.responseStyle.departmentDefault', 'Department Default');
+        toast.info(
+          t('chat.responseStyle.switched', 'Response style: {{style}}', { style: label }),
+          { duration: 3000 }
+        );
+      }
     },
-    [onSelectPreset]
+    [onSelectPreset, isMobile, getLabel, t]
   );
 
   // Handle LLM Hub click

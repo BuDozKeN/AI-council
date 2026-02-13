@@ -281,3 +281,15 @@
   outline-offset: -2px;
   border-radius: var(--radius-md);
 }
+
+/* =============================================================================
+   MOBILE - Ensure trigger is never clipped in omniLeft flex row
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .trigger {
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
