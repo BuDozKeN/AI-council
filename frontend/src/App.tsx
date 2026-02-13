@@ -279,6 +279,10 @@ function App() {
   // Sign out confirmation modal state (ISS-045: use styled modal instead of browser confirm)
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
+  // Mobile bottom nav drag-up tray state
+  const [isMobileNavExpanded, setIsMobileNavExpanded] = useState(false);
+  const toggleMobileNav = useCallback(() => setIsMobileNavExpanded((prev) => !prev), []);
+
   // Global keyboard shortcuts - works even when CommandPalette is unmounted
   useKeyboardShortcuts({
     onFocusSearch: useCallback(() => {
@@ -391,6 +395,18 @@ function App() {
       preloadChatInterface();
     }
   }, [showLandingHero]);
+
+  // Auto-collapse nav tray when a modal/sidebar hides it (prevents stale expanded state on remount)
+  const mobileNavHidden =
+    showLandingHero ||
+    isMyCompanyOpen ||
+    isSettingsOpen ||
+    isLeaderboardOpen ||
+    isProjectModalOpen ||
+    isMobileSidebarOpen;
+  useEffect(() => {
+    if (mobileNavHidden) setIsMobileNavExpanded(false);
+  }, [mobileNavHidden]);
 
   // i18n: Update HTML lang attribute dynamically for SEO and accessibility
   // Note: Uses i18nInstance from useTranslation() hook (not the direct import)
@@ -1314,7 +1330,7 @@ function App() {
             conversations={conversations}
             currentConversationId={currentConversationId}
             projects={projects}
-            onSelectProject={setSelectedProject}
+            onSelectProject={handleSelectProjectWithTouch}
             selectedProject={selectedProject}
             departments={availableDepartments}
             playbooks={availablePlaybooks}
@@ -1362,6 +1378,8 @@ function App() {
               onOpenMyCompany={handleOpenMyCompany}
               onOpenSettings={handleOpenSettings}
               activeTab="chat"
+              isExpanded={isMobileNavExpanded}
+              onToggle={toggleMobileNav}
             />
           )}
       </div>

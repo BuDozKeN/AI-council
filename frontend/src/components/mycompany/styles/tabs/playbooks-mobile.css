@@ -5,9 +5,9 @@
 
 /* ========== PLAYBOOKS TAB - MOBILE ========== */
 
-/* UXH-168: Add padding-bottom to prevent FAB overlap */
+/* UXH-168: Safe area inset only (nav is now a hidden drag-up tray) */
 .mc-playbooks {
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Playbook group headers */
@@ -41,12 +41,14 @@
   row-gap: var(--gap-sm);
 }
 
-/* Hide action buttons on mobile - tap opens detail */
+/* Hide action buttons on mobile only - desktop uses hover reveal from mc-list.css */
 
 /* Double class for specificity over hover states */
-.mc-elegant-row.mc-elegant-row .mc-elegant-actions,
-.mc-elegant-row .mc-elegant-actions[class] {
-  display: none;
+@media (max-width: 640px) {
+  .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
+  .mc-elegant-row .mc-elegant-actions[class] {
+    display: none;
+  }
 }
 
 /* Activity tab: SHOW source link on mobile - important for navigation */

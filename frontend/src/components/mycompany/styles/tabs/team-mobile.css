@@ -6,9 +6,9 @@
 @media (width <= 640px) {
   /* NOTE: .mc-team-header mobile overrides are in mobile.css */
 
-  /* UXH-168: Add padding-bottom to prevent FAB overlap on last item */
+  /* UXH-168: Safe area inset only (nav is now a hidden drag-up tray) */
   .mc-team {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Department rows - touch friendly */

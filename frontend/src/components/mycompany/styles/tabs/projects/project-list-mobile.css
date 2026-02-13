@@ -28,9 +28,9 @@
 
 /* ========== PROJECTS TAB - MOBILE ========== */
 @media (width <= 640px) {
-  /* UXH-168: Add padding-bottom to prevent FAB overlap */
+  /* UXH-168: Safe area inset only (nav is now a hidden drag-up tray) */
   .mc-projects {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Project row: clean card-like appearance */
