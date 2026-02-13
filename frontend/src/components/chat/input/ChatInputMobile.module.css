@@ -47,7 +47,7 @@
   }
 
   .omniLeft {
-    gap: var(--gap-2xs);
+    gap: var(--gap-xs-plus); /* was --gap-2xs (2px), now 6px — fixes cramped icons on high-DPI devices like S24 */
     flex-wrap: nowrap;
     overflow: hidden;
     flex: 1 1 0%;

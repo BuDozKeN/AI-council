@@ -7,7 +7,8 @@
   bottom: env(safe-area-inset-bottom);
   left: 0;
   right: 0;
-  height: 20px;
+  height: 32px; /* was 20px — larger touch zone for swipe-up gesture */
+  padding-bottom: var(--space-1);
   align-items: center;
   justify-content: center;
   z-index: calc(var(--z-modal) - 1);
@@ -23,10 +24,11 @@
 
 /* The pill-shaped drag handle */
 .mobile-nav-handle {
-  width: 36px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--color-border-secondary);
+  width: 48px; /* was 36px — more visible drag indicator */
+  height: 5px; /* was 4px */
+  border-radius: 3px;
+  background: var(--color-text-quaternary); /* was --color-border-secondary — too subtle on real devices */
+  opacity: 0.6;
 }
 
 /* Nav tray - always rendered, positioned offscreen by Framer Motion */

@@ -435,7 +435,7 @@
   display: flex;
   align-items: center;
   gap: var(--gap-xs);
-  padding: var(--space-0-5);
+  padding: var(--space-1-5); /* was --space-0-5 (2px), now 6px — fixes cramped context button on high-DPI */
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-full);
