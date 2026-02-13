@@ -24,8 +24,8 @@
   .input-form {
     padding: var(--space-3);
 
-    /* Safe area + base padding (nav is now a hidden drag-up tray) */
-    padding-bottom: calc(env(safe-area-inset-bottom) + var(--space-3));
+    /* Safe area + handle clearance (32px nav handle sits fixed at bottom) + base padding */
+    padding-bottom: calc(env(safe-area-inset-bottom) + 40px);
     gap: var(--gap-sm-plus);
     background: var(--color-bg-primary);
   }
