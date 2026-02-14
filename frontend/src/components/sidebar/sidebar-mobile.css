@@ -32,6 +32,36 @@
   .sidebar.mobile-open {
     transform: translateX(0);
     box-shadow: none; /* No shadow needed for full-width */
+
+    /* CRITICAL FIX: Ensure sidebar has solid, opaque background when open on mobile */
+    background: var(--sidebar-bg-solid);
+  }
+
+  /* CRITICAL FIX: Ensure header is visible when sidebar is open on mobile */
+  .sidebar.mobile-open .sidebar-header {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* CRITICAL FIX: Ensure expanded panel is visible when sidebar is open on mobile */
+  .sidebar.mobile-open .sidebar-expanded-panel {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* CRITICAL FIX: Ensure footer is visible when sidebar is open on mobile */
+  .sidebar.mobile-open .sidebar-footer {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* CRITICAL FIX: Override panel slide-in animation on mobile - instant visibility */
+  .sidebar.mobile-open .sidebar-expanded-panel {
+    animation: none;
+    transform: none;
   }
 }
 
