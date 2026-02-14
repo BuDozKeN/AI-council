@@ -130,15 +130,16 @@
     min-height: 48px;
   }
 
-  /* Compact trigger - WCAG 44px touch target + larger icon for readability */
+  /* Compact trigger - smaller for limited horizontal space */
   .trigger {
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: var(--space-1);
   }
 
   .trigger svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   /* Mobile dark mode */
@@ -152,5 +153,19 @@
 
   :global(.dark) .item.llmHubLink {
     background: transparent;
+  }
+}
+
+/* Extra small screens - very aggressive compaction for phones like Galaxy S24 */
+@media (width <= 414px) {
+  .trigger {
+    min-width: 34px;
+    min-height: 34px;
+    padding: 3px;
+  }
+
+  .trigger svg {
+    width: 16px;
+    height: 16px;
   }
 }
