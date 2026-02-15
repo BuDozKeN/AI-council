@@ -64,6 +64,14 @@ interface LandingHeroProps {
   // Image upload (passed up to App for submission)
   attachedImages?: UploadedImage[];
   onImagesChange?: (images: UploadedImage[]) => void;
+  // Navigation sheet (swipe-up gesture on mobile)
+  onOpenNavigation?: {
+    onNewChat: () => void;
+    onOpenHistory: () => void;
+    onOpenLeaderboard: () => void;
+    onOpenMyCompany: () => void;
+    onOpenSettings: () => void;
+  };
 }
 
 export function LandingHero({
