@@ -109,6 +109,8 @@ export function LandingHero({
   // Image upload
   attachedImages = [],
   onImagesChange,
+  // Navigation sheet (swipe-up gesture on mobile)
+  onOpenNavigation,
 }: LandingHeroProps) {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
@@ -252,6 +254,8 @@ export function LandingHero({
             departmentPreset={departmentPreset}
             onSelectPreset={onSelectPreset}
             onOpenLLMHub={onOpenLLMHub}
+            // Navigation sheet (swipe-up gesture on mobile)
+            {...(onOpenNavigation && { onOpenNavigation })}
           />
 
           {/* Keyboard shortcut hint */}
