@@ -64,19 +64,11 @@ import { SkeletonCell, SkeletonBadge, SkeletonActions, Pagination } from './admi
 import { formatDate } from './adminConstants';
 
 /**
- * ISS-130: Derive a display name from email when name is missing
- * Converts "john.doe@email.com" → "John Doe"
+ * ISS-130/UXH-207: Show real name or dash (email column already shows the address)
  */
-function getDisplayName(name: string | null, email: string): string {
+function getDisplayName(name: string | null, _email: string): string {
   if (name) return name;
-  // Extract username part before @
-  const username = email.split('@')[0] || email;
-  // Replace dots, underscores, hyphens with spaces and capitalize each word
-  return username
-    .replace(/[._-]/g, ' ')
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+  return '—';
 }
 
 /** Users table skeleton rows */

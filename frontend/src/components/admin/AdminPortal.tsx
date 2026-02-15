@@ -65,13 +65,37 @@ import { SettingsTab } from './SettingsTab';
 
 type AdminTab = 'analytics' | 'users' | 'companies' | 'audit' | 'admins' | 'settings';
 
-const ADMIN_TABS: { id: AdminTab; label: string; icon: typeof Users; path: string }[] = [
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
-  { id: 'users', label: 'Users', icon: Users, path: '/admin/users' },
-  { id: 'companies', label: 'Companies', icon: Building2, path: '/admin/companies' },
-  { id: 'audit', label: 'Audit Logs', icon: FileText, path: '/admin/audit' },
-  { id: 'admins', label: 'Admin Roles', icon: Shield, path: '/admin/admins' },
-  { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
+const ADMIN_TABS: {
+  id: AdminTab;
+  label: string;
+  shortLabel: string;
+  icon: typeof Users;
+  path: string;
+}[] = [
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    shortLabel: 'Stats',
+    icon: BarChart3,
+    path: '/admin/analytics',
+  },
+  { id: 'users', label: 'Users', shortLabel: 'Users', icon: Users, path: '/admin/users' },
+  {
+    id: 'companies',
+    label: 'Companies',
+    shortLabel: 'Orgs',
+    icon: Building2,
+    path: '/admin/companies',
+  },
+  { id: 'audit', label: 'Audit Logs', shortLabel: 'Audit', icon: FileText, path: '/admin/audit' },
+  { id: 'admins', label: 'Admin Roles', shortLabel: 'Admin', icon: Shield, path: '/admin/admins' },
+  {
+    id: 'settings',
+    label: 'Settings',
+    shortLabel: 'Config',
+    icon: Settings,
+    path: '/admin/settings',
+  },
 ];
 
 export default function AdminPortal() {
@@ -138,7 +162,7 @@ export default function AdminPortal() {
             </button>
             <button className="admin-back-btn" onClick={handleBackToApp}>
               <ArrowLeft className="h-4 w-4" />
-              {t('admin.backToApp', 'Back to App')}
+              {t('admin.backToApp', 'Exit Admin')}
             </button>
           </div>
         </div>
@@ -157,7 +181,7 @@ export default function AdminPortal() {
           <p>{t('admin.pleaseLogin', 'Please log in to access the admin portal.')}</p>
           <button className="admin-back-btn" onClick={handleBackToApp}>
             <ArrowLeft className="h-4 w-4" />
-            {t('admin.backToApp', 'Back to App')}
+            {t('admin.backToApp', 'Exit Admin')}
           </button>
         </div>
       </div>
@@ -180,7 +204,7 @@ export default function AdminPortal() {
           </p>
           <button className="admin-back-btn" onClick={handleBackToApp}>
             <ArrowLeft className="h-4 w-4" />
-            {t('admin.backToApp', 'Back to App')}
+            {t('admin.backToApp', 'Exit Admin')}
           </button>
         </div>
       </div>
@@ -202,7 +226,7 @@ export default function AdminPortal() {
         <div className="admin-sidebar-header">
           <button className="admin-back-link" onClick={handleBackToApp}>
             <ArrowLeft className="h-4 w-4" />
-            <span>{t('admin.backToApp', 'Back to App')}</span>
+            <span>{t('admin.backToApp', 'Exit Admin')}</span>
           </button>
           <h1 className="admin-title">{t('admin.title', 'Admin Portal')}</h1>
         </div>
@@ -217,7 +241,8 @@ export default function AdminPortal() {
                 onClick={() => handleTabChange(tab.id)}
               >
                 <Icon className="admin-nav-icon" />
-                <span>{t(`admin.tabs.${tab.id}`, tab.label)}</span>
+                <span className="admin-nav-label-full">{t(`admin.tabs.${tab.id}`, tab.label)}</span>
+                <span className="admin-nav-label-short">{tab.shortLabel}</span>
               </button>
             );
           })}

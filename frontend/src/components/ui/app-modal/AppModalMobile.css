@@ -44,6 +44,18 @@
     gap: var(--gap-sm);
   }
 
+  /* UXH-077: Icon-only action buttons on mobile - hide text labels */
+  .app-modal-footer-left button span {
+    display: none;
+  }
+
+  .app-modal-footer-left button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: var(--space-2-5);
+    justify-content: center;
+  }
+
   .app-modal-footer-right {
     width: 100%;
     justify-content: center;
@@ -123,7 +135,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    -webkit-tap-highlight-color: transparent;
   }
 
   /* Visual drag handle bar (inside the clickable area) */
@@ -179,7 +190,6 @@
     flex: 1 1 0;
     min-height: 0;
     overflow: hidden auto;
-    -webkit-overflow-scrolling: touch;
   }
 
   /* ONLY when body has mc-modal-no-padding, it contains its own header/body/footer structure

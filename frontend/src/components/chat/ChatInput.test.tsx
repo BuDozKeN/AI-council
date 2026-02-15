@@ -68,6 +68,32 @@ vi.mock('../ui/BottomSheet', () => ({
     isOpen ? <div data-testid="bottom-sheet">{children}</div> : null,
 }));
 
+// Mock ContextSelectItem - respects mode prop for correct ARIA role in tests
+vi.mock('../ui/ContextSelectItem', () => ({
+  ContextSelectItem: ({
+    label,
+    isSelected,
+    onToggle,
+    mode = 'checkbox',
+  }: {
+    label: string;
+    isSelected: boolean;
+    onToggle: () => void;
+    mode?: 'checkbox' | 'radio';
+  }) => (
+    <label data-testid={`ctx-item-${label}`}>
+      <input
+        type={mode === 'radio' ? 'radio' : 'checkbox'}
+        checked={isSelected}
+        onChange={() => onToggle()}
+        onClick={() => onToggle()}
+        aria-label={label}
+      />
+      <span>{label}</span>
+    </label>
+  ),
+}));
+
 // Mock DepartmentCheckboxItem
 vi.mock('../ui/DepartmentCheckboxItem', () => ({
   DepartmentCheckboxItem: ({

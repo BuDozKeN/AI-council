@@ -3,6 +3,10 @@
  *
  * Mobile-specific overrides for context menu and selection UI.
  * Imported by OmniBarContext.module.css
+ *
+ * NOTE: Individual item styling (checkbox/radio indicators, item layout)
+ * is now handled by ContextSelectItem.css — a single source of truth.
+ * This file only contains container and group header overrides.
  */
 
 @media (width <= 640px) {
@@ -28,43 +32,12 @@
     font-size: 10px;
   }
 
+  /* UXH-119: Fill available space to eliminate empty bottom area */
   .popoverList {
     gap: var(--gap-xs-plus);
     padding: var(--space-2);
-  }
-
-  .popoverItem {
-    padding: var(--space-3-5) var(--space-4);
-    font-size: var(--text-base);
-    min-height: 56px;
-    background: var(--color-bg-tertiary);
-    border-radius: var(--radius-lg);
-  }
-
-  .popoverItem:active {
-    background: var(--color-bg-hover);
-    transform: scale(0.98);
-  }
-
-  .popoverItem.selected {
-    background: var(--color-bg-hover);
-  }
-
-  .popoverCheckbox,
-  .popoverRadio {
-    width: 24px;
-    height: 24px;
-    border-radius: var(--radius-md);
-  }
-
-  .popoverCheckbox svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .popoverRadio svg {
-    width: 14px;
-    height: 14px;
+    flex: 1;
+    min-height: 0;
   }
 
   .popoverGroupHeader.clickable {
@@ -74,14 +47,15 @@
     gap: var(--gap-sm-plus);
   }
 
+  /* UXH-216: Larger chevrons for better tap feedback */
   .popoverGroupHeader .sectionChevron {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 
   .popoverGroupHeader svg {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 
   .popoverGroupHeader .sectionCount {
@@ -92,12 +66,6 @@
     margin-left: var(--space-5);
     padding-left: var(--space-3);
     margin-top: var(--space-2);
-  }
-
-  .popoverGroupItems .popoverItem {
-    padding: var(--space-3) var(--space-3-5);
-    font-size: var(--text-sm-plus);
-    min-height: 48px;
   }
 }
 

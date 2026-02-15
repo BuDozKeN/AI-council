@@ -50,7 +50,7 @@
 
   /* Compact group headers */
   .group-header {
-    min-height: 36px;
+    min-height: 40px; /* P3: Closer to 44px WCAG target */
     padding: var(--space-2) var(--space-2-5);
     margin: var(--space-2) var(--space-1-5) var(--space-1);
   }

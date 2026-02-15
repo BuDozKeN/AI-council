@@ -520,11 +520,11 @@ def get_available_plans() -> List[Dict[str, Any]]:
             "id": tier_id,
             "name": config["name"],
             "price": config["price_monthly"] / 100 if config["price_monthly"] > 0 else 0,
-            "price_display": f"${config['price_monthly'] / 100:.0f}/month" if config["price_monthly"] > 0 else "Free",
+            "price_display": f"${config['price_monthly'] / 100:.0f}/month" if config["price_monthly"] > 0 else ("Custom" if config.get("contact_sales", False) else "Free"),
             "queries_limit": config["queries_per_month"],
             "queries_display": "Unlimited" if config["queries_per_month"] == -1 else f"{config['queries_per_month']}/month",
             "features": config["features"],
-            "is_free": config["price_monthly"] == 0,
+            "is_free": config["price_monthly"] == 0 and not config.get("contact_sales", False),
             "contact_sales": config.get("contact_sales", False)
         })
     return plans

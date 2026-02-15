@@ -514,7 +514,7 @@
     "currentPlan": "Plan actual",
     "usageDescription": "Tus consultas al consejo en este período de facturación",
     "queriesUsed": "{{count}} consultas usadas (Ilimitado)",
-    "queriesMonthly": "{{count}} / {{limit}} consultas este mes",
+    "queriesMonthly": "{{count}} de {{limit}} consultas usadas este mes",
     "usageExceedsLimit": "El uso incluye consultas de un período de facturación anterior. Actualiza tu plan para continuar usando el consejo.",
     "subscriptionPlans": "Planes de suscripción",
     "mostPopular": "Más popular",
@@ -708,8 +708,8 @@
     "toggleCompanyContext": "Alternar contexto de empresa (conocimiento principal)",
     "toggleDeptContext": "Alternar contexto de departamento (conocimiento del departamento)",
     "context": "Contexto",
-    "configure": "Configurar contexto",
-    "configureContext": "Configurar Contexto",
+    "configure": "Establecer contexto",
+    "configureContext": "Establecer Contexto",
     "hoverToSelect": "Pasa el cursor sobre una categoría para ver opciones"
   },
   "stages": {

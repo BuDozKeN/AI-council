@@ -33,7 +33,6 @@
   flex: 1;
   min-height: 0;
   overflow: hidden auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom thin scrollbar for .mc-overview */

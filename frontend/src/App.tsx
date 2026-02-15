@@ -279,6 +279,10 @@ function App() {
   // Sign out confirmation modal state (ISS-045: use styled modal instead of browser confirm)
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
+  // Mobile bottom nav drag-up tray state
+  const [isMobileNavExpanded, setIsMobileNavExpanded] = useState(false);
+  const toggleMobileNav = useCallback(() => setIsMobileNavExpanded((prev) => !prev), []);
+
   // Global keyboard shortcuts - works even when CommandPalette is unmounted
   useKeyboardShortcuts({
     onFocusSearch: useCallback(() => {
@@ -290,9 +294,9 @@ function App() {
       }
     }, [isAuthenticated, contextNewConversation]),
     onOpenHistory: useCallback(() => {
-      // Toggle mobile sidebar to show history
+      // UXH-192: Always open sidebar (not toggle) so History reliably shows conversations
       if (isAuthenticated) {
-        setIsMobileSidebarOpen((prev) => !prev);
+        setIsMobileSidebarOpen(true);
       }
     }, [isAuthenticated]),
     onOpenSettings: useCallback(() => {
@@ -391,6 +395,18 @@ function App() {
       preloadChatInterface();
     }
   }, [showLandingHero]);
+
+  // Auto-collapse nav tray when a modal/sidebar hides it (prevents stale expanded state on remount)
+  const mobileNavHidden =
+    showLandingHero ||
+    isMyCompanyOpen ||
+    isSettingsOpen ||
+    isLeaderboardOpen ||
+    isProjectModalOpen ||
+    isMobileSidebarOpen;
+  useEffect(() => {
+    if (mobileNavHidden) setIsMobileNavExpanded(false);
+  }, [mobileNavHidden]);
 
   // i18n: Update HTML lang attribute dynamically for SEO and accessibility
   // Note: Uses i18nInstance from useTranslation() hook (not the direct import)
@@ -1330,7 +1346,7 @@ function App() {
             conversations={conversations}
             currentConversationId={currentConversationId}
             projects={projects}
-            onSelectProject={setSelectedProject}
+            onSelectProject={handleSelectProjectWithTouch}
             selectedProject={selectedProject}
             departments={availableDepartments}
             playbooks={availablePlaybooks}
@@ -1364,16 +1380,24 @@ function App() {
         <PWAInstallPrompt />
 
         {/* Mobile bottom navigation - thumb-friendly access to main sections */}
-        {!isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && (
-          <MobileBottomNav
-            onNewChat={handleNewConversation}
-            onOpenHistory={handleOpenSidebar}
-            onOpenLeaderboard={handleOpenLeaderboard}
-            onOpenMyCompany={handleOpenMyCompany}
-            onOpenSettings={handleOpenSettings}
-            activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
-          />
-        )}
+        {/* Hide on landing page (clean hero), when modals open, or sidebar open */}
+        {!showLandingHero &&
+          !isMyCompanyOpen &&
+          !isSettingsOpen &&
+          !isLeaderboardOpen &&
+          !isProjectModalOpen &&
+          !isMobileSidebarOpen && (
+            <MobileBottomNav
+              onNewChat={handleNewConversation}
+              onOpenHistory={handleOpenSidebar}
+              onOpenLeaderboard={handleOpenLeaderboard}
+              onOpenMyCompany={handleOpenMyCompany}
+              onOpenSettings={handleOpenSettings}
+              activeTab="chat"
+              isExpanded={isMobileNavExpanded}
+              onToggle={toggleMobileNav}
+            />
+          )}
       </div>
     </motion.div>
   );

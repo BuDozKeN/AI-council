@@ -393,6 +393,7 @@
         "balanced": "Good for most questions - reliable and flexible",
         "creative": "More original ideas - great for brainstorming"
       },
+      "switched": "Response style: {{style}}",
       "usesDefault": "Uses department defaults",
       "llmHubTooltip": "Configure LLM models and presets",
       "tooltip": {
@@ -407,8 +408,8 @@
     "leaderboard": "Leaderboard",
     "settings": "Settings",
     "myCompany": "My Company",
-    "pinSidebar": "Keep sidebar expanded (won't auto-collapse)",
-    "collapseSidebar": "Collapse sidebar (auto-expands on hover)",
+    "pinSidebar": "Pin sidebar open",
+    "collapseSidebar": "Unpin sidebar",
     "searchConversations": "Search conversations...",
     "clearSearch": "Clear search",
     "recentChats": "Recent Chats",
@@ -521,7 +522,7 @@
     "currentPlan": "Current Plan",
     "usageDescription": "Your council queries this billing period",
     "queriesUsed": "{{count}} queries used this period",
-    "queriesMonthly": "{{count}} / {{limit}} queries this month",
+    "queriesMonthly": "{{count}} of {{limit}} queries used this month",
     "usageExceedsLimit": "Usage includes queries from a previous billing period. Upgrade to continue using the council.",
     "subscriptionPlans": "Subscription Plans",
     "mostPopular": "Most Popular",
@@ -715,8 +716,8 @@
     "toggleCompanyContext": "Toggle company-wide context (main company knowledge)",
     "toggleDeptContext": "Toggle department-specific context (department knowledge)",
     "context": "Context",
-    "configure": "Configure context",
-    "configureContext": "Configure Context",
+    "configure": "Set context",
+    "configureContext": "Set Context",
     "hoverToSelect": "Hover over a category to see options"
   },
   "stages": {
@@ -757,6 +758,7 @@
     "evaluationError": "An error occurred while generating the evaluation.",
     "rankingOrder": "Ranking order",
     "saveFailed": "Couldn't save that. Let's try again.",
+    "saveTo": "Save to:",
     "tagDepartments": "Tag this answer with relevant departments",
     "decisionSaved": "Decision saved",
     "viewPlaybook": "View Playbook",
@@ -1853,7 +1855,7 @@
   },
   "admin": {
     "skipToContent": "Skip to main content",
-    "backToApp": "Back to App",
+    "backToApp": "Exit Admin",
     "title": "Admin Portal",
     "badge": "Platform Admin",
     "loading": "Checking admin access...",

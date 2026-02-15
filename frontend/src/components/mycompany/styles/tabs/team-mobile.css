@@ -6,9 +6,9 @@
 @media (width <= 640px) {
   /* NOTE: .mc-team-header mobile overrides are in mobile.css */
 
-  /* UXH-168: Add padding-bottom to prevent FAB overlap on last item */
+  /* UXH-168: Safe area inset only (nav is now a hidden drag-up tray) */
   .mc-team {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Department rows - touch friendly */
@@ -55,16 +55,22 @@
     padding: var(--space-2-5);
   }
 
-  /* Role row - wrap on mobile to prevent truncation */
+  /* UXH-044: Consistent role card sizing on mobile */
   .mc-role-row {
-    padding: var(--space-2-5) var(--space-3);
-    min-height: 44px;
+    padding: var(--space-3) var(--space-3);
+    min-height: 56px; /* Consistent height across all role cards */
     flex-wrap: wrap;
+    border-bottom: 1px solid var(--color-border-light);
+  }
+
+  .mc-role-row:last-child {
+    border-bottom: none;
   }
 
   .mc-role-row .mc-role-name {
     flex: 1 1 100%;
     font-size: var(--text-sm);
+    line-height: 1.3;
   }
 
   .mc-role-row .mc-role-title {
@@ -72,6 +78,7 @@
     margin-top: var(--space-1);
     font-size: var(--text-xs);
     color: var(--color-text-tertiary);
+    line-height: 1.3;
   }
 
   /* Members form */

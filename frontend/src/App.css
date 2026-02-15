@@ -92,10 +92,9 @@
     z-index: calc(var(--z-modal) - 2);
   }
 
-  /* Add bottom padding for mobile bottom navigation */
-  .main-content-chat,
-  .main-content-landing {
-    padding-bottom: 72px; /* Height of mobile bottom nav + safe area */
+  /* Nav is now a hidden drag-up tray — no permanent bottom padding needed */
+  .main-content-chat {
+    padding-bottom: 0;
   }
 
   /* Hide React Query DevTools toggle on mobile - overlaps UI (ISSUE-010) */

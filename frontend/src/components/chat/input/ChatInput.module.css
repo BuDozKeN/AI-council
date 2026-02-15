@@ -274,8 +274,6 @@
   position: relative;
   z-index: var(--z-elevated);
   pointer-events: auto;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   user-select: none;
 }

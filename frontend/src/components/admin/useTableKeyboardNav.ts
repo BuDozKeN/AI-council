@@ -50,8 +50,9 @@ export function useTableKeyboardNav({
     (index: number) => {
       if (!tableBodyRef.current || index < 0 || index >= rowCount) return;
 
-      const rows = tableBodyRef.current.querySelectorAll('tr');
-      const targetRow = rows[index] as HTMLTableRowElement | undefined;
+      // Use tr[tabindex] to skip non-interactive rows (e.g. date group headers in AuditTab)
+      const rows = tableBodyRef.current.querySelectorAll<HTMLTableRowElement>('tr[tabindex]');
+      const targetRow = rows[index];
       if (targetRow) {
         targetRow.focus();
         setSelectedIndex(index);

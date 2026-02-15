@@ -27,6 +27,7 @@
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
   position: relative;
+  user-select: none;
 }
 
 .mc-tab::after {
@@ -180,14 +181,16 @@
     gap: var(--gap-2xs);
     overflow: auto hidden;
     scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
   }
 
   .mc-tab {
     padding: var(--space-2) var(--space-2-5);
-    font-size: 0.8125rem; /* 13px - smaller on mobile */
+    font-size: var(--text-sm); /* P3: 13px → 14px for readability */
     flex-shrink: 0; /* Prevent tab squishing */
     white-space: nowrap;
+    min-height: 44px; /* WCAG touch target */
+    min-width: 44px;
+    justify-content: center;
   }
 
   .mc-tab-label {
@@ -196,7 +199,35 @@
   }
 
   .mc-tab-icon {
-    font-size: 1.125rem;
+    font-size: 1.25rem; /* Larger icon for icon-only mode */
+  }
+
+  /* UXH-028: Make active tab more visually distinct on mobile */
+  .mc-tab.active {
+    background: var(--color-indigo-50);
+    color: var(--color-indigo-600);
+    border: 1px solid var(--color-indigo-200);
+  }
+
+  .mc-tab.active .mc-tab-icon {
+    color: var(--color-indigo-600);
+  }
+
+  .mc-tab.active::after {
+    display: none; /* Hide underline on mobile - border is clearer */
+  }
+
+  /* Dark mode active tab on mobile */
+  .dark .mc-tab.active,
+  [data-theme='dark'] .mc-tab.active {
+    background: var(--overlay-indigo-15);
+    color: var(--color-indigo-400);
+    border-color: var(--overlay-indigo-30);
+  }
+
+  .dark .mc-tab.active .mc-tab-icon,
+  [data-theme='dark'] .mc-tab.active .mc-tab-icon {
+    color: var(--color-indigo-400);
   }
 }
 
@@ -224,7 +255,7 @@
   }
 
   .mc-tab-icon {
-    font-size: 0.9rem;
+    font-size: 1rem; /* P3: Min 16px for icon legibility */
   }
 }
 

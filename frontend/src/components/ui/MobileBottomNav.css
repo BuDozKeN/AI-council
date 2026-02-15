@@ -1,5 +1,37 @@
-/* MobileBottomNav - iOS-style bottom navigation */
+/* MobileBottomNav - Hidden drag-up tray navigation */
 
+/* Drag handle wrapper - always visible at bottom of screen (mobile only) */
+.mobile-nav-handle-wrapper {
+  display: none; /* Hidden on desktop */
+  position: fixed;
+  bottom: env(safe-area-inset-bottom);
+  left: 0;
+  right: 0;
+  height: 32px; /* was 20px — larger touch zone for swipe-up gesture */
+  padding-bottom: var(--space-1);
+  align-items: center;
+  justify-content: center;
+  z-index: calc(var(--z-modal) - 1);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (width <= 1024px) {
+  .mobile-nav-handle-wrapper {
+    display: flex;
+  }
+}
+
+/* The pill-shaped drag handle */
+.mobile-nav-handle {
+  width: 48px; /* was 36px — more visible drag indicator */
+  height: 5px; /* was 4px */
+  border-radius: 3px;
+  background: var(--color-text-quaternary);
+  opacity: 0.6;
+}
+
+/* Nav tray - always rendered, positioned offscreen by Framer Motion */
 .mobile-bottom-nav {
   display: none; /* Hidden on desktop */
   position: fixed;
@@ -7,7 +39,7 @@
   left: 0;
   right: 0;
   width: 100%;
-  z-index: calc(var(--z-modal) - 1); /* Higher than main-content-landing (z-modal - 2 = 998) */
+  z-index: calc(var(--z-modal) - 1);
   background: var(--color-bg-primary);
   border-top: 1px solid var(--color-border-secondary);
   padding: var(--space-2) var(--space-4);
@@ -18,7 +50,7 @@
 @media (width <= 1024px) {
   .mobile-bottom-nav {
     display: flex;
-    justify-content: stretch; /* Let flex: 1 handle equal widths */
+    justify-content: stretch;
     align-items: stretch;
     gap: var(--space-1);
   }
@@ -26,14 +58,14 @@
 
 .mobile-nav-item {
   display: flex;
-  flex: 1; /* Equal width distribution */
+  flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
   padding: var(--space-2);
-  min-width: 80px; /* Increased from implicit - better touch target */
-  min-height: 56px; /* Increased from 44px - WCAG AAA touch target, 56px ensures visibility with icons + labels */
+  min-width: 80px;
+  min-height: 56px;
   border: none;
   background: transparent;
   color: var(--color-text-tertiary);
@@ -42,7 +74,6 @@
   transition:
     color 0.15s ease,
     background-color 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .mobile-nav-item:hover {
@@ -88,13 +119,11 @@
 }
 
 .mobile-nav-label {
-  font-size: var(--text-xs); /* 12px - readable on mobile */
+  font-size: var(--text-xs);
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.01em;
   white-space: nowrap;
-
-  /* Allow slight overflow to prevent truncation of short labels */
   overflow: visible;
   max-width: 100%;
   text-align: center;
@@ -103,22 +132,23 @@
 /* Mobile - merged into standard breakpoint */
 @media (width <= 640px) {
   .mobile-nav-label {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .mobile-nav-item {
-    min-height: 44px; /* WCAG 44px touch target */
+    min-height: 44px;
     flex: 1;
   }
 
+  /* UXH-015: Slightly larger icons on mobile for better visibility */
   .mobile-nav-icon {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 
   .mobile-nav-icon svg {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 }
 
@@ -158,4 +188,11 @@
 
 .dark .mobile-nav-item.active:focus-visible {
   outline-color: var(--color-blue-500);
+}
+
+/* Handle focus styles */
+.mobile-nav-handle-wrapper:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
 }

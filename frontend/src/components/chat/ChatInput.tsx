@@ -15,7 +15,6 @@ import {
   Building2,
   Users,
   BookOpen,
-  Check,
   FileText,
   ScrollText,
   Shield,
@@ -24,16 +23,14 @@ import {
   FolderKanban,
   RotateCcw,
   Send,
-  Settings2,
   Paperclip,
-  Target,
-  Zap,
-  Sparkles,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
+import { ContextSelectItem } from '../ui/ContextSelectItem';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
+import { toast } from '../ui/sonner';
 import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
 import type { Department, Role, Playbook, Project, LLMPresetId } from '../../types/business';
 import { ResponseStyleSelector } from './ResponseStyleSelector';
@@ -275,33 +272,16 @@ export function ChatInput({
         {projects.length === 0 ? (
           <div className={c.popoverEmpty}>{t('context.noProjects')}</div>
         ) : (
-          sortedProjects.map((proj) => {
-            const isSelected = selectedProject === proj.id;
-            return (
-              <label key={proj.id} className={cn(c.popoverItem, isSelected && c.selected)}>
-                <input
-                  type="radio"
-                  name="project"
-                  value={proj.id}
-                  checked={isSelected}
-                  onChange={() => {
-                    // onChange only fires for newly selected (unchecked -> checked)
-                    if (!isSelected) onSelectProject?.(proj.id);
-                  }}
-                  onClick={() => {
-                    // onClick fires even when already checked, enabling deselect
-                    if (isSelected) onSelectProject?.(null);
-                  }}
-                  className={c.popoverInput}
-                  aria-label={proj.name}
-                />
-                <div className={cn(c.popoverRadio, isSelected && c.checked)} aria-hidden="true">
-                  {isSelected && <Check />}
-                </div>
-                <span>{proj.name}</span>
-              </label>
-            );
-          })
+          sortedProjects.map((proj) => (
+            <ContextSelectItem
+              key={proj.id}
+              label={proj.name}
+              isSelected={selectedProject === proj.id}
+              onToggle={() => onSelectProject?.(selectedProject === proj.id ? null : proj.id)}
+              mode="radio"
+              isMobile={isMobile}
+            />
+          ))
         )}
       </div>
       <div className={c.contextHelpText}>
@@ -359,26 +339,16 @@ export function ChatInput({
         {roles.length === 0 ? (
           <div className={c.popoverEmpty}>{t('context.noRoles')}</div>
         ) : (
-          sortedRoles.map((role) => {
-            const isSelected = selectedRoles.includes(role.id);
-            return (
-              <label key={role.id} className={cn(c.popoverItem, isSelected && c.selected)}>
-                <input
-                  type="checkbox"
-                  name="role"
-                  value={role.id}
-                  checked={isSelected}
-                  onChange={() => toggleRole(role.id)}
-                  className={c.popoverInput}
-                  aria-label={role.name}
-                />
-                <div className={cn(c.popoverCheckbox, isSelected && c.checked)} aria-hidden="true">
-                  {isSelected && <Check />}
-                </div>
-                <span>{role.name}</span>
-              </label>
-            );
-          })
+          sortedRoles.map((role) => (
+            <ContextSelectItem
+              key={role.id}
+              label={role.name}
+              isSelected={selectedRoles.includes(role.id)}
+              onToggle={() => toggleRole(role.id)}
+              mode="checkbox"
+              isMobile={isMobile}
+            />
+          ))
         )}
       </div>
       <div className={c.contextHelpText}>
@@ -462,29 +432,16 @@ export function ChatInput({
                 </button>
                 {isExpanded && (
                   <div className={c.popoverGroupItems}>
-                    {sortedItems.map((pb) => {
-                      const isSelected = selectedPlaybooks.includes(pb.id);
-                      return (
-                        <label key={pb.id} className={cn(c.popoverItem, isSelected && c.selected)}>
-                          <input
-                            type="checkbox"
-                            name="playbook"
-                            value={pb.id}
-                            checked={isSelected}
-                            onChange={() => togglePlaybook(pb.id)}
-                            className={c.popoverInput}
-                            aria-label={pb.title || pb.name}
-                          />
-                          <div
-                            className={cn(c.popoverCheckbox, isSelected && c.checked)}
-                            aria-hidden="true"
-                          >
-                            {isSelected && <Check />}
-                          </div>
-                          <span>{pb.title || pb.name}</span>
-                        </label>
-                      );
-                    })}
+                    {sortedItems.map((pb) => (
+                      <ContextSelectItem
+                        key={pb.id}
+                        label={pb.title || pb.name || pb.id}
+                        isSelected={selectedPlaybooks.includes(pb.id)}
+                        onToggle={() => togglePlaybook(pb.id)}
+                        mode="checkbox"
+                        isMobile={isMobile}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
@@ -497,130 +454,10 @@ export function ChatInput({
   // Mobile unified context menu content (Perplexity-inspired)
   // Shows all categories in accordion style within a single bottom sheet
   // UXH-031: Now includes Mode Toggle and Response Style for reduced clutter
+  // Mode toggle and response style are now visible inline (matching OmniBar).
+  // Bottom sheet only contains context selections (projects, departments, roles, playbooks).
   const mobileContextMenuContent = (
     <div className={c.mobileContextMenu}>
-      {/* UXH-031: Mode Toggle Section */}
-      {onChatModeChange && (
-        <div className={c.modeToggleSection}>
-          <div className={c.modeToggleLabel}>
-            <Users size={18} aria-hidden="true" />
-            <span>{t('chat.responseMode', 'Response Mode')}</span>
-          </div>
-          <div
-            className={c.modeToggleButtons}
-            role="radiogroup"
-            aria-label={t('aria.aiModeToggle', 'AI response mode')}
-          >
-            <button
-              type="button"
-              className={cn(c.modeToggleBtn, chatMode === 'chat' && c.active)}
-              onClick={() => onChatModeChange('chat')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={chatMode === 'chat'}
-            >
-              1 AI
-            </button>
-            <button
-              type="button"
-              className={cn(c.modeToggleBtn, chatMode === 'council' && c.active)}
-              onClick={() => onChatModeChange('council')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={chatMode === 'council'}
-            >
-              {aiCount} {aiCount === 1 ? 'AI' : 'AIs'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* UXH-031: Response Style Section */}
-      {onSelectPreset && (
-        <div className={c.responseStyleSection}>
-          <div className={c.responseStyleHeader}>
-            <Zap size={18} aria-hidden="true" />
-            <span>{t('chat.responseStyle.title', 'Response Style')}</span>
-          </div>
-          <div
-            className={c.responseStyleOptions}
-            role="radiogroup"
-            aria-label={t('chat.responseStyle.label', 'Response style')}
-          >
-            {/* UXH-086: Added title tooltips to explain each response style */}
-            <button
-              type="button"
-              className={cn(
-                c.responseStyleOption,
-                (selectedPreset === 'conservative' ||
-                  (!selectedPreset && departmentPreset === 'conservative')) &&
-                  c.active
-              )}
-              onClick={() => onSelectPreset('conservative')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={
-                selectedPreset === 'conservative' ||
-                (!selectedPreset && departmentPreset === 'conservative')
-              }
-              title={t(
-                'chat.responseStyle.descriptions.conservative',
-                'Factual, focused answers - best for data and compliance'
-              )}
-            >
-              <Target size={20} aria-hidden="true" />
-              <span>{t('chat.responseStyle.presets.conservative', 'Precise')}</span>
-            </button>
-            <button
-              type="button"
-              className={cn(
-                c.responseStyleOption,
-                (selectedPreset === 'balanced' ||
-                  (!selectedPreset && departmentPreset === 'balanced')) &&
-                  c.active
-              )}
-              onClick={() => onSelectPreset('balanced')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={
-                selectedPreset === 'balanced' ||
-                (!selectedPreset && departmentPreset === 'balanced')
-              }
-              title={t(
-                'chat.responseStyle.descriptions.balanced',
-                'Good for most questions - reliable and flexible'
-              )}
-            >
-              <Zap size={20} aria-hidden="true" />
-              <span>{t('chat.responseStyle.presets.balanced', 'Balanced')}</span>
-            </button>
-            <button
-              type="button"
-              className={cn(
-                c.responseStyleOption,
-                (selectedPreset === 'creative' ||
-                  (!selectedPreset && departmentPreset === 'creative')) &&
-                  c.active
-              )}
-              onClick={() => onSelectPreset('creative')}
-              disabled={disabled}
-              role="radio"
-              aria-checked={
-                selectedPreset === 'creative' ||
-                (!selectedPreset && departmentPreset === 'creative')
-              }
-              title={t(
-                'chat.responseStyle.descriptions.creative',
-                'More original ideas - great for brainstorming'
-              )}
-            >
-              <Sparkles size={20} aria-hidden="true" />
-              <span>{t('chat.responseStyle.presets.creative', 'Creative')}</span>
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Project Section */}
       {hasProjects && (
         <div className={c.contextSection}>
@@ -784,7 +621,6 @@ export function ChatInput({
                             : t('context.configure')
                         }
                       >
-                        <Settings2 size={16} aria-hidden="true" />
                         <span className={c.mobileContextLabel}>{t('context.context')}</span>
                         {totalSelectionCount > 0 && (
                           <span className={c.mobileContextBadge} aria-hidden="true">
@@ -1029,7 +865,13 @@ export function ChatInput({
                           )}
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (!disabled) onChatModeChange?.('chat');
+                            if (!disabled && chatMode !== 'chat') {
+                              onChatModeChange?.('chat');
+                              // Mobile: show toast since tooltips don't work on touch
+                              if (isMobile) {
+                                toast.info(TOOLTIPS.chatMode, { duration: 3000 });
+                              }
+                            }
                           }}
                           onPointerDown={(e) => e.stopPropagation()}
                           disabled={disabled}
@@ -1057,7 +899,13 @@ export function ChatInput({
                           )}
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (!disabled) onChatModeChange?.('council');
+                            if (!disabled && chatMode !== 'council') {
+                              onChatModeChange?.('council');
+                              // Mobile: show toast since tooltips don't work on touch
+                              if (isMobile) {
+                                toast.info(TOOLTIPS.councilMode, { duration: 3000 });
+                              }
+                            }
                           }}
                           onPointerDown={(e) => e.stopPropagation()}
                           disabled={disabled}
@@ -1078,18 +926,16 @@ export function ChatInput({
                 </Tooltip.Provider>
 
                 {/* Response Style Selector - Quick toggle for Precise/Balanced/Creative */}
-                {/* UXH-031: Hidden on mobile - now available in context bottom sheet */}
+                {/* Shows as popover on desktop, BottomSheet on mobile */}
                 {onSelectPreset && (
-                  <div className={s.hideOnMobile}>
-                    <ResponseStyleSelector
-                      selectedPreset={selectedPreset}
-                      departmentPreset={departmentPreset}
-                      departmentName={departmentName}
-                      onSelectPreset={onSelectPreset}
-                      onOpenLLMHub={onOpenLLMHub}
-                      disabled={disabled}
-                    />
-                  </div>
+                  <ResponseStyleSelector
+                    selectedPreset={selectedPreset}
+                    departmentPreset={departmentPreset}
+                    departmentName={departmentName}
+                    onSelectPreset={onSelectPreset}
+                    onOpenLLMHub={onOpenLLMHub}
+                    disabled={disabled}
+                  />
                 )}
               </>
             )}

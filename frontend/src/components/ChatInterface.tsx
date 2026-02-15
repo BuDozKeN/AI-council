@@ -212,6 +212,10 @@ function ChatInterface({
   const userHasScrolledUp = useRef(false);
   const isSubmitting = useRef(false);
 
+  // UXH-188: Save scroll position per conversation for restoration
+  const scrollPositionsRef = useRef<Record<string, number>>({});
+  const prevConversationIdRef = useRef<string | undefined>(undefined);
+
   // Mobile detection for swipe gesture
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 640);
@@ -369,9 +373,31 @@ function ChatInterface({
   //   return false;
   // };
 
+  // UXH-188: Save scroll position when switching away from a conversation
+  useEffect(() => {
+    const prevId = prevConversationIdRef.current;
+    const currId = conversation?.id;
+    if (prevId && prevId !== currId && messagesContainerRef.current) {
+      scrollPositionsRef.current[prevId] = messagesContainerRef.current.scrollTop;
+    }
+    prevConversationIdRef.current = currId;
+  }, [conversation?.id]);
+
   // Handle scroll when conversation loads or changes
   useEffect(() => {
     if (!conversation?.messages?.length) return;
+
+    // UXH-188: Restore saved scroll position when returning to a conversation
+    const savedPosition = conversation?.id
+      ? scrollPositionsRef.current[conversation.id]
+      : undefined;
+    if (savedPosition !== undefined && savedPosition > 0 && !scrollToStage3) {
+      const timer = setTimeout(() => {
+        messagesContainerRef.current?.scrollTo({ top: savedPosition, behavior: 'instant' });
+        userHasScrolledUp.current = true;
+      }, 50);
+      return () => clearTimeout(timer);
+    }
 
     // If scrollToStage3 is requested, scroll to the last Stage 3
     if (scrollToStage3) {

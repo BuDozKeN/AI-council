@@ -47,17 +47,34 @@ Before running this agent:
 2. App should be accessible at `http://localhost:5173`
 3. Chrome DevTools MCP must be connected
 
+## CRITICAL: Image Size Limit
+
+The Claude API has a **2000px limit per dimension** for multi-image requests. High-DPI displays (2x/3x scaling) can cause screenshots to exceed this limit.
+
+**ALWAYS set deviceScaleFactor: 1 before taking screenshots:**
+```
+mcp__chrome-devtools__emulate viewport={"width": 390, "height": 844, "deviceScaleFactor": 1, "isMobile": true, "hasTouch": true}
+```
+
+**Rules:**
+- **NEVER use `fullPage: true`** - Full-page screenshots easily exceed 2000px height
+- **Always use emulate with deviceScaleFactor: 1** when switching viewports
+- If you need to capture more content, take multiple viewport-sized screenshots
+
 ## Test Configuration
 
 ### Viewports to Test
 
 ```javascript
 const VIEWPORTS = [
-  { name: "iPhone SE", width: 320, height: 568 },      // Smallest
-  { name: "iPhone 14", width: 390, height: 844 },      // Standard (PRIMARY)
-  { name: "iPhone 14 Pro Max", width: 430, height: 932 }, // Largest
-  { name: "Pixel 7", width: 412, height: 915 },        // Android
+  { name: "iPhone SE", width: 320, height: 568, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
+  { name: "iPhone 14", width: 390, height: 844, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
+  { name: "iPhone 14 Pro Max", width: 430, height: 932, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
+  { name: "Pixel 7", width: 412, height: 915, deviceScaleFactor: 1, isMobile: true, hasTouch: true },
 ];
+
+// IMPORTANT: Use emulate command (not resize_page) to set deviceScaleFactor:
+// mcp__chrome-devtools__emulate viewport={"width": 390, "height": 844, "deviceScaleFactor": 1, "isMobile": true, "hasTouch": true}
 ```
 
 ### Screens to Test
@@ -81,10 +98,11 @@ const SCREENS = [
 ```
 1. Connect to Chrome via MCP
 2. List pages → Select the app page
-3. Resize to mobile viewport (390x844)
+3. Set viewport with deviceScaleFactor: 1 (CRITICAL - prevents oversized screenshots):
+   mcp__chrome-devtools__emulate viewport={"width": 390, "height": 844, "deviceScaleFactor": 1, "isMobile": true, "hasTouch": true}
 4. Navigate to http://localhost:5173
 5. Wait for app to load
-6. Take initial snapshot
+6. Take initial snapshot (NEVER use fullPage: true for screenshots)
 7. Login if auth wall detected
 ```
 
@@ -165,10 +183,10 @@ Route issues to appropriate agents:
 ## Chrome DevTools Commands Reference
 
 ```javascript
-// Setup
+// Setup (CRITICAL: use emulate with deviceScaleFactor: 1 to prevent oversized screenshots)
 mcp__chrome-devtools__list_pages()
 mcp__chrome-devtools__select_page({ pageId: 0 })
-mcp__chrome-devtools__resize_page({ width: 390, height: 844 })
+mcp__chrome-devtools__emulate({ viewport: { width: 390, height: 844, deviceScaleFactor: 1, isMobile: true, hasTouch: true } })
 mcp__chrome-devtools__navigate_page({ url: "http://localhost:5173" })
 
 // Navigation & Interaction
@@ -182,7 +200,7 @@ mcp__chrome-devtools__press_key({ key: "Tab" })
 
 // Screenshots & State
 mcp__chrome-devtools__take_screenshot()
-mcp__chrome-devtools__take_screenshot({ fullPage: true })
+// NEVER use fullPage: true - exceeds Claude API 2000px limit
 mcp__chrome-devtools__take_screenshot({ uid: "element-uid" })
 mcp__chrome-devtools__take_screenshot({ filePath: "screenshots/issue.png" })
 

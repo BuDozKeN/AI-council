@@ -22,7 +22,6 @@
 .scrollable-content-inner {
   flex: 1;
   overflow: hidden auto; /* Never show horizontal scrollbar */
-  -webkit-overflow-scrolling: touch;
 
   /* Constrain height to enable scroll detection */
   min-height: 0;

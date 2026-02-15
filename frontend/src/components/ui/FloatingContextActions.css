@@ -23,7 +23,6 @@
   /* NO position: relative here - it breaks sticky positioning for children */
   flex: 1;
   overflow: hidden auto; /* Never show horizontal scrollbar - tables handle their own overflow */
-  -webkit-overflow-scrolling: touch;
   min-height: 0;
 
   /* Default styling - can be overridden by parent context (e.g., overview.css) */
@@ -264,7 +263,6 @@
   display: block;
   overflow-x: auto;
   max-width: 100%;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Sticky scroll-to-top wrapper for no-border variant */

@@ -19,7 +19,6 @@
   background: var(--color-bg-primary);
   min-width: 0;
   overflow: hidden;
-  overflow-x: hidden;
   position: relative;
 }
 
@@ -53,4 +52,22 @@
   flex: 1;
   width: 100%;
   min-height: 400px;
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Nav is now a hidden drag-up tray — only safe area inset needed */
+  .chat-interface {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Triage - compact on mobile */
+  .triage-analyzing {
+    padding: var(--space-4);
+    margin: var(--space-2);
+    font-size: var(--text-xs);
+  }
 }

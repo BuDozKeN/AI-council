@@ -197,7 +197,7 @@ describe('AdminPortal', () => {
       expect(screen.getByText('Connection Error')).toBeInTheDocument();
       expect(screen.getByText('Network timeout')).toBeInTheDocument();
       expect(screen.getByText('Retry')).toBeInTheDocument();
-      expect(screen.getByText('Back to App')).toBeInTheDocument();
+      expect(screen.getByText('Exit Admin')).toBeInTheDocument();
     });
 
     it('shows not-logged-in state when user is null', () => {
@@ -243,13 +243,18 @@ describe('AdminPortal', () => {
       // Title
       expect(screen.getByText('Admin Portal')).toBeInTheDocument();
 
-      // All 6 nav tabs present
-      expect(screen.getByText('Analytics')).toBeInTheDocument();
-      expect(screen.getByText('Users')).toBeInTheDocument();
-      expect(screen.getByText('Companies')).toBeInTheDocument();
-      expect(screen.getByText('Audit Logs')).toBeInTheDocument();
-      expect(screen.getByText('Admin Roles')).toBeInTheDocument();
-      expect(screen.getByText('Settings')).toBeInTheDocument();
+      // All 6 nav tabs present (check full labels via class selector to avoid
+      // matching duplicate short labels that are hidden on desktop via CSS)
+      const fullLabels = document.querySelectorAll('.admin-nav-label-full');
+      const labelTexts = Array.from(fullLabels).map((el) => el.textContent);
+      expect(labelTexts).toEqual([
+        'Analytics',
+        'Users',
+        'Companies',
+        'Audit Logs',
+        'Admin Roles',
+        'Settings',
+      ]);
     });
 
     it('displays the admin user email in the sidebar', () => {
@@ -262,9 +267,9 @@ describe('AdminPortal', () => {
       expect(screen.getByText('Platform Admin')).toBeInTheDocument();
     });
 
-    it('renders the Back to App button', () => {
+    it('renders the Exit Admin button', () => {
       renderAdminPortal();
-      expect(screen.getByText('Back to App')).toBeInTheDocument();
+      expect(screen.getByText('Exit Admin')).toBeInTheDocument();
     });
 
     it('renders the skip-to-content accessibility link', () => {

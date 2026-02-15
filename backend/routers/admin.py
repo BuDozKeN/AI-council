@@ -361,7 +361,8 @@ async def list_users(
     user: dict = Depends(get_current_user),
     page: int = 1,
     page_size: int = 50,
-    search: Optional[str] = None
+    search: Optional[str] = None,
+    include_test: bool = Query(False, description="Include test/demo users"),
 ):
     """
     List all users on the platform (admin only).
@@ -432,6 +433,12 @@ async def list_users(
                 if search.lower() not in user_data["email"].lower():
                     continue
 
+            # UXH-168: Filter out test/demo users (marked via migration)
+            if not include_test:
+                metadata = user_data.get("user_metadata") or {}
+                if metadata.get("is_test"):
+                    continue
+
             users_list.append(PlatformUser(**user_data))
 
         # Apply pagination
@@ -444,6 +451,19 @@ async def list_users(
             total=total,
             page=page,
             search=search,
+        )
+
+        # UXH-173: Audit log variety - log admin view actions
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="view_users_list",
+            action_category="admin",
+            actor_id=user_id,
+            actor_email=user.get("email"),
+            actor_type="admin",
+            resource_type="user",
+            ip_address=client_ip,
+            metadata={"page": page, "total": total, "search": search},
         )
 
         return ListUsersResponse(
@@ -1263,7 +1283,8 @@ async def list_companies(
     user: dict = Depends(get_current_user),
     page: int = 1,
     page_size: int = 50,
-    search: Optional[str] = None
+    search: Optional[str] = None,
+    include_demo: bool = Query(False, description="Include demo/test companies"),
 ):
     """
     List all companies on the platform (admin only).
@@ -1280,13 +1301,27 @@ async def list_companies(
     try:
         supabase = get_supabase_service()
 
-        # Get all companies
-        query = supabase.table("companies").select("id, name, created_at, user_id")
+        # Get all companies (is_demo column may not exist if migration hasn't been applied)
+        try:
+            query = supabase.table("companies").select("id, name, created_at, user_id, is_demo")
 
-        if search:
-            query = query.ilike("name", f"%{search}%")
+            if search:
+                query = query.ilike("name", f"%{search}%")
 
-        result = query.order("created_at", desc=True).execute()
+            # UXH-117/167: Filter out demo/test companies by default
+            if not include_demo:
+                query = query.neq("is_demo", True)
+
+            result = query.order("created_at", desc=True).execute()
+        except Exception:
+            # Fallback: is_demo column doesn't exist yet, query without it
+            logger.warning("is_demo column not found on companies table — run migration 20260211000000")
+            query = supabase.table("companies").select("id, name, created_at, user_id")
+
+            if search:
+                query = query.ilike("name", f"%{search}%")
+
+            result = query.order("created_at", desc=True).execute()
         all_companies = result.data or []
 
         # Enrich with counts
@@ -1326,6 +1361,19 @@ async def list_companies(
             user_id=user_id,
             total=total,
             page=page
+        )
+
+        # UXH-173: Audit log variety - log admin view actions
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="view_companies_list",
+            action_category="admin",
+            actor_id=user_id,
+            actor_email=user.get("email"),
+            actor_type="admin",
+            resource_type="company",
+            ip_address=client_ip,
+            metadata={"page": page, "total": total},
         )
 
         return ListCompaniesResponse(
@@ -1395,6 +1443,18 @@ async def get_platform_stats(request: Request, user: dict = Depends(get_current_
         log_app_event(
             "ADMIN: Fetched platform stats",
             user_id=user_id
+        )
+
+        # UXH-173: Audit log variety - log admin view actions
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="view_platform_stats",
+            action_category="admin",
+            actor_id=user_id,
+            actor_email=user.get("email"),
+            actor_type="admin",
+            resource_type="admin",
+            ip_address=client_ip,
         )
 
         return PlatformStats(

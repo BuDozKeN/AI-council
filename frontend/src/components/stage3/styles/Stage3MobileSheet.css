@@ -28,8 +28,6 @@
   transition: all 0.15s ease;
 
   /* Ensure proper mobile touch handling */
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: var(--overlay-purple-20);
   user-select: none;
 }
 
@@ -85,8 +83,6 @@
   transition: all 0.15s ease;
 
   /* Ensure proper mobile touch handling */
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: var(--overlay-purple-20);
   user-select: none;
 }
 
