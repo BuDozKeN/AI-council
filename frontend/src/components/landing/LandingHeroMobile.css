@@ -84,7 +84,17 @@
   .landing-hero .omni-bar-container {
     margin-top: auto;
     flex: 0 0 auto;
-    width: 100%;
+
+    /* CRITICAL: Break out to full viewport width for swipe-up gesture detection
+     * The parent .landing-hero has max-width: 720px, which would constrain
+     * touch events to only the centered area. Users swiping from screen edges
+     * (especially on real devices like Samsung S24) would miss the gesture zone.
+     * Solution: Use negative margins to expand container to full width while
+     * keeping visual content centered via the OmniBar's internal layout. */
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   /* Hide keyboard hint on mobile */
