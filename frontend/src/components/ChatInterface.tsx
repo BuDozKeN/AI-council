@@ -208,7 +208,6 @@ function ChatInterface({
   const [navSheetOpen, setNavSheetOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const userHasScrolledUp = useRef(false);
   const isSubmitting = useRef(false);
 
@@ -319,7 +318,7 @@ function ChatInterface({
   // Swipe-up gesture to open navigation sheet (mobile only, at bottom of scroll)
   const messagesSwipeRef = useSwipeGesture({
     onSwipeUp: () => {
-      const container = messagesContainerRef.current;
+      const container = messagesSwipeRef.current;
       const isAtBottom = container
         ? container.scrollTop + container.clientHeight >= container.scrollHeight - 10
         : true;
@@ -336,7 +335,7 @@ function ChatInterface({
 
   // Check if user is near the bottom of the scroll area
   const isNearBottom = () => {
-    const container = messagesContainerRef.current;
+    const container = messagesSwipeRef.current;
     if (!container) return true;
     const threshold = 100;
     return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
@@ -345,7 +344,7 @@ function ChatInterface({
   // Handle user scroll - track if they've scrolled up and show/hide scroll-to-top
   const handleScroll = () => {
     userHasScrolledUp.current = !isNearBottom();
-    const container = messagesContainerRef.current;
+    const container = messagesSwipeRef.current;
     if (container) {
       // Show scroll-to-top button when scrolled down more than 300px
       setShowScrollTop(container.scrollTop > 300);
@@ -359,12 +358,12 @@ function ChatInterface({
   };
 
   const scrollToTop = () => {
-    messagesContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    messagesSwipeRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Scroll to the last Stage 3 response (unused for now, kept for potential future use)
   // const scrollToLastStage3 = () => {
-  //   const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
+  //   const allStage3Elements = messagesSwipeRef.current?.querySelectorAll('.stage3');
   //   if (allStage3Elements && allStage3Elements.length > 0) {
   //     const targetElement = allStage3Elements[allStage3Elements.length - 1];
   //     targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -377,8 +376,8 @@ function ChatInterface({
   useEffect(() => {
     const prevId = prevConversationIdRef.current;
     const currId = conversation?.id;
-    if (prevId && prevId !== currId && messagesContainerRef.current) {
-      scrollPositionsRef.current[prevId] = messagesContainerRef.current.scrollTop;
+    if (prevId && prevId !== currId && messagesSwipeRef.current) {
+      scrollPositionsRef.current[prevId] = messagesSwipeRef.current.scrollTop;
     }
     prevConversationIdRef.current = currId;
   }, [conversation?.id]);
@@ -393,7 +392,7 @@ function ChatInterface({
       : undefined;
     if (savedPosition !== undefined && savedPosition > 0 && !scrollToStage3) {
       const timer = setTimeout(() => {
-        messagesContainerRef.current?.scrollTo({ top: savedPosition, behavior: 'instant' });
+        messagesSwipeRef.current?.scrollTo({ top: savedPosition, behavior: 'instant' });
         userHasScrolledUp.current = true;
       }, 50);
       return () => clearTimeout(timer);
@@ -409,7 +408,7 @@ function ChatInterface({
 
         if (scrollToResponseIndex !== null && scrollToResponseIndex !== undefined) {
           // Scroll to a specific response index
-          const allMessageGroups = messagesContainerRef.current?.querySelectorAll('.message-group');
+          const allMessageGroups = messagesSwipeRef.current?.querySelectorAll('.message-group');
           if (allMessageGroups && allMessageGroups.length > scrollToResponseIndex) {
             const messageGroup = allMessageGroups[scrollToResponseIndex];
             targetElement =
@@ -422,7 +421,7 @@ function ChatInterface({
 
         // Fallback: scroll to the last Stage 3
         if (!targetElement) {
-          const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
+          const allStage3Elements = messagesSwipeRef.current?.querySelectorAll('.stage3');
           if (allStage3Elements && allStage3Elements.length > 0) {
             targetElement = allStage3Elements[allStage3Elements.length - 1] ?? null;
           }
@@ -493,7 +492,7 @@ function ChatInterface({
     if (!isStreaming) return;
 
     // Scroll to bottom during streaming
-    const container = messagesContainerRef.current;
+    const container = messagesSwipeRef.current;
     if (container) {
       container.scrollTop = container.scrollHeight;
     }
@@ -620,12 +619,7 @@ function ChatInterface({
 
       <div
         className="messages-container"
-        ref={(node) => {
-          messagesContainerRef.current = node;
-          if (node) {
-            (messagesSwipeRef as React.MutableRefObject<HTMLElement | null>).current = node;
-          }
-        }}
+        ref={messagesSwipeRef as React.RefObject<HTMLDivElement>}
         onScroll={handleScroll}
       >
         {/* Persistent Context Indicator - shows question + context */}
