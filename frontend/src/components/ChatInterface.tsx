@@ -9,6 +9,8 @@ import { CouncilLoader } from './ui/CouncilLoader';
 import { WelcomeState, ContextIndicator, MessageList, ChatInput } from './chat';
 import { hapticLight } from '../lib/haptics';
 import { useImagePreUpload } from '../hooks/useImagePreUpload';
+import { useSwipeGesture } from '../hooks/useSwipeGesture';
+import { NavigationSheet } from './ui/NavigationSheet';
 import type { Conversation } from '../types/conversation';
 import type {
   Business,
@@ -119,6 +121,14 @@ interface ChatInterfaceProps {
   selectedPreset?: LLMPresetId | null;
   onSelectPreset?: (preset: LLMPresetId | null) => void;
   onOpenLLMHub?: () => void;
+  // Navigation sheet (swipe-up gesture on mobile)
+  onOpenNavigation?: {
+    onNewChat: () => void;
+    onOpenHistory: () => void;
+    onOpenLeaderboard: () => void;
+    onOpenMyCompany: () => void;
+    onOpenSettings: () => void;
+  };
 }
 
 function ChatInterface({
@@ -188,15 +198,26 @@ function ChatInterface({
   selectedPreset = null,
   onSelectPreset,
   onOpenLLMHub,
+  // Navigation sheet
+  onOpenNavigation,
 }: ChatInterfaceProps) {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState<'chat' | 'council'>('chat');
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [navSheetOpen, setNavSheetOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const userHasScrolledUp = useRef(false);
   const isSubmitting = useRef(false);
+
+  // Mobile detection for swipe gesture
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Pre-upload images on selection (not on send)
   const {
@@ -290,6 +311,24 @@ function ChatInterface({
     },
     [removePreUploadedImage]
   );
+
+  // Swipe-up gesture to open navigation sheet (mobile only, at bottom of scroll)
+  const messagesSwipeRef = useSwipeGesture({
+    onSwipeUp: () => {
+      const container = messagesContainerRef.current;
+      const isAtBottom = container
+        ? container.scrollTop + container.clientHeight >= container.scrollHeight - 10
+        : true;
+
+      if (isMobile && onOpenNavigation && isAtBottom) {
+        setNavSheetOpen(true);
+      }
+    },
+    threshold: 80,
+    edgeOnly: true,
+    edgeWidth: 50,
+    enabled: isMobile && !!onOpenNavigation,
+  });
 
   // Check if user is near the bottom of the scroll area
   const isNearBottom = () => {
@@ -553,7 +592,16 @@ function ChatInterface({
         </button>
       )}
 
-      <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
+      <div
+        className="messages-container"
+        ref={(node) => {
+          messagesContainerRef.current = node;
+          if (node) {
+            (messagesSwipeRef as React.MutableRefObject<HTMLElement | null>).current = node;
+          }
+        }}
+        onScroll={handleScroll}
+      >
         {/* Persistent Context Indicator - shows question + context */}
         {hasMessages && (
           <ContextIndicator
@@ -753,6 +801,15 @@ function ChatInterface({
           />
         );
       })()}
+
+      {/* Navigation sheet - swipe-up gesture on mobile */}
+      {onOpenNavigation && (
+        <NavigationSheet
+          isOpen={navSheetOpen}
+          onClose={() => setNavSheetOpen(false)}
+          {...onOpenNavigation}
+        />
+      )}
     </div>
   );
 }

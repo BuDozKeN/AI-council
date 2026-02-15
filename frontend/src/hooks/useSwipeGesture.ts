@@ -10,6 +10,7 @@ export interface UseSwipeGestureOptions {
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
   onSwipeDown?: () => void;
+  onSwipeUp?: () => void;
   threshold?: number;
   edgeOnly?: boolean;
   edgeWidth?: number;
@@ -23,6 +24,7 @@ export function useSwipeGesture({
   onSwipeLeft,
   onSwipeRight,
   onSwipeDown,
+  onSwipeUp,
   threshold = 50,
   edgeOnly = false,
   edgeWidth = 30,
@@ -95,11 +97,19 @@ export function useSwipeGesture({
         if (!edgeOnly || isFromTopEdge) {
           onSwipeDown?.();
         }
+      } else if (!isHorizontal && absY >= threshold && deltaY < 0) {
+        // Swipe up (deltaY negative = upward movement)
+        const isFromBottomEdge = elementRef.current
+          ? startData.y >= window.innerHeight - edgeWidth
+          : false;
+        if (!edgeOnly || isFromBottomEdge) {
+          onSwipeUp?.();
+        }
       }
 
       touchStartRef.current = null;
     },
-    [enabled, threshold, edgeOnly, edgeWidth, onSwipeLeft, onSwipeRight, onSwipeDown]
+    [enabled, threshold, edgeOnly, edgeWidth, onSwipeLeft, onSwipeRight, onSwipeDown, onSwipeUp]
   );
 
   // Attach event listeners

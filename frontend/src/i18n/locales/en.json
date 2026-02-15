@@ -1561,6 +1561,9 @@
     "company": "Company",
     "settings": "Settings"
   },
+  "navigation": {
+    "title": "Navigation"
+  },
   "modeToggle": {
     "quick": "Quick",
     "fullCouncil": "Full Council"

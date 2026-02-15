@@ -38,6 +38,8 @@ import {
 import { cn } from '../../lib/utils';
 import { springs, interactionStates } from '../../lib/animations';
 import { BottomSheet } from '../ui/BottomSheet';
+import { NavigationSheet } from '../ui/NavigationSheet';
+import { useSwipeGesture } from '../../hooks/useSwipeGesture';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { ResponseStyleSelector } from '../chat/ResponseStyleSelector';
@@ -118,6 +120,14 @@ interface OmniBarProps {
     | ((preset: import('../../types/business').LLMPresetId | null) => void)
     | undefined;
   onOpenLLMHub?: (() => void) | undefined;
+  // Navigation sheet (swipe-up gesture on mobile)
+  onOpenNavigation?: {
+    onNewChat: () => void;
+    onOpenHistory: () => void;
+    onOpenLeaderboard: () => void;
+    onOpenMyCompany: () => void;
+    onOpenSettings: () => void;
+  };
 }
 
 export function OmniBar({
@@ -176,6 +186,8 @@ export function OmniBar({
   departmentPreset = 'balanced',
   onSelectPreset,
   onOpenLLMHub,
+  // Navigation sheet
+  onOpenNavigation,
 }: OmniBarProps) {
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(selectedBusiness);
@@ -218,6 +230,7 @@ export function OmniBar({
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   // Mobile unified context menu (Perplexity style - single button for all context)
   const [mobileContextOpen, setMobileContextOpen] = useState(false);
+  const [navSheetOpen, setNavSheetOpen] = useState(false);
   const [mobileContextSection, setMobileContextSection] = useState<Record<string, boolean>>({
     company: false,
     project: false,
@@ -284,6 +297,20 @@ export function OmniBar({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Swipe-up gesture to open navigation sheet (mobile only, bottom edge)
+  const omniBarRef = useSwipeGesture({
+    onSwipeUp: () => {
+      if (isMobile && onOpenNavigation) {
+        setNavSheetOpen(true);
+      }
+    },
+    threshold: 80,
+    edgeOnly: true,
+    edgeWidth: 30,
+    enabled: isMobile && !!onOpenNavigation,
+  });
+
   const disabled = isLoading;
   const isCouncilMode = chatMode === 'council';
 
@@ -785,7 +812,7 @@ export function OmniBar({
   );
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} ref={omniBarRef as React.RefObject<HTMLDivElement>}>
       {/* Mode toggle - only for landing variant when showModeToggle is true */}
       {showModeToggle && variant === 'landing' && onChatModeChange && (
         <div className={s.modeToggle} role="radiogroup" aria-label="Response mode">
@@ -1227,6 +1254,15 @@ export function OmniBar({
           </div>
         </div>
       </div>
+
+      {/* Navigation sheet - swipe-up gesture on mobile */}
+      {onOpenNavigation && (
+        <NavigationSheet
+          isOpen={navSheetOpen}
+          onClose={() => setNavSheetOpen(false)}
+          {...onOpenNavigation}
+        />
+      )}
     </div>
   );
 }
