@@ -100,7 +100,7 @@ export function useSwipeGesture({
       } else if (!isHorizontal && absY >= threshold && deltaY < 0) {
         // Swipe up (deltaY negative = upward movement)
         const isFromBottomEdge = elementRef.current
-          ? startData.y >= window.innerHeight - edgeWidth
+          ? startData.y >= elementRef.current.getBoundingClientRect().bottom - edgeWidth
           : false;
         if (!edgeOnly || isFromBottomEdge) {
           onSwipeUp?.();
