@@ -1432,6 +1432,10 @@
         "label": "Playbook Generator",
         "hint": "Creates SOPs, frameworks, and policies"
       },
+      "vision_analyzer": {
+        "label": "Vision Analysis",
+        "hint": "Analyzes images and visual content in conversations"
+      },
       "utility": {
         "label": "Quick Tasks",
         "hint": "Titles, routing, text polish, decision logs"
@@ -1445,6 +1449,10 @@
       "content": {
         "label": "Playbook Generator",
         "desc": "AI that creates SOPs, frameworks, and company policies"
+      },
+      "vision": {
+        "label": "Vision Analysis",
+        "desc": "AI models that analyze images and visual content attached to conversations"
       },
       "utility": {
         "label": "Quick Tasks",
