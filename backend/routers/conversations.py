@@ -361,6 +361,14 @@ async def send_message(
         from ..byok import get_user_api_key
         from ..routers import company as company_router
 
+        # Resolve company UUID early for LLM model selection (vision, title gen, etc.)
+        company_uuid = None
+        if body.business_id:
+            try:
+                company_uuid = storage.resolve_company_id(body.business_id, access_token)
+            except Exception as e:
+                logger.warning(f"Failed to resolve company_id for {body.business_id}: {e}")
+
         api_key_token = None
         try:
             # Get user's BYOK key if available
@@ -401,9 +409,9 @@ async def send_message(
                     # Notify frontend of complete failure
                     yield f"data: {json.dumps({'type': 'image_analysis_error', 'message': 'Unable to process images. Continuing without image context.', 'failed_count': len(body.attachment_ids)})}\n\n"
 
-                # Analyze images with vision model
+                # Analyze images with vision model (use company-specific model if configured)
                 elif images:
-                    image_analysis = await image_analyzer.analyze_images(images, body.content)
+                    image_analysis = await image_analyzer.analyze_images(images, body.content, company_id=company_uuid)
                     image_analysis_result = image_analysis  # Cache for database storage
                     enhanced_query = image_analyzer.format_query_with_images(body.content, image_analysis)
 
@@ -427,14 +435,6 @@ async def send_message(
                 attachment_ids=body.attachment_ids,
                 image_analysis=image_analysis_result
             )
-
-            # Resolve company UUID for knowledge base lookup (needed for title tracking and rate limits)
-            company_uuid = None
-            if body.business_id:
-                try:
-                    company_uuid = storage.resolve_company_id(body.business_id, access_token)
-                except Exception as e:
-                    logger.warning(f"Failed to resolve company_id for {body.business_id}: {e}")
 
             # Start title generation in parallel (don't await yet)
             # Pass company_uuid for internal LLM usage tracking
@@ -883,6 +883,14 @@ async def chat_with_chairman(
 
     _verify_conversation_ownership(conversation, user, locale)
 
+    # Resolve company UUID early for LLM model selection (vision, chairman, etc.)
+    company_uuid = None
+    if body.business_id:
+        try:
+            company_uuid = storage.resolve_company_id(body.business_id, access_token)
+        except Exception as e:
+            logger.warning(f"Failed to resolve company_id for {body.business_id}: {e}")
+
     # Check billing limits
     can_query_result = billing.check_can_query(user["id"], access_token=access_token)
     if can_query_result["remaining"] == 0 and can_query_result["remaining"] != -1:
@@ -967,9 +975,9 @@ async def chat_with_chairman(
                     # Notify frontend of complete failure
                     yield f"data: {json.dumps({'type': 'image_analysis_error', 'message': 'Unable to process images. Continuing without image context.', 'failed_count': len(body.attachment_ids)})}\n\n"
 
-                # Analyze images with vision model
+                # Analyze images with vision model (use company-specific model if configured)
                 elif images:
-                    image_analysis = await image_analyzer.analyze_images(images, body.content)
+                    image_analysis = await image_analyzer.analyze_images(images, body.content, company_id=company_uuid)
                     image_analysis_result = image_analysis  # Cache for database storage
                     enhanced_content = image_analyzer.format_query_with_images(body.content, image_analysis)
 
@@ -1000,13 +1008,6 @@ async def chat_with_chairman(
             )
 
             yield f"data: {json.dumps({'type': 'chat_start'})}\n\n"
-
-            company_uuid = None
-            if body.business_id:
-                try:
-                    company_uuid = storage.resolve_company_id(body.business_id, access_token)
-                except Exception as e:
-                    logger.warning(f"Failed to resolve company_id for {body.business_id}: {e}")
 
             full_content = ""
             chat_usage = None

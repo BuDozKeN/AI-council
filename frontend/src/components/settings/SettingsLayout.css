@@ -101,16 +101,17 @@
 
 /* ==========================================================================
    ISS-183/185: Sidebar action buttons (Admin Portal, Sign Out)
-   These are action buttons at the bottom of the sidebar, separated from tabs
+   These are action buttons at the bottom of the sidebar, visually integrated with tabs
    ========================================================================== */
 
 .settings-sidebar-actions {
   margin-top: auto; /* Push to bottom of sidebar */
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-border-light);
+  padding-top: var(--space-3);
+
+  /* Removed border-top for better visual integration */
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 0; /* No gap - margin-bottom on each button handles spacing */
 }
 
 .settings-action-btn {
@@ -127,6 +128,10 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+
+  /* Add margin-bottom to match settings-tab spacing */
+  margin-bottom: var(--space-1);
+  text-align: left;
 }
 
 .settings-action-btn:hover {
@@ -134,8 +139,9 @@
   color: var(--color-text-primary);
 }
 
-/* Admin Portal button - subtle admin styling */
+/* Admin Portal button - subtle indigo accent on hover */
 .settings-action-btn.admin-btn:hover {
+  background: var(--color-indigo-50);
   color: var(--color-indigo-600);
 }
 

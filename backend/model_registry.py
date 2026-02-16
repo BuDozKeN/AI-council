@@ -124,6 +124,13 @@ FALLBACK_MODELS = {
         'openai/gpt-4o-mini',
         'anthropic/claude-3-5-haiku-20241022',
     ],
+
+    # Vision Analysis - multimodal models for reading image attachments
+    'vision_analyzer': [
+        'openai/gpt-4o',                    # $2.50/$10.00 - proven, reliable (current default)
+        'google/gemini-2.0-flash-001',      # $0.075/$0.30 - fast & cost-effective
+        'anthropic/claude-sonnet-4',        # $3.00/$15.00 - high-quality fallback
+    ],
 }
 
 

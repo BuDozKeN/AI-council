@@ -12,7 +12,7 @@
  * └──────────────────────────────────────────────────────┘
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -180,6 +180,12 @@ export function OmniBar({
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(selectedBusiness);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Compute department name for response style selector
+  const departmentName = useMemo(() => {
+    if (selectedDepartments.length === 0) return undefined;
+    return departments.find((d) => d.id === selectedDepartments[0])?.name;
+  }, [selectedDepartments, departments]);
 
   // Mom-friendly tooltip descriptions - actionable, clear (translated)
   const TOOLTIPS = {
@@ -1126,6 +1132,7 @@ export function OmniBar({
               <ResponseStyleSelector
                 selectedPreset={selectedPreset}
                 departmentPreset={departmentPreset}
+                departmentName={departmentName}
                 onSelectPreset={onSelectPreset}
                 onOpenLLMHub={onOpenLLMHub}
                 disabled={disabled}

@@ -12,6 +12,7 @@ import {
   Users,
   FileText,
   Wrench,
+  Eye,
   RotateCcw,
   AlertTriangle,
   ChevronRight,
@@ -104,6 +105,7 @@ const STAGE_NAME_KEYS = {
 const GROUP_KEYS = {
   core: { label: 'llmHub.groups.core.label', desc: 'llmHub.groups.core.desc' },
   content: { label: 'llmHub.groups.content.label', desc: 'llmHub.groups.content.desc' },
+  vision: { label: 'llmHub.groups.vision.label', desc: 'llmHub.groups.vision.desc' },
   utility: { label: 'llmHub.groups.utility.label', desc: 'llmHub.groups.utility.desc' },
 } as const;
 
@@ -121,6 +123,10 @@ const ROLE_KEYS = {
   document_writer: {
     label: 'llmHub.roles.document_writer.label',
     hint: 'llmHub.roles.document_writer.hint',
+  },
+  vision_analyzer: {
+    label: 'llmHub.roles.vision_analyzer.label',
+    hint: 'llmHub.roles.vision_analyzer.hint',
   },
   utility: { label: 'llmHub.roles.utility.label', hint: 'llmHub.roles.utility.hint' },
 } as const;
@@ -264,11 +270,20 @@ const ROLES: Record<string, RoleConfig> = {
     minModels: 1,
     maxModels: 3,
   },
+
+  // Vision Analysis - multimodal models for analyzing image attachments
+  vision_analyzer: {
+    group: 'vision',
+    multi: false, // Fallback chain (try primary, then fallback)
+    minModels: 1,
+    maxModels: 3, // Primary + 2 fallbacks
+  },
 };
 
 // Explicit order for roles in each group
 const CORE_ROLE_ORDER = ['council_member', 'stage2_reviewer', 'chairman'];
 const CONTENT_ROLE_ORDER = ['document_writer'];
+const VISION_ROLE_ORDER = ['vision_analyzer'];
 const UTILITY_ROLE_ORDER = ['utility'];
 
 // Groups config - labels and descriptions come from translations (llmHub.groups.{groupKey})
@@ -282,6 +297,11 @@ const GROUPS: Record<string, { icon: typeof Users; color: string; order: string[
     icon: FileText,
     color: 'green',
     order: CONTENT_ROLE_ORDER,
+  },
+  vision: {
+    icon: Eye,
+    color: 'cyan',
+    order: VISION_ROLE_ORDER,
   },
   utility: {
     icon: Wrench,
@@ -333,6 +353,7 @@ const DEFAULT_MODELS: Record<string, string[]> = {
     'anthropic/claude-3-5-sonnet-20241022',
     'google/gemini-2.0-flash-001',
   ],
+  vision_analyzer: ['openai/gpt-4o', 'google/gemini-2.0-flash-001', 'anthropic/claude-sonnet-4'],
   utility: ['google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'anthropic/claude-3-5-haiku-20241022'],
 };
 
@@ -423,14 +444,31 @@ function ModelPill({ entry, canRemove, disabled, onModelChange, onRemove }: Mode
 // ============================================================================
 
 interface AddModelSelectProps {
+  role: string;
   usedModelIds: string[];
   disabled: boolean;
   onAdd: (modelId: string) => void;
 }
 
-function AddModelSelect({ usedModelIds, disabled, onAdd }: AddModelSelectProps) {
+function AddModelSelect({ role, usedModelIds, disabled, onAdd }: AddModelSelectProps) {
   const { t } = useTranslation();
-  const availableModels = MODELS.filter((m) => !usedModelIds.includes(m.id));
+
+  // Filter out already-used models
+  let availableModels = MODELS.filter((m) => !usedModelIds.includes(m.id));
+
+  // For vision_analyzer, only show multimodal-capable models
+  if (role === 'vision_analyzer') {
+    availableModels = availableModels.filter(
+      (m) =>
+        m.id.includes('gpt-4o') ||
+        m.id.includes('gpt-5') ||
+        m.id.includes('gemini') ||
+        m.id.includes('claude-3') || // All Claude 3.x models (Opus, Sonnet, Haiku) have vision
+        m.id.includes('claude-opus-4') || // Claude 4 Opus
+        m.id.includes('claude-sonnet-4') || // Claude 4 Sonnet
+        m.id.includes('kimi')
+    );
+  }
 
   // All models already in use - show disabled state with feedback
   if (availableModels.length === 0) {
@@ -1246,6 +1284,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                                     ))}
                                     {canAdd && (
                                       <AddModelSelect
+                                        role={role}
                                         usedModelIds={sortedModels.map((m) => m.model_id)}
                                         disabled={savingModel}
                                         onAdd={(modelId) => addModel(role, modelId)}
@@ -1274,6 +1313,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                                     })}
                                     {canAdd && (
                                       <AddModelSelect
+                                        role={role}
                                         usedModelIds={sortedModels.map((m) => m.model_id)}
                                         disabled={savingModel}
                                         onAdd={(modelId) => addModel(role, modelId)}

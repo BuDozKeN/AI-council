@@ -138,7 +138,7 @@ export function ResponseStyleSelector({
       {/* Title heading - ISS-077 */}
       <div className={styles.title}>{t('chat.responseStyle.title', 'Response Style')}</div>
 
-      {/* Department Default Option */}
+      {/* Department Default / Standard Option */}
       <label
         className={cn(styles.item, styles.departmentDefault, !isUsingOverride && styles.selected)}
       >
@@ -149,23 +149,35 @@ export function ResponseStyleSelector({
           checked={!isUsingOverride}
           onChange={() => handleSelect(null)}
           className={styles.radio}
-          aria-label={t('chat.responseStyle.departmentDefault', 'Department Default')}
+          aria-label={
+            departmentName
+              ? t('chat.responseStyle.departmentDefault', 'Department Default')
+              : t('chat.responseStyle.standard', 'Standard')
+          }
         />
         <div
           className={styles.itemIcon}
-          title={t('chat.responseStyle.usesDefault', 'Uses department defaults')}
+          title={
+            departmentName
+              ? t('chat.responseStyle.usesDefault', 'Uses department defaults')
+              : t('chat.responseStyle.standardDefault', 'Standard balanced responses')
+          }
         >
           <Building2 size={14} aria-hidden="true" />
         </div>
         <div className={styles.itemContent}>
           <span className={styles.itemLabel}>
-            {t('chat.responseStyle.departmentDefault', 'Department Default')}
+            {departmentName
+              ? t('chat.responseStyle.departmentDefault', 'Department Default')
+              : t('chat.responseStyle.standard', 'Standard')}
           </span>
           <span className={styles.itemDesc}>
-            {/* ISS-078: Clarify this is an auto-inherited setting */}
-            {t('chat.responseStyle.inheritFromDept', 'Auto: uses {{dept}} settings', {
-              dept: departmentName || t('common.department', 'department'),
-            })}
+            {departmentName
+              ? /* ISS-078: Clarify this is an auto-inherited setting */
+                t('chat.responseStyle.inheritFromDept', 'Auto: uses {{dept}} settings', {
+                  dept: departmentName,
+                })
+              : t('chat.responseStyle.standardDesc', 'Default balanced responses')}
           </span>
         </div>
         {!isUsingOverride && (

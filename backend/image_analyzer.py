@@ -16,9 +16,9 @@ from .model_registry import get_primary_model, get_primary_model_sync
 VISION_MODEL = get_primary_model_sync('vision_analyzer') or "openai/gpt-4o"
 
 
-async def _get_vision_model() -> str:
+async def _get_vision_model(company_id: Optional[str] = None) -> str:
     """Get vision model from registry (async)."""
-    model = await get_primary_model('vision_analyzer')
+    model = await get_primary_model('vision_analyzer', company_id)
     return model or VISION_MODEL
 
 # Mock mode delay range (seconds)
@@ -121,6 +121,7 @@ async def analyze_image(
     image_type: str = "image/png",
     custom_prompt: Optional[str] = None,
     image_name: str = "image",
+    company_id: Optional[str] = None,
 ) -> Optional[str]:
     """
     Analyze a single image using a vision-capable model.
@@ -130,6 +131,7 @@ async def analyze_image(
         image_type: MIME type of the image
         custom_prompt: Optional custom analysis prompt
         image_name: Name of the image (for mock mode logging)
+        company_id: Optional company ID for company-specific model selection
 
     Returns:
         Text description of the image, or None if analysis failed
@@ -165,8 +167,8 @@ async def analyze_image(
         "Content-Type": "application/json",
     }
 
-    # Get vision model from registry
-    vision_model = await _get_vision_model()
+    # Get vision model from registry (company-specific or global)
+    vision_model = await _get_vision_model(company_id)
 
     payload = {
         "model": vision_model,
@@ -195,6 +197,7 @@ async def analyze_image(
 async def analyze_images(
     images: List[Dict[str, Any]],
     user_query: str,
+    company_id: Optional[str] = None,
 ) -> str:
     """
     Analyze multiple images and create a combined context.
@@ -202,6 +205,7 @@ async def analyze_images(
     Args:
         images: List of image dicts with 'data' (bytes), 'type' (MIME type), 'name' (filename)
         user_query: The user's question to provide context for analysis
+        company_id: Optional company ID for company-specific model selection
 
     Returns:
         Combined text description of all images for the council
@@ -223,7 +227,8 @@ Be thorough so that other AI models can understand the image without seeing it."
             image_data=img['data'],
             image_type=img.get('type', 'image/png'),
             custom_prompt=prompt,
-            image_name=img.get('name', f'image_{i}')
+            image_name=img.get('name', f'image_{i}'),
+            company_id=company_id
         )
 
         if description:
