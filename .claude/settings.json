@@ -44,7 +44,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'echo \"\"; echo \"=== AxCouncil Session Started ===\"; echo \"CSS Budget: 1300KB source | 700KB built\"; echo \"\"; echo \"Quick Commands:\"; echo \"  /daily-health    - Morning health check\"; echo \"  /qa              - Pre-push quality check\"; echo \"  /security-watch  - Security monitoring\"; echo \"  /setup           - First-time setup\"; echo \"\"; echo \"Agents (ask me to use them):\"; echo \"  security-guardian, css-enforcer, mobile-tester\"; echo \"  council-ops, enterprise-readiness, web-researcher\"; echo \"\"; echo \"Skills auto-load when relevant (CSS, mobile, Radix, React, RLS, exit-readiness)\"; echo \"\"'"
+            "command": "bash .claude/hooks/session-banner.sh",
+            "timeout": 5
           }
         ]
       }
