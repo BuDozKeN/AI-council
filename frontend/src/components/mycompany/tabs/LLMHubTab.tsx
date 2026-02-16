@@ -463,9 +463,9 @@ function AddModelSelect({ role, usedModelIds, disabled, onAdd }: AddModelSelectP
         m.id.includes('gpt-4o') ||
         m.id.includes('gpt-5') ||
         m.id.includes('gemini') ||
-        m.id.includes('claude-opus') ||
-        m.id.includes('claude-sonnet-4') ||
-        m.id.includes('claude-3-5-sonnet') ||
+        m.id.includes('claude-3') || // All Claude 3.x models (Opus, Sonnet, Haiku) have vision
+        m.id.includes('claude-opus-4') || // Claude 4 Opus
+        m.id.includes('claude-sonnet-4') || // Claude 4 Sonnet
         m.id.includes('kimi')
     );
   }
