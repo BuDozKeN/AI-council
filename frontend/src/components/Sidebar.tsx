@@ -14,6 +14,7 @@ import {
   Search,
   Archive,
   Shield,
+  Trophy,
 } from 'lucide-react';
 import {
   useMockMode,
@@ -814,9 +815,6 @@ function Sidebar({
           onToggleCachingMode={toggleCachingMode}
           onOpenMyCompany={onOpenMyCompany ?? (() => {})}
           onOpenSettings={onOpenSettings ?? (() => {})}
-          onOpenAdmin={onOpenAdmin}
-          onOpenLeaderboard={onOpenLeaderboard}
-          isAdmin={isAdmin}
           onSignOut={onSignOut ?? (() => {})}
           onMouseEnter={handleExpandedAreaEnter}
           onMouseLeave={handleExpandedAreaLeave}
@@ -839,6 +837,15 @@ function Sidebar({
               title={t('sidebar.adminPortal', 'Platform Admin Portal')}
               onClick={onOpenAdmin}
               className="admin-icon-btn"
+            />
+          )}
+          {/* Leaderboard button - only for super admins */}
+          {isAdmin && onOpenLeaderboard && (
+            <SidebarIconButton
+              icon={<Trophy className="h-4 w-4" />}
+              title={t('sidebar.leaderboard', 'Leaderboard')}
+              onClick={onOpenLeaderboard}
+              className="leaderboard-icon-btn"
             />
           )}
           <SidebarIconButton

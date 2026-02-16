@@ -5,7 +5,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Briefcase, Settings, LogOut, Shield, Trophy } from 'lucide-react';
+import { Briefcase, Settings, LogOut } from 'lucide-react';
 import { DEV_MODE } from './hooks';
 
 interface User {
@@ -22,9 +22,6 @@ interface SidebarFooterProps {
   onToggleCachingMode: () => void;
   onOpenMyCompany: () => void;
   onOpenSettings: () => void;
-  onOpenAdmin?: (() => void) | undefined;
-  onOpenLeaderboard?: (() => void) | undefined;
-  isAdmin?: boolean | undefined;
   onSignOut: () => void;
   onMouseEnter?: (() => void) | undefined;
   onMouseLeave?: (() => void) | undefined;
@@ -42,9 +39,6 @@ export function SidebarFooter({
   onToggleCachingMode,
   onOpenMyCompany,
   onOpenSettings,
-  onOpenAdmin,
-  onOpenLeaderboard,
-  isAdmin = false,
   onSignOut,
   onMouseEnter,
   onMouseLeave,
@@ -99,28 +93,8 @@ export function SidebarFooter({
         </span>
       </div>
       <div className="sidebar-footer-buttons">
-        {/* Admin button - icon only for super admins */}
-        {isAdmin && onOpenAdmin && (
-          <button
-            className="footer-btn admin-btn"
-            onClick={onOpenAdmin}
-            title={t('sidebar.adminPortal', 'Platform Admin Portal')}
-            aria-label={t('sidebar.adminPortal', 'Platform Admin Portal')}
-          >
-            <Shield className="h-3.5 w-3.5" aria-hidden="true" />
-          </button>
-        )}
-        {/* Leaderboard button - super admins only */}
-        {isAdmin && onOpenLeaderboard && (
-          <button
-            className="footer-btn leaderboard-btn"
-            onClick={onOpenLeaderboard}
-            title={t('sidebar.leaderboard', 'Leaderboard')}
-            aria-label={t('sidebar.leaderboard', 'Leaderboard')}
-          >
-            <Trophy className="h-3.5 w-3.5" aria-hidden="true" />
-          </button>
-        )}
+        {/* Only show My Company, Settings, and Sign Out when expanded */}
+        {/* Admin and Leaderboard are available as icon-only in collapsed state */}
         <button
           className="footer-btn company-btn"
           onClick={onOpenMyCompany}
