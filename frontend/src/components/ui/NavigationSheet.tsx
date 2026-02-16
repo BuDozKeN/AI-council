@@ -34,11 +34,7 @@ export function NavigationSheet({
   };
 
   return (
-    <BottomSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      title={t('navigation.title', 'Navigation')}
-    >
+    <BottomSheet isOpen={isOpen} onClose={onClose} title={t('navigation.title', 'Navigation')}>
       <div className="navigation-sheet-content">
         <button
           type="button"
