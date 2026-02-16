@@ -353,11 +353,7 @@ const DEFAULT_MODELS: Record<string, string[]> = {
     'anthropic/claude-3-5-sonnet-20241022',
     'google/gemini-2.0-flash-001',
   ],
-  vision_analyzer: [
-    'openai/gpt-4o',
-    'google/gemini-2.0-flash-001',
-    'anthropic/claude-sonnet-4',
-  ],
+  vision_analyzer: ['openai/gpt-4o', 'google/gemini-2.0-flash-001', 'anthropic/claude-sonnet-4'],
   utility: ['google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'anthropic/claude-3-5-haiku-20241022'],
 };
 
@@ -462,14 +458,15 @@ function AddModelSelect({ role, usedModelIds, disabled, onAdd }: AddModelSelectP
 
   // For vision_analyzer, only show multimodal-capable models
   if (role === 'vision_analyzer') {
-    availableModels = availableModels.filter((m) =>
-      m.id.includes('gpt-4o') ||
-      m.id.includes('gpt-5') ||
-      m.id.includes('gemini') ||
-      m.id.includes('claude-opus') ||
-      m.id.includes('claude-sonnet-4') ||
-      m.id.includes('claude-3-5-sonnet') ||
-      m.id.includes('kimi')
+    availableModels = availableModels.filter(
+      (m) =>
+        m.id.includes('gpt-4o') ||
+        m.id.includes('gpt-5') ||
+        m.id.includes('gemini') ||
+        m.id.includes('claude-opus') ||
+        m.id.includes('claude-sonnet-4') ||
+        m.id.includes('claude-3-5-sonnet') ||
+        m.id.includes('kimi')
     );
   }
 
