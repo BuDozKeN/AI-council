@@ -107,6 +107,7 @@
 .settings-sidebar-actions {
   margin-top: auto; /* Push to bottom of sidebar */
   padding-top: var(--space-3);
+
   /* Removed border-top for better visual integration */
   display: flex;
   flex-direction: column;
@@ -127,6 +128,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+
   /* Add margin-bottom to match settings-tab spacing */
   margin-bottom: var(--space-1);
   text-align: left;
