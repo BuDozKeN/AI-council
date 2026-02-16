@@ -1,0 +1,43 @@
+/* NavigationSheet.css - Navigation bottom sheet styles */
+
+.navigation-sheet-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) 0;
+}
+
+.navigation-sheet-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  min-height: 56px;
+}
+
+.navigation-sheet-item:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.navigation-sheet-item:active {
+  background: var(--color-bg-hover);
+  transform: scale(0.98);
+}
+
+.navigation-sheet-icon {
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.navigation-sheet-label {
+  flex: 1;
+}

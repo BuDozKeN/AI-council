@@ -31,7 +31,48 @@
 
   .sidebar.mobile-open {
     transform: translateX(0);
-    box-shadow: var(--shadow-xl); /* Add shadow when open for depth */
+    box-shadow: none; /* No shadow needed for full-width */
+
+    /* CRITICAL FIX: Ensure sidebar has solid, opaque background when open on mobile */
+    background: var(--sidebar-bg-solid);
+  }
+
+  /* CRITICAL FIX: Ensure header is visible when sidebar is open on mobile */
+  .sidebar.mobile-open .sidebar-header {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* CRITICAL FIX: Ensure expanded panel is visible when sidebar is open on mobile */
+  .sidebar.mobile-open .sidebar-expanded-panel {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* CRITICAL FIX: Ensure footer is visible when sidebar is open on mobile */
+  .sidebar.mobile-open .sidebar-footer {
+    display: flex;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* CRITICAL FIX: Override panel slide-in animation on mobile - instant visibility */
+  .sidebar.mobile-open .sidebar-expanded-panel {
+    animation: none;
+    transform: none;
+  }
+}
+
+@media (width <= 640px) {
+  /* Full-width mobile drawer overlay */
+  .sidebar.sidebar--collapsed,
+  .sidebar.sidebar--hovered,
+  .sidebar.sidebar--pinned,
+  .sidebar {
+    width: 100%;
+    max-width: 100%;
   }
 }
 

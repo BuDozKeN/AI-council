@@ -622,6 +622,18 @@ function App() {
     setShowSignOutConfirm(false);
   }, [signOut]);
 
+  // Navigation handlers for swipe-up gesture (mobile navigation sheet)
+  const navigationHandlers = useMemo(
+    () => ({
+      onNewChat: handleNewConversation,
+      onOpenHistory: () => setIsMobileSidebarOpen(true),
+      onOpenLeaderboard: handleOpenLeaderboard,
+      onOpenMyCompany: handleOpenMyCompany,
+      onOpenSettings: handleOpenSettings,
+    }),
+    [handleNewConversation, handleOpenLeaderboard, handleOpenMyCompany, handleOpenSettings]
+  );
+
   // Memoized callback for MyCompany tab changes
   const handleMyCompanyTabChange = useCallback(
     (tab: MyCompanyTab) => {
@@ -1091,6 +1103,8 @@ function App() {
                   // Image upload
                   attachedImages={landingImages}
                   onImagesChange={setLandingImages}
+                  // Navigation sheet (swipe-up gesture on mobile)
+                  onOpenNavigation={navigationHandlers}
                 />
               </motion.div>
             ) : (
@@ -1174,6 +1188,8 @@ function App() {
                     selectedPreset={selectedPreset}
                     onSelectPreset={setSelectedPreset}
                     onOpenLLMHub={handleOpenLLMHub}
+                    // Navigation sheet (swipe-up gesture on mobile)
+                    onOpenNavigation={navigationHandlers}
                   />
                 </Suspense>
               </motion.div>

@@ -12,6 +12,14 @@
    which is the minimum usable width for admin tables.
    ============================================================================= */
 
+/* Tablet breakpoint - add bottom padding for fixed bottom nav */
+@media (width <= 1024px) {
+  .admin-main {
+    /* Bottom padding to account for fixed bottom nav (72px nav + 16px spacing) */
+    padding-bottom: 88px;
+  }
+}
+
 @media (width <= 640px) {
   .admin-portal {
     flex-direction: column;

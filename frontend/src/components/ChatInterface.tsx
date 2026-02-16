@@ -9,6 +9,8 @@ import { CouncilLoader } from './ui/CouncilLoader';
 import { WelcomeState, ContextIndicator, MessageList, ChatInput } from './chat';
 import { hapticLight } from '../lib/haptics';
 import { useImagePreUpload } from '../hooks/useImagePreUpload';
+import { useSwipeGesture } from '../hooks/useSwipeGesture';
+import { NavigationSheet } from './ui/NavigationSheet';
 import type { Conversation } from '../types/conversation';
 import type {
   Business,
@@ -119,6 +121,14 @@ interface ChatInterfaceProps {
   selectedPreset?: LLMPresetId | null;
   onSelectPreset?: (preset: LLMPresetId | null) => void;
   onOpenLLMHub?: () => void;
+  // Navigation sheet (swipe-up gesture on mobile)
+  onOpenNavigation?: {
+    onNewChat: () => void;
+    onOpenHistory: () => void;
+    onOpenLeaderboard: () => void;
+    onOpenMyCompany: () => void;
+    onOpenSettings: () => void;
+  };
 }
 
 function ChatInterface({
@@ -188,19 +198,29 @@ function ChatInterface({
   selectedPreset = null,
   onSelectPreset,
   onOpenLLMHub,
+  // Navigation sheet
+  onOpenNavigation,
 }: ChatInterfaceProps) {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState<'chat' | 'council'>('chat');
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [navSheetOpen, setNavSheetOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const userHasScrolledUp = useRef(false);
   const isSubmitting = useRef(false);
 
   // UXH-188: Save scroll position per conversation for restoration
   const scrollPositionsRef = useRef<Record<string, number>>({});
   const prevConversationIdRef = useRef<string | undefined>(undefined);
+
+  // Mobile detection for swipe gesture
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Pre-upload images on selection (not on send)
   const {
@@ -295,9 +315,27 @@ function ChatInterface({
     [removePreUploadedImage]
   );
 
+  // Swipe-up gesture to open navigation sheet (mobile only, at bottom of scroll)
+  const messagesSwipeRef = useSwipeGesture({
+    onSwipeUp: () => {
+      const container = messagesSwipeRef.current;
+      const isAtBottom = container
+        ? container.scrollTop + container.clientHeight >= container.scrollHeight - 10
+        : true;
+
+      if (isMobile && onOpenNavigation && isAtBottom) {
+        setNavSheetOpen(true);
+      }
+    },
+    threshold: 80,
+    edgeOnly: true,
+    edgeWidth: 50,
+    enabled: isMobile && !!onOpenNavigation,
+  });
+
   // Check if user is near the bottom of the scroll area
   const isNearBottom = () => {
-    const container = messagesContainerRef.current;
+    const container = messagesSwipeRef.current;
     if (!container) return true;
     const threshold = 100;
     return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
@@ -306,7 +344,7 @@ function ChatInterface({
   // Handle user scroll - track if they've scrolled up and show/hide scroll-to-top
   const handleScroll = () => {
     userHasScrolledUp.current = !isNearBottom();
-    const container = messagesContainerRef.current;
+    const container = messagesSwipeRef.current;
     if (container) {
       // Show scroll-to-top button when scrolled down more than 300px
       setShowScrollTop(container.scrollTop > 300);
@@ -320,12 +358,12 @@ function ChatInterface({
   };
 
   const scrollToTop = () => {
-    messagesContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    messagesSwipeRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Scroll to the last Stage 3 response (unused for now, kept for potential future use)
   // const scrollToLastStage3 = () => {
-  //   const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
+  //   const allStage3Elements = messagesSwipeRef.current?.querySelectorAll('.stage3');
   //   if (allStage3Elements && allStage3Elements.length > 0) {
   //     const targetElement = allStage3Elements[allStage3Elements.length - 1];
   //     targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -338,8 +376,8 @@ function ChatInterface({
   useEffect(() => {
     const prevId = prevConversationIdRef.current;
     const currId = conversation?.id;
-    if (prevId && prevId !== currId && messagesContainerRef.current) {
-      scrollPositionsRef.current[prevId] = messagesContainerRef.current.scrollTop;
+    if (prevId && prevId !== currId && messagesSwipeRef.current) {
+      scrollPositionsRef.current[prevId] = messagesSwipeRef.current.scrollTop;
     }
     prevConversationIdRef.current = currId;
   }, [conversation?.id]);
@@ -354,7 +392,7 @@ function ChatInterface({
       : undefined;
     if (savedPosition !== undefined && savedPosition > 0 && !scrollToStage3) {
       const timer = setTimeout(() => {
-        messagesContainerRef.current?.scrollTo({ top: savedPosition, behavior: 'instant' });
+        messagesSwipeRef.current?.scrollTo({ top: savedPosition, behavior: 'instant' });
         userHasScrolledUp.current = true;
       }, 50);
       return () => clearTimeout(timer);
@@ -370,7 +408,7 @@ function ChatInterface({
 
         if (scrollToResponseIndex !== null && scrollToResponseIndex !== undefined) {
           // Scroll to a specific response index
-          const allMessageGroups = messagesContainerRef.current?.querySelectorAll('.message-group');
+          const allMessageGroups = messagesSwipeRef.current?.querySelectorAll('.message-group');
           if (allMessageGroups && allMessageGroups.length > scrollToResponseIndex) {
             const messageGroup = allMessageGroups[scrollToResponseIndex];
             targetElement =
@@ -383,7 +421,7 @@ function ChatInterface({
 
         // Fallback: scroll to the last Stage 3
         if (!targetElement) {
-          const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
+          const allStage3Elements = messagesSwipeRef.current?.querySelectorAll('.stage3');
           if (allStage3Elements && allStage3Elements.length > 0) {
             targetElement = allStage3Elements[allStage3Elements.length - 1] ?? null;
           }
@@ -454,7 +492,7 @@ function ChatInterface({
     if (!isStreaming) return;
 
     // Scroll to bottom during streaming
-    const container = messagesContainerRef.current;
+    const container = messagesSwipeRef.current;
     if (container) {
       container.scrollTop = container.scrollHeight;
     }
@@ -579,7 +617,11 @@ function ChatInterface({
         </button>
       )}
 
-      <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
+      <div
+        className="messages-container"
+        ref={messagesSwipeRef as React.RefObject<HTMLDivElement>}
+        onScroll={handleScroll}
+      >
         {/* Persistent Context Indicator - shows question + context */}
         {hasMessages && (
           <ContextIndicator
@@ -779,6 +821,15 @@ function ChatInterface({
           />
         );
       })()}
+
+      {/* Navigation sheet - swipe-up gesture on mobile */}
+      {onOpenNavigation && (
+        <NavigationSheet
+          isOpen={navSheetOpen}
+          onClose={() => setNavSheetOpen(false)}
+          {...onOpenNavigation}
+        />
+      )}
     </div>
   );
 }

@@ -83,11 +83,11 @@ jobs:
           echo ""
 
           # Performance Budget Check - FAIL if exceeded
-          # Budget: 1420KB (raised from 1380KB to accommodate enterprise-grade
-          # responsive CSS: mobile touch targets, WCAG 2.1 AA compliance,
-          # responsive layouts added in mobile UX audit)
+          # Budget: 1450KB (raised from 1420KB to accommodate critical mobile UX fixes:
+          # swipe-up navigation, full-viewport gesture detection for Samsung devices,
+          # WCAG 2.1 AA touch targets, enterprise-grade responsive patterns)
           echo "💰 CSS Source Performance Budget:"
-          MAX_CSS_SOURCE_KB=1420
+          MAX_CSS_SOURCE_KB=1450
           if [ $TOTAL_KB -gt $MAX_CSS_SOURCE_KB ]; then
             echo "  ❌ FAILED: ${TOTAL_KB}KB exceeds budget of ${MAX_CSS_SOURCE_KB}KB"
             echo "  Action required: Reduce CSS bundle size or increase budget"

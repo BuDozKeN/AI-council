@@ -64,6 +64,14 @@ interface LandingHeroProps {
   // Image upload (passed up to App for submission)
   attachedImages?: UploadedImage[];
   onImagesChange?: (images: UploadedImage[]) => void;
+  // Navigation sheet (swipe-up gesture on mobile)
+  onOpenNavigation?: {
+    onNewChat: () => void;
+    onOpenHistory: () => void;
+    onOpenLeaderboard: () => void;
+    onOpenMyCompany: () => void;
+    onOpenSettings: () => void;
+  };
 }
 
 export function LandingHero({
@@ -101,6 +109,8 @@ export function LandingHero({
   // Image upload
   attachedImages = [],
   onImagesChange,
+  // Navigation sheet (swipe-up gesture on mobile)
+  onOpenNavigation,
 }: LandingHeroProps) {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
@@ -244,6 +254,8 @@ export function LandingHero({
             departmentPreset={departmentPreset}
             onSelectPreset={onSelectPreset}
             onOpenLLMHub={onOpenLLMHub}
+            // Navigation sheet (swipe-up gesture on mobile)
+            {...(onOpenNavigation && { onOpenNavigation })}
           />
 
           {/* Keyboard shortcut hint */}

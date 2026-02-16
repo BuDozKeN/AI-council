@@ -1,18 +1,6 @@
 /**
- * AxCouncil Design System - Single Source of Truth
- *
- * Style: Notion/Figma inspired - warm, soft, approachable
- *
- * USAGE:
- * - Import this file FIRST in your CSS chain
- * - Always use CSS variables, never hardcode values
- * - Use semantic tokens (--color-text-primary) not scale tokens (--gray-700)
- *
- * TOKEN OWNERSHIP:
- * - This file (design-tokens.css): Spacing, typography, shadows, radius, animations
- * - tailwind.css: Z-index scale (higher values for modals), color palettes, overlays
- *
- * NEVER hardcode hex colors, rgba(), or pixel values in components.
+ * Design Tokens: CSS Variables for spacing, typography, shadows, radius, animations.
+ * Import first. Use semantic tokens (--color-text-primary), never hardcode colors/pixels.
  */
 
 :root {

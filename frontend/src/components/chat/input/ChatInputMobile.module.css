@@ -12,8 +12,8 @@
   }
 
   .iconBtn {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
   }
 
@@ -23,10 +23,10 @@
   }
 
   .sendBtn {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     flex-shrink: 0;
   }
 
@@ -56,8 +56,8 @@
   }
 
   .resetAll {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
   }
 
   /* Allow mode toggle to shrink on narrow screens (S24 ~360px) so Zap icon fits */
@@ -126,5 +126,43 @@
   .sendBtn svg {
     width: 20px;
     height: 20px;
+  }
+}
+
+/* Extra small screens - very aggressive compaction for phones like Galaxy S24 */
+@media (width <= 414px) {
+  .omnibar {
+    padding: var(--space-1-5) var(--space-3);
+  }
+
+  .iconBtn {
+    width: 38px;
+    height: 38px;
+  }
+
+  .sendBtn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+  }
+
+  .sendBtn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .omniRight {
+    gap: 2px;
+    padding-right: var(--space-1-5);
+  }
+
+  .omniLeft {
+    gap: 2px;
+  }
+
+  .resetAll {
+    width: 38px;
+    height: 38px;
   }
 }
