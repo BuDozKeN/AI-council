@@ -350,14 +350,19 @@ describe('Sidebar', () => {
       expect(screen.getByTestId('icon-btn-sidebar.history')).toBeInTheDocument();
     });
 
-    it('renders Leaderboard icon button when onOpenLeaderboard provided', () => {
-      renderSidebar({ onOpenLeaderboard: vi.fn() });
-      expect(screen.getByTestId('icon-btn-sidebar.leaderboard')).toBeInTheDocument();
+    it('renders Leaderboard icon button for admins when onOpenLeaderboard provided', () => {
+      renderSidebar({ isAdmin: true, onOpenLeaderboard: vi.fn() });
+      expect(screen.getByTitle(/Leaderboard/i)).toBeInTheDocument();
     });
 
     it('does not render Leaderboard icon when onOpenLeaderboard is not provided', () => {
-      renderSidebar();
-      expect(screen.queryByTestId('icon-btn-sidebar.leaderboard')).not.toBeInTheDocument();
+      renderSidebar({ isAdmin: true });
+      expect(screen.queryByTitle(/Leaderboard/i)).not.toBeInTheDocument();
+    });
+
+    it('does not render Leaderboard icon for non-admins', () => {
+      renderSidebar({ isAdmin: false, onOpenLeaderboard: vi.fn() });
+      expect(screen.queryByTitle(/Leaderboard/i)).not.toBeInTheDocument();
     });
 
     it('renders collapsed footer with company, settings, signout icons', () => {
@@ -552,21 +557,8 @@ describe('Sidebar', () => {
       expect(onSignOut).toHaveBeenCalledTimes(1);
     });
 
-    it('shows admin button for admin users in expanded footer', async () => {
-      localStorage.setItem('sidebar-pinned', 'true');
-      const user = userEvent.setup();
-      const onOpenAdmin = vi.fn();
-      renderSidebar({ isAdmin: true, onOpenAdmin });
-
-      await user.click(screen.getByTestId('admin-btn'));
-      expect(onOpenAdmin).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not show admin button for non-admin users', () => {
-      localStorage.setItem('sidebar-pinned', 'true');
-      renderSidebar({ isAdmin: false });
-      expect(screen.queryByTestId('admin-btn')).not.toBeInTheDocument();
-    });
+    // Note: Admin & Leaderboard buttons were moved from expanded footer to collapsed sidebar
+    // See commit 8aef12e: "fix(sidebar): hide admin buttons in expanded view, show only in collapsed"
   });
 
   // =========================================================================
