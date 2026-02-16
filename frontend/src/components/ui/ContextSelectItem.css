@@ -1,0 +1,215 @@
+/**
+ * ContextSelectItem Styles
+ *
+ * SINGLE SOURCE OF TRUTH for selectable list item styling.
+ * Used by OmniBar, ChatInput, and DepartmentCheckboxItem.
+ *
+ * Two visual modes: checkbox (square/indigo) and radio (round/emerald).
+ * Optional accent color for department-style colored borders.
+ */
+
+/* =============================================================================
+   FORM CONTROLS - Hidden input, styled via label
+   ============================================================================= */
+
+.ctx-select-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ctx-select-input:focus-visible ~ .ctx-select-indicator {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* =============================================================================
+   DESKTOP STYLES
+   ============================================================================= */
+
+.ctx-select-item {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm-plus);
+  width: 100%;
+  min-height: 44px; /* WCAG 44px touch target */
+  padding: var(--space-2-5) var(--space-3);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: left;
+  user-select: none;
+}
+
+/* Accent-colored items get a left border (always present for layout stability) */
+.ctx-select-item.has-accent {
+  border-left: 3px solid transparent;
+  padding-left: var(--space-2-5);
+}
+
+.ctx-select-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.ctx-select-item.selected {
+  background: var(--color-bg-tertiary);
+}
+
+.ctx-select-item.has-accent.selected {
+  border-inline-start-color: var(--accent-color, var(--color-slate-500));
+}
+
+/* Indicator - checkbox mode (default): square, indigo */
+.ctx-select-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.ctx-select-indicator.checked {
+  background: var(--accent-color, var(--color-indigo-500));
+  border-color: var(--accent-color, var(--color-indigo-500));
+  color: var(--color-text-inverse);
+}
+
+/* Indicator - radio mode: round, emerald */
+.ctx-select-indicator.radio {
+  border-radius: var(--radius-full);
+}
+
+.ctx-select-indicator.radio.checked {
+  background: var(--color-emerald-500);
+  border-color: var(--color-emerald-500);
+}
+
+/* Icon inside indicator */
+.ctx-select-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.ctx-select-indicator.radio .ctx-select-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Label */
+.ctx-select-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =============================================================================
+   MOBILE STYLES - Triggered by .mobile class (not media queries)
+   ============================================================================= */
+
+.ctx-select-item.mobile {
+  gap: var(--gap-plus);
+  min-height: 56px;
+  padding: var(--space-3-5) var(--space-4);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  pointer-events: auto;
+  position: relative;
+  z-index: var(--z-base);
+}
+
+.ctx-select-item.mobile.has-accent {
+  border-inline-start-width: 4px;
+  padding-left: var(--space-3-5);
+}
+
+.ctx-select-item.mobile:active {
+  background: var(--color-bg-hover);
+  transform: scale(0.98);
+}
+
+.ctx-select-item.mobile.selected {
+  background: var(--color-bg-hover);
+}
+
+.ctx-select-item.mobile.has-accent.selected {
+  border-inline-start-color: var(--accent-color, var(--color-slate-500));
+}
+
+.ctx-select-item.mobile .ctx-select-indicator {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: var(--radius-md);
+}
+
+.ctx-select-item.mobile .ctx-select-indicator.radio {
+  border-radius: var(--radius-full);
+}
+
+.ctx-select-item.mobile .ctx-select-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.ctx-select-item.mobile .ctx-select-indicator.radio .ctx-select-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .ctx-select-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .ctx-select-item.selected {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .ctx-select-item.has-accent.selected {
+  border-inline-start-color: var(--accent-color, var(--color-slate-400));
+}
+
+.dark .ctx-select-indicator {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .ctx-select-indicator.checked {
+  background: var(--accent-color, var(--color-indigo-500));
+  border-color: var(--accent-color, var(--color-indigo-500));
+}
+
+.dark .ctx-select-indicator.radio.checked {
+  background: var(--color-emerald-500);
+  border-color: var(--color-emerald-500);
+}
+
+.dark .ctx-select-item.mobile {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .ctx-select-item.mobile:active {
+  background: var(--color-bg-hover);
+}
+
+.dark .ctx-select-item.mobile.selected {
+  background: var(--color-bg-hover);
+}
