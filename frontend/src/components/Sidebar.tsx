@@ -10,7 +10,6 @@ import {
   Settings,
   Building2,
   LogOut,
-  Trophy,
   MessageSquare,
   Search,
   Archive,
@@ -633,15 +632,6 @@ function Sidebar({
               isActive={hoveredIcon === 'history'}
               disabled={totalConversations === 0}
             />
-
-            {/* Leaderboard - if available */}
-            {onOpenLeaderboard && (
-              <SidebarIconButton
-                icon={<Trophy className="h-5 w-5" />}
-                title={t('sidebar.leaderboard')}
-                onClick={onOpenLeaderboard}
-              />
-            )}
           </div>
         )}
 

@@ -110,8 +110,8 @@ export function SidebarFooter({
             <Shield className="h-3.5 w-3.5" aria-hidden="true" />
           </button>
         )}
-        {/* Leaderboard button - mobile accessible (ISS-043) */}
-        {onOpenLeaderboard && (
+        {/* Leaderboard button - super admins only */}
+        {isAdmin && onOpenLeaderboard && (
           <button
             className="footer-btn leaderboard-btn"
             onClick={onOpenLeaderboard}
