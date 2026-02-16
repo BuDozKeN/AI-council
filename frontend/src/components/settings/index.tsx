@@ -203,13 +203,15 @@ export default function Settings({
                 <button
                   className="settings-action-btn admin-btn"
                   onClick={() => {
-                    onClose();
+                    // Navigate first to avoid race condition with onClose
                     onOpenAdmin();
+                    // Close settings modal after navigation starts
+                    setTimeout(() => onClose(), 0);
                   }}
-                  aria-label={t('sidebar.adminPortal', 'Admin Portal')}
+                  aria-label={t('settings.adminPortal', 'Admin Portal')}
                 >
                   <Shield size={18} className="tab-icon" aria-hidden="true" />
-                  <span className="tab-label">{t('sidebar.adminPortal', 'Admin Portal')}</span>
+                  <span className="tab-label">{t('settings.adminPortal', 'Admin Portal')}</span>
                 </button>
               )}
 

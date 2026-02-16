@@ -210,10 +210,6 @@
     font-size: 1rem;
   }
 
-  .mc-title-suffix {
-    font-size: 0.75rem;
-  }
-
   /* Hide company switcher label, show icon only */
   .mc-company-switcher {
     margin-top: var(--space-1);

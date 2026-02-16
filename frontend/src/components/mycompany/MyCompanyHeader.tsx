@@ -69,29 +69,18 @@ export function MyCompanyHeader({
       {/* ISS-221: Header content is now separate from the dismiss button area */}
       <div className="mc-header-content">
         <div className="mc-title-row">
-          <h1>
-            {/* ISS-238: Status indicator with visible text for clarity */}
-            {statusClass && (
-              <span
-                className={`mc-status-indicator ${statusClass}`}
-                aria-label={statusText}
-                title={statusText}
-              >
-                <span className="mc-status-dot" aria-hidden="true" />
-                <span className="mc-status-text">{statusText}</span>
-              </span>
-            )}
-            {companyName || 'Your Company'}
-          </h1>
-          <span
-            className="mc-title-suffix"
-            title={t(
-              'myCompany.commandCenterTooltip',
-              'Central hub for managing decisions, knowledge base, and company settings'
-            )}
-          >
-            {t('myCompany.commandCenter', 'Command Center')}
-          </span>
+          {/* ISS-238: Status indicator with visible text for clarity */}
+          {statusClass && (
+            <span
+              className={`mc-status-indicator ${statusClass}`}
+              aria-label={statusText}
+              title={statusText}
+            >
+              <span className="mc-status-dot" aria-hidden="true" />
+              <span className="mc-status-text">{statusText}</span>
+            </span>
+          )}
+          <h1>{companyName || 'Your Company'}</h1>
         </div>
         {/* Company switcher - now outside the dismiss button area (ISS-221) */}
         <div className="mc-company-switcher">
