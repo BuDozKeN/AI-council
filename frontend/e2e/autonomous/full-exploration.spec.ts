@@ -84,19 +84,19 @@ class ExplorationReporter {
   }
 
   printSummary(): void {
-    console.log('\n' + '='.repeat(60));
-    console.log('EXPLORATION SUMMARY');
-    console.log('='.repeat(60));
-    console.log(`Screens tested: ${this.result.screens.length}`);
-    console.log(`Elements interacted: ${this.result.elementsInteracted}`);
-    console.log(`Issues found: ${this.result.issues.length}`);
-    console.log(`  P0 (Blocker): ${this.result.issues.filter(i => i.severity === 'P0').length}`);
-    console.log(`  P1 (Critical): ${this.result.issues.filter(i => i.severity === 'P1').length}`);
-    console.log(`  P2 (Major): ${this.result.issues.filter(i => i.severity === 'P2').length}`);
-    console.log(`  P3 (Minor): ${this.result.issues.filter(i => i.severity === 'P3').length}`);
-    console.log(`Console errors: ${this.result.consoleErrors.length}`);
-    console.log(`Network errors: ${this.result.networkErrors.length}`);
-    console.log('='.repeat(60) + '\n');
+    console.warn('\n' + '='.repeat(60));
+    console.warn('EXPLORATION SUMMARY');
+    console.warn('='.repeat(60));
+    console.warn(`Screens tested: ${this.result.screens.length}`);
+    console.warn(`Elements interacted: ${this.result.elementsInteracted}`);
+    console.warn(`Issues found: ${this.result.issues.length}`);
+    console.warn(`  P0 (Blocker): ${this.result.issues.filter(i => i.severity === 'P0').length}`);
+    console.warn(`  P1 (Critical): ${this.result.issues.filter(i => i.severity === 'P1').length}`);
+    console.warn(`  P2 (Major): ${this.result.issues.filter(i => i.severity === 'P2').length}`);
+    console.warn(`  P3 (Minor): ${this.result.issues.filter(i => i.severity === 'P3').length}`);
+    console.warn(`Console errors: ${this.result.consoleErrors.length}`);
+    console.warn(`Network errors: ${this.result.networkErrors.length}`);
+    console.warn('='.repeat(60) + '\n');
   }
 }
 
@@ -105,7 +105,7 @@ async function exploreScreen(
   screen: { path: string; name: string },
   reporter: ExplorationReporter
 ): Promise<void> {
-  console.log(`\n>>> Exploring: ${screen.name} (${screen.path})`);
+  console.warn(`\n>>> Exploring: ${screen.name} (${screen.path})`);
 
   // Navigate to screen
   await page.goto(screen.path);
@@ -126,7 +126,7 @@ async function exploreScreen(
 
   // Test buttons
   const buttonCount = await buttons.count();
-  console.log(`  Found ${buttonCount} buttons`);
+  console.warn(`  Found ${buttonCount} buttons`);
 
   for (let i = 0; i < Math.min(buttonCount, 10); i++) {
     try {
@@ -170,7 +170,7 @@ async function exploreScreen(
 
   // Test inputs
   const inputCount = await inputs.count();
-  console.log(`  Found ${inputCount} inputs`);
+  console.warn(`  Found ${inputCount} inputs`);
 
   for (let i = 0; i < Math.min(inputCount, 5); i++) {
     try {
@@ -199,12 +199,12 @@ async function exploreScreen(
 
   // Test links (only navigation, not external)
   const linkCount = await links.count();
-  console.log(`  Found ${linkCount} links`);
+  console.warn(`  Found ${linkCount} links`);
 
   // Just count links for now, don't click to avoid navigation
   reporter.incrementInteractions();
 
-  console.log(`  ✓ Completed: ${screen.name}`);
+  console.warn(`  ✓ Completed: ${screen.name}`);
 }
 
 test.describe('Autonomous App Exploration', () => {
@@ -236,9 +236,9 @@ test.describe('Autonomous App Exploration', () => {
     const blockers = result.issues.filter((i) => i.severity === 'P0');
 
     if (blockers.length > 0) {
-      console.log('\n❌ BLOCKERS FOUND:');
+      console.warn('\n❌ BLOCKERS FOUND:');
       blockers.forEach((b) => {
-        console.log(`  ${b.id}: ${b.element} - ${b.actual}`);
+        console.warn(`  ${b.id}: ${b.element} - ${b.actual}`);
       });
     }
 
@@ -268,8 +268,8 @@ test.describe('Autonomous App Exploration', () => {
     );
 
     if (criticalErrors.length > 0) {
-      console.log('\nConsole errors found:');
-      criticalErrors.forEach((e) => console.log(`  - ${e.slice(0, 100)}`));
+      console.warn('\nConsole errors found:');
+      criticalErrors.forEach((e) => console.warn(`  - ${e.slice(0, 100)}`));
     }
 
     // Warn but don't fail for console errors (they might be expected)
@@ -299,10 +299,10 @@ test.describe('Autonomous App Exploration', () => {
     }
 
     // Log load times
-    console.log('\nPage load times:');
+    console.warn('\nPage load times:');
     loadTimes.forEach((lt) => {
       const status = lt.time > 3000 ? '❌' : lt.time > 1000 ? '⚠️' : '✓';
-      console.log(`  ${status} ${lt.screen}: ${lt.time}ms`);
+      console.warn(`  ${status} ${lt.screen}: ${lt.time}ms`);
     });
 
     // Assert average load time is acceptable
