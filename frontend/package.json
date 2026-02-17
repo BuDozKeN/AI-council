@@ -147,5 +147,8 @@
     "*.{json,md}": [
       "prettier --write"
     ]
+  },
+  "overrides": {
+    "tmp": ">=0.2.4"
   }
 }
