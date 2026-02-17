@@ -380,6 +380,7 @@ function ChatInterface({
       scrollPositionsRef.current[prevId] = messagesSwipeRef.current.scrollTop;
     }
     prevConversationIdRef.current = currId;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation?.id]);
 
   // Handle scroll when conversation loads or changes
@@ -445,6 +446,7 @@ function ChatInterface({
       scrollToBottom();
     }
     return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scrollToStage3, scrollToResponseIndex, conversation, onScrollToStage3Complete]);
 
   // Auto-scroll during streaming - only if user hasn't scrolled up
@@ -496,6 +498,7 @@ function ChatInterface({
     if (container) {
       container.scrollTop = container.scrollHeight;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [streamingTextLength, lastMsg]);
 
   const handleSubmit = async (e: React.FormEvent) => {

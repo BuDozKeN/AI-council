@@ -360,6 +360,7 @@ export default function ProjectModal({
               onChange={(e) => setEditedName(e.target.value)}
               placeholder={t('modals.projectName')}
               disabled={saving}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
             />
           </div>
@@ -434,6 +435,7 @@ export default function ProjectModal({
                   disabled={saving}
                   rows={8}
                   className="pm-context-editor"
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                 />
               </AIWriteAssist>
@@ -508,6 +510,7 @@ export default function ProjectModal({
               onChange={(e) => setEditedName(e.target.value)}
               placeholder={t('modals.enterProjectName')}
               disabled={saving}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
             />
           </div>

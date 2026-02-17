@@ -720,6 +720,7 @@ export default function SaveKnowledgeModal({
                           onChange={(e) => setNewProjectName(e.target.value)}
                           placeholder={t('modals.enterProjectName')}
                           disabled={creatingProject}
+                          // eslint-disable-next-line jsx-a11y/no-autofocus
                           autoFocus
                         />
                       </div>
