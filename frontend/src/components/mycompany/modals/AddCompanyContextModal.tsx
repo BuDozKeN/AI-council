@@ -177,6 +177,7 @@ export function AddCompanyContextModal({
               )}
               disabled={structuring}
               rows={6}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               enterKeyHint="done"
             />

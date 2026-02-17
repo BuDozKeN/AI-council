@@ -1704,6 +1704,7 @@ function InviteUserModal({ onClose, onSuccess }: InviteUserModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="admin-input"
+              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
             />
           </div>
