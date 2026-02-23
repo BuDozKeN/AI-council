@@ -131,6 +131,11 @@
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.16"
   },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "10.2.2"
+    }
+  },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",
